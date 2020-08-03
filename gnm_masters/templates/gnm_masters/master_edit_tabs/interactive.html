@@ -1,0 +1,82 @@
+<fieldset id="gnm-metadataeditfieldset">
+    <ul class="left">
+        {% with interactiveform.gnm_master_interactive_title as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with interactiveform.gnm_master_interactive_projectref as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with interactiveform.gnm_master_interactive_owner as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with interactiveform.gnm_master_interactive_publish as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with interactiveform.gnm_master_interactive_remove as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        <br>
+        <br>
+        <li><i>This is the gateway to the Interactive Publishing system.<br>
+            For more information consult this Googledoc: <a target="_blank" href="https://docs.google.com/a/guardian.co.uk/document/d/1WE5zXb_Tp08-lqLCM6-SCms0aaljnQvW7TI6KrhX7OE">How to access 'Base Interactive' videos</a>
+        </i></li>
+    </ul>
+    <ul class="right">
+        <div class="boxed">
+            {% with interactiveform.gnm_master_interactive_status as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with interactiveform.gnm_master_interactive_uploadstatus as field %}
+                <li class="{% if field.field.required %}required{% endif %} with-button">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    <a class="button left upload_status_update positioned-under-label" href="{% url master_trigger master.id 'interactive' %}" data-target="id_gnm_master_interactive_uploadstatus">Publish</a>
+                    <div class="spinner positioned-under-label hidden">
+                        <img src="/sitemedia/img/gnm/loading.gif">
+                    </div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with interactiveform.gnm_master_interactive_uploadlog as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    <a href="#" class="refresh_upload_logs_button"><i class='fa fa-refresh'></i> Auto refresh</a>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+        </div>
+    </ul>
+</fieldset>
+<input type="submit" value="Save" class="visible-when-edit button submit_metadataform right" />

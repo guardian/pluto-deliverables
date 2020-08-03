@@ -1,0 +1,99 @@
+{% load static syndicationstats_customfilters %}
+
+<fieldset id="gnm-metadataeditfieldset">
+    <ul class="left">
+        <li>
+            <ul style="width: 100%">
+
+            <li>
+                <label>Status</label>{{ master.md.gnm_mastergeneric_syndication_rule_applied|automationindicator }}
+            </li>
+            <li>
+                <label>Mainstream Syndication</label>{{ master.md.gnm_mastergeneric_syndication_rule_applied|msinfo }}
+            </li>
+            <li>
+                <label>YouTube</label>{{ master.md.gnm_mastergeneric_syndication_rule_applied|ytinfo }}
+            </li>
+            <li>
+                <label>Dailymotion</label>{{ master.md.gnm_mastergeneric_syndication_rule_applied|dminfo }}
+            </li>
+
+            <li>
+                <label>Facebook</label>{{ master.md.gnm_mastergeneric_syndication_rule_applied|fbinfo }}
+            </li>
+
+            <li>
+                <label>Spotify</label>{{ master.md.gnm_mastergeneric_syndication_rule_applied|sinfo }}
+            </li>
+
+            <li>
+                <label>Rule that applied</label>{{ master.md.gnm_mastergeneric_syndication_rule_applied|ruleinfo }}
+            </li>
+
+            <li>
+                <label>Processed At</label>{{ master.md.gnm_mastergeneric_syndication_rule_applied|displaydateinfo }}
+            </li>
+
+            <li>
+                <label>Errors</label>{{ master.md.gnm_mastergeneric_syndication_rule_applied|automationerrors }}
+            </li>
+
+            <li>
+                <span style="overflow: hidden;">
+                <button type="button" class="blue-button" id="synd-automation-rerun" onclick="synd_automation_rerun();">Re-run syndication automation</button>
+                <img src="{% static 'img/core/loading-small.gif' %}" id="loading-throbber" style="float: none; vertical-align: middle; display: none;">
+                </span>
+                <hr id="rerun-results-spacer" style="display: none;">
+                <pre id="rerun-results"></pre>
+                <span style="display:none;" id="reload-block">
+                    <a href="#" onclick="location.reload();">Reload</a> the page to see the results
+                </span>
+            </li>
+            </ul>
+        </li>
+    </ul>
+</fieldset>
+
+<script>
+    $.ready(function(){
+        $('synd_automation_rerun').click(synd_automation_rerun);
+    });
+
+function synd_automation_rerun(){
+    //event.preventDefault();
+
+    var payload = JSON.stringify({
+        entityId: "{{ master.md.id }}",
+        fields: {
+            gnm_master_mainstreamsyndication_uploadstatus: "{{ master.md.gnm_master_mainstreamsyndication_uploadstatus }}",
+            gnm_master_dailymotion_uploadstatus: "{{ master.md.gnm_master_dailymotion_uploadstatus }}",
+            gnm_master_youtube_uploadstatus: "{{ master.md.gnm_master_youtube_uploadstatus }}",
+            gnm_master_website_uploadstatus: "{{ master.md.gnm_master_website_uploadstatus }}",
+            gnm_mastermediawall_uploadstatus: "{{ master.md.gnm_mastermediawall_uploadstatus }}",
+            gnm_master_generic_status: "{{ master.md.gnm_master_generic_status }}",
+        },
+        triggerField: "gnm_master_generic_status"
+    });
+
+    $('#synd-automation-rerun').attr('disabled','disabled').addClass("blue-button-disabled");
+    $('#loading-throbber').show();
+    $('#rerun-results-spacer').show();
+
+    $('#rerun-results').text("Background task triggered...");
+    $.ajax({
+        url: "/gnm_businesslogic/rerun/mdtrigger_syndication_automation.xml/1/?sync=true",
+        type: "POST",
+        data: payload,
+        dataType: "json",
+        contentType: "application/json"
+    }).done(function(data, textStatus, jqXHR){
+        $('#rerun-results').text(jqXHR.responseText + ".");
+        $('#reload-block').show();
+    }).fail(function(jqXHR, textStatus, errorThrown){
+        $('#rerun-results').text(jqXHR.responseText);
+    }).always(function(){
+        $('#synd-automation-rerun').removeAttr('disabled').removeClass("blue-button-disabled");
+        $('#loading-throbber').hide();
+    });
+}
+</script>

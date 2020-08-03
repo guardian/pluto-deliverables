@@ -1,0 +1,267 @@
+{% themeextends "base.html" %}
+
+{% block extra_script %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/app/metadata/metadataform.js" charset="utf-8"></script>
+{% endblock extra_script %}
+
+{% block title %}create master{% endblock %}
+
+{% block body %}
+<div class="header">
+    <h1>
+        <div class="breadcrumb">
+            <img src="{{STATIC_URL}}/img/gnm/icon_commission.png">
+            <a href="/commission/{{ vs_site_id}}-{{ projectmodel.commission.collection_id }}">{{ projectmodel.commission.gnm_commission_title }}<img class="breadcrumb-arrow" src="{{STATIC_URL}}/img/gnm/breadcrumb_arrow_lightgray.png"> </a>
+        </div>
+        <div class="breadcrumb">
+            <img src="{{STATIC_URL}}/img/gnm/icon_project.png">
+            <a href="/project/{{ vs_site_id }}-{{ projectmodel.collection_id }}">{{ projectmodel.gnm_project_headline }}<img class="breadcrumb-arrow" src="{{STATIC_URL}}/img/gnm/breadcrumb_arrow_lightgray.png"> </a>
+        </div>
+        <div class="breadcrumb">
+            <img src="{{STATIC_URL}}/img/gnm/icon_master.png">
+            Create master
+        </div>
+    </h1>
+</div>
+<div class="content">
+    <div class="widepagecontent">
+        <h5 class="block-header master">Master</h5>
+        <div class="row">
+            <div class="panel">
+                <form method="post" class="formmain">
+                    {% csrf_token %}
+                    <fieldset id="gnm-metadataeditfieldset">
+                        <ul class="left">
+
+                            {% with websiteform.gnm_master_website_headline as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with websiteform.gnm_master_website_primary_tone as field %}
+                                <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}<img src="{{STATIC_URL}}/img/gnm/question_mark_icon.jpg" height="24px" class="tip" title="Should be one of video documentary, explainer, news, comment, analysis, features, interviews, performance"/>{{ field }}
+                                    <div class="subtext"></div>
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with websiteform.gnm_master_website_standfirst as field %}
+                                <li class="{% if field.field.required %}required{% endif %} with-subtext"><div class="labelholder">{{ field.label_tag }}</div><div class="textareaholder">{{ field }}</div>
+
+                                    <div class="subtext wordcount"></div>
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with websiteform.gnm_master_website_trail as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with websiteform.gnm_master_website_byline as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with assetform.gnm_asset_keywords as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with genericform.gnm_master_language as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<img src="{{STATIC_URL}}/img/gnm/question_mark_icon.jpg" height="24px" class="tip" title="Primary language - an indication of the language that the series was originally made for.  If, for example, it is mixed-language with English subtitles you should indicate English"/>{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with genericform.gnm_master_licensor as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with assetform.gnm_asset_owner as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+                            
+                            {% with genericform.gnm_master_generic_intendeduploadplatforms as field %}
+                                <li class="{% if field.field.required %}required{% endif %} multiple-checkbox">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            <li>
+                                <label>Applicable rules</label>
+                                <ul class="applicable-rules">
+                                    {% with genericform.gnm_master_generic_preventmobileupload as field %}
+                                        <li class="master-checkbox">{{ field }}
+                                            {% for error in field.errors %}
+                                                <label class="errorlist">{{ error }}</label>
+                                            {% endfor %}
+                                        </li>
+                                    {% endwith %}
+
+                                    {% with genericform.gnm_master_generic_containsadultcontent as field %}
+                                        <li class="master-checkbox">{{ field }}
+                                            {% for error in field.errors %}
+                                                <label class="errorlist">{{ error }}</label>
+                                            {% endfor %}
+                                        </li>
+                                    {% endwith %}
+
+                                    {% with genericform.gnm_master_generic_ukonly as field %}
+                                        <li class="master-checkbox">{{ field }}
+                                            {% for error in field.errors %}
+                                                <label class="errorlist">{{ error }}</label>
+                                            {% endfor %}
+                                        </li>
+                                    {% endwith %}
+
+                                    {% with genericform.gnm_master_generic_whollyowned as field %}
+                                        <li class="master-checkbox">{{ field }}
+                                            {% for error in field.errors %}
+                                                <label class="errorlist">{{ error }}</label>
+                                            {% endfor %}
+                                        </li>
+                                    {% endwith %}
+
+                                    {% with genericform.gnm_storage_rule_deep_archive as field %}
+                                        <li class="master-checkbox">{{ field }}
+                                            {% for error in field.errors %}
+                                                <label class="errorlist">{{ error }}</label>
+                                            {% endfor %}
+                                        </li>
+                                    {% endwith %}
+
+                                    {% with genericform.gnm_storage_rule_deletable as field %}
+                                        <li class="master-checkbox">{{ field }}
+                                            {% for error in field.errors %}
+                                                <label class="errorlist">{{ error }}</label>
+                                            {% endfor %}
+                                        </li>
+                                    {% endwith %}
+
+                                    {% with genericform.gnm_storage_rule_sensitive as field %}
+                                        <li class="master-checkbox">{{ field }}
+                                            {% for error in field.errors %}
+                                                <label class="errorlist">{{ error }}</label>
+                                            {% endfor %}
+                                        </li>
+                                    {% endwith %}
+                                </ul>
+                            </li>    
+
+
+                            {% with genericform.gnm_master_generic_publish as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with genericform.gnm_master_generic_remove as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+                            
+                                                    
+                        </ul>
+                        <ul class="right">
+                            {% comment %}
+                            <!-- image picker disabled for new masters -->
+                            <!-- https://trello.com/c/PLGLfG6C/762-pick-image-in-create-master-still-visible-when-users-click-on-create-master-within-a-project-page-they-still-get-the-holding-ima -->
+                            {% with genericform.gnm_master_generic_holdingimage_16x9 as field %}
+                                <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}{{ field }}
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+                            {% endcomment %}
+
+                            {% with assetform.gnm_asset_category as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with genericform.gnm_master_generic_uploadtype as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+                            
+                            {% with genericform.gnm_master_generic_source as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+
+                            {% with genericform.gnm_master_generic_production_office as field %}
+                                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                                    {% for error in field.errors %}
+                                        <label class="errorlist">{{ error }}</label>
+                                    {% endfor %}
+                                </li>
+                            {% endwith %}
+                        </ul>
+                    </fieldset>
+                    <span style="float: right;">
+                        <img src="{{STATIC_URL}}img/icon-ajax-loader.gif" style="display: none;" id="id_submit_throbber">
+                        <input type="submit" id="id_gnm_form_submit" value="Save" class="button submit_metadataform" />
+                    </span>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+
+{% block footer %}
+    {% include "gnm_metadataform/footer_scripts.html" %}
+    <script src="{{STATIC_URL}}js/gnm/gnm_functions.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            $("ul.tabs").tabs("div.panes > div");
+            $('.gnm-always-disabled').parents('.edit-select-wrapper').addClass('gnm-always-disabled');
+        });
+
+        gnm_set_production_office('#id_gnm_master_generic_production_office');
+    </script>
+{% endblock footer %}

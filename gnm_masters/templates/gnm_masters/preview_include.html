@@ -1,0 +1,35 @@
+{% load videopreview masterpage_customtags %}
+{% with master.get_ingest_job as job %}
+    {% if master.md.gnm_master_upload_lock == 'locked' %}
+        <span>Upload in progress. <a href="{% url master_ingest master.id %}">Ingest new file</a></span>
+    {% else %}
+        {% if not job and not previews %}
+            <a id="upload_media" href="{% url master_ingest master.id %}" class="positioned-under-label visible-when-readonly button submit_metadataform">Associate Master file</a>
+            <div id="upload_media_info" class="visible-when-edit positioned-under-label">Save and exit edit mode to upload media.</div>
+            <img class="imagepicker_preview" src="/sitemedia/img/no-thumbnail.png" />
+        {% elif not job and previews %}
+            {% previewplayer item %}
+            <a id="upload_media" href="{% url master_ingest master.id %}?is_update={{ is_update }}" class="positioned-under-label visible-when-edit button submit_metadataform">Update Master</a>
+        {% else %}
+            {% with job.getStatus as status %}
+                {% if status == 'FAILED_TOTAL' or status == 'FINISHED_WARNING' %}
+                    <span>Ingest failed, <a href="#" onclick="javascript: $.ajax('{% url master_retry_ingest master.id %}', {type:'POST', data: {jobid: '{{ job.getId }}'}, success: function() { window.location.reload(); }});">Retry</a> or <a href="{% url master_ingest master.id %}">Ingest new file</a></span>
+                {% else %}
+                    {% if status == 'FINISHED' %}
+                        {% if previews %}
+                            {% previewplayer item %}
+                            <a id="upload_media" href="{% url master_ingest master.id %}?is_update={{ is_update }}" class="positioned-under-label visible-when-edit button submit_metadataform">Update Master</a>
+                        {% else %}
+                            <img class="imagepicker_preview" src="/sitemedia/img/no-thumbnail.png" />
+                            <a id="upload_media" href="{% url master_ingest master.id %}?is_update={{ is_update }}" class="positioned-under-label visible-when-edit button submit_metadataform">Update Master</a>
+                        {% endif %}
+                    {% else %}
+
+                    <span>Processing ({{ job.getCurrentStepDescription }}){{ job.getTranscodeProgress|show_percentage }}</span>
+
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+    {% endif %}
+    {% endif %}
+{% endwith %}

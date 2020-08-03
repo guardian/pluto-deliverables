@@ -1,0 +1,125 @@
+<fieldset id="gnm-metadataeditfieldset">
+    <ul class="left">
+
+        {% with syndicationform.gnm_master_mainstreamsyndication_title as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with syndicationform.gnm_master_mainstreamsyndication_description as field %}
+            <li class="{% if field.field.required %}required{% endif %}"><div class="labelholder">{{ field.label_tag }}</div><div class="textareaholder">{{ field }}</div>
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with syndicationform.gnm_master_mainstreamsyndication_keywords as field %}
+            <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}{{ field }}
+                <div class="subtext">contributor, keywords, series, section</div>
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with syndicationform.gnm_master_mainstreamsyndication_owner as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        <li>
+            <label>Applicable rules</label>
+            <ul class="applicable-rules">
+                {% with syndicationform.gnm_master_mainstreamsyndication_containsadultcontent as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+            </ul>
+        </li>
+
+        {% with syndicationform.gnm_master_mainstreamsyndication_publish as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with syndicationform.gnm_master_mainstreamsyndication_remove as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with syndicationform.gnm_master_mainstreamsyndication_aol_master_category as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with syndicationform.gnm_master_mainstreamsyndication_aol_subcategory as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+    </ul>
+    <ul class="right">
+        {% with syndicationform.gnm_master_mainstreamsyndication_holdingimage as field %}
+            <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        <div class="boxed">
+            {% with syndicationform.gnm_master_mainstreamsyndication_status as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with syndicationform.gnm_master_mainstreamsyndication_uploadstatus as field %}
+                <li class="{% if field.field.required %}required{% endif %} with-button">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    <a class="button left upload_status_update positioned-under-label" href="{% url master_trigger master.id 'syndication' %}" data-target="id_gnm_master_mainstreamsyndication_uploadstatus">Publish</a>
+                    <div class="spinner positioned-under-label hidden">
+                        <img src="/sitemedia/img/gnm/loading.gif">
+                    </div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with syndicationform.gnm_master_mainstreamsyndication_uploadlog as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    <a href="#" class="refresh_upload_logs_button"><i class='fa fa-refresh'></i> Auto refresh</a>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            <li>
+                <label>Publish</label>
+            </li>
+        </div>
+    </ul>
+</fieldset>
+<input type="submit" value="Save" class="visible-when-edit button submit_metadataform right" />

@@ -1,0 +1,232 @@
+{% themeextends "base.html" %}
+
+{% load staticfiles%}
+
+{% block title %}masters{% endblock %}
+
+{% block body %}
+
+<div class="header">
+    <h1>Masters</h1>
+</div>
+<div class="searchfield">
+    <form method="get" id="" action="{% url masters_search %}">
+        {% csrf_token %}
+        <div class="searchfield-small">
+            {{ search_form.freetext }}
+            <input type="image" title="Search" class="gnm-searchbutton submit_metadataform" src="{{STATIC_URL}}img/gnm/search_small.png">
+        </div>
+    </form>
+</div>
+<div class="content">
+    <div class="widepagecontent">
+        <h5 class="block-header master">Latest masters</h5>
+        {% if not 'showhidden' in request.get_full_path %}<div><a href="{% url masters %}?showhidden">Show hidden</a></div>{% endif %}
+            <div class="row">
+                <ul class="tabs">
+                    <li class="selected"><a href="#"><em>My</em></a></li>
+                    <li><a href="#"><em>All</em></a></li>
+                    {% for group in working_groups %}
+                    {% if 'showhidden' in request.get_full_path or not group.hide and group.load_on_pageload %}
+                        <li><a href="#"><em>{{ group.name }}</em></a></li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                <div class="panes">
+                <div id="tab1" class="clearfix tab" data-loaded="true">
+                    <table class="generictbl" id="mytable">
+                        <thead>
+                            <tr>
+                                <th><a href="#">Thumbnail</a></th>
+                                <th><a href="#">Master title</a></th>
+                                <th><a href="#">Commission title</a></th>
+                                <th><a href="#">Project title</a></th>
+                                <th><a href="#">Group</a></th>
+                                <th><a href="#">Destination</a></th>
+                                <th><a href="#">Publish date</a></th>
+                                <th><a href="#">Remove date</a></th>
+                                <th><a href="#">Created</a></th>
+                                <th><a href="#">Status</a></th>
+                                <th><a href="#">Duration</a></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="tab2" class="clearfix tab" data-loaded="true">
+                    <div class="owner_filter"><label class="list-filter" for="id-userselector-all">Filter by owner:</label></div>
+                    <table class="generictbl" id="alltable">
+                        <thead>
+                        <tr>
+                            <th><a href="#">Thumbnail</a></th>
+                            <th><a href="#">Master title</a></th>
+                            <th><a href="#">Commission title</a></th>
+                            <th><a href="#">Project title</a></th>
+                            <th><a href="#">Group</a></th>
+                            <th><a href="#">Destination</a></th>
+                            <th><a href="#">Publish date</a></th>
+                            <th><a href="#">Remove date</a></th>
+                            <th><a href="#">Created</a></th>
+                            <th><a href="#">Status</a></th>
+                            <th><a href="#">Duration</a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                {% for group in working_groups %}
+                {% if 'showhidden' in request.get_full_path or not group.hide and group.load_on_pageload %}
+                    <div id="tab_{{ group.name|slugify }}" class="clearfix tab"{% if group.load_on_pageload %} data-loaded="true"{% endif %}>
+                        <div class="owner_filter_group_{{ group.uuid }}"><label class="list-filter" for="id-userselector-{{ group.uuid }}">Filter by owner:</label></div>
+                        <table class="generictbl" id="table_{{ group.name|slugify }}">
+                            <thead>
+                                <tr>
+                                    <th><a href="#">Thumbnail</a></th>
+                                    <th><a href="#">Master title</a></th>
+                                    <th><a href="#">Commission title</a></th>
+                                    <th><a href="#">Project title</a></th>
+                                    <th><a href="#">Group</a></th>
+                                    <th><a href="#">Destination</a></th>
+                                    <th><a href="#">Publish date</a></th>
+                                    <th><a href="#">Remove date</a></th>
+                                    <th><a href="#">Created</a></th>
+                                    <th><a href="#">Status</a></th>
+                                    <th><a href="#">Duration</a></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>
+
+{% block js %}
+<script type="text/javascript" src="{% static 'gnm_projects/get_owners.js' %}"></script>
+<script type="text/javascript" charset="utf-8">
+
+    function fnCreateSelect( aData, elementId )
+    {
+        var selector = $('<select>', {id: elementId});
+        selector.append($('<option>', {value: ""}).text("All"));
+        for(var i=0;i<aData.length;++i){
+            selector.append($('<option>', {value: aData[i]}).text(aData[i]))
+        }
+        return selector;
+    }
+
+    masterlink = { "fnRender": function (oObj) {
+        return '<a href="/master/' + oObj.aData[11] + '/">' + oObj.aData[1] + '</a>';
+    }};
+
+    $(document).ready(function() {
+
+        $.getJSON('/commission/api/users/', function(data) {
+            $("div.owner_filter").each( function () {
+                $(this).append(fnCreateSelect( getOwners(data), "id-userselector-all" ));
+                $('select', this).change( function () {
+                    const username = $(this).val();
+                    dtConfigAll.fnServerParams = function (aoData) {
+                        aoData.push({
+                            "name": "owner",
+                            "value": username
+                        });
+                        aoData.push({
+                            "name": "search_string",
+                            "value": "user__username__icontains"
+                        });
+                    };
+                    dtConfigAll.bDestroy = true;
+                    oTable = $('#alltable').dataTable(dtConfigAll);
+                } );
+            } );
+        } );
+
+        var genericDatatableConfig = {
+            "bProcessing": true,
+            "bServerSide": true,
+            "bLengthChange": false,
+            "aoColumns": [{ "sType": "html" },masterlink,null,null,null,null,null,null,null,null,null],
+            "aoColumnDefs" : [{"bSortable" : false, "aTargets" : [ "no-sorting" ]}],
+            "iDisplayLength": parseInt('15',10),
+            "sDom": '<"top"ifpl>rt<"bottom"><"clear">',
+            "aaSorting": [[ 8, 'desc' ]],
+            "oLanguage": {
+                "sSearch": "",
+                "sInfo": 'Showing _START_ to _END_ of _TOTAL_ masters'
+            },
+            "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
+                nRow.className = nRow.className + " clickableRow";
+                if(aData[12] == '') {
+                    nRow.setAttribute('data-url', "/vs/item/" + aData[11]);
+                } else {
+                    nRow.setAttribute('data-url', "/master/" + aData[11]);
+                }
+                nRow.addEventListener('click', function() {
+                    window.document.location = $(this).data('url');
+                });
+                return nRow;
+            }
+        };
+
+        const dtConfig = Object.assign({sAjaxSource: "{% url my_masters_api %}"}, genericDatatableConfig);
+
+        $('#mytable').dataTable(dtConfig);
+
+        const dtConfigAll = Object.assign({sAjaxSource: "{% url masters_search_api %}"}, genericDatatableConfig);
+
+        var oTable = $('#alltable').dataTable(dtConfigAll);
+
+        var dtConfigGroup = Object.assign({}, genericDatatableConfig);
+
+        {% for group in working_groups %}
+        {% if 'showhidden' in request.get_full_path or not group.hide and group.load_on_pageload %}
+            dtConfigGroup.sAjaxSource = "{% url masters_api group.uuid %}";
+            $.getJSON('/commission/api/users/', function(data) {
+                $("div.owner_filter_group_{{ group.uuid }}").each( function () {
+                    $(this).append(fnCreateSelect( getOwners(data), "id-userselector-{{ group.uuid }}" ));
+                    $('select', this).change( function () {
+                        const username = $(this).val();
+                        dtConfigGroup.fnServerParams = function (aoData) {
+                            aoData.push({
+                                "name": "owner",
+                                "value": username
+                            });
+                            aoData.push({
+                                "name": "search_string",
+                                "value": "user__username__icontains"
+                            });
+                        };
+                        dtConfigGroup.sAjaxSource = "{% url masters_api group.uuid %}";
+                        dtConfigGroup.bDestroy = true;
+                        window['oTableGroup' + '{{ group.uuid }}'] = $('#table_{{ group.name|slugify }}').dataTable(dtConfigGroup);
+                        $('#table_{{ group.name|slugify }}').css('width', '');
+                    } );
+                } );
+            } );
+            window['oTableGroup' + '{{ group.uuid }}'] = $('#table_{{ group.name|slugify }}').dataTable(dtConfigGroup);
+        {% endif %}
+        {% endfor %}
+
+        $("ul.tabs").tabs("div.panes > div");
+        $("ul.tabs").flexMenu();
+
+        $('div.dataTables_filter input').val();
+
+        $('.dataTables_filter input').attr("placeholder", "Filter list");
+
+        $('.clickableRow').click(function() {
+            window.document.location = $(this).data('url');
+        });
+
+    });
+</script>
+{% endblock js %}
+{% endblock body %}

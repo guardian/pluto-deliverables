@@ -1,0 +1,28 @@
+<div class="media-atom-selection" data-media-atom-url="{{ MEDIA_ATOM_URL }}">
+    <label for="id_gnm_master_mediaatom_atomid">Media Atom ID</label>
+
+    {% if not master.md.gnm_master_mediaatom_atomid %}
+        {% include 'gnm_masters/fields/media_atom/fragments/add.html' %}
+    {% else %}
+        {% include 'gnm_masters/fields/media_atom/fragments/replace.html' %}
+    {% endif %}
+</div>
+
+<template class="media-atom__modal-template">
+    <div class="modal media-atom__modal">
+        <div class="modal__content">
+            <div class="modal__content__header">
+                <button type="button" class="modal__dismiss">
+                    <span class="modal__dismiss--icon"></span>
+                    Close
+                </button>
+            </div>
+            <div class="modal__content__body">
+                <iframe class="media-atom__modal" src="{{ MEDIA_ATOM_URL }}/video/videos?embeddedMode=preview&plutoTitle={{ master.md.gnm_master_website_headline }}"></iframe>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script src="{{STATIC_URL}}js/gnm/media-atom.js"></script>
+<link rel="stylesheet" href="{{STATIC_URL}}gnm/css/media-atom.css">

@@ -1,0 +1,75 @@
+<fieldset id="gnm-metadataeditfieldset">
+    <ul class="left">
+        {% with mastermediawallform.gnm_mastermediawall_output_filename as field %}
+
+        <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<span class="validation_error"></span>{{ field }}
+            {% for error in field.errors %}
+            <label class="errorlist">{{ error }}</label>
+            {% endfor %}
+        </li>
+        {% endwith %}
+
+        {% with mastermediawallform.gnm_mastermediawall_media_wall_flags as field %}
+
+        <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<span class="validation_error"></span>{{ field }}
+            {% for error in field.errors %}
+            <label class="errorlist">{{ error }}</label>
+            {% endfor %}
+        </li>
+        {% endwith %}
+
+        {% with mastermediawallform.gnm_mastermediawall_publication_time as field %}
+        <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<span class="validation_error"></span>{{ field }}
+            {% for error in field.errors %}
+            <label class="errorlist">{{ error }}</label>
+            {% endfor %}
+        </li>
+        {% endwith %}
+    </ul>
+
+    <ul class="right">
+        <div class="boxed">
+            {% with mastermediawallform.gnm_mastermediawall_status as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}
+                <div class="edit-select-wrapper">
+                    <div class="select-arrow-hider"></div>
+                    {{ field }}
+                </div>
+                {% for error in field.errors %}
+                <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+            {% endwith %}
+
+            {% with mastermediawallform.gnm_mastermediawall_uploadstatus as field %}
+            <li class="{% if field.field.required %}required{% endif %} with-button">{{ field.label_tag }}
+                <div class="edit-select-wrapper">
+                    <div class="select-arrow-hider"></div>
+                    {{ field }}
+                </div>
+                <a class="button left upload_status_update positioned-under-label"
+                   href="{% url master_trigger master.id 'mediawall' %}"
+                   data-target="id_gnm_mastermediawall_uploadstatus">Publish</a>
+                <div class="spinner positioned-under-label hidden">
+                    <img src="/sitemedia/img/gnm/loading.gif">
+                </div>
+                {% for error in field.errors %}
+                <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+            {% endwith %}
+
+            {% with mastermediawallform.gnm_mastermediawall_uploadlog as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                <a href="#" class="refresh_upload_logs_button"><i class='fa fa-refresh'></i>
+                    Auto refresh</a>
+                {% for error in field.errors %}
+                <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+            {% endwith %}
+        </div>
+    </ul>
+</fieldset>
+<input type="submit" value="Save"
+       class="visible-when-edit button submit_metadataform right"/>

@@ -1,0 +1,153 @@
+{
+  "item": [
+    {
+      "metadata": {
+        "group": [
+          "Asset"
+        ],
+        "timespan": [
+          {
+            "field": [
+              {
+                "name": "title",
+                "value": [
+                  {
+                    "value": "Kevin Spacey goes presidential at the Tony awards –  video",
+                    "uuid": "bf9355b1-ce04-4b1b-862e-1c863ac08f2a",
+                    "user": "smith",
+                    "timestamp": "2017-06-12T08:52:49.093+0000",
+                    "change": "VX-19346935"
+                  }
+                ],
+                "uuid": "e594f60d-2d30-43e7-8c16-ec5e51cbbdb0",
+                "user": "smith",
+                "timestamp": "2017-06-12T08:52:49.093+0000",
+                "change": "VX-19346935"
+              },
+              {
+                "name": "created",
+                "value": [
+                  {
+                    "value": "2017-06-12T06:57:16.410Z",
+                    "uuid": "d766490f-6961-4f2a-9dda-9c07b6a19a39",
+                    "user": "system",
+                    "timestamp": "2017-06-12T06:57:18.413+0000",
+                    "change": "VX-19345578"
+                  }
+                ],
+                "uuid": "3e05046b-5c59-4f90-8ca7-b66698c0c3ba",
+                "user": "system",
+                "timestamp": "2017-06-12T06:57:18.413+0000",
+                "change": "VX-19345578"
+              },
+              {
+                "name": "durationSeconds",
+                "value": [
+                  {
+                    "value": "97.28",
+                    "uuid": "92b76594-ccf1-470b-a88f-968e3f2fde08",
+                    "user": "system",
+                    "timestamp": "2017-06-12T07:55:23.838+0000",
+                    "change": "KP-19346233"
+                  }
+                ],
+                "uuid": "fa2cf17b-b01e-4b55-8e82-e7b2f4cfbea0",
+                "user": "system",
+                "timestamp": "2017-06-12T07:55:23.838+0000",
+                "change": "KP-19346233"
+              },
+              {
+                "name": "gnm_mm_ref"
+              },
+              {
+                "name": "gnm_storage_rule_projects_completed"
+              },
+              {
+                "name": "gnm_asset_file_last_modified"
+              },
+              {
+                "name": "gnm_asset_file_created"
+              },
+              {
+                "name": "gnm_asset_filming_location"
+              },
+              {
+                "name": "gnm_asset_restrictions_apply"
+              },
+              {
+                "name": "gnm_mm_caption"
+              },
+              {
+                "name": "gnm_asset_category"
+              },
+              {
+                "name": "gnm_asset_status"
+              },
+              {
+                "name": "gnm_storage_rule_deep_archive"
+              },
+              {
+                "name": "gnm_storage_rule_deletable"
+              },
+              {
+                "name": "gnm_asset_createdby"
+              },
+              {
+                "name": "gnm_mm_photographer"
+              },
+              {
+                "name": "gnm_asset_owner"
+              },
+              {
+                "name": "gnm_type"
+              },
+              {
+                "name": "gnm_storage_rule_projects_held"
+              },
+              {
+                "name": "gnm_asset_restrictions_notes"
+              },
+              {
+                "name": "gnm_mm_provider"
+              },
+              {
+                "name": "portal_mf484519"
+              },
+              {
+                "name": "gnm_asset_fee_notes"
+              },
+              {
+                "name": "gnm_mm_headline"
+              },
+              {
+                "name": "gnm_mm_copyright"
+              },
+              {
+                "name": "gnm_asset_filename"
+              },
+              {
+                "name": "portal_mf182228"
+              },
+              {
+                "name": "gnm_storage_rule_sensitive"
+              },
+              {
+                "name": "gnm_asset_keywords"
+              },
+              {
+                "name": "gnm_asset_description"
+              },
+              {
+                "name": "gnm_asset_user_keywords"
+              }
+            ],
+            "group": [],
+            "start": "-INF",
+            "end": "+INF"
+          }
+        ]
+      },
+      "id": "VX-2686619"
+    }
+  ]
+}

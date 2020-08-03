@@ -1,0 +1,239 @@
+{% load masterpage_customtags static %}
+
+<fieldset id="gnm-metadataeditfieldset">
+    <ul class="left">
+        {% with youtubeform.gnm_master_youtube_youtubeurl as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}
+
+                {% if field.value|is_string %}
+                <a class="visible-when-readonly" target="_blank" href="{{ field.value }}">{{ field.value }}</a>
+                {% else %}
+                <ul>
+                    {% for individual_value in field.value %}
+                    <li>
+                        <a class="visible-when-readonly" target="_blank" href="{{ individual_value }}" style="vertical-align: center;">
+                            <img src="{% static 'gnm_masters/img/youtube-bullet.png' %}" style="vertical-align: center; height: 24px;">
+                            {{ individual_value }}
+                        </a>
+                        <span class="custom-uri-status">{% pluginblock pluto_uri_status "youtube" individual_value %}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <span class="visible-when-edit">{{ field }}</span>
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with youtubeform.gnm_master_youtube_title as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with youtubeform.gnm_master_youtube_description as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with youtubeform.gnm_master_youtube_keywords as field %}
+            <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}{{ field }}
+                <div class="subtext">contributor, keywords, series, section</div>
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with youtubeform.gnm_master_youtube_category as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with youtubeform.gnm_master_youtube_channelid as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with youtubeform.gnm_master_youtube_owner as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with youtubeform.gnm_master_youtube_license as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        <li>
+            <label>Applicable rules</label>
+            <ul class="applicable-rules">
+                {% with youtubeform.gnm_master_youtube_allowresponses as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_containsadultcontent as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_allowembedding as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_allowratings as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_allowcomments as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_matchingpolicy as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_apply_image_stabilisation as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_hide_public_statistics as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_embeddable as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_picture_enhance as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with youtubeform.gnm_master_youtube_notify_channel_subscribers as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+            </ul>
+        </li>
+
+        {% with youtubeform.gnm_master_youtube_publish as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+    </ul>
+    <ul class="right">
+        {% with youtubeform.gnm_master_youtube_holdingimage as field %}
+            <li id="yt_img_download_link" style="display:block">{{ field.value }}</li>
+            <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        <div class="boxed">
+            {% with youtubeform.gnm_master_youtube_uploadtype as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with youtubeform.gnm_master_youtube_status as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with youtubeform.gnm_master_youtube_uploadstatus as field %}
+                <li class="{% if field.field.required %}required{% endif %} with-button">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    <a class="button left upload_status_update positioned-under-label" href="{% url master_trigger master.id 'youtube' %}" data-uploadtype="gnm_master_youtube_uploadtype" data-target="id_gnm_master_youtube_uploadstatus">Publish</a>
+                    <div class="spinner positioned-under-label hidden">
+                        <img src="/sitemedia/img/gnm/loading.gif">
+                    </div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with youtubeform.gnm_master_youtube_uploadlog as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    <a href="#" class="refresh_upload_logs_button"><i class='fa fa-refresh'></i> Auto refresh</a>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+        </div>
+    </ul>
+</fieldset>
+<input type="submit" value="Save" class="visible-when-edit button submit_metadataform right" />
