@@ -1,19 +1,23 @@
-
-
 import json
 import logging
 import os
 from urllib.request import pathname2url
 from lxml import etree as ET
+from gnm_vidispine_errors.error_handling import is_error, raise_error, log_vs_error_from_resp
+from gnm_vidispine_utils import vs_calls
+from gnm_vidispine_utils.md_utils import E, tag
 
-
-from portal.plugins.gnm_misc_utils.helpers import parse_xml
-from portal.plugins.gnm_vidispine_errors.error_handling import is_error, raise_error, log_vs_error_from_resp
-from portal.plugins.gnm_vidispine_utils import vs_calls
-from portal.plugins.gnm_vidispine_utils.md_utils import E, tag
-from portal.plugins.gnm_asset_folder.tasks import _run_helper_script
 
 logger = logging.getLogger(__name__)
+
+
+def parse_xml(data):
+    parser = ET.XMLParser(recover=True, encoding='utf-8')
+    if isinstance(data, str) or isinstance(data, bytes):
+        doc = ET.fromstring(data, parser=parser)
+    else:
+        doc = ET.parse(data, parser=parser)
+    return doc
 
 
 def vidispine_escape(path):
@@ -40,9 +44,11 @@ def add_to_collection(user, collection_id, item_id):
 
 
 def create_import_job(user, absolute_path, item_id):
-    logger.info('Taking ownership of {file} by running helper script. Users should still have access via the gid'.format(file=absolute_path))
-    dir_name = os.path.dirname(absolute_path)
-    _run_helper_script(dir_name, None, True, override_owner=os.getuid())
+    ### FIXME: we need to come up with a way of doing this; probably by re-using asset folder functionality again.
+
+    # logger.info('Taking ownership of {file} by running helper script. Users should still have access via the gid'.format(file=absolute_path))
+    # dir_name = os.path.dirname(absolute_path)
+    # _run_helper_script(dir_name, None, True, override_owner=os.getuid())
 
     open(absolute_path, 'rb')
 

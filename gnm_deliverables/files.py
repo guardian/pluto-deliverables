@@ -4,7 +4,9 @@ import stat
 from collections import namedtuple
 
 from django.utils.timezone import datetime
+import logging
 
+logger = logging.getLogger(__name__)
 
 FileInfo = namedtuple('FileInfo', 'absolute_path path size access_dt modified_dt changed_dt')
 
@@ -43,6 +45,7 @@ def ts_to_dt(timestamp, millis=False):
 
 def find_files_for_deliverable(name):
     deliverable_path = get_path_for_deliverable(name)
+    print("find_files_for_deliverable: scanning {0}".format(deliverable_path))
     for root, dirs, files in os.walk(deliverable_path):
         for f in files:
             if f[0] == '.':

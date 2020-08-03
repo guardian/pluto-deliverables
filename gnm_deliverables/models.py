@@ -9,10 +9,9 @@ from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.timezone import now
+from datetime import date
 
-from portal.plugins.gnm_smartsearches.views import ModelSearchAPIView
-from portal.plugins.gnm_vidispine_errors.exceptions import VSException
-from portal.plugins.gnm_vidispine_utils.md_utils import E
+from gnm_vidispine_errors.exceptions import VSException
 from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
     DELIVERABLE_ASSET_STATUSES_DICT
 from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
@@ -30,14 +29,15 @@ logger = logging.getLogger(__name__)
 
 
 class Deliverable(models.Model):
-    from portal.plugins.gnm_projects.models import ProjectModel
     project_id = models.CharField(null=False, blank=False, max_length=61)
     name = models.CharField(null=False, blank=False, unique=True, max_length=255)
     created = models.DateTimeField(null=False, blank=False, auto_now_add=True)
-    parent_project = models.ForeignKey(to=ProjectModel, null=True) #need to add a mgt command to sync this
 
     def sync_assets_from_file_system(self):
         assets_on_fs = []
+        added_count = 0
+        removed_count = 0
+
         for f in find_files_for_deliverable(self.name):
             asset, created = DeliverableAsset.objects.get_or_create(
                 filename=f.path,
@@ -53,6 +53,7 @@ class Deliverable(models.Model):
             assets_on_fs.append(asset)
             if created:
                 logger.info('Asset created: %s' % asset)
+                added_count+=1
             else:
                 logger.info('Asset already existed: %s' % asset)
                 # Update defaults
@@ -70,7 +71,9 @@ class Deliverable(models.Model):
         delete_count = assets_to_delete.count()
         if delete_count > 0:
             assets_to_delete.delete()
+            removed_count+=1
             logger.info('Deleted %s asset rows' % delete_count)
+        return {"added":added_count,"removed":removed_count}
 
     @cached_property
     def path(self):
@@ -178,7 +181,7 @@ class DeliverableAsset(models.Model):
 
     created_from_existing_item = models.BooleanField(default=False)
 
-    deliverable = models.ForeignKey(Deliverable, related_name='assets')
+    deliverable = models.ForeignKey(Deliverable, related_name='assets', on_delete=models.PROTECT)
 
     def __init__(self, *args, **kwargs):
         super(DeliverableAsset, self).__init__(*args, **kwargs)
@@ -273,9 +276,9 @@ class DeliverableAsset(models.Model):
     def size_string(self):
         return sizeof_fmt(self.size)
 
-    @cached_property
-    def changed_string(self):
-        return ModelSearchAPIView.dateformat(self.changed_dt)
+    # @cached_property
+    # def changed_string(self):
+    #     return date.strftime('%d/%m/%Y %I:%M %p') if self.changed_dt else ''
         
         
     def type_allows_many(self):

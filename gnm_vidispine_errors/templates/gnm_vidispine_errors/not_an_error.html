@@ -1,0 +1,13 @@
+{% themeextends "base_error.html" %}
+{% load i18n %}
+{% block heading %}{% trans 'Problem' %}{% endblock heading %}
+{% block content %}
+<div class="content">
+    <div class="widepagecontent">
+        <h5 class="block-header">Problem</h5>
+        <div class="row">
+            <p>Something went wrong. Please try again and if the problem persists, please contact your administrator.</p>
+        </div>
+    </div>
+</div>
+{% endblock content %}

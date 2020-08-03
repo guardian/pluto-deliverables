@@ -6,7 +6,7 @@ import re
 from collections import namedtuple
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.forms.models import modelformset_factory
 from django.http import Http404
@@ -15,43 +15,174 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import TemplateView
 from rest_framework import mixins
 from rest_framework.authentication import BasicAuthentication
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView
+from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView, ListAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
-from portal.plugins.gnm_asset_folder.mixins import AssetFolderUtilsMixin
-from portal.plugins.gnm_misc_utils.views import GuardianBaseView
-from portal.plugins.gnm_projects.exceptions import NotAProjectError
-from portal.plugins.gnm_projects.models import VSProject, ProjectModel
-from portal.plugins.gnm_misc_utils.csrf_exempt_session_authentication import CsrfExemptSessionAuthentication
-from portal.plugins.gnm_smartsearches.views import ModelSearchAPIView
-from portal.plugins.gnm_vidispine_errors.exceptions import VSException
-from portal.plugins.gnm_vidispine_utils import vs_helpers
+#from gnm_misc_utils.csrf_exempt_session_authentication import CsrfExemptSessionAuthentication
+from gnm_vidispine_errors.exceptions import VSException
 from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, DELIVERABLE_ASSET_STATUS_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
 from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
-from .models import Deliverable
-from .models import DeliverableAsset
-from .serializers import DeliverableAssetSerializer
-from portal.plugins.gnm_misc_utils.helpers import inform_sentry_exception
+from .models import Deliverable, DeliverableAsset
+from .serializers import DeliverableAssetSerializer, DeliverableSerializer
 
 logger = logging.getLogger(__name__)
 
-ProjectPair = namedtuple('ProjectPair', 'project project_model')
+
+def inform_sentry_exception(err):
+    pass
+
+
+class NewDeliverablesAPIList(ListAPIView):
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+    serializer_class = DeliverableSerializer
+
+    def get_queryset(self):
+        ###FIXME: need to implement pagination, total count, etc.
+        return Deliverable.objects.all()
+
+
+class NewDeliverablesAPICreate(CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+    parser_classes = (JSONParser, )
+    serializer_class = DeliverableSerializer
+
+
+class NewDeliverableAssetAPIList(ListAPIView):
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+    serializer_class = DeliverableAssetSerializer
+
+    def get_queryset(self):
+        bundle_id = self.request.GET["project_id"]
+        parent_bundle = Deliverable.objects.get(project_id=bundle_id)
+        return DeliverableAsset.objects.filter(deliverable=parent_bundle)
+
+    def get(self, *args, **kwargs):
+        try:
+            return super(NewDeliverableAssetAPIList,self).get(*args,**kwargs)
+        except Deliverable.DoesNotExist:
+            return Response({"status":"error", "detail": "Project not known"},status=404)
+        except KeyError:
+            return Response({"status":"error","detail": "you must specify a project_id= query param"},status=400)
+
+
+class NewDeliverableAPIScan(APIView):
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+
+    def post(self, request):
+        try:
+            bundle = Deliverable.objects.get(project_id=request.GET["project_id"])
+            results = bundle.sync_assets_from_file_system()
+            return Response({"status":"ok","detail":"resync performed", **results}, status=200)
+        except Deliverable.DoesNotExist:
+            return Response({"status":"error", "detail": "Project not known"},status=404)
+        except Exception as e:
+            return Response({"status":"error","detail":str(e)},status=500)
+
+
+class ModelSearchAPIView(APIView):
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        simple catchall to ensure that exceptions are caught
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        try:
+            return super(ModelSearchAPIView, self).dispatch(request,*args,**kwargs)
+        except Exception as e:
+            inform_sentry_exception("Not able to load ModelSearchApiView")
+            raise
+
+    def get(self, request):
+        search = request.GET.get('sSearch', None)
+        start = int(request.GET.get('iDisplayStart',0))
+        count = int(request.GET.get('iDisplayLength',100))
+        order_count = int(request.GET.get('iSortingCols', '0'))
+        columns = self.columns()
+        owner = request.GET.get('owner', None)
+        search_string = request.GET.get('search_string', None)
+
+        qs = self.objects()
+        q = self.filter(request.user)
+        if search:
+            q2 = Q()
+            for x in self.search_columns():
+                q2 |= Q(**{(x + '__icontains'): search})
+            q &= q2
+        qs = qs.filter(q)
+        order_by = []
+        for x in range(order_count):
+            try:
+                sort_col = int(request.GET.get('iSortCol_%s' % x))
+                col = columns[sort_col]
+            except IndexError:
+                col = None
+            if not col:
+                logger.warning('invalid sort column index %s' % sort_col)
+                continue
+            sign = '-' if request.GET.get('sSortDir_%s' % x, None) == 'desc' else ''
+            order_by.append(sign + col)
+        if order_by:
+            qs = qs.order_by(*order_by)
+        if owner == None:
+            qs = qs.all()
+        elif search_string == 'gnm_commission_owner__username__icontains':
+            qs = qs.all().filter(gnm_commission_owner__username__icontains=owner)
+        elif search_string == 'gnm_project_username__username__icontains':
+            qs = qs.all().filter(gnm_project_username__username__icontains=owner)
+        elif search_string == 'user__username__icontains':
+            qs = qs.all().filter(user__username__icontains=owner)
+        hits = len(qs)
+        qs = self.prepare_data(qs[start:start + count], hits)
+        return Response({'aaData': qs, 'sEcho': int(request.GET.get('sEcho', 0)), 'iTotalDisplayRecords': hits, 'iTotalRecords': hits})
+
+    def objects(self):
+        # e.g. MasterModel.objects
+        raise Exception('This method must be overridden')
+
+    def columns(self):
+        # columns returned to datatable
+        return []
+
+    def search_columns(self):
+        # columns to perform full text search in
+        return []
+
+    def filter(self, user):
+        # the entire query must match
+        return Q()
+
+    def prepare_data(self, data, hits):
+        # return a list of lists of column data
+        raise Exception('This method must be overridden')
+
+    @staticmethod
+    def dateformat(date):
+        return date.strftime('%d/%m/%Y %I:%M %p') if date else ''
 
 
 class DeliverablesListView(TemplateView):
     template_name = "gnm_deliverables/deliverables.html"
 
     def get_context_data(self, **kwargs):
-        from portal.plugins.gnm_vidispine_utils.vs_helpers import working_groups
-        print(working_groups)
+        ###FIXME: replace with a REST call to pluto-core
         return {
             "title": "Deliverable Bundles",
-            "working_groups": working_groups
+            "working_groups": []
         }
 
 
@@ -133,49 +264,26 @@ class DeliverablesSearchAPIView(ModelSearchAPIView):
         return rtn
 
 
-class DeliverablesBaseView(GuardianBaseView):
+class DeliverablesBaseView(TemplateView):
     title = ''
+    template_name = 'gnm_deliverables/deliverables.html'
 
     def get_project(self):
-        try:
-            project_id = self.kwargs.get('project_id', None)
-            if project_id is None:
-                pk = self.kwargs.get('pk', None)
-                deliverable = Deliverable.objects.get(pk=pk)
-                project_id = deliverable.project_id
-            project = VSProject(project_id, self.request.user)
-            pm, created = ProjectModel.get_or_create_from_project(project, project.user)
-            return ProjectPair(project=project, project_model=pm)
-        except (NotAProjectError, Deliverable.DoesNotExist):
-            raise Http404
+        logger.warning("get_project not implemented yet")
+        return None
 
-    def get_extra_context_data(self):
+    def get_context_data(self, **kwargs):
         from django.conf import settings
-        project_pair = self.get_project()
+
         return dict(
             DEBUG=str(settings.DEBUG).lower(),
             title=self.get_title(),
-            project=project_pair.project,
-            project_model=project_pair.project_model,
+            project=self.get_project(),
             DELIVERABLE_ASSET_STATUS_NOT_INGESTED=DELIVERABLE_ASSET_STATUS_NOT_INGESTED,
             DELIVERABLE_ASSET_STATUS_INGESTED=DELIVERABLE_ASSET_STATUS_INGESTED,
             DELIVERABLE_ASSET_STATUS_INGESTING=DELIVERABLE_ASSET_STATUS_INGESTING,
             DELIVERABLE_ASSET_STATUS_INGEST_FAILED=DELIVERABLE_ASSET_STATUS_INGEST_FAILED
         )
-
-    def get_title(self):
-        return self.title
-
-    def get_template(self, template_name):
-        return super(DeliverablesBaseView, self).get_template(self.template_name)
-
-    def get(self, request):
-        extra_context = self.get_extra_context_data()
-        return self.main(request, self.template, extra_context=extra_context)
-
-    def post(self, request):
-        extra_context = self.get_extra_context_data()
-        return self.main(request, self.template, extra_context=extra_context)
 
 
 class DeliverableCreateView(DeliverablesBaseView):
@@ -186,12 +294,11 @@ class DeliverableCreateView(DeliverablesBaseView):
         if self.request.method == 'POST':
             return DeliverableCreateForm(self.request.POST)
         else:
-            project, pm = self.get_project()
-            return DeliverableCreateForm(initial={'name': pm.gnm_project_headline})
+            return DeliverableCreateForm(initial={'name': "not set"})
 
-    def get_extra_context_data(self):
+    def get_context_data(self, **kwargs):
         from django.conf import settings
-        context = super(DeliverableCreateView, self).get_extra_context_data()
+        context = super(DeliverableCreateView, self).get_context_data()
         context['form'] = self.get_form()
         context['SAN_ROOT'] = getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT', '/tmp')
         return context
@@ -250,12 +357,10 @@ class DeliverableDetailView(DeliverablesBaseView, SingleObjectMixin):
             form.instance.duration = form.instance.duration(user)
             form.instance.status_string = form.instance.status_string(user)
             form.instance.status = form.instance.status(user)
-        try:
-            context['local_path'] = deliverable.local_path
-            context['local_open_uri'] = deliverable.local_open_uri
-        except AssetFolderUtilsMixin.MountpointNotFound as e:
-            messages.error(self.request, 'Local mountpoint not found for {deliverable}: {e}'.format(deliverable=deliverable, e=e))
-            context['local_path'] = None
+
+        context['local_path'] = deliverable.local_path
+        context['local_open_uri'] = deliverable.local_open_uri
+
         context['formset'] = formset
         context['deliverable'] = deliverable
         context['type_choices'] = DELIVERABLE_ASSET_TYPES
@@ -303,7 +408,7 @@ class DeliverableAssetCheckTypeChange(mixins.RetrieveModelMixin, GenericAPIView)
     """
     Called before DeliverableAssetUpdateAPIView in order to check if the type change will be a conflict
     """
-    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
+    authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = DeliverableAssetSerializer
@@ -325,13 +430,13 @@ class DeliverableAssetUpdateAPIView(RetrieveUpdateAPIView):
     API view called on type change on the details page
     """
     serializer_class = DeliverableAssetSerializer
-    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
+    authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     model = DeliverableAsset
 
     def pre_save(self, obj):
-        from portal.plugins.gnm_asset_folder.tasks import FolderCreationFailed
+        from gnm_asset_folder.tasks import FolderCreationFailed
         super(DeliverableAssetUpdateAPIView, self).pre_save(obj)
         original = self.get_object_or_none()
         logger.info('Current asset type: %s' % original.type)
@@ -392,8 +497,8 @@ class NaughtyListAPIView(APIView):
 
     def get(self, request):
         from datetime import datetime
-        from portal.plugins.gnm_projects.models import ProjectModel
-        from portal.plugins.gnm_vidispine_utils.vs_helpers import site_id
+        from gnm_projects.models import ProjectModel
+        from gnm_vidispine_utils.vs_helpers import site_id
         import dateutil.parser
 
         if not 'since' in request.GET:
@@ -471,7 +576,7 @@ class SearchForDeliverableAPIView(RetrieveAPIView):
         return DeliverableAsset.objects.filter(filename=fileName)[0]
 
     def get(self, request, *args, **kwargs):
-        from portal.plugins.gnm_misc_utils.helpers import inform_sentry_exception
+        from gnm_misc_utils.helpers import inform_sentry_exception
         try:
             return super(SearchForDeliverableAPIView, self).get(request,*args,**kwargs)
         except KeyError:
