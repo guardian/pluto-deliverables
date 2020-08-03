@@ -37,9 +37,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'gnm_deliverables'
+    'gnm_deliverables',
+    "django_nose"
 ]
 
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = [
+    "--with-coverage",
+    "--cover-package=gnm_deliverables"
+]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -114,6 +120,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+VIDISPINE_URL="http://localhost:8080"
+VIDISPINE_USER="admin"
+VIDISPINE_PASSWORD="admin"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

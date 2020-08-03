@@ -34,6 +34,12 @@ def get_local_path_for_deliverable(name):
 
 
 def ts_to_dt(timestamp, millis=False):
+    """
+    converts a timestamp value to a datetime value
+    :param timestamp:
+    :param millis:
+    :return:
+    """
     try:
         ts = float(timestamp)
         if millis:

@@ -1,9 +1,7 @@
 # coding: utf-8
 
-
 import logging
 import re
-from collections import namedtuple
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.urls import reverse
@@ -23,7 +21,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 #from gnm_misc_utils.csrf_exempt_session_authentication import CsrfExemptSessionAuthentication
-from gnm_vidispine_errors.exceptions import VSException
+from gnmvidispine.vs_exception import VSException
 from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, DELIVERABLE_ASSET_STATUS_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
 from .exceptions import NoShapeError
@@ -496,41 +494,41 @@ class NaughtyListAPIView(APIView):
     permission_classes = (IsAuthenticated, )
 
     def get(self, request):
-        from datetime import datetime
-        from gnm_projects.models import ProjectModel
-        from gnm_vidispine_utils.vs_helpers import site_id
-        import dateutil.parser
-
-        if not 'since' in request.GET:
-            return Response({"status":"error","detail": "You must specify since= to limit the number of projects checked"},status=400)
-        if 'until' in request.GET:
-            try:
-                until = dateutil.parser.parse(request.GET['until'])
-            except Exception as e:
-                return Response({"status":"error","detail": "{0} is not a valid timestamp".format(request.GET['until']), "exception": str(e)},status=400)
-        else:
-            until = datetime.now()
-
-        try:
-            since = dateutil.parser.parse(request.GET['since'])
-        except Exception as e:
-            return Response({"status":"error","detail": "{0} is not a valid timestamp".format(request.GET['since']), "exception": str(e)},status=400)
-
-        queryset = ProjectModel.objects.filter(updated__gte=since,updated__lte=until).exclude(gnm_project_status="New").exclude(gnm_project_status="Killed")
-
-        limited = False
-        total = queryset.count()
-        if total > 100:
-            queryset = queryset[0:100]
-            limited = True
-
-        projectid_list = ["{0}-{1}".format(site_id, x['collection_id']) for x in queryset.values('collection_id')]
-
-        logger.debug("Projects created since {0}: {1}".format(since.isoformat(), projectid_list))
-
-        deliverables_counts = [(id, Deliverable.objects.filter(project_id=id).count()) for id in projectid_list]
-        no_deliverables = [tpl[0] for tpl in [tpl for tpl in deliverables_counts if tpl[1]==0]]
-        return Response({"status":"ok","projects":no_deliverables,"limited": limited,"total": total}, status=200)
+        return Response({"status":"notimplemented","detail":"This must be re-implemented"}, status=500)
+        # from datetime import datetime
+        # from gnm_projects.models import ProjectModel
+        # import dateutil.parser
+        #
+        # if not 'since' in request.GET:
+        #     return Response({"status":"error","detail": "You must specify since= to limit the number of projects checked"},status=400)
+        # if 'until' in request.GET:
+        #     try:
+        #         until = dateutil.parser.parse(request.GET['until'])
+        #     except Exception as e:
+        #         return Response({"status":"error","detail": "{0} is not a valid timestamp".format(request.GET['until']), "exception": str(e)},status=400)
+        # else:
+        #     until = datetime.now()
+        #
+        # try:
+        #     since = dateutil.parser.parse(request.GET['since'])
+        # except Exception as e:
+        #     return Response({"status":"error","detail": "{0} is not a valid timestamp".format(request.GET['since']), "exception": str(e)},status=400)
+        #
+        # queryset = ProjectModel.objects.filter(updated__gte=since,updated__lte=until).exclude(gnm_project_status="New").exclude(gnm_project_status="Killed")
+        #
+        # limited = False
+        # total = queryset.count()
+        # if total > 100:
+        #     queryset = queryset[0:100]
+        #     limited = True
+        #
+        # projectid_list = ["{0}-{1}".format(site_id, x['collection_id']) for x in queryset.values('collection_id')]
+        #
+        # logger.debug("Projects created since {0}: {1}".format(since.isoformat(), projectid_list))
+        #
+        # deliverables_counts = [(id, Deliverable.objects.filter(project_id=id).count()) for id in projectid_list]
+        # no_deliverables = [tpl[0] for tpl in [tpl for tpl in deliverables_counts if tpl[1]==0]]
+        # return Response({"status":"ok","projects":no_deliverables,"limited": limited,"total": total}, status=200)
 
 
 class DeliverableCreateFolderView(APIView):
