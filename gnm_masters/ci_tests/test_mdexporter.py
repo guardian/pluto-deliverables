@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+
 import unittest2
 from mock import MagicMock, patch
-import httplib
+import http.client
 import logging
 import os.path
 import json
@@ -84,7 +84,7 @@ class TestMDExporter(unittest2.TestCase):
                                                              'Accept': 'application/json'}
                                                             )
             self.assertDictContainsSubset({
-                'title': [u'Kevin Spacey goes presidential at the Tony awards –  video'],
+                'title': ['Kevin Spacey goes presidential at the Tony awards –  video'],
                 'created': ['2017-06-12T06:57:16.410Z'],
                 'durationSeconds': ['97.28']
             }, content)

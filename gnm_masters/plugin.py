@@ -52,7 +52,7 @@ class GnmMasterItemControls(Plugin):
     def return_string(self, tagname, context, request_context, *future_args):
         (meta, system_meta, specific_meta)= request_context['item'].getMetadata()
 
-        gnm_type_values = map(lambda info: info['value'], meta.getFieldByName("gnm_type").getValue())
+        gnm_type_values = [info['value'] for info in meta.getFieldByName("gnm_type").getValue()]
         if len(gnm_type_values)<1 or gnm_type_values[0] != 'Master':
             return None
         else:

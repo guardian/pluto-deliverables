@@ -39,7 +39,7 @@ def extract_values(xmldoc):
     :return: list (iterator in python3) of item IDs
     """
     nodeIter = xmldoc.findall("{0}item".format("{http://xml.vidispine.com/schema/vidispine}"))
-    return map(lambda node: node.attrib["id"], nodeIter)
+    return [node.attrib["id"] for node in nodeIter]
 
 
 def vs_master_search(filename):

@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from lxml import etree as ET
 import celery
 import logging
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import re
 import shutil
 log = logging.getLogger(__name__)
@@ -123,9 +123,9 @@ def scan_importables():
                         log.exception(x)
                         _inform_sentry('Failed to find remote master file')
                         continue
-                    file_uri = ('file://%s' % urllib.quote(file_path))
+                    file_uri = ('file://%s' % urllib.parse.quote(file_path))
                     log.info('Starting import: %s' % file_uri)
-                    file_uri = urllib.quote(file_uri, safe='')
+                    file_uri = urllib.parse.quote(file_uri, safe='')
                     jobmetadata = get_job_metadata(sgn.user)
                     r = vs_calls.post('item/%s/shape/essence?uri=%s&jobmetadata=%s&priority=HIGH' % (sgn.item_id, file_uri, jobmetadata), '', sgn.user)
                     if r.status_code < 200 or r.status_code >= 300:
@@ -191,7 +191,7 @@ def find_remote_master_vs(signiant_import):
     from django.conf import settings
     from portal.plugins.gnm_masters.exceptions import NotAMasterError
     log.info('Looking for %s' % signiant_import.filename)
-    r = vs_calls.get('storage/file;includeItem=true?recursive=true&wildcard=true&path=*%s*' % urllib.quote(signiant_import.filename), signiant_import.user)
+    r = vs_calls.get('storage/file;includeItem=true?recursive=true&wildcard=true&path=*%s*' % urllib.parse.quote(signiant_import.filename), signiant_import.user)
     if r.status_code < 200 or r.status_code >= 300:
         raise ValidationError('Failed to contact Vidispine')
     r = parse_xml(r.content)

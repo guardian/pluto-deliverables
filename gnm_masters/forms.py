@@ -6,7 +6,7 @@ from django.forms import Form, CharField, TextInput, URLField
 from django.utils.safestring import mark_safe
 from django.db import IntegrityError
 
-import urllib, os
+import urllib.request, urllib.parse, urllib.error, os
 
 MasterGenericForm = metadataform_factory('MasterGeneric', [
     const.GNM_MASTERS_GENERIC_REMOVE,

@@ -20,7 +20,7 @@ def handle_external_update(sender, **kwargs):
     :return:
     """
     from portal.plugins.gnm_projects.models import ProjectModel
-    from models import MasterModel, VSMaster
+    from .models import MasterModel, VSMaster
     if 'item_id' not in kwargs:
         logger.error("received project_external_update from {0} but got no vidispine master id".format(sender))
         return False

@@ -3,7 +3,7 @@ URLS for the Guardian Master plugin
 """
 
 from django.conf.urls.defaults import patterns, url, include
-from views import MasterNewView, MasterView, MasterListView, MasterSearchAPIView, MasterSearchView, MasterListAPIView, MasterListMineAPIView, MasterIngestView, MasterSetJobIdView, MasterJobRetryView, MasterUpdateStatusView, MasterUploadLogView, MasterImportViaFilename, \
+from .views import MasterNewView, MasterView, MasterListView, MasterSearchAPIView, MasterSearchView, MasterListAPIView, MasterListMineAPIView, MasterIngestView, MasterSetJobIdView, MasterJobRetryView, MasterUpdateStatusView, MasterUploadLogView, MasterImportViaFilename, \
     MasterIdFileView, UploadEDLDataView, MasterListForParentCollectionAPIView, MasterImportViaS3, MasterTrigger, SearchForMasterAPIView
 urlpatterns = patterns(
     'portal.plugins.gnm_masters',

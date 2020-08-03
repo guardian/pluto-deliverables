@@ -22,7 +22,7 @@ def getvalue(rawdata, key):
         return None, iconpath + 'severity_0.png'
 
     try:
-        content = json.loads(unicode(rawdata))
+        content = json.loads(str(rawdata))
         if key in content['response']:
             if content['response'][key]=='allow':
                 icon = iconpath + 'severity_0.png'
@@ -64,14 +64,14 @@ def syndicationStatusFormatter(value):
 
     if ('Not Ready' in value) & (value != 'Not Ready'):
         textforpassing = value
-        return mark_safe(u"<span class=\"{0}\">{1}&nbsp;&nbsp;{2}</span>".format(textforpassing,iconstr,'Not Ready'))
+        return mark_safe("<span class=\"{0}\">{1}&nbsp;&nbsp;{2}</span>".format(textforpassing,iconstr,'Not Ready'))
     else:
         textforpassing = value.lower()
 
     if value == 'Not Ready':
         textforpassing = value.lower()
 
-    return mark_safe(u"<span class=\"{0}\">{1}&nbsp;&nbsp;{2}</span>".format(textforpassing,iconstr,value))
+    return mark_safe("<span class=\"{0}\">{1}&nbsp;&nbsp;{2}</span>".format(textforpassing,iconstr,value))
 
 
 @register.filter("pacformindicator")
@@ -96,7 +96,7 @@ def pacformIndicator(value):
         icon_url = iconpath + 'severity_1.png'
         text = "unknown"
 
-    return mark_safe(u"<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
+    return mark_safe("<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
 
 @register.filter("automationindicator")
 def automationIndicator(value):
@@ -112,43 +112,43 @@ def automationIndicator(value):
         icon_url = iconpath + 'severity_3.png'
         text = 'Failed'
 
-    return mark_safe(u"<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
+    return mark_safe("<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
 
 @register.filter("msinfo")
 def msInfo(value):
     text,icon_url = getvalue(value, "mainstreamsyndication")
 
-    return mark_safe(u"<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
+    return mark_safe("<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
 
 @register.filter("dminfo")
 def dmInfo(value):
     text,icon_url = getvalue(value, "dailymotion")
 
-    return mark_safe(u"<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
+    return mark_safe("<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
 
 @register.filter("ytinfo")
 def ytInfo(value):
     text,icon_url = getvalue(value,"youtube")
-    return mark_safe(u"<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
+    return mark_safe("<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
 
 @register.filter("fbinfo")
 def fbInfo(value):
     text,icon_url = getvalue(value, "facebook")
-    return mark_safe(u"<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
+    return mark_safe("<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
 
 @register.filter("sinfo")
 def sInfo(value):
     text,icon_url = getvalue(value, "spotify")
-    return mark_safe(u"<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
+    return mark_safe("<img class=\"inline_icon\" src=\"{0}\">{1}".format(icon_url,text))
 
 @register.filter("automationerrors")
 def automationErrors(value):
     import json
 
     try:
-        jdata = json.loads(unicode(value))
+        jdata = json.loads(str(value))
     except Exception as e:
-        logging.warning(u"Could not parse json from {0}: {1}".format(value, str(e)))
+        logging.warning("Could not parse json from {0}: {1}".format(value, str(e)))
         return mark_safe(value)
 
     if jdata["status"]=="ok":

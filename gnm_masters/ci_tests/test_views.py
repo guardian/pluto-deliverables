@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 import django.test
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
@@ -59,8 +59,8 @@ class TestViews(django.test.TestCase):
                         with patch("portal.plugins.gnm_masters.views.MasterTrigger.update_status") as mock_update_status:
                             result = client.post(reverse("master_trigger", kwargs={'master_id': 'VX-12345', 'target': "facebook"}))
                             self.assertEqual(result.status_code, 200)
-                            mock_update_status.assert_called_once_with('Ready to Upload', 'gnm_master_facebook_uploadstatus', u'VX-12345', u)
-                            mock_export_meta.assert_called_once_with(u'VX-12345', '/tmp/facebook', 'somefile.mov', 'inmeta_V5')
+                            mock_update_status.assert_called_once_with('Ready to Upload', 'gnm_master_facebook_uploadstatus', 'VX-12345', u)
+                            mock_export_meta.assert_called_once_with('VX-12345', '/tmp/facebook', 'somefile.mov', 'inmeta_V5')
                             self.assertDictContainsSubset({
                                 'status': 'ok',
                                 'detail': 'trigger output to /tmp/facebook',
@@ -83,8 +83,8 @@ class TestViews(django.test.TestCase):
                         with patch("portal.plugins.gnm_masters.views.MasterTrigger.update_status") as mock_update_status:
                             result = client.post(reverse("master_trigger", kwargs={'master_id': 'VX-12345', 'target': "guardian"}) + "?type=New")
                             self.assertEqual(result.status_code, 200)
-                            mock_update_status.assert_called_once_with('Ready to Upload', 'gnm_master_gnmwebsite_upload_status', u'VX-12345', u)
-                            mock_export_meta.assert_called_once_with(u'VX-12345', '/tmp/guardian', 'somefile.mov', 'inmeta_V5')
+                            mock_update_status.assert_called_once_with('Ready to Upload', 'gnm_master_gnmwebsite_upload_status', 'VX-12345', u)
+                            mock_export_meta.assert_called_once_with('VX-12345', '/tmp/guardian', 'somefile.mov', 'inmeta_V5')
                             self.assertDictContainsSubset({
                                 'status': 'ok',
                                 'detail': 'trigger output to /tmp/guardian',
@@ -95,8 +95,8 @@ class TestViews(django.test.TestCase):
                             mock_update_status.reset_mock()
                             result = client.post(reverse("master_trigger", kwargs={'master_id': 'VX-12345', 'target': "guardian"}) + "?type=Update")
                             self.assertEqual(result.status_code, 200)
-                            mock_update_status.assert_called_once_with('Ready to Upload', 'gnm_master_gnmwebsite_upload_status', u'VX-12345', u)
-                            mock_export_meta.assert_called_once_with(u'VX-12345', '/tmp/guardianupdate', 'somefile.mov', 'inmeta_V5')
+                            mock_update_status.assert_called_once_with('Ready to Upload', 'gnm_master_gnmwebsite_upload_status', 'VX-12345', u)
+                            mock_export_meta.assert_called_once_with('VX-12345', '/tmp/guardianupdate', 'somefile.mov', 'inmeta_V5')
                             self.assertDictContainsSubset({
                                 'status': 'ok',
                                 'detail': 'trigger output to /tmp/guardianupdate',

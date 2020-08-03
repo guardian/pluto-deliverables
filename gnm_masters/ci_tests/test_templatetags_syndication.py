@@ -31,4 +31,4 @@ class TestSyndicationStats(django.test.TestCase):
         from portal.plugins.gnm_masters.templatetags.syndicationstats_customfilters import msInfo
         result = msInfo("")
 
-        self.assertEqual(result,u'<img class="inline_icon" src="/sitemedia/img/gnm/severity_0.png">None')
+        self.assertEqual(result,'<img class="inline_icon" src="/sitemedia/img/gnm/severity_0.png">None')

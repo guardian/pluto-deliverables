@@ -36,7 +36,7 @@ from django.http import Http404
 from django.db.models import Q
 from django.template.defaultfilters import slugify
 import uuid
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import logging
 import os
 import os.path
@@ -347,7 +347,7 @@ class MasterNewView(GuardianBaseView):
                 to=project.subscribers(),
                 object_type='Master',
                 object_id=master.id,
-                message=u'Master created: {title}'.format(title=master.get(const.GNM_MASTERS_WEBSITE_HEADLINE, '')),
+                message='Master created: {title}'.format(title=master.get(const.GNM_MASTERS_WEBSITE_HEADLINE, '')),
                 url=reverse('master', args=[master.id]))
 
             log.debug("create master: completed.")
@@ -595,7 +595,7 @@ class MasterIdFileView(GuardianBaseView):
 
 class DjangoS3UploadView(View):
     def post(self,request):
-        from forms import DjangoS3UploadForm
+        from .forms import DjangoS3UploadForm
 
         f=DjangoS3UploadForm(request.POST)
         if f.is_valid():
@@ -606,7 +606,7 @@ class DjangoS3UploadView(View):
 
 class MasterIngestView(GuardianBaseView):
     def get(self, request):
-        from forms import DjangoS3UploadForm
+        from .forms import DjangoS3UploadForm
         from django.conf import settings
         master_id = self.kwargs.get('master_id')
         self.master = vs_helpers.get_vsobject_or_404(VSMaster, master_id, request.user)
@@ -642,7 +642,7 @@ class MasterIngestView(GuardianBaseView):
         try:
             sgn = reserve_filename(self.master, remote_master_filename)
         except ValidationError as x:
-            return HttpResponse(content=iter(x.messages).next(), content_type='text/html', status=409)
+            return HttpResponse(content=next(iter(x.messages)), content_type='text/html', status=409)
         return HttpResponse()
 
     def get_template(self, template_name):
@@ -692,7 +692,7 @@ class UploadEDLDataView(APIView):
     renderer_classes = (JSONRenderer, )
 
     def post(self, request, master_id):
-        from edl_import import update_edl_data
+        from .edl_import import update_edl_data
         f = request.FILES['edl_file']
 
         update_edl_data(f, master_id, request.user)
@@ -752,7 +752,7 @@ class MasterImportBaseView(GuardianBaseView):
         :param request: Django request object passed in
         :return: URL encoded job metadata string
         """
-        from utils import get_job_metadata
+        from .utils import get_job_metadata
         return get_job_metadata(request.user)
 
     def post(self, request):
@@ -769,7 +769,7 @@ class MasterImportBaseView(GuardianBaseView):
 
         url = 'item/{id}/shape/essence?uri={uri}&jobmetadata={jobmetadata}&priority=HIGHEST'.format(
             id=self.master_id,
-            uri=urllib.quote(filepath, ''),
+            uri=urllib.parse.quote(filepath, ''),
             jobmetadata=jobmetadata,
             )
         resp = vs_calls.post(url, '', request.user.username)
@@ -800,7 +800,7 @@ class MasterImportViaFilename(MasterImportBaseView):
         if not hasattr(settings, 'MASTER_IMPORT_STORAGE_VS_PATH'):
             return HttpResponse('MASTER_IMPORT_STORAGE_VS_PATH not configured', status=500)
 
-        filepath = urllib.quote(os.path.join(settings.MASTER_IMPORT_STORAGE_VS_PATH, filename), '/')
+        filepath = urllib.parse.quote(os.path.join(settings.MASTER_IMPORT_STORAGE_VS_PATH, filename), '/')
         return filepath
 
 
@@ -818,12 +818,12 @@ class MasterImportViaS3(MasterImportBaseView):
         """
         import re
         #pprint(request.POST)
-        unquoted = urllib.unquote_plus(request.POST.get('fileurl'))
+        unquoted = urllib.parse.unquote_plus(request.POST.get('fileurl'))
         parts = re.match(r'^(?P<proto>\w+)://(?P<endpoint>[^\/]+)/(?P<bucketpath>.*)',unquoted)
         log.debug("unquoted URL: {0}".format(unquoted))
         if parts is None:
             raise ValueError("{0} does not appear to be a valid URL (no protocol portion)".format(unquoted))
-        quoted_path=urllib.quote(parts.group('bucketpath'), '/')
+        quoted_path=urllib.parse.quote(parts.group('bucketpath'), '/')
         log.debug("quoted_path: {0}".format(quoted_path))
         return 's3://' + quoted_path
 
@@ -841,7 +841,7 @@ class MasterImportViaS3_portaldownload02(MasterImportBaseView):
                                  aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
         log.debug("Connected to S3")
         rawurl = request.POST.get('fileurl')
-        rawurl = urllib.unquote_plus(rawurl)
+        rawurl = urllib.parse.unquote_plus(rawurl)
         log.debug("URL is {0}".format(rawurl))
         parts = re.match(r'^(?P<proto>\w+)://(?P<endpoint>[^\/]+)/(?P<bucket>[^\/]+)/(?P<bucketpath>.*)', rawurl)
         if parts is None:
@@ -859,7 +859,7 @@ class MasterImportViaS3_portaldownload02(MasterImportBaseView):
         local_filename = os.path.join("/tmp",os.path.basename(parts.group('bucketpath')))
         k.get_contents_to_filename(local_filename)
         log.debug("Done")
-        return urllib.quote(local_filename, '/')
+        return urllib.parse.quote(local_filename, '/')
 
 
 class MasterImportViaS3_portaldownload03(MasterImportBaseView):
@@ -875,7 +875,7 @@ class MasterImportViaS3_portaldownload03(MasterImportBaseView):
                                  aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
         log.debug("Connected to S3")
         rawurl = request.POST.get('fileurl')
-        rawurl = urllib.unquote_plus(rawurl)
+        rawurl = urllib.parse.unquote_plus(rawurl)
         log.debug("URL is {0}".format(rawurl))
         parts = re.match(r'^(?P<proto>\w+)://(?P<endpoint>[^\/]+)/(?P<bucket>[^\/]+)/(?P<bucketpath>.*)', rawurl)
         if parts is None:
@@ -892,7 +892,7 @@ class MasterImportViaS3_portaldownload03(MasterImportBaseView):
 
 
 class UpdateStatusMixin(object):
-    class InvalidDataError(StandardError):
+    class InvalidDataError(Exception):
         pass
 
     def update_status(self,status,fieldname,master_id,user):
@@ -952,7 +952,7 @@ class MasterTrigger(UpdateStatusMixin, APIView):
                     settings.TRIGGER_FOLDER_LOCATIONS[target]['field'])
 
     def post(self, request, master_id=None, target=None):
-        from mdexporter import item_information, export_metadata
+        from .mdexporter import item_information, export_metadata
         from portal.plugins.gnm_misc_utils.helpers import inform_sentry_exception
         import traceback
 
@@ -962,7 +962,7 @@ class MasterTrigger(UpdateStatusMixin, APIView):
             uploadtype = None
 
         try:
-            if target in settings.TRIGGER_FOLDER_LOCATIONS.keys():
+            if target in list(settings.TRIGGER_FOLDER_LOCATIONS.keys()):
                 outfolder, outfield = self.get_output_location_for(target, uploadtype)
 
             else:
@@ -991,8 +991,8 @@ class SearchForMasterAPIView(APIView):
     item_id_extractor = re.compile("^\w{2}-(\d+)$")
 
     def get(self, *args,**kwargs):
-        from vs_search import vs_master_search
-        from serializers import MasterSerializer
+        from .vs_search import vs_master_search
+        from .serializers import MasterSerializer
         request = args[0]
 
         try:
@@ -1002,11 +1002,11 @@ class SearchForMasterAPIView(APIView):
 
         try:
             vs_id_list = vs_master_search(fileName)
-            numeric_id_list = map(lambda vsid: int(self.item_id_extractor.match(vsid).group(1)), vs_id_list)
+            numeric_id_list = [int(self.item_id_extractor.match(vsid).group(1)) for vsid in vs_id_list]
             retrieved_data = [x for x in MasterModel.objects.filter(pk__in=numeric_id_list)]
 
             ser = MasterSerializer(retrieved_data, many=True)
             return Response(ser.data)
-        except StandardError as e:
+        except Exception as e:
             inform_sentry("Master search failed",{"filename":fileName})
             return Response({"status":"error", "detail":str(e)}, status=500)

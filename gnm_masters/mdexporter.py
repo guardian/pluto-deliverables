@@ -1,7 +1,7 @@
 import re
 from django.conf import settings
 import base64
-import httplib
+import http.client
 import logging
 import xml.dom.minidom as minidom
 import os.path
@@ -9,7 +9,7 @@ import os.path
 logger = logging.getLogger(__name__)
 
 
-class HTTPError(StandardError):
+class HTTPError(Exception):
     pass
 
 
@@ -29,7 +29,7 @@ def shape_id_for_tag(itemid,tagname):
     headers = {'Accept': 'application/json',
                'Authorization': "Basic %s" % auth}
 
-    conn = httplib.HTTPConnection(server, port)
+    conn = http.client.HTTPConnection(server, port)
     url = "/API/item/{itemid}/shape?tag={tag}".format(itemid=itemid,tag=tagname)
     conn.request("GET",url,"",headers)
     response=conn.getresponse()
@@ -44,10 +44,10 @@ def shape_id_for_tag(itemid,tagname):
 def _extract_value(record):
     import traceback
     try:
-        val = map(lambda x: x['value'], record['value']) #record['value'][0]['value']
+        val = [x['value'] for x in record['value']] #record['value'][0]['value']
     except KeyError as e:
         val = [] #we often get fields with no values, so just ignore them.
-    except StandardError as e:
+    except Exception as e:
         logger.warning(traceback.format_exc())
         val = []
     return [record['name'], val]
@@ -70,7 +70,7 @@ def export_metadata(itemId, outpath, originalFilename, projection, prefix=""):
                'Content-Type': 'application/xml'}
 
     headers['Authorization'] = "Basic %s" % auth
-    conn = httplib.HTTPConnection(server, port)
+    conn = http.client.HTTPConnection(server, port)
     url = "/API/item/%s/metadata;projection=%s" % (str(itemId), projection)
     method = "GET"
     body = ""
@@ -133,7 +133,7 @@ def item_information(itemId, fieldnames, hide_empty=True, simplify=False):
     headers = {'Accept': 'application/json',
                'Authorization': "Basic %s" % auth}
 
-    conn = httplib.HTTPConnection(server, port)
+    conn = http.client.HTTPConnection(server, port)
     url = "/API/item/{itemid}/metadata;field={fieldlist}".format(itemid=str(itemId),fieldlist=",".join(fieldnames))
     method = "GET"
     body = ""
@@ -148,7 +148,7 @@ def item_information(itemId, fieldnames, hide_empty=True, simplify=False):
     data=json.loads(response.read())
     content=data['item'][0]['metadata']['timespan'][0]['field']
 
-    mapped_data = map(lambda x: _extract_value(x), content)
+    mapped_data = [_extract_value(x) for x in content]
     rtn = {}
     for pair in mapped_data:
         if simplify and single_request:

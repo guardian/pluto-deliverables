@@ -4,7 +4,8 @@ from django import template
 from django.utils.html import mark_safe
 import logging
 import traceback
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
+from functools import reduce
 
 register = template.Library()
 logger = logging.getLogger(__name__)
@@ -22,8 +23,8 @@ def jobStatusFormatter(value):
 
 @register.filter(name="is_string")
 def is_string(value):
-    print "is_string: {0}".format(value)
-    return isinstance(value, basestring)
+    print("is_string: {0}".format(value))
+    return isinstance(value, str)
 
 
 class SanitisingParser(HTMLParser):
@@ -36,7 +37,7 @@ class SanitisingParser(HTMLParser):
         self.sanitised_content = ""
 
     def _get_attr_value(self, attrs, tofind):
-        found = filter(lambda (key, value): key==tofind, attrs)
+        found = [key_value for key_value in attrs if key_value[0]==tofind]
         if found>0:
             return found[0][1]
         else:

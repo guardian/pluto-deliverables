@@ -115,7 +115,7 @@ class VSMaster(VSModel):
         if sorting is None:
             sorting = ''
 
-        return u'<AND><{type}>{item_type}</{type}>{additional_criteria}</AND>{sorting}'.format(
+        return '<AND><{type}>{item_type}</{type}>{additional_criteria}</AND>{sorting}'.format(
             type=const.GNM_TYPE,
             item_type=const.GNM_MASTER_TYPE,
             additional_criteria=criteria,
@@ -217,7 +217,7 @@ class VSMaster(VSModel):
         Returns:
             dict with updated metadata, ready to be used for creating a master
         '''
-        from default_metadata_values import MASTER_METADATA_DEFAULT_VALUES
+        from .default_metadata_values import MASTER_METADATA_DEFAULT_VALUES
         # Asset title used as representation in some places
         data[const.GNM_ASSET_TITLE] = data[const.GNM_MASTERS_WEBSITE_HEADLINE]
         # Duplicate values from the generic form into other forms values according to mapping (external file).
@@ -614,7 +614,7 @@ class MasterModel(django_models.Model):
 
     @staticmethod
     def create_from_master(master, user, vs_commission, vs_project):
-        from signals import post_create_master
+        from .signals import post_create_master
         m = MasterModel.objects.create(item_id=master.id.rsplit('-', 1)[1],
                                        user=user,
                                        title=master.get('title', ''),
@@ -635,7 +635,7 @@ class MasterModel(django_models.Model):
 
     @staticmethod
     def get_or_create_from_master(master, user, vs_commission=None, vs_project=None):
-        from signals import post_create_master
+        from .signals import post_create_master
         defaults = {'user': user,
                     'title': master.get('title', ''),
                     'created': dateutil.parser.parse(master.get('created', datetime.datetime.now(pytz.utc).isoformat())),
@@ -709,7 +709,7 @@ class MasterModel(django_models.Model):
         destinations = vs_master.get(const.GNM_MASTERS_GENERIC_INTENDEDUPLOADPLATFORMS, None)
         if not destinations:
             return None
-        elif isinstance(destinations, basestring):
+        elif isinstance(destinations, str):
             return destinations
         else:
             return ','.join(destinations)
