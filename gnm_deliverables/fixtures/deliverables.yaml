@@ -1,0 +1,21 @@
+- fields:
+    project_id: VX-27
+    name: First Bundle
+    created: 2017-12-06 15:17:20.943681
+    parent_project: 27
+  model: gnm_deliverables.deliverable
+  pk: 1
+- fields:
+    project_id: VX-28
+    name: Second Bundle
+    created: 2017-12-06 15:17:20.943681
+    parent_project: 28
+  pk: 2
+  model: gnm_deliverables.deliverable
+- fields:
+    project_id: VX-29
+    name: Third Bundle
+    created: 2017-12-06 15:21:53.188055
+    parent_project: 29
+  pk: 3
+  model: gnm_deliverables.deliverable

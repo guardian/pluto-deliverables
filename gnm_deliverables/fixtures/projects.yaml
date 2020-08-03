@@ -1,0 +1,56 @@
+- fields:
+    commission: 1234
+    created: 2017-12-06 15:17:20.943681
+    gnm_project_headline: fwqggrgqggreqgr
+    gnm_project_prelude_file_item: null
+    gnm_project_project_file_item: null
+    gnm_project_standfirst: null
+    gnm_project_status: New
+    gnm_project_type: f632969b-1d2c-49f4-8bfe-2dc1c6b213e4
+    gnm_project_username: [1]
+    updated: 2017-12-06 15:17:21.508474
+    user: 1
+  model: gnm_projects.projectmodel
+  pk: 27
+- fields:
+    commission: 24
+    created: 2017-12-06 15:17:40.116343
+    gnm_project_headline: dsasddasdsavavdsavds
+    gnm_project_prelude_file_item: null
+    gnm_project_project_file_item: VX-4837
+    gnm_project_standfirst: null
+    gnm_project_status: New
+    gnm_project_type: f632969b-1d2c-49f4-8bfe-2dc1c6b213e4
+    gnm_project_username: [2]
+    updated: 2017-12-06 15:17:40.696547
+    user: 2
+  model: gnm_projects.projectmodel
+  pk: 28
+- fields:
+    commission: 26
+    created: 2017-12-06 15:21:53.188055
+    gnm_project_headline: fwqggrgqggreqgr43243
+    gnm_project_prelude_file_item: null
+    gnm_project_project_file_item: null
+    gnm_project_standfirst: null
+    gnm_project_status: New
+    gnm_project_type: f632969b-1d2c-49f4-8bfe-2dc1c6b213e4
+    gnm_project_username: [1]
+    updated: 2017-12-06 15:21:53.732566
+    user: 1
+  model: gnm_projects.projectmodel
+  pk: 29
+- fields:
+    commission: 24
+    created: 2017-12-06 15:22:20.632189
+    gnm_project_headline: 66262dsasddasdsa
+    gnm_project_prelude_file_item: null
+    gnm_project_project_file_item: null
+    gnm_project_standfirst: null
+    gnm_project_status: New
+    gnm_project_type: f632969b-1d2c-49f4-8bfe-2dc1c6b213e4
+    gnm_project_username: [1]
+    updated: 2017-12-06 15:22:21.172111
+    user: 1
+  model: gnm_projects.projectmodel
+  pk: 30
