@@ -3,7 +3,7 @@
 import errno
 import logging
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from dateutil import parser
 from django.db import models
 from django.db.models import Q
@@ -83,7 +83,7 @@ class Deliverable(models.Model):
     @cached_property
     def local_open_uri(self):
         local_path = self.local_path.rstrip('/') + '/'
-        return 'pluto:openfolder:%s' % urllib.quote(local_path)
+        return 'pluto:openfolder:%s' % urllib.parse.quote(local_path)
 
     def status(self):
         if self.assets.filter(ingest_complete_dt__isnull=True).exists():

@@ -70,9 +70,9 @@ class TestDeliverablesSearchForWorkingGroupAPIView(rest_framework.test.APITestCa
         self.assertEqual(data["iTotalRecords"], 2)
         returned_data = data["aaData"]
 
-        titles = map(lambda entry: entry[5], returned_data)
+        titles = [entry[5] for entry in returned_data]
         self.assertEqual(titles, ["Second Bundle","Third Bundle"])
-        project_ids = map(lambda entry: entry[6], returned_data)
+        project_ids = [entry[6] for entry in returned_data]
         self.assertEqual(project_ids, ["VX-28","VX-29"])
 
         result = client.get(reverse_lazy("deliverables_search_workinggroup", kwargs = {'working_group': "0b003a58-dcf7-452c-8e21-6c5fd804f3ce"}))
@@ -82,9 +82,9 @@ class TestDeliverablesSearchForWorkingGroupAPIView(rest_framework.test.APITestCa
         self.assertEqual(data["iTotalRecords"], 1)
         returned_data = data["aaData"]
 
-        titles = map(lambda entry: entry[5], returned_data)
+        titles = [entry[5] for entry in returned_data]
         self.assertEqual(titles, ["First Bundle"])
-        project_ids = map(lambda entry: entry[6], returned_data)
+        project_ids = [entry[6] for entry in returned_data]
         self.assertEqual(project_ids, ["VX-27"])
 
     def test_wginvalid(self):
@@ -124,13 +124,13 @@ class TestDeliverablesSearchForWorkingGroupAPIView(rest_framework.test.APITestCa
 
         result = client.get(reverse_lazy("deliverables_search_workinggroup", kwargs = {'working_group': "84c34edb-5a5f-4f5a-b300-d6ee613efbf4"}) + "?mine=1")
         data = json.loads(result.content)
-        print data
+        print(data)
 
         self.assertEqual(result.status_code, 200)
         self.assertEqual(data["iTotalRecords"], 1)
         returned_data = data["aaData"]
 
-        titles = map(lambda entry: entry[5], returned_data)
+        titles = [entry[5] for entry in returned_data]
         self.assertEqual(titles, ["Second Bundle"])
-        project_ids = map(lambda entry: entry[6], returned_data)
+        project_ids = [entry[6] for entry in returned_data]
         self.assertEqual(project_ids, ["VX-28"])

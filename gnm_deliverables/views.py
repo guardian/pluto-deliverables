@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import unicode_literals
+
 
 import logging
 import re
@@ -48,7 +48,7 @@ class DeliverablesListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         from portal.plugins.gnm_vidispine_utils.vs_helpers import working_groups
-        print working_groups
+        print(working_groups)
         return {
             "title": "Deliverable Bundles",
             "working_groups": working_groups
@@ -419,12 +419,12 @@ class NaughtyListAPIView(APIView):
             queryset = queryset[0:100]
             limited = True
 
-        projectid_list = map(lambda x: "{0}-{1}".format(site_id, x['collection_id']),queryset.values('collection_id'))
+        projectid_list = ["{0}-{1}".format(site_id, x['collection_id']) for x in queryset.values('collection_id')]
 
         logger.debug("Projects created since {0}: {1}".format(since.isoformat(), projectid_list))
 
-        deliverables_counts = map(lambda id: (id, Deliverable.objects.filter(project_id=id).count()), projectid_list)
-        no_deliverables = map(lambda tpl: tpl[0], filter(lambda tpl: tpl[1]==0, deliverables_counts))
+        deliverables_counts = [(id, Deliverable.objects.filter(project_id=id).count()) for id in projectid_list]
+        no_deliverables = [tpl[0] for tpl in [tpl for tpl in deliverables_counts if tpl[1]==0]]
         return Response({"status":"ok","projects":no_deliverables,"limited": limited,"total": total}, status=200)
 
 

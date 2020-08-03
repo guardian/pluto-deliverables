@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 
 import logging
 from celery.decorators import periodic_task
@@ -18,7 +18,7 @@ def init_raven():
         from django.conf import settings
         raven_client = RavenClient(settings.RAVEN_CONFIG['dsn'])
         return raven_client
-    except StandardError as e:
+    except Exception as e:
         logger.error("Unable to initialise Sentry: {0}".format(e))
     return None
 

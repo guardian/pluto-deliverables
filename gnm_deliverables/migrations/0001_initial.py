@@ -31,7 +31,7 @@ class Migration(SchemaMigration):
             ('item_id', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('ingest_complete_dt', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('file_removed_dt', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('deliverable', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'assets', to=orm['gnm_deliverables.Deliverable'])),
+            ('deliverable', self.gf('django.db.models.fields.related.ForeignKey')(related_name='assets', to=orm['gnm_deliverables.Deliverable'])),
         ))
         db.send_create_signal('gnm_deliverables', ['DeliverableAsset'])
 

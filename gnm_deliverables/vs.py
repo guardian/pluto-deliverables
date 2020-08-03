@@ -1,9 +1,9 @@
-from __future__ import unicode_literals
+
 
 import json
 import logging
 import os
-from urllib import pathname2url
+from urllib.request import pathname2url
 from lxml import etree as ET
 
 
@@ -78,7 +78,7 @@ def get_item(user, item_id):
 
 def metadata_subdocument_from_dict(md_dict):
     elements = []
-    for key, value in md_dict.iteritems():
+    for key, value in md_dict.items():
         if isinstance(value, dict):
             e = metadata_subdocument_from_dict(value)
             e = E.group(E.name(key), *e)
