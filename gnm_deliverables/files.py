@@ -50,6 +50,12 @@ def ts_to_dt(timestamp, millis=False):
 
 
 def find_files_for_deliverable(name):
+    """
+    generator that yields a FileInfo named tuple for each file that exists in the dropfolder corresponding to the
+    given deliverable.
+    :param name: deliverable bundle name, used for making the path to scan
+    :return: yields fileInfo objects, possibly zero if there is nothing in the dropfolder.
+    """
     deliverable_path = get_path_for_deliverable(name)
     print("find_files_for_deliverable: scanning {0}".format(deliverable_path))
     for root, dirs, files in os.walk(deliverable_path):

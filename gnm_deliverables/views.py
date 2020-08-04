@@ -82,7 +82,7 @@ class NewDeliverableAPIScan(APIView):
             results = bundle.sync_assets_from_file_system()
             return Response({"status":"ok","detail":"resync performed", **results}, status=200)
         except Deliverable.DoesNotExist:
-            return Response({"status":"error", "detail": "Project not known"},status=404)
+            return Response({"status":"error", "detail": "Project not known"}, status=404)
         except Exception as e:
             return Response({"status":"error","detail":str(e)},status=500)
 

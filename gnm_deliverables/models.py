@@ -37,6 +37,14 @@ class Deliverable(models.Model):
     created = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
     def sync_assets_from_file_system(self):
+        """
+        performs a scan of the drop-folder associated with this deliverable. If a file is found that does not correspond
+        to a DeliverableAsset record then create a record for it, if there is a corresponding record then update the ctime/
+        mtime/atime.
+        Also, if any asset records have NOT been imported (i.e. their type and item_id is null) and their corresponding
+        files have been removed then delete those records.
+        :return: a dictionary with two keys, a count of "added" records and a count of "removed" records.
+        """
         assets_on_fs = []
         added_count = 0
         removed_count = 0
@@ -64,6 +72,7 @@ class Deliverable(models.Model):
                 asset.changed_dt = f.changed_dt
                 asset.absolute_path = f.absolute_path
                 asset.save()
+
         # Remove assets rows that are not found on the FS and does not have an item tied to it
         assets_to_delete = self.assets.filter(
             type__isnull=True,
@@ -325,9 +334,9 @@ class DeliverableAsset(models.Model):
     def version(self, user):
         """
         asks VS to get the version of the item associated with this deliverable.
-        can raise a VSException, ususally VSNotFound
+        can raise a VSNotFound exception if either the item is not found or there is no original shape
         :param user:  user to run the operation as
-        :return:
+        :return: the essence version number. Raises on error.
         """
         return self.item(user).get_shape("original").essence_version
         # item = self.item(user)
@@ -337,7 +346,7 @@ class DeliverableAsset(models.Model):
         # return safeget(shape, 'essenceVersion')
 
     def duration(self, user):
-        duration_string = self.item(user).get("durationSeconds",allowArray=False)
+        duration_string = self.item(user).get("durationSeconds", allowArray=False)
         return seconds_to_timestamp(duration_string) if duration_string is not None else None
         # item = self.item(user)
         # fields = get_fields_in_inf(item, ['durationSeconds'])
@@ -346,7 +355,6 @@ class DeliverableAsset(models.Model):
 
     @cached_property
     def type_string(self):
-        print("in type_string, raw type is {0}".format(self.type))
         return DELIVERABLE_ASSET_TYPES_DICT.get(self.type)
 
     @cached_property
@@ -357,43 +365,51 @@ class DeliverableAsset(models.Model):
     # def changed_string(self):
     #     return date.strftime('%d/%m/%Y %I:%M %p') if self.changed_dt else ''
         
-        
     def type_allows_many(self):
         return self.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE \
             or self.type == DELIVERABLE_ASSET_TYPE_OTHER_TRAILER \
             or self.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS
 
+    def _set_cached_item(self, newvalue):
+        """
+        method for testing, to manually set the cached item. you should not call this directly, but rely on it to be setr
+        by calling item()
+        :param newvalue:
+        :return:
+        """
+        self.__item = newvalue
+
     def item(self, user):
+        """
+        returns a gnmvidispine VSItem object representing the vidispine item associated with this deliverable.
+        the first time it is called (this happens internally) the data is lifted from the VS server and thereafter
+        it is cached
+        the item_id must be set for this to work.  ValueError is raised if the item id is not set; VSNotFound is raised
+        if the item does not exist, or another VSException is raised if server communication fails
+        :param user: username to run the metadata get as
+        :return: the VSItem, possibly from in-memory cache
+        """
         if self.__item is not None:
             return self.__item
         if self.item_id is not None:
-            try:
-                #self.__item = get_item(item_id=self.item_id, user=user)
-                self.__item = VSItem(url=settings.VIDISPINE_URL,user=settings.VIDISPINE_USER,passwd=settings.VIDISPINE_PASSWORD,run_as=user)
-                self.__item.populate(self.item_id)
-                return self.__item
-            except VSException:
-                logger.exception(
-                    'Failed to get item with id "{item_id}" for deliverable asset "{id}"'.format(
-                        item_id=self.item_id,
-                        id=self.id
-                    ))
-        return None
+            self.__item = VSItem(url=settings.VIDISPINE_URL,user=settings.VIDISPINE_USER,passwd=settings.VIDISPINE_PASSWORD,run_as=user)
+            self.__item.populate(self.item_id)
+            return self.__item
+        raise ValueError("DeliverableAsset.item called with no item_id set")
 
     def job(self, user):
+        """
+        returns a gnmvidispine VSJob that represents the import job assocaited with this deliverable, or None if there was
+        none set.
+        can raise a VSNotFound if the job does not exist or another VSException if server communication fails
+        :param user:
+        :return:
+        """
         if self.__job is not None:
             return self.__job
         if self.job_id is not None:
-            try:
-                #self.__job = get_job(job_id=self.job_id, user=user)
-                self.__job = VSJob(url=settings.VIDISPINE_URL, user=settings.VIDISPINE_USER, passwd=settings.VIDISPINE_PASSWORD, run_as=user)
-                return self.__job.populate(self.job_id)
-            except VSException:
-                logger.exception(
-                    'Failed to get job with id "{job_id}" for deliverable asset "{id}"'.format(
-                        job_id=self.job_id,
-                        id=self.id
-                    ))
+            self.__job = VSJob(url=settings.VIDISPINE_URL, user=settings.VIDISPINE_USER, passwd=settings.VIDISPINE_PASSWORD, run_as=user)
+            return self.__job.populate(self.job_id)
         return None
 
     def purge(self, user=None):
