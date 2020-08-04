@@ -36,8 +36,8 @@ class App extends React.Component {
       <ThemeProvider theme={theme}>
         <Switch>
           <Route
-              path="/project/:projectid"
-              component={ProjectDeliverablesComponent}
+            path="/project/:projectid"
+            component={ProjectDeliverablesComponent}
           />
           <Route exact path="/" component={ProjectsListComponent} />
         </Switch>
