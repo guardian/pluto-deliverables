@@ -36,6 +36,10 @@ def inform_sentry_exception(err):
     pass
 
 
+class NewDeliverableUI(TemplateView):
+    template_name = "gnm_deliverables/new_ui.html"
+
+
 class NewDeliverablesAPIList(ListAPIView):
     permission_classes = (IsAuthenticated, )
     renderer_classes = (JSONRenderer, )

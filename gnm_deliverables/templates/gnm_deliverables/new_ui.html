@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Prexit Delvierables</title>
+</head>
+<body>
+<div id="app" />
+<script>
+    const deploymentRootPath = "{{ deployment_root }}/";
+</script>
+<script
+        src="{{ deployment_root }}/static/app.js?v={{ cbVersion }}"
+        type="text/javascript"
+></script>
+</body>
+</html>

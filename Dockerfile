@@ -14,6 +14,6 @@ COPY manage.py /opt/pluto-deliverables/manage.py
 #annoying, but until my Mac gets upgraded to support later Docker I can't use chown-in-copy :(
 RUN chown -R nobody /opt/pluto-deliverables
 ENV PYTHONPATH=/opt/pluto-deliverables
-WORKDIR /opt/pluto-deliverables
+RUN python manage.py collectstatic --noinput
 USER nobody
 CMD uwsgi --http :9000 --enable-threads -L --module gnm_deliverables.wsgi
