@@ -2,7 +2,7 @@
 URLS for the Guardian Project plugin
 """
 
-from django.urls import path
+from django.urls import path, re_path
 
 from .views import DeliverableCreateView, DeliverableDetailView, DeliverableAssetUpdateAPIView, \
     DeliverablesSearchAPIView, DeliverableAssetCheckTypeChange, NaughtyListAPIView, NaughtyListUIView, DeliverableCreateFolderView, DeliverablesListView, \
@@ -18,7 +18,7 @@ urlpatterns = [
     path(r'api/bundle/scan', NewDeliverableAPIScan.as_view()),
     path(r'api/bundle', NewDeliverablesAPIList.as_view(), name="new-api-list"),
     path(r'api/deliverables', NewDeliverableAssetAPIList.as_view(), name="new-asset-list"),
-    path(r'', NewDeliverableUI.as_view())
+    re_path(r'.*', NewDeliverableUI.as_view())
     # path(r'(?P<project_id>.+-\d+)/create/?', DeliverableCreateView, name='deliverables_create'),
     # path(r'(?P<pk>\d+)/?', DeliverableDetailView, name='deliverables_detail'),
     # path(r'asset/(?P<pk>\d+)/?', DeliverableAssetUpdateAPIView.as_view(), name='deliverable_asset_update'),

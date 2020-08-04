@@ -296,7 +296,12 @@ class DeliverableAsset(models.Model):
         :return:
         """
         try:
-            return not self.job(user).finished()
+            current_job = self.job(user)
+            if current_job is None:
+                return None
+            else:
+                return not current_job.finished()
+
         except VSNotFound:
             #no job => no ongoing job!
             return None
@@ -338,7 +343,10 @@ class DeliverableAsset(models.Model):
         :param user:  user to run the operation as
         :return: the essence version number. Raises on error.
         """
-        return self.item(user).get_shape("original").essence_version
+        try:
+            return self.item(user).get_shape("original").essence_version
+        except AttributeError:
+            return None
         # item = self.item(user)
         # shape = get_shape_with_tag(item, 'original')
         # if shape is None:
@@ -346,7 +354,11 @@ class DeliverableAsset(models.Model):
         # return safeget(shape, 'essenceVersion')
 
     def duration(self, user):
-        duration_string = self.item(user).get("durationSeconds", allowArray=False)
+        current_item = self.item(user)
+        if current_item is None:
+            return None
+
+        duration_string = current_item.get("durationSeconds", allowArray=False)
         return seconds_to_timestamp(duration_string) if duration_string is not None else None
         # item = self.item(user)
         # fields = get_fields_in_inf(item, ['durationSeconds'])
@@ -384,7 +396,7 @@ class DeliverableAsset(models.Model):
         returns a gnmvidispine VSItem object representing the vidispine item associated with this deliverable.
         the first time it is called (this happens internally) the data is lifted from the VS server and thereafter
         it is cached
-        the item_id must be set for this to work.  ValueError is raised if the item id is not set; VSNotFound is raised
+        the item_id must be set for this to work.  None is returned if the item id is not set; VSNotFound is raised
         if the item does not exist, or another VSException is raised if server communication fails
         :param user: username to run the metadata get as
         :return: the VSItem, possibly from in-memory cache
@@ -395,7 +407,7 @@ class DeliverableAsset(models.Model):
             self.__item = VSItem(url=settings.VIDISPINE_URL,user=settings.VIDISPINE_USER,passwd=settings.VIDISPINE_PASSWORD,run_as=user)
             self.__item.populate(self.item_id)
             return self.__item
-        raise ValueError("DeliverableAsset.item called with no item_id set")
+        return None
 
     def job(self, user):
         """

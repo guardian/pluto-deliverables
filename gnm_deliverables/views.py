@@ -28,7 +28,7 @@ from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
 from .models import Deliverable, DeliverableAsset
 from .serializers import DeliverableAssetSerializer, DeliverableSerializer
-
+from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
@@ -38,6 +38,12 @@ def inform_sentry_exception(err):
 
 class NewDeliverableUI(TemplateView):
     template_name = "gnm_deliverables/new_ui.html"
+
+    def get_context_data(self, **kwargs):
+        return {
+            "deployment_root": settings.__getattr__("DEPLOYMENT_ROOT"),
+            "cbVersion": "DEV", ##FIXME: this needs to be injected from config
+        }
 
 
 class NewDeliverablesAPIList(ListAPIView):

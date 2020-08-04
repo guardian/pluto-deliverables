@@ -46,12 +46,6 @@ interface ProjectsListState {
   projectsList?: Array<object>;
 }
 
-interface Project {
-  project_id: string;
-  name: string;
-  created: string;
-}
-
 const useStyles = makeStyles({
   table: {
     maxWidth: "100%",
