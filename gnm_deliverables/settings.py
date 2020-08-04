@@ -130,3 +130,4 @@ DEPLOYMENT_ROOT = "http://localhost:9000"
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
