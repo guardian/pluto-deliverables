@@ -1,10 +1,10 @@
 stages:
-  - test
+  - buildntest
   - upload
 
-test:
+django:
   image: python:3.8-alpine
-  stage: test
+  stage: buildntest
 
   script:
     - apk add postgresql-dev alpine-sdk
@@ -14,6 +14,26 @@ test:
     - pip install -r gnmvidispine/requirements.txt
     - cd gnmvidispine && CIRCLE_BUILD_NUM=$CI_PIPELINE_IID python ./setup.py install && cd ..
     - python ./manage.py test gnm_deliverables.tests
+
+frontend:
+  image: node:12.18-alpine3.12
+  stage: buildntest
+  script:
+    - cd frontend
+    - yarn install
+    - yarn lint
+    - yarn test
+    - yarn build:prod
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-node
+    paths:
+      - frontend/node_modules/
+  artifacts:
+    paths:
+      - gnm_deliverables/static/app.js
+    reports:
+      junit: frontend/junit.xml
+
 
 upload:
   image: "docker:19.03.11"
