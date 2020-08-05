@@ -24,6 +24,7 @@ import {
   useParams,
 } from "react-router-dom";
 import DeliverableTypeSelector from "./DeliverableTypeSelector";
+import { getProjectDeliverables } from "./api-service";
 
 interface HeaderTitles {
   label: string;
@@ -85,16 +86,25 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // Material-UI
   const classes = useStyles();
 
-  const doRefresh = () => {};
+  const doRefresh = async () => {
+    try {
+      const projectDeliverables = await getProjectDeliverables(projectid);
+      setDeliverables(projectDeliverables);
+    } catch (err) {
+      return setLastError(err);
+    }
+  };
 
   const loadRecord = async () => {
-    await setLoading(true);
+    setLoading(true);
 
     try {
-      const response = await axios.get(
-        `/api/deliverables?project_id=${projectid}`
-      );
-      return Promise.all([setDeliverables(response.data), setLoading(false)]);
+      const projectDeliverables = await getProjectDeliverables(projectid);
+
+      return Promise.all([
+        setDeliverables(projectDeliverables),
+        setLoading(false),
+      ]);
     } catch (err) {
       return Promise.all([setLastError(err), setLoading(false)]);
     }
