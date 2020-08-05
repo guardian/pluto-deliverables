@@ -62,3 +62,21 @@ install it into your virtualenv too:
    ```
    If you see an error about a library not found, check that gnmvidispine is 
    correctly installed in your virtualenv as per stage 4.
+
+### Local admin user
+
+When you try to access anything as above, you'll find you get permission denied.
+Proper (bearer-token) auth is not configured yet, so the easiest way is to create
+a local superuser in the database (e.g. admin/admin):
+```bash
+(venv) $ ./manage.py createsuperuser
+```
+In order to log in, with the dev server running, go to `http://localhost:9000/admin` and
+enter the credentials.  This gets you to a django admin screen, but also gives
+you a session which your browser should then be able to use to access all the endpoints.
+Just take your browser back to `http://localhost:9000/` and it should work.
+
+You can use basic-auth for REST only access, e.g.
+```bash
+$ curl http://localhost:9000/api/bundle/new -X POST -d '{"name":"fred","project_id":12345}' -u admin:admin
+```
