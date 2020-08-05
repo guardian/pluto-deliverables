@@ -6,7 +6,7 @@ interface Project {
 
 interface Deliverable {
     id: bigint,
-    type: bigint|null,
+    type: number|null,
     filename: string,
     size: bigint,
     access_dt: string,
@@ -23,3 +23,6 @@ interface Deliverable {
     size_string: string,
     status_string: string
 }
+
+//can't be more specific than this. each key is the section name and each value is an array of (id, name) pairs
+type DeliverableTypes = {[index:string] : [number,string][]};

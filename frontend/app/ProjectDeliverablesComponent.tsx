@@ -23,6 +23,7 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
+import DeliverableTypeSelector from "./DeliverableTypeSelector";
 
 interface HeaderTitles {
   label: string;
@@ -79,6 +80,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [lastError, setLastError] = useState<object | null>(null);
   const [selectedIDs, setSelectedIDs] = useState<bigint[]>([]);
+  const [typeOptions, setTypeOptions] = useState<DeliverableTypes>({});
 
   // Material-UI
   const classes = useStyles();
@@ -98,32 +100,44 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     }
   };
 
+  const loadDelTypes = async () => {
+    try {
+      const response = await axios.get(
+          "/api/typeslist"
+      );
+      return setTypeOptions(response.data);
+    } catch(err) {
+      console.error("Could not load in deliverable types: ", err);
+    }
+  }
+
   useEffect(() => {
+    loadDelTypes();
     loadRecord();
   }, []);
 
   return (
     <>
-      <Typography>
-        <h2 className={classes.sectionHeader}>Files</h2>
-        <span>
-          location: <a href="pluto:openfolder:fixme">/path/to/folder</a>
-        </span>
-      </Typography>
-      <hr />
-      <span className={classes.buttonContainer}>
-        <Button
-          className={classes.buttons}
-          variant="outlined"
-          onClick={() => doRefresh()}
-        >
-          Refresh
-        </Button>
-        <Button className={classes.buttons} variant="outlined">
-          Delete
-        </Button>
-      </span>
       <Paper elevation={3}>
+        <Typography>
+          <h2 className={classes.sectionHeader}>Files</h2>
+          <span>
+            location: <a href="pluto:openfolder:fixme">/path/to/folder</a>
+          </span>
+        </Typography>
+        <hr />
+        <span className={classes.buttonContainer}>
+          <Button
+            className={classes.buttons}
+            variant="outlined"
+            onClick={() => doRefresh()}
+          >
+            Refresh
+          </Button>
+          <Button className={classes.buttons} variant="outlined">
+            Delete
+          </Button>
+        </span>
         <TableContainer>
           <Table className={classes.table}>
             <TableHead>
@@ -159,7 +173,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                   <TableCell>{del.version ?? "-"}</TableCell>
                   <TableCell>{del.size_string ?? "-"}</TableCell>
                   <TableCell>{del.duration ?? "-"}</TableCell>
-                  <TableCell>{del.type ?? "-"}</TableCell>
+                  <TableCell><DeliverableTypeSelector
+                      content={typeOptions}
+                      value={del.type}
+                      onChange={(newvalue)=>console.log(`You selected ${newvalue}`)}
+                  />
+                  </TableCell>
                   <TableCell>{del.modified_dt}</TableCell>
                   <TableCell>{del.status_string}</TableCell>
                 </TableRow>

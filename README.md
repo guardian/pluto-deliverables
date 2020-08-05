@@ -1,0 +1,64 @@
+# pluto-deliverables
+
+An interface that allows for storage and retrieval of finished media
+products, masters, audio stems, post scripts etc.
+
+## Local dev setup
+
+pluto-deliverables is a django project, so the usual method of setting up
+a django project applies; but there are a couple of specific twists.
+
+### Frontend
+The frontend is a standard React/webpack build. The final bundle is directly
+output into the django static assets folder at gnm_deliverables/static/app.js.
+```bash
+$ cd frontend
+$ yarn install
+$ yarn dev
+```
+
+This will put webpack into watching mode, rebuilding a dev (debugging) build
+of the app bundle every time the frontend source changes.
+
+### Backend
+Once you have the project checked out, you'll need to set up your Python
+environment.  The app is developed in Python 3.8 but any recent python
+should do.
+1. Set up a virtualenv, normally this is put into a venv/ directory in the
+project root.  Gitignore is already set up on this folder. Point to the base
+python interpreter you want to use.
+    ```bash
+    $ virtualenv --python=python3.8 venv/
+    ```
+2. Activate your virtualenv:
+    ```bash
+    $ source venv/bin/activate
+    (venv) $
+    ```
+3. Install requirements:
+    ```bash
+    (venv) $ pip -r requirements.txt
+    ```
+4. **IMPORTANT** pluto-deliverables depends on a library called gnmvidispine
+that is linked in as a submodule.  You need to check this out and
+install it into your virtualenv too:
+    ```bash
+    (venv) $ git submodule init
+    (venv) $ git submodule update
+    (venv) $ cd gnmvidispine
+    (venv) $ pip -r requirements.txt
+    (venv) $ python ./setup.py install
+    (venv) $ cd ..
+    ```
+
+5. The current state of the app uses a local sqlite database so set that up:
+    ```bash
+    (venv) $ ./manage.py migrate
+    ```
+
+6. Now you are ready to run the dev server:
+    ```bash
+   (venv) $ ./manage.py runserver 0.0.0.0:9000 
+   ```
+   If you see an error about a library not found, check that gnmvidispine is 
+   correctly installed in your virtualenv as per stage 4.

@@ -29,6 +29,8 @@ from .forms import DeliverableCreateForm
 from .models import Deliverable, DeliverableAsset
 from .serializers import DeliverableAssetSerializer, DeliverableSerializer
 from django.conf import settings
+import functools    #for reduce()
+
 logger = logging.getLogger(__name__)
 
 
@@ -95,6 +97,23 @@ class NewDeliverableAPIScan(APIView):
             return Response({"status":"error", "detail": "Project not known"}, status=404)
         except Exception as e:
             return Response({"status":"error","detail":str(e)},status=500)
+
+
+class DeliverablesTypeListAPI(APIView):
+    """
+    returns a json object of the available categories.
+    this is in the format of:
+    {
+    "section": [ [id,name], [id,name], ... ],
+    "section": [ [id,name], [id,name], ... ],
+    }
+    """
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+
+    def get(self, request):
+        result = functools.reduce(lambda acc, cat: {**acc, **{cat[0]: cat[1]}}, DeliverableAsset.type.field.choices, {})
+        return Response(result,status=200)
 
 
 class ModelSearchAPIView(APIView):
