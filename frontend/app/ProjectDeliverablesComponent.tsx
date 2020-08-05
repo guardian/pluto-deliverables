@@ -102,14 +102,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const loadDelTypes = async () => {
     try {
-      const response = await axios.get(
-          "/api/typeslist"
-      );
+      const response = await axios.get("/api/typeslist");
       return setTypeOptions(response.data);
-    } catch(err) {
+    } catch (err) {
       console.error("Could not load in deliverable types: ", err);
     }
-  }
+  };
 
   useEffect(() => {
     loadDelTypes();
@@ -119,12 +117,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   return (
     <>
       <Paper elevation={3}>
-        <Typography>
+        <div>
           <h2 className={classes.sectionHeader}>Files</h2>
           <span>
             location: <a href="pluto:openfolder:fixme">/path/to/folder</a>
           </span>
-        </Typography>
+        </div>
         <hr />
         <span className={classes.buttonContainer}>
           <Button
@@ -173,11 +171,15 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                   <TableCell>{del.version ?? "-"}</TableCell>
                   <TableCell>{del.size_string ?? "-"}</TableCell>
                   <TableCell>{del.duration ?? "-"}</TableCell>
-                  <TableCell><DeliverableTypeSelector
+                  <TableCell>
+                    <DeliverableTypeSelector
                       content={typeOptions}
+                      showTip={true}
                       value={del.type}
-                      onChange={(newvalue)=>console.log(`You selected ${newvalue}`)}
-                  />
+                      onChange={(newvalue) =>
+                        console.log(`You selected ${newvalue}`)
+                      }
+                    />
                   </TableCell>
                   <TableCell>{del.modified_dt}</TableCell>
                   <TableCell>{del.status_string}</TableCell>
