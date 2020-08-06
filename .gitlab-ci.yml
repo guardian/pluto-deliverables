@@ -5,7 +5,13 @@ stages:
 django:
   image: python:3.8-alpine
   stage: buildntest
-
+  services:
+    - postgres:9.6
+  variables:
+    POSTGRES_DB: pluto-deliverables
+    POSTGRES_USER: pluto-deliverables
+    POSTGRES_PASSWORD: pluto-deliverables
+    POSTGRES_HOST_AUTH_METHOD: trust
   script:
     - apk add postgresql-dev alpine-sdk
     - git submodule init
