@@ -2,6 +2,8 @@ interface Project {
     project_id: string;
     name: string;
     created: string;
+    local_open_uri: string;
+    local_path: string;
 }
 
 interface Deliverable {

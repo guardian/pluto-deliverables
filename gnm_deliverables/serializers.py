@@ -42,4 +42,4 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
 class DeliverableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deliverable
-        fields = ["project_id", "name", "created"]
+        fields = ["project_id", "name", "created", "local_open_uri", "local_path"]

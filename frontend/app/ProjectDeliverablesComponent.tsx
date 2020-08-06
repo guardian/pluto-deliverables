@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import LocationLink from "./LocationLink";
+
 import {
   Button,
   IconButton,
@@ -92,6 +94,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [selectedIDs, setSelectedIDs] = useState<bigint[]>([]);
   const [typeOptions, setTypeOptions] = useState<DeliverableTypes>({});
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [parentBundleInfo, setParentBundleInfo] = useState<Project|undefined>(undefined);
 
   // Material-UI
   const classes = useStyles();
@@ -119,10 +122,8 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     try {
       const projectDeliverables = await getProjectDeliverables(projectid);
 
-      return Promise.all([
-        setDeliverables(projectDeliverables),
-        setLoading(false),
-      ]);
+      return setDeliverables(projectDeliverables);
+
     } catch (err) {
       return Promise.all([setLastError(err), setLoading(false)]);
     }
@@ -136,6 +137,16 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       console.error("Could not load in deliverable types: ", err);
     }
   };
+
+  const loadParentBundle = async () => {
+    try{
+      const response = await axios.get(`/api/bundle?project_id=${projectid}`);
+      const actualBundleInfo = response.data ? response.data.length>0 ? response.data[0] : undefined : undefined;
+      return setParentBundleInfo(actualBundleInfo);
+    } catch (err) {
+      console.error("Could not load in parent bundle data: ", err);
+    }
+  }
 
   const deleteSelectedDeliverables = async () => {
     try {
@@ -161,35 +172,33 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   useEffect(() => {
     loadDelTypes();
     loadRecord();
+    loadParentBundle();
   }, []);
 
   return (
     <>
-      <Paper elevation={3}>
-        <div>
-          <h2 className={classes.sectionHeader}>Files</h2>
-          <span>
-            location: <a href="pluto:openfolder:fixme">/path/to/folder</a>
-          </span>
-        </div>
-        <hr />
-        <span className={classes.buttonContainer}>
+      <div>
+        <h2 className={classes.sectionHeader}>Files</h2>
+        {parentBundleInfo ? <LocationLink bundleInfo={parentBundleInfo}/> : ""}
+      </div>
+      <span className={classes.buttonContainer}>
           <Button
-            className={classes.buttons}
-            variant="outlined"
-            onClick={() => doRefresh()}
+              className={classes.buttons}
+              variant="outlined"
+              onClick={() => doRefresh()}
           >
             Refresh
           </Button>
           <Button
-            className={classes.buttons}
-            variant="outlined"
-            disabled={selectedIDs.length === 0}
-            onClick={() => setOpenDialog(true)}
+              className={classes.buttons}
+              variant="outlined"
+              disabled={selectedIDs.length === 0}
+              onClick={() => setOpenDialog(true)}
           >
             Delete
           </Button>
         </span>
+      <Paper elevation={3}>
         <TableContainer>
           <Table className={classes.table}>
             <TableHead>
@@ -243,7 +252,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           </Table>
         </TableContainer>
       </Paper>
-
+      <hr />
       <Dialog
         open={openDialog}
         onClose={closeDialog}
