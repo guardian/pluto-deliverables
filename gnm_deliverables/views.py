@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 #from gnm_misc_utils.csrf_exempt_session_authentication import CsrfExemptSessionAuthentication
-from gnmvidispine.vs_exception import VSException
+from gnmvidispine.vidispine_api import VSNotFound, VSException
 from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, DELIVERABLE_ASSET_STATUS_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
 from .exceptions import NoShapeError
@@ -129,6 +129,45 @@ class DeliverablesTypeListAPI(APIView):
     def get(self, request):
         result = functools.reduce(lambda acc, cat: {**acc, **{cat[0]: cat[1]}}, DeliverableAsset.type.field.choices, {})
         return Response(result,status=200)
+
+
+class AdoptExistingVidispineItemView(APIView):
+    """
+    tries to adopt the given vidispine item into the bundle list.
+    """
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+
+    vs_validator = re.compile(r'^\w{2}-\d+$')
+
+    def post(self, request):
+        project_id = request.GET.get("project_id")
+        vs_id = request.GET.get("vs_id")
+        if project_id is None or vs_id is None:
+            return Response({"status":"error","detail":"missing either project_id or vs_id"}, status=400)
+
+        if not self.vs_validator.match(vs_id):
+            return Response({"status":"error","detail": "vidispine id is invalid"}, status=400)
+        try:
+            #FIXME: once bearer token auth is integrated, then the user= field must be set in create_asset_from_vs_item
+            bundle = Deliverable.objects.get(project_id=project_id)
+            asset, created = bundle.create_asset_from_vs_item(vs_id, user="admin")
+            if created:
+                return Response({"status":"ok","detail": "item attached"}, status=200)
+            else:
+                return Response({"status":"conflict","detail":"item is already attached to this bundle!"}, status=409)
+        except Deliverable.DoesNotExist:
+            return Response({"status":"notfound","detail":"that deliverable does not exist"}, status=404)
+        except NoShapeError:
+            return Response({"status":"error","detail":"the given item has no media"}, status=400)
+        except VSNotFound:
+            return Response({"status":"notfound","detail":"that item does not exist in Vidispine"}, status=404)
+        except VSException as e:
+            logger.exception("Could not communicate with VS adopting item {0}: {1}".format(vs_id, str(e)))
+            return Response({"status":"server_error","detail":str(e)})
+        except Exception as e:
+            logger.exception("Unexpected error adopting VS item {0}: ".format(vs_id))
+            return Response({"status":"server_error","detail":str(e)})
 
 
 class ModelSearchAPIView(APIView):

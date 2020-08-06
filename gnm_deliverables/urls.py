@@ -8,7 +8,7 @@ from .views import DeliverableCreateView, DeliverableDetailView, DeliverableAsse
     DeliverablesSearchAPIView, DeliverableAssetCheckTypeChange, NaughtyListAPIView, NaughtyListUIView, DeliverableCreateFolderView, DeliverablesListView, \
     DeliverablesSearchForWorkingGroupAPIView, SearchForDeliverableAPIView, DeliverableAPIRetrieveView
 from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI
-from .views import DeliverablesTypeListAPI
+from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
 from django.contrib.auth.decorators import login_required
 from django.contrib import admin
 
@@ -17,6 +17,7 @@ urlpatterns = [
     # path(r'list/', login_required(DeliverablesListView.as_view()), name='deliverables'),
     path(r'api/bundle/new', NewDeliverablesAPICreate.as_view()),
     path(r'api/bundle/scan', NewDeliverableAPIScan.as_view()),
+    path(r'api/bundle/adopt', AdoptExistingVidispineItemView.as_view(), name="adopt-asset"),
     path(r'api/bundle', NewDeliverablesAPIList.as_view(), name="new-api-list"),
     path(r'api/deliverables', NewDeliverableAssetAPIList.as_view(), name="new-asset-list"),
     path(r'api/deliverable', DeliverableAPIView.as_view()),

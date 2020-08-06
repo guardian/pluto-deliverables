@@ -114,6 +114,16 @@ class Deliverable(models.Model):
         return create_folder(self.path)
 
     def create_asset_from_vs_item(self, item_id, user):
+        """
+        tries to "adopt" the given existing vidispine item onto this deliverable bundle.
+        if the item is already associated with this deliverable bundle then it is returned without re-import.
+        can raise NoShapeError if either the item has no original shape, or VSNotFound if the item does not exist.
+        can also raise other VSException from gnmvidispine if server communication fails.
+        :param item_id: item id to adopt
+        :param user: name of the user carrying out the operation, it will be done as this user in VS
+        :return: a tuple of (DeliverableAsset, Boolean) where the boolean value indicates whether a new DeliverableAsset
+        was created or not
+        """
         created = False
         try:
             asset = DeliverableAsset.objects.get(item_id=item_id, deliverable=self)

@@ -32,15 +32,13 @@ const DeliverableTypeSelector: React.FC<DeliverableTypeSelectorProps> = (
           setDeliverableType(type);
         }}
       >
-        {Object.keys(props.content).map((section_name) => {
-          const section_content = props.content[section_name];
-          console.log(section_content);
-          return section_content.map((entry) => (
+        {Object.keys(props.content).map((section_name) => (
+            props.content[section_name].map((entry) => (
             <MenuItem key={entry[0]} value={entry[0]}>
               {entry[1]}
             </MenuItem>
-          ));
-        })}
+          ))
+        ))}
       </Select>
       {props.showTip ? (
         <FormHelperText>Select a type to begin media ingest</FormHelperText>

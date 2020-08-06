@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions,
+  DialogActions, Input, TextField,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -59,10 +59,32 @@ const useStyles = makeStyles({
   table: {
     maxWidth: "100%",
   },
-  buttonContainer: {},
+  buttonContainer: {
+    display: "grid",
+    gridTemplateColumns: "repeat(10,10%)"
+  },
   buttons: {
     marginRight: "0.4rem",
-    marginBottom: "0.625rem",
+    marginBottom: "1.2rem",
+    marginTop: "0.625rem"
+  },
+  adoptAssetInput: {
+    gridColumnStart: -3,
+    gridColumnEnd: -1,
+    marginBottom: "1em",
+    marginLeft: "0.2em"
+  },
+  addAssetButton: {
+    gridColumnStart: -4,
+    gridColumnEnd: -3,
+    marginRight: "0.4rem",
+    marginBottom: "1.2rem",
+    marginTop: "0.625rem"
+  },
+  centralMessage: {
+    gridColumnStart: 3,
+    gridColumnEnd: 8,
+    margin: "auto"
   },
   sectionHeader: {
     display: "inline",
@@ -95,6 +117,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [typeOptions, setTypeOptions] = useState<DeliverableTypes>({});
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [parentBundleInfo, setParentBundleInfo] = useState<Project|undefined>(undefined);
+  const [assetToAdd, setAssetToAdd] = useState<string>("");
+  const [adoptInProgress, setAdoptInProgress] = useState<boolean>(false);
+  const [centralMessage, setCentralMessage] = useState<string>("");
 
   // Material-UI
   const classes = useStyles();
@@ -135,6 +160,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       return setTypeOptions(response.data);
     } catch (err) {
       console.error("Could not load in deliverable types: ", err);
+      setCentralMessage("Could not load in deliverable types");
     }
   };
 
@@ -145,6 +171,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       return setParentBundleInfo(actualBundleInfo);
     } catch (err) {
       console.error("Could not load in parent bundle data: ", err);
+      setCentralMessage("Could not load in parent bundle data");
     }
   }
 
@@ -159,12 +186,34 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       setSelectedIDs([]);
     } catch (error) {
       console.error(`failed to delete deliverable`, error);
+      setCentralMessage("Could not delete deliverable")
     }
   };
 
   const closeDialog = () => {
     setOpenDialog(false);
   };
+
+  const doAdoptItem = async () => {
+    setAdoptInProgress(true);
+    setCentralMessage("");
+
+    try {
+      const result = await axios.post(`/api/bundle/adopt?project_id=${projectid}&vs_id=${assetToAdd}`,{},{
+        headers: {
+          "X-CSRFToken": Cookies.get("csrftoken")
+        }
+      });
+      setCentralMessage(`Attached ${assetToAdd} succeessfully`);
+      setAssetToAdd("");
+      setAdoptInProgress(false);
+      return loadRecord();
+    } catch(error) {
+      //TODO: improve error handling. the endpoint returns 409=>item already exists, 404=?item not found, 400=>invalid argument, 500=>server error.
+      console.error("failed to perform adoption: ", error);
+      setCentralMessage(`Could not attach ${assetToAdd}, please contact MultimediaTech`);
+    }
+  }
 
   const getSelectedDeliverables = (): Deliverable[] =>
     deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
@@ -197,6 +246,25 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           >
             Delete
           </Button>
+        <Typography className={classes.centralMessage}>
+          {centralMessage}
+        </Typography>
+        <Button
+          className={classes.addAssetButton}
+          style={{display: assetToAdd=="" ? "none":"inherit"}}
+          variant="outlined"
+          disabled={assetToAdd=="" || adoptInProgress}
+          onClick={doAdoptItem}
+        >Add Item</Button>
+        <TextField
+            className={classes.adoptAssetInput}
+            onChange={evt=>setAssetToAdd(evt.target.value)}
+            value={assetToAdd}
+            label="paste Pluto master or asset ID"
+            InputProps={{
+              readOnly: adoptInProgress
+            }}
+          />
         </span>
       <Paper elevation={3}>
         <TableContainer>
