@@ -90,3 +90,8 @@ You can use basic-auth for REST only access, e.g.
 ```bash
 $ curl http://localhost:9000/api/bundle/new -X POST -d '{"name":"fred","project_id":12345}' -u admin:admin
 ```
+
+### Hey, the tests are broken!
+You need to set the environment variable CI (to anything, but conventionally 1) in order for the tests to work.
+This is because normally the app attempts to connect to rabbitmq at startup and fails if it isn't there.  With CI
+set in the environment, this stage is skipped.

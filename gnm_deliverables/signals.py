@@ -7,11 +7,15 @@ import pika
 import pika.exceptions
 from django.conf import settings
 from time import sleep
+import os
 
 logger = logging.getLogger(__name__)
 
 
 def setup_connection():
+    if "CI" in os.environ:
+        return None #don't try to connect to amqp when testing
+
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(
             host=getattr(settings,"RABBIQMQ_HOST","localhost"),
@@ -52,7 +56,8 @@ def relay_message(affected_model, action):
 
     while True:
         send_attempt+=1
-        logger.info("trying to send update message, attempt {0}".format(send_attempt))
+        if send_attempt>1:
+            logger.info("trying to send update message, attempt {0}".format(send_attempt))
         try:
             if isinstance(affected_model, Deliverable):
                 logger.info("{0} an instance of Deliverable with id {1}".format(action, affected_model.project_id))
@@ -60,19 +65,22 @@ def relay_message(affected_model, action):
             elif isinstance(affected_model, DeliverableAsset):
                 logger.info("{0} an instance of DeliverableAsset with id {1} at {2}".format(action, affected_model.pk, affected_model.absolute_path))
                 content = DeliverableAssetSerializer(affected_model)
+            elif affected_model.__class__.__name__=="Migration": #silently ignore this one
+                content = None
             else:
                 content = None
-                logger.error("model_saved got an unexpected model class: {0}".format(affected_model.__class__.__name__))
+                logger.error("model_saved got an unexpected model class: {0}.{1}".format(affected_model.__class__.__module__, affected_model.__class__.__name__))
 
             if content:
-                routing_key = "pluto-deliverables.{0}.{1}".format(affected_model.__class__.__name__.lower(), action)
+                routing_key = "deliverables.{0}.{1}".format(affected_model.__class__.__name__.lower(), action)
                 payload = JSONRenderer().render(content.data)
-                channel.basic_publish(
-                    exchange='pluto-deliverables',
-                    routing_key=routing_key,
-                    body=payload
-                )
-                print("message sent")
+                if channel is not None:
+                    channel.basic_publish(
+                        exchange='pluto-deliverables',
+                        routing_key=routing_key,
+                        body=payload
+                    )
+                    print("message sent")
             break
         except pika.exceptions.ChannelWrongStateError:
             while True:
