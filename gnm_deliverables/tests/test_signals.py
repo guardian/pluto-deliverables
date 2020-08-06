@@ -6,17 +6,14 @@ import os
 import datetime
 import pytz
 
-class TestModelSignals(TestCase):
-    def setUp(self) -> None:
-        if "CI" not in os.environ:
-            os.environ["CI"] = 1
 
+class TestModelSignals(TestCase):
     def test_model_saved_create(self):
         """
         ModelSaved should call out to relay_message, passing the instance and
         "create" if the creation flag is true
         """
-        with mock.patch("gnm_deliverables.signals.relay_message") as mock_relay_message:
+        with mock.patch("gnm_deliverables.signals.MessageRelay.relay_message") as mock_relay_message:
             from gnm_deliverables.signals import model_saved
 
             fake_instance=DeliverableAsset()
@@ -29,7 +26,7 @@ class TestModelSignals(TestCase):
         ModelSaved should call out to relay_message, passing the instance and
         "update" if the creation flag is false
         """
-        with mock.patch("gnm_deliverables.signals.relay_message") as mock_relay_message:
+        with mock.patch("gnm_deliverables.signals.MessageRelay.relay_message") as mock_relay_message:
             from gnm_deliverables.signals import model_saved
 
             fake_instance=DeliverableAsset()
@@ -42,7 +39,7 @@ class TestModelSignals(TestCase):
         model_deleted should call out to relay_message, passing the instance and "delete"
         :return:
         """
-        with mock.patch("gnm_deliverables.signals.relay_message") as mock_relay_message:
+        with mock.patch("gnm_deliverables.signals.MessageRelay.relay_message") as mock_relay_message:
             from gnm_deliverables.signals import model_deleted
 
             fake_instance=DeliverableAsset()
@@ -60,12 +57,12 @@ class TestRelayMessage(TestCase):
         import pika.channel
         from gnm_deliverables.serializers import DeliverableAssetSerializer
         from rest_framework.renderers import JSONRenderer
+        from gnm_deliverables.signals import MessageRelay
 
         mock_channel = mock.MagicMock(pika.channel)
         mock_channel.basic_publish = mock.MagicMock()
 
-        with mock.patch("gnm_deliverables.signals.channel", mock_channel):
-            from gnm_deliverables.signals import relay_message
+        with mock.patch("gnm_deliverables.signals.MessageRelay.setup_connection", return_value=mock_channel):
             fake_instance=DeliverableAsset(
                 type=1,
                 filename='/path/to/somefile',
@@ -76,7 +73,8 @@ class TestRelayMessage(TestCase):
                 changed_dt=datetime.datetime(2020,2,3,4,5,6,0,tzinfo=pytz.UTC),
             )
 
-            relay_message(fake_instance,"create")
+            r = MessageRelay()
+            r.relay_message(fake_instance,"create")
 
             expected_output = JSONRenderer().render(DeliverableAssetSerializer(fake_instance).data)
 
@@ -98,14 +96,15 @@ class TestRelayMessage(TestCase):
         mock_channel = mock.MagicMock(pika.channel)
         mock_channel.basic_publish = mock.MagicMock()
 
-        with mock.patch("gnm_deliverables.signals.channel", mock_channel):
-            from gnm_deliverables.signals import relay_message
+        with mock.patch("gnm_deliverables.signals.MessageRelay.setup_connection", return_value=mock_channel):
+            from gnm_deliverables.signals import MessageRelay
             fake_instance=Deliverable(
                 name="test bundle",
                 project_id="VX-1234"
             )
 
-            relay_message(fake_instance,"create")
+            r = MessageRelay()
+            r.relay_message(fake_instance,"create")
 
             expected_output = JSONRenderer().render(DeliverableSerializer(fake_instance).data)
 
@@ -125,10 +124,11 @@ class TestRelayMessage(TestCase):
         mock_channel = mock.MagicMock(pika.channel)
         mock_channel.basic_publish = mock.MagicMock()
 
-        with mock.patch("gnm_deliverables.signals.channel", mock_channel):
-            from gnm_deliverables.signals import relay_message
+        with mock.patch("gnm_deliverables.signals.MessageRelay.setup_connection", return_value=mock_channel):
+            from gnm_deliverables.signals import MessageRelay
             fake_instance=User()
 
-            relay_message(fake_instance,"create")
+            r = MessageRelay()
+            r.relay_message(fake_instance,"create")
 
             mock_channel.basic_publish.assert_not_called()

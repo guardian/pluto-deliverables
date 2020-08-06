@@ -151,6 +151,10 @@ LOGGING = {
             'formatter': 'normal',
         },
     },
+    'pika': {
+        'handlers': ['console'],
+        'level': 'ERROR',
+    },
     'root': {
         'handlers': ['console'],
         'level': 'INFO',
