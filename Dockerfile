@@ -1,6 +1,7 @@
 FROM python:3.8-alpine
 
 COPY requirements.txt /opt/pluto-deliverables/requirements.txt
+ADD gnmvidispine /tmp/gnmvidispine
 WORKDIR /opt/pluto-deliverables
 RUN apk add --no-cache alpine-sdk linux-headers openssl-dev mailcap postgresql-dev postgresql-libs && \
     pip install -r /tmp/gnmvidispine/requirements.txt && \
@@ -10,7 +11,6 @@ RUN apk add --no-cache alpine-sdk linux-headers openssl-dev mailcap postgresql-d
     apk --no-cache del alpine-sdk linux-headers openssl-dev postgresql-dev
 COPY manage.py /opt/pluto-deliverables/manage.py
 ADD gnm_deliverables /opt/pluto-deliverables/gnm_deliverables
-ADD gnmvidispine /tmp/gnmvidispine
 #annoying, but until my Mac gets upgraded to support later Docker I can't use chown-in-copy :(
 RUN chown -R nobody /opt/pluto-deliverables
 ENV PYTHONPATH=/opt/pluto-deliverables
