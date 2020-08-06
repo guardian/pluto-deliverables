@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 import {
   Button,
   IconButton,
@@ -97,6 +98,14 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const doRefresh = async () => {
     try {
+      const rescanResult = await axios({
+        method: "POST",
+        url: `/api/bundle/scan?project_id=${projectid}`,
+        headers: {
+          "X-CSRFToken": Cookies.get("csrftoken"),
+        },
+      });
+
       const projectDeliverables = await getProjectDeliverables(projectid);
       setDeliverables(projectDeliverables);
     } catch (err) {

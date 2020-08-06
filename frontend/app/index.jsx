@@ -7,6 +7,7 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import ProjectsListComponent from "./ProjectsListComponent";
 import axios from "axios";
 import ProjectDeliverablesComponent from "./ProjectDeliverablesComponent";
+import CreateDeliverable from "./CreateDeliverable";
 
 const theme = createMuiTheme({
   typography: {
@@ -35,6 +36,8 @@ class App extends React.Component {
     return (
       <ThemeProvider theme={theme}>
         <Switch>
+          <Route path="/project/:projectid/new" component={CreateDeliverable} />
+          <Route path="/project/new" component={CreateDeliverable} />
           <Route
             path="/project/:projectid"
             component={ProjectDeliverablesComponent}
