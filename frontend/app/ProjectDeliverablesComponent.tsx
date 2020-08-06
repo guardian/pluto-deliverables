@@ -14,6 +14,11 @@ import {
   TableRow,
   TableSortLabel,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -24,7 +29,10 @@ import {
   useParams,
 } from "react-router-dom";
 import DeliverableTypeSelector from "./DeliverableTypeSelector";
-import { getProjectDeliverables } from "./api-service";
+import {
+  getProjectDeliverables,
+  deleteProjectDeliverable,
+} from "./api-service";
 
 interface HeaderTitles {
   label: string;
@@ -82,6 +90,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [lastError, setLastError] = useState<object | null>(null);
   const [selectedIDs, setSelectedIDs] = useState<bigint[]>([]);
   const [typeOptions, setTypeOptions] = useState<DeliverableTypes>({});
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   // Material-UI
   const classes = useStyles();
@@ -119,6 +128,27 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     }
   };
 
+  const deleteSelectedDeliverables = async () => {
+    try {
+      await deleteProjectDeliverable(projectid, selectedIDs);
+      setDeliverables(
+        deliverables.filter(
+          (deliverable) => !selectedIDs.includes(deliverable.id)
+        )
+      );
+      setSelectedIDs([]);
+    } catch (error) {
+      console.error(`failed to delete deliverable`, error);
+    }
+  };
+
+  const closeDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const getSelectedDeliverables = (): Deliverable[] =>
+    deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
+
   useEffect(() => {
     loadDelTypes();
     loadRecord();
@@ -142,7 +172,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           >
             Refresh
           </Button>
-          <Button className={classes.buttons} variant="outlined">
+          <Button
+            className={classes.buttons}
+            variant="outlined"
+            disabled={selectedIDs.length === 0}
+            onClick={() => setOpenDialog(true)}
+          >
             Delete
           </Button>
         </span>
@@ -199,6 +234,43 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           </Table>
         </TableContainer>
       </Paper>
+
+      <Dialog
+        open={openDialog}
+        onClose={closeDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Delete Deliverable{selectedIDs.length > 1 ? "s" : ""}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete the deliverable
+            {selectedIDs.length > 1 ? "s" : ""}{" "}
+            {getSelectedDeliverables()
+              .map((selectedDeliverable) => `"${selectedDeliverable.filename}"`)
+              .join(", ")}
+            ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={closeDialog}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<DeleteIcon />}
+            onClick={() => {
+              setOpenDialog(false);
+              deleteSelectedDeliverables();
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
