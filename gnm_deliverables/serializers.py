@@ -16,7 +16,10 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
 
     @cached_property
     def user(self):
-        return self.context['request'].user
+        if 'request' in self.context:
+            return self.context['request'].user
+        else:
+            return "admin"
 
     def get_status(self, obj):
         return obj.status(self.user)

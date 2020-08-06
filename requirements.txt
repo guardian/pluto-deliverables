@@ -5,3 +5,4 @@ python-dateutil==2.8.1
 django-nose==1.4.6
 coverage==5.2.1
 psycopg2==2.8.5
+pika==1.1.0
