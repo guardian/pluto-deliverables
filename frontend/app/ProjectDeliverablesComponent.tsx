@@ -21,7 +21,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions, Input, TextField,
+  DialogActions,
+  Input,
+  TextField,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -61,30 +63,30 @@ const useStyles = makeStyles({
   },
   buttonContainer: {
     display: "grid",
-    gridTemplateColumns: "repeat(10,10%)"
+    gridTemplateColumns: "repeat(10,10%)",
   },
   buttons: {
     marginRight: "0.4rem",
     marginBottom: "1.2rem",
-    marginTop: "0.625rem"
+    marginTop: "0.625rem",
   },
   adoptAssetInput: {
     gridColumnStart: -3,
     gridColumnEnd: -1,
     marginBottom: "1em",
-    marginLeft: "0.2em"
+    marginLeft: "0.2em",
   },
   addAssetButton: {
     gridColumnStart: -4,
     gridColumnEnd: -3,
     marginRight: "0.4rem",
     marginBottom: "1.2rem",
-    marginTop: "0.625rem"
+    marginTop: "0.625rem",
   },
   centralMessage: {
     gridColumnStart: 3,
     gridColumnEnd: 8,
-    margin: "auto"
+    margin: "auto",
   },
   sectionHeader: {
     display: "inline",
@@ -116,7 +118,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [selectedIDs, setSelectedIDs] = useState<bigint[]>([]);
   const [typeOptions, setTypeOptions] = useState<DeliverableTypes>({});
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [parentBundleInfo, setParentBundleInfo] = useState<Project|undefined>(undefined);
+  const [parentBundleInfo, setParentBundleInfo] = useState<Project | undefined>(
+    undefined
+  );
   const [assetToAdd, setAssetToAdd] = useState<string>("");
   const [adoptInProgress, setAdoptInProgress] = useState<boolean>(false);
   const [centralMessage, setCentralMessage] = useState<string>("");
@@ -148,7 +152,6 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       const projectDeliverables = await getProjectDeliverables(projectid);
 
       return setDeliverables(projectDeliverables);
-
     } catch (err) {
       return Promise.all([setLastError(err), setLoading(false)]);
     }
@@ -165,15 +168,19 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   };
 
   const loadParentBundle = async () => {
-    try{
+    try {
       const response = await axios.get(`/api/bundle?project_id=${projectid}`);
-      const actualBundleInfo = response.data ? response.data.length>0 ? response.data[0] : undefined : undefined;
+      const actualBundleInfo = response.data
+        ? response.data.length > 0
+          ? response.data[0]
+          : undefined
+        : undefined;
       return setParentBundleInfo(actualBundleInfo);
     } catch (err) {
       console.error("Could not load in parent bundle data: ", err);
       setCentralMessage("Could not load in parent bundle data");
     }
-  }
+  };
 
   const deleteSelectedDeliverables = async () => {
     try {
@@ -186,7 +193,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       setSelectedIDs([]);
     } catch (error) {
       console.error(`failed to delete deliverable`, error);
-      setCentralMessage("Could not delete deliverable")
+      setCentralMessage("Could not delete deliverable");
     }
   };
 
@@ -199,21 +206,27 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     setCentralMessage("");
 
     try {
-      const result = await axios.post(`/api/bundle/adopt?project_id=${projectid}&vs_id=${assetToAdd}`,{},{
-        headers: {
-          "X-CSRFToken": Cookies.get("csrftoken")
+      const result = await axios.post(
+        `/api/bundle/adopt?project_id=${projectid}&vs_id=${assetToAdd}`,
+        {},
+        {
+          headers: {
+            "X-CSRFToken": Cookies.get("csrftoken"),
+          },
         }
-      });
+      );
       setCentralMessage(`Attached ${assetToAdd} succeessfully`);
       setAssetToAdd("");
       setAdoptInProgress(false);
       return loadRecord();
-    } catch(error) {
+    } catch (error) {
       //TODO: improve error handling. the endpoint returns 409=>item already exists, 404=?item not found, 400=>invalid argument, 500=>server error.
       console.error("failed to perform adoption: ", error);
-      setCentralMessage(`Could not attach ${assetToAdd}, please contact MultimediaTech`);
+      setCentralMessage(
+        `Could not attach ${assetToAdd}, please contact MultimediaTech`
+      );
     }
-  }
+  };
 
   const getSelectedDeliverables = (): Deliverable[] =>
     deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
@@ -228,44 +241,46 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     <>
       <div>
         <h2 className={classes.sectionHeader}>Files</h2>
-        {parentBundleInfo ? <LocationLink bundleInfo={parentBundleInfo}/> : ""}
+        {parentBundleInfo ? <LocationLink bundleInfo={parentBundleInfo} /> : ""}
       </div>
       <span className={classes.buttonContainer}>
-          <Button
-              className={classes.buttons}
-              variant="outlined"
-              onClick={() => doRefresh()}
-          >
-            Refresh
-          </Button>
-          <Button
-              className={classes.buttons}
-              variant="outlined"
-              disabled={selectedIDs.length === 0}
-              onClick={() => setOpenDialog(true)}
-          >
-            Delete
-          </Button>
+        <Button
+          className={classes.buttons}
+          variant="outlined"
+          onClick={() => doRefresh()}
+        >
+          Refresh
+        </Button>
+        <Button
+          className={classes.buttons}
+          variant="outlined"
+          disabled={selectedIDs.length === 0}
+          onClick={() => setOpenDialog(true)}
+        >
+          Delete
+        </Button>
         <Typography className={classes.centralMessage}>
           {centralMessage}
         </Typography>
         <Button
           className={classes.addAssetButton}
-          style={{display: assetToAdd=="" ? "none":"inherit"}}
+          style={{ display: assetToAdd == "" ? "none" : "inherit" }}
           variant="outlined"
-          disabled={assetToAdd=="" || adoptInProgress}
+          disabled={assetToAdd == "" || adoptInProgress}
           onClick={doAdoptItem}
-        >Add Item</Button>
+        >
+          Add Item
+        </Button>
         <TextField
-            className={classes.adoptAssetInput}
-            onChange={evt=>setAssetToAdd(evt.target.value)}
-            value={assetToAdd}
-            label="paste Pluto master or asset ID"
-            InputProps={{
-              readOnly: adoptInProgress
-            }}
-          />
-        </span>
+          className={classes.adoptAssetInput}
+          onChange={(evt) => setAssetToAdd(evt.target.value)}
+          value={assetToAdd}
+          label="paste Pluto master or asset ID"
+          InputProps={{
+            readOnly: adoptInProgress,
+          }}
+        />
+      </span>
       <Paper elevation={3}>
         <TableContainer>
           <Table className={classes.table}>
