@@ -7,7 +7,7 @@ from django.urls import path, re_path
 from .views import DeliverableCreateView, DeliverableDetailView, DeliverableAssetUpdateAPIView, \
     DeliverablesSearchAPIView, DeliverableAssetCheckTypeChange, NaughtyListAPIView, NaughtyListUIView, DeliverableCreateFolderView, DeliverablesListView, \
     DeliverablesSearchForWorkingGroupAPIView, SearchForDeliverableAPIView, DeliverableAPIRetrieveView
-from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI
+from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI
 from .views import DeliverablesTypeListAPI
 from django.contrib.auth.decorators import login_required
 from django.contrib import admin
@@ -19,6 +19,7 @@ urlpatterns = [
     path(r'api/bundle/scan', NewDeliverableAPIScan.as_view()),
     path(r'api/bundle', NewDeliverablesAPIList.as_view(), name="new-api-list"),
     path(r'api/deliverables', NewDeliverableAssetAPIList.as_view(), name="new-asset-list"),
+    path(r'api/deliverable', DeliverableAPIView.as_view()),
     path(r'api/typeslist', DeliverablesTypeListAPI.as_view(), name="asset-types"),
     re_path(r'.*', NewDeliverableUI.as_view())
     # path(r'(?P<project_id>.+-\d+)/create/?', DeliverableCreateView, name='deliverables_create'),

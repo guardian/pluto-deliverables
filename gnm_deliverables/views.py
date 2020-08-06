@@ -11,7 +11,7 @@ from django.http import Http404
 from django.shortcuts import redirect
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import TemplateView
-from rest_framework import mixins
+from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView, ListAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -83,6 +83,20 @@ class NewDeliverableAssetAPIList(ListAPIView):
         except KeyError:
             return Response({"status":"error","detail": "you must specify a project_id= query param"},status=400)
 
+
+class DeliverableAPIView(APIView):
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+    parser_classes = (JSONParser, )
+
+    def delete(self, *args, **kwargs):
+        bundle_id = self.request.GET["project_id"]
+        parent_bundle = Deliverable.objects.get(project_id=bundle_id)
+        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle, pk__in=self.request.data)
+
+        deliverables.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class NewDeliverableAPIScan(APIView):
     permission_classes = (IsAuthenticated, )
