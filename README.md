@@ -51,12 +51,22 @@ install it into your virtualenv too:
     (venv) $ cd ..
     ```
 
-5. The current state of the app uses a local sqlite database so set that up:
+5. You need to have a database running in order to use the app:
+    ```bash
+    $ cd scripts/
+    $ ./setup_docker_postgres.sh 
+   ```
+   This will set up a postgres instance running on port 5432 with appropriate default-configured database, username and password.
+   It will fail if you already have something on port 5432; in this case, you can adjust the port in the script and
+   set an environment variable to tell the app where to find it. See the `DATABASES` section of `settings.py` for the
+   names of the variables to set
+   
+6. Now you need to make sure that the database is in-sync:
     ```bash
     (venv) $ ./manage.py migrate
     ```
 
-6. Now you are ready to run the dev server:
+7. Now you are ready to run the dev server:
     ```bash
    (venv) $ ./manage.py runserver 0.0.0.0:9000 
    ```
