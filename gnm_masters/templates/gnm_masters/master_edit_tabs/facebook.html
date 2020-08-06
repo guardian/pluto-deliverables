@@ -1,0 +1,249 @@
+<fieldset id="gnm-metadataeditfieldset">
+    <ul class="left">
+        {% with facebookform.gnm_master_facebook_target as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with facebookform.gnm_master_facebook_title as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with facebookform.gnm_master_facebook_description as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with facebookform.gnm_master_facebook_id as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with facebookform.gnm_master_facebook_backdated_time as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with facebookform.gnm_master_facebook_backdate_accuracy as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with facebookform.gnm_master_facebook_schedule_publish_time as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with facebookform.gnm_master_facebook_upload_as as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        <li>
+            <label>Properties</label>
+            <ul class="applicable-rules">
+                {% with facebookform.gnm_master_facebook_backdate_post as field %}
+                    <li class="{% if field.field.required %}required{% endif %} master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with facebookform.gnm_master_facebook_call_to_action as field %}
+                    <li class="{% if field.field.required %}required{% endif %} master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with facebookform.gnm_master_facebook_hide_story as field %}
+                    <li class="{% if field.field.required %}required{% endif %} master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with facebookform.gnm_master_facebook_hide_backdated_post as field %}
+                    <li class="{% if field.field.required %}required{% endif %} master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+            </ul>
+        </li>
+
+        <div class="fb_call_to_action_fields">
+            {% with facebook_actionform.gnm_call_to_action_link as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_app_link as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_page_id as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_offer_id as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_application as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_link_title as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_link_description as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_link_caption as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_product_link as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_get_movie_showtimes as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with facebook_actionform.gnm_call_to_action_sponsored as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            <div class="fb_call_to_action_sponsored_fields">
+                {% with facebook_actionform.gnm_call_to_action_sponsor_link as field %}
+                    <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+                {% with facebook_actionform.gnm_call_to_action_sponsor_image_url as field %}
+                    <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+            </div>
+            {% with facebook_actionform.gnm_call_to_action_type as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+        </div>
+    </ul>
+    <ul class="right">
+        {% with facebookform.gnm_master_facebook_holdingimage as field %}
+            <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        <div class="boxed">
+            {% with facebookform.gnm_master_facebook_status as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with facebookform.gnm_master_facebook_uploadstatus as field %}
+                <li class="{% if field.field.required %}required{% endif %} with-button">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    <a class="button left upload_status_update positioned-under-label" href="{% url master_trigger master.id 'facebook' %}" data-target="id_gnm_master_facebook_uploadstatus">Publish</a>
+                    <div class="spinner positioned-under-label hidden">
+                        <img src="/sitemedia/img/gnm/loading.gif">
+                    </div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with facebookform.gnm_master_facebook_uploadlog as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                    <a href="#" class="refresh_upload_logs_button"><i class='fa fa-refresh'></i> Auto refresh</a>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+        </div>
+    </ul>
+
+</fieldset>
+<input type="submit" value="Save" class="visible-when-edit button submit_metadataform right" />

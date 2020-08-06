@@ -1,0 +1,59 @@
+{% themeextends "base.html" %}
+{% load datetimeformatting static %}
+
+{% block extra_script %}
+<link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}">
+<style>
+    ul.user-list {
+        list-style: none;
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    li.user-entry {
+        padding-left: 1em;
+        text-indent: -1em;
+    }
+
+    li.user-entry:before {
+        content: "\f007";
+        font-family: FontAwesome;
+        padding-right: 5px;
+    }
+</style>
+{% endblock extra_script %}
+
+{% block title %}{{ title }}: Projects without deliverables{% endblock %}
+
+{% block body %}
+<div id="header" style="margin-top: 0.5em;">
+    <h1>Projects without Deliverables</h1>
+    <label for="start-search-date">From</label>
+    <input id="start-search-date">
+    <label for="end-search-date">Until</label>
+    <input id="end-search-date">
+    <button type="button" id="updateMainTable">Update</button>
+</div>
+<div id="loadingblock">
+    <img src="{% static 'img/icon-ajax-loader.gif' %}" alt="loading">
+    <p>Loading data, please wait</p>
+</div>
+
+<div id="limitedblock">
+    <p id="limitedtext">Your request returned more than 100 results, limiting to the first 100.</p>
+</div>
+
+<table id="naughtylist" style="display: none">
+    <thead>
+    <tr><td>Project ID</td><td>Status</td><td>Owners</td><td>Name</td><td>Created</td><td>Last updated</td></tr>
+    </thead>
+    <tbody id="naughtylist-body">
+
+    </tbody>
+</table>
+{% block js %}
+<script src="{% static 'gnm_deliverables/naughtylist.js' %}"></script>
+<script src="{{STATIC_URL}}js/gnm/gnm.js?v=3"></script>
+<script src="{{STATIC_URL}}js/gnm/gnm_functions.js"></script>
+{% endblock js %}
+{% endblock %}

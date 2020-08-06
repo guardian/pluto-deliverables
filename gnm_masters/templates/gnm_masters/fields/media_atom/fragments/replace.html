@@ -1,0 +1,8 @@
+<input type="hidden" id="id_gnm_master_mediaatom_atomid" name="gnm_master_mediaatom_atomid" value="{{ master.md.gnm_master_mediaatom_atomid }}">
+<a class="visible-when-readonly media-atom__value" href="{{ MEDIA_ATOM_URL }}/videos/{{ master.md.gnm_master_mediaatom_atomid }}" target="_blank">
+    {{ master.md.gnm_master_mediaatom_atomid }}
+</a>
+<span class="visible-when-edit media-atom__value media-atom__atom-id">
+    {{ master.md.gnm_master_mediaatom_atomid }}
+</span>
+<button type="button" class="media-atom__add-button visible-when-edit" style="display: none;">Replace Atom</button>

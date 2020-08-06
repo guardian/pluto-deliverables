@@ -1,0 +1,184 @@
+{% themeextends "base.html" %}
+{% load videopreview datetimeformatting static masterpage_customtags %}
+
+{% block extra_script %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/app/metadata/metadataform.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/app/media/views.js"></script>
+    <script type="text/javascript" src="/sitemedia/js/player/player.min.js"></script>
+    <script type="text/javascript" src="/sitemedia/js/libs/player/player.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{%  static 'gnm_masters/css/master_edit.css' %}" rel="stylesheet">
+{% endblock extra_script %}
+
+{% block title %}{{ mastermodel.gnm_master_website_headline }}{% endblock %}
+
+{% block body %}
+    <div class="header">
+        <h1>
+            {% if mastermodel.commission != None %}
+                <div class="breadcrumb">
+                    <img src="{{STATIC_URL}}/img/gnm/icon_commission.png">
+                    <a href="/commission/{{ vs_site_id }}-{{ mastermodel.commission.collection_id }}">{{ mastermodel.commission.gnm_commission_title }}<img class="breadcrumb-arrow" src="{{STATIC_URL}}/img/gnm/breadcrumb_arrow_lightgray.png"> </a>
+                </div>
+            {% endif %}
+            {% if mastermodel.project != None %}
+                <div class="breadcrumb">
+                    <img src="{{STATIC_URL}}/img/gnm/icon_project.png">
+                    <a href="/project/{{ vs_site_id }}-{{ mastermodel.project.collection_id }}">{{ mastermodel.project.gnm_project_headline }}<img class="breadcrumb-arrow" src="{{STATIC_URL}}/img/gnm/breadcrumb_arrow_lightgray.png"> </a>
+                </div>
+            {% endif %}
+            <div class="breadcrumb">
+                <img src="{{STATIC_URL}}/img/gnm/icon_master.png">
+                {{ mastermodel.gnm_master_website_headline }}
+            </div>
+        </h1>
+        <a href="/vs/item/{{ vs_site_id }}-{{ mastermodel.item_id }}" class="button blue-button right">View as Item</a>
+    </div>
+    <div class="content">
+        <div class="widepagecontent">
+            <h5 class="block-header master">Master</h5>
+            <div class="row master">
+                <div class="edit">
+                    <a id="on" class="visible-when-edit edit-button on hidden">On<div class="toggle-handle"></div></a>
+                    <a id="off" class="visible-when-readonly edit-button off">Off<div class="toggle-handle"></div></a>
+                    <h6 class="extra-margin-right right">Edit<br>mode</h6>
+                </div>
+                <ul class="tabs">
+                    <li class="selected"><a href="#general"><em>Guardian</em></a></li>
+                    <li><a href="#youtube"><em>YouTube</em></a></li>
+                    <li><a href="#dailymotion"><em>Daily Motion</em></a></li>
+                    <li><a href="#syndication"><em>Mainstream Syndication</em></a></li>
+                    <li><a href="#automation"><em>Syndication Automation</em></a></li>
+                    <li><a href="#interactive"><em>Interactive</em></a></li>
+                    <li><a href="#mastermediawallform"><em>Media Wall</em></a></li>
+                </ul>
+                <form id="edit_master_form" method="post" class="edit-form">
+                    {% csrf_token %}
+                    <div class="panes">
+                        <div id="general" class="clearfix tab">
+                            {% include 'gnm_masters/master_edit_tabs/guardian.html' %}
+                        </div>
+                        <div id="youtube" class="clearfix tab">
+                            {% include 'gnm_masters/master_edit_tabs/youtube.html' %}
+                        </div>
+                        <div id="dailymotion" class="clearfix tab">
+                            {% include 'gnm_masters/master_edit_tabs/dailymotion.html' %}
+                        </div>
+                        <div id="syndication" class="clearfix tab">
+                            {% include 'gnm_masters/master_edit_tabs/syndication.html' %}
+                        </div>
+                        <div id="automation" class="clearfix tab">
+                            {% include 'gnm_masters/master_edit_tabs/automation.html' %}
+                        </div>
+                        <div id="interactive" class="clearfix tab">
+                            {% include 'gnm_masters/master_edit_tabs/interactive.html' %}
+                        </div>
+                        <div id="mastermediawallform" class="clearfix tab">
+                            {% include 'gnm_masters/master_edit_tabs/mediawall.html' %}
+                        </div>
+                    </div>
+                    <div id="dialog" class="dialog" title="The form has changed">
+                        <p>Do you want to save before turning off the edit mode?</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block footer %}
+    {% include "gnm_metadataform/footer_scripts.html" %}
+    <script src="{{STATIC_URL}}js/gnm/gnm.js?v=3"></script>
+    <script src="{{STATIC_URL}}js/gnm/gnm_functions.js"></script>
+    <script src="{{STATIC_URL}}js/gnm/notifications/localNotifications.min.js"></script>
+    <script src="{% static "gnm_masters/js/master_edit.js" %}"></script>
+    <script type="text/javascript" charset="utf-8">
+
+        var master_get_upload_logs = "{% url master_get_upload_logs master.id %}";
+
+        $(document).ready(function() {
+            $("ul.tabs").tabs("div.panes > div");
+
+            var error_exists = false;
+            {% if form.errors %}
+                error_exists = true;
+            {% endif %}
+
+            $('form').setup_edit_mode(error_exists);
+
+            $('#player').on('click', 'button', function(e) { e.preventDefault(); });
+
+            $('.submit_metadataform').click(function(e) {
+                if($('#id_gnm_master_website_uploadstatus').val() == 'Ready to Upload') {
+                    if(validate_fields('general') == 0) { e.preventDefault(); return; }
+                }
+                if($('#id_gnm_master_youtube_uploadstatus').val() == 'Ready to Upload') {
+                    if(validate_fields('interactive') == 0) { e.preventDefault(); return; }
+                }
+                if($('#id_gnm_master_dailymotion_uploadstatus').val() == 'Ready to Upload') {
+                    if(validate_fields('interactive') == 0) { e.preventDefault(); return; }
+                }
+                if($('#id_gnm_master_mainstreamsyndication_uploadstatus').val() == 'Ready to Upload') {
+                    if(validate_fields('interactive') == 0) { e.preventDefault(); return; }
+                }
+            });
+
+            $(cntmo.app.players.mainPlayer).on("grabStill", function(event, timeObject){
+                event.preventDefault();
+                var tc = timeObject.toSMPTE(), self=this;
+
+                $.ajax({
+                    url: '{% url vs_create_posters item.getId %}',
+                    data: {smptetimecode: tc},
+                    type: 'POST',
+                    success: function(data, textStatus, XMLHttpRequest){
+                        $.growl(data.message, 'success');
+                    },
+                    error: function(data, textStatus, errorThrown){
+                        $.growl(data.data, 'error');
+                    }
+                });
+            });
+
+            setup_publish_buttons_action();
+
+            setup_publish_buttons();
+
+            $('.refresh_upload_logs_button').click(function(e) {
+                e.preventDefault();
+                if($(this).attr('data-interval')) {
+                    var interval_id = $(this).attr('data-interval');
+                    clearInterval(interval_id);
+                    $('.refresh_upload_logs_button').removeAttr('data-interval');
+                    $('.refresh_upload_logs_button i').removeClass('fa-spin');
+                } else {
+                    var interval_id = setInterval(refresh_upload_logs, 3000);
+                    $('.refresh_upload_logs_button i').addClass('fa-spin');
+                    $('.refresh_upload_logs_button').attr('data-interval', interval_id);
+                }
+            });
+
+            $('.tab').each(function(index) {
+                $(this).find('.errorlist').each(function() {
+                    $($('.tabs li a')[index]).trigger('click')
+                });
+            });
+
+            var yt_img_link = $('#yt_img_download_link').text();
+            if (yt_img_link && yt_img_link!="None") {
+                try {
+                    var yt_image_data = JSON.parse(yt_img_link);
+                    $('#yt_img_download_link').html($('<a>',{"href": "/vs/item/" + yt_image_data['id_16x9'] + "#formats"}).text('Image Link'));
+                } catch (err) {
+                    console.log(err);
+                }
+            }
+
+            if(localNotifications.isSupported()){
+                Notification.requestPermission();
+            }
+        });
+
+        gnm_set_production_office('#id_gnm_master_generic_production_office');
+    </script>
+{% endblock footer %}

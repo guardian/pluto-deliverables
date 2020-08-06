@@ -1,0 +1,322 @@
+{% load masterpage_customtags %}
+
+<fieldset id="gnm-metadataeditfieldset">
+    <ul class="left">
+        <li class="{% if field.field.required %}required{% endif %}"><label>Composer URL</label>
+            {% if master.md.gnm_master_website_edit_url != None %}
+                <a class="r2-url" href="{{ master.md.gnm_master_website_edit_url }}">
+                    {{ master.md.gnm_master_website_edit_url }}
+                </a>
+            {% else %}
+                <span class="r2-url">Still to be published.</span>
+            {% endif %}
+        </li>
+
+        <li>{% include 'gnm_masters/fields/media_atom/media_atom_field.html' %}</li>
+
+        {% with websiteform.gnm_master_website_headline as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<span class="validation_error"></span>{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with websiteform.gnm_master_website_primary_tone as field %}
+            <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}<img src="{{STATIC_URL}}/img/gnm/question_mark_icon.jpg" height="24px" class="tip" title="Should be one of video documentary, explainer, news, comment, analysis, features, interviews, performance"/>{{ field }}
+                <div class="subtext"></div>
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with websiteform.gnm_master_website_standfirst as field %}
+            <li class="{% if field.field.required %}required{% endif %} with-subtext">
+                <div class="labelholder">{{ field.label_tag }}</div>
+                <div class="textareaholder">
+                    <span class="validation_error"></span>
+                    <div class="hide-when-edit">{{ field.value|safehtml }}</div>
+                    {{ field }}
+                </div>
+                <div class="subtext wordcount"></div>
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with assetform.gnm_asset_keywords as field %}
+            <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}{{ field }}
+                <div class="subtext">contributor, keywords, series, section</div>
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with assetform.gnm_asset_owner as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with genericform.gnm_master_licensor as field %}
+            <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        {% with genericform.gnm_master_generic_intendeduploadplatforms as field %}
+            <li class="{% if field.field.required %}required{% endif %} multiple-checkbox">{{ field.label_tag }}{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+
+        <li>
+            <label>Applicable rules</label>
+            <ul class="applicable-rules">
+                {% with genericform.gnm_master_generic_preventmobileupload as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with genericform.gnm_master_generic_containsadultcontent as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with genericform.gnm_master_generic_ukonly as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with genericform.gnm_master_generic_whollyowned as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with genericform.gnm_storage_rule_deep_archive as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with genericform.gnm_storage_rule_deletable as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+
+                {% with genericform.gnm_storage_rule_sensitive as field %}
+                    <li class="master-checkbox">{{ field }}
+                        {% for error in field.errors %}
+                            <label class="errorlist">{{ error }}</label>
+                        {% endfor %}
+                    </li>
+                {% endwith %}
+            </ul>
+        </li>
+
+    </ul>
+
+    <ul class="right">
+        <li class="with-subtext">
+            <label>Media</label>
+            {% if master.md.gnm_master_upload_lock == 'locked' %}
+                {% with master.get_ingest_job as job %}
+                    <span id="signiant_import_status">
+                        {% if not job %}
+                            Waiting for arrival of file.
+                        {% elif job.signiant_import %}
+                            {% if job.signiant_import.started %}
+                                File arrived. Processing... {% if job.getTranscodeProgress %}Progress:&nbsp;{{ job.getTranscodeProgress|floatformat }}&nbsp;%{% endif %}
+                            {% else %}
+                                Import{% if job.job_id %}&nbsp;<a href="/vs/job/{{ job.job_id }}/">job</a>{% endif %} failed. Status:&nbsp;{{ job.getStatus }}<span id="signiant_import_failed"/>
+                            {% endif %}
+                        {% endif %}
+                    </span><br/>
+                    <script type="text/javascript">
+                        var previewIntervalId;
+                        previewIntervalId = setInterval(function() {
+                            $.ajax({
+                                url: "{{ request.get_full_path }}",
+                                dataType: 'html',
+                                success: function(data) {
+                                    data = $(data).find('#signiant_import_status');
+                                    if (data.length) {
+                                        if (data.find('#signiant_import_failed').length) {
+                                            clearInterval(previewIntervalId);
+                                        } else {
+                                            $('#signiant_import_status').replaceWith(data.get(0));
+                                        }
+                                    } else {
+                                        clearInterval(previewIntervalId);
+                                        $('#signiant_import_status').text('Import complete. Please refresh this page.');
+                                    }
+                                }
+                            });
+                        }, 7000);
+                    </script>
+                {% endwith %}
+            {% endif %}
+            {% include "gnm_masters/preview_include.html" %}
+        </li>
+
+        {% comment %} {# https://trello.com/c/zqR00qQo/ #}
+        {% with genericform.gnm_master_generic_holdingimage_16x9 as field %}
+            <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}<span class="validation_error"></span>{{ field }}
+                {% for error in field.errors %}
+                    <label class="errorlist">{{ error }}</label>
+                {% endfor %}
+            </li>
+        {% endwith %}
+        {% endcomment %}
+
+        <li>
+            <label>Pacman</label>
+            <div class="pacman-wrapper">
+                {% with master.md.gnm_master_pacdata_status as pacstatus %}
+                    {% if pacstatus == 'valid' %}
+                        {% comment %}
+                    <span class="pacman-info"><img src="{{STATIC_URL}}img/gnm/published.png">PAC is complete</span>
+                    <span class="pacman-info"><img src="{{STATIC_URL}}img/gnm/published.png">This master is cleared for release on this platform</span>
+                    <span class="pacman-info"><img src="{{STATIC_URL}}img/gnm/bell.png">Rights restriction apply</span>
+                    {% endcomment %}
+
+                        <a id="pacman" href="{% url pacman master.id %}" class="visible-when-readonly button left">Go to PACMAN</a>
+                    {% endif %}
+                    {% if pacstatus == 'incomplete' %}
+
+                        <span class="pacman-info"><img src="{{STATIC_URL}}img/gnm/severity_2.png">Missing some files</span>
+                <a id="pacman" href="{% url pacman master.id %}" class="visible-when-readonly button left">Go to PACMAN</a>
+                    {% endif %}
+                    {% if pacstatus == 'invalid' %}
+                        <span class="pacman-info"><img src="{{STATIC_URL}}img/gnm/severity_3.png">Invalid PAC data</span>
+                    {% endif %}
+                    {% if pacstatus == 'processing' %}
+                        <span class="pacman-info">Processing PAC data</span>
+                    {% endif %}
+                    {% if not pacstatus or pacstatus == 'missing' %}
+                        <span class="pacman-info"><img src="{{STATIC_URL}}img/gnm/severity_2.png">No PAC data available</span>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </li>
+
+        {% with genericform.gnm_master_generic_pacform_lastupdate as field %}
+        {% if field.value != "" %}
+        <li class="{% if field.field.required %}required{% endif %} with-subtext">{{ field.label_tag }}<span class="validation_error"></span>
+            <span>{{ field }}</span>
+            {% for error in field.errors %}
+                <label class="errorlist">{{ error }}</label>
+            {% endfor %}
+        </li>
+        {% endif %}
+        {% endwith %}
+
+        <div class="extras" style="margin-top: 1em;">
+            {% pluginblock "pluto_guardian_master_extras_right" "VX" "test" %}
+        </div>
+
+        <div class="boxed">
+            <li><label>Created</label>{{ master.created }}</li>
+
+            {% with genericform.gnm_master_generic_titleid as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<span class="validation_error"></span>{{ field }}
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with assetform.gnm_asset_category as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with genericform.gnm_master_generic_uploadtype as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+            {% with genericform.gnm_master_generic_status as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with genericform.gnm_master_generic_source as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with genericform.gnm_master_generic_production_office as field %}
+                <li class="{% if field.field.required %}required{% endif %}">{{ field.label_tag }}<div class="edit-select-wrapper"><div class="select-arrow-hider"></div>{{ field }}</div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with websiteform.gnm_master_website_uploadstatus as field %}
+                <li class="{% if field.field.required %}required{% endif %} with-button">
+                    {{ field.label_tag }}
+                    <div class="edit-select-wrapper">
+                        <div class="select-arrow-hider"></div>
+                        {{ field }}
+                    </div>
+                    <a class="button left upload_status_update positioned-under-label visible-when-readonly" href="{% url master_trigger master.id 'guardian' %}" data-uploadtype="id_gnm_master_generic_uploadtype" data-target="id_gnm_master_website_uploadstatus">Publish to Composer</a>
+                    <div class="spinner hidden positioned-under-label">
+                        <img src="/sitemedia/img/gnm/loading.gif">
+                    </div>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+
+            {% with websiteform.gnm_master_website_uploadlog as field %}
+                <li class="{% if field.field.required %}required{% endif %} with-subtext"><div class="labelholder">{{ field.label_tag }}</div><div class="textareaholder">{{ field }}</div>
+                    <a href="#" class="positioned-under-label refresh_upload_logs_button"><i class='fa fa-refresh'></i> Auto refresh</a>
+                    {% for error in field.errors %}
+                        <label class="errorlist">{{ error }}</label>
+                    {% endfor %}
+                </li>
+            {% endwith %}
+        </div>
+    </ul>
+</fieldset>
+<input type="submit" value="Save" class="visible-when-edit button submit_metadataform right" />

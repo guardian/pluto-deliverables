@@ -1,0 +1,10 @@
+div.localerror {
+    margin-top: 1.0em;
+    color: #bb0000;
+    text-align: left;
+    width: 100%;
+}
+
+.inline_icon {
+    height: 20px
+}
