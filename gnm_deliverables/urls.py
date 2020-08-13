@@ -5,9 +5,11 @@ URLS for the Guardian Project plugin
 from django.urls import path, re_path
 
 from .views import DeliverableCreateView, DeliverableDetailView, DeliverableAssetUpdateAPIView, \
-    DeliverablesSearchAPIView, DeliverableAssetCheckTypeChange, NaughtyListAPIView, NaughtyListUIView, DeliverableCreateFolderView, DeliverablesListView, \
-    DeliverablesSearchForWorkingGroupAPIView, SearchForDeliverableAPIView, DeliverableAPIRetrieveView
-from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI
+    DeliverablesSearchAPIView, DeliverableAssetCheckTypeChange, NaughtyListAPIView, \
+    NaughtyListUIView, DeliverableCreateFolderView, DeliverablesListView, \
+    DeliverablesSearchForWorkingGroupAPIView, SearchForDeliverableAPIView, \
+    DeliverableAPIRetrieveView
+from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
 from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
 from django.contrib.auth.decorators import login_required
 from django.contrib import admin
@@ -22,6 +24,7 @@ urlpatterns = [
     path(r'api/deliverables', NewDeliverableAssetAPIList.as_view(), name="new-asset-list"),
     path(r'api/deliverable', DeliverableAPIView.as_view()),
     path(r'api/typeslist', DeliverablesTypeListAPI.as_view(), name="asset-types"),
+    path(r'api/bundle/<int:project_id>/count', CountDeliverablesView.as_view()),
     re_path(r'.*', NewDeliverableUI.as_view())
     # path(r'(?P<project_id>.+-\d+)/create/?', DeliverableCreateView, name='deliverables_create'),
     # path(r'(?P<pk>\d+)/?', DeliverableDetailView, name='deliverables_detail'),
