@@ -44,7 +44,7 @@ class TestDeliverablesAsset(TestCase):
             parent = Deliverable(project_id=1234, name="test")
             asset = DeliverableAsset(
                 deliverable=parent,
-                item_id="VX-12354"
+                online_item_id="VX-12354"
             )
 
             asset.save = mock.MagicMock()
@@ -78,7 +78,7 @@ class TestDeliverablesAsset(TestCase):
         parent = Deliverable(project_id=1234, name="test")
         asset = DeliverableAsset(
             deliverable=parent,
-            item_id="VX-12345",
+            online_item_id="VX-12345",
             absolute_path="file:///path/to/some/file.mp4"
         )
 
@@ -108,7 +108,7 @@ class TestDeliverablesAsset(TestCase):
         parent = Deliverable(project_id=1234, name="test")
         asset = DeliverableAsset(
             deliverable=parent,
-            item_id="VX-12345",
+            online_item_id="VX-12345",
             absolute_path="file:///path/to/some/file.mp4"
         )
         mocked_item = mock.MagicMock(VSItem)
@@ -130,7 +130,7 @@ class TestDeliverablesAsset(TestCase):
             parent = Deliverable(project_id=1234, name="test")
             asset = DeliverableAsset(
                 deliverable=parent,
-                item_id="VX-12345",
+                online_item_id="VX-12345",
                 absolute_path="file:///path/to/some/file.mp4"
             )
 
@@ -150,7 +150,7 @@ class TestDeliverablesAsset(TestCase):
             parent = Deliverable(project_id=1234, name="test")
             asset = DeliverableAsset(
                 deliverable=parent,
-                item_id="VX-12345",
+                online_item_id="VX-12345",
                 absolute_path="file:///path/to/some/file.mp4"
             )
 
