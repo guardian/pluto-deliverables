@@ -529,8 +529,8 @@ class DeliverableAssetUpdateAPIView(RetrieveUpdateAPIView):
         # Check if we need to override asset
         self.asset_to_override = obj.deliverable.asset_type(obj.type)
         if self.asset_to_override is not None and not obj.type_allows_many():
-            if obj.item_id is None and not self.asset_to_override.created_from_existing_item:
-                obj.item_id = self.asset_to_override.item_id  # Copy item id from the asset this one replaces
+            if obj.online_item_id is None and not self.asset_to_override.created_from_existing_item:
+                obj.online_item_id = self.asset_to_override.item_id  # Copy item id from the asset this one replaces
                 obj.job_id = None  # Force new import job
                 self.asset_to_override.delete()
             else:

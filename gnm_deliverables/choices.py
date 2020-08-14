@@ -70,3 +70,34 @@ DELIVERABLE_ASSET_STATUSES = (
     (DELIVERABLE_ASSET_STATUS_INGEST_FAILED, 'Ingest failed')
 )
 DELIVERABLE_ASSET_STATUSES_DICT = dict(DELIVERABLE_ASSET_STATUSES)
+
+UPLOAD_STATUS = [
+    ('Not ready', 'Not ready'),
+    ('Ready for Upload', 'Ready for Upload'),
+    ('Uploading', 'Uploading'),
+    ('Upload Failed', 'Upload Failed'),
+    ('Upload Complete', 'Upload Complete')
+]
+
+PRODUCTION_OFFICE = [
+    ('UK', 'UK'),
+    ('US', 'US'),
+    ('AUS', 'AUS')
+]
+
+PRIMARY_TONE = [
+    ('News', 'News'),
+    ('Explainer', 'Explainer'),
+    ('Documentary', 'Documentary'),
+    ('Comment', 'Comment'),
+    ('Analysis', 'Analysis'),
+    ('Feature', 'Feature'),
+    ('Interview', 'Interview'),
+    ('Performance', 'Performance')
+]
+
+PUBLICATION_STATUS = [
+    ('Unpublished', 'Unpublished'),
+    ('Published', 'Published'),
+    ('Superceded', 'Superceded')
+]

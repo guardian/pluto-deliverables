@@ -3,26 +3,35 @@
 import errno
 import logging
 import os
-import urllib.request, urllib.parse, urllib.error
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
 from dateutil import parser
+from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.timezone import now
-from django.conf import settings
-import time
-from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
-    DELIVERABLE_ASSET_STATUSES_DICT
-from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
-    DELIVERABLE_ASSET_STATUS_INGESTING, DELIVERABLE_ASSET_STATUS_INGESTED, DELIVERABLE_ASSET_TYPES_DICT
-from .choices import DELIVERABLE_ASSET_TYPE_CHOICES, DELIVERABLE_STATUS_ALL_FILES_INGESTED, \
-    DELIVERABLE_STATUS_FILES_TO_INGEST, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE, DELIVERABLE_ASSET_TYPE_OTHER_TRAILER, \
-    DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS
-from .exceptions import ImportFailedError, NoShapeError
-from .files import ts_to_dt, get_path_for_deliverable, find_files_for_deliverable, create_folder, get_local_path_for_deliverable
-from .templatetags.deliverable_tags import sizeof_fmt
 from gnmvidispine.vs_item import VSItem, VSException, VSNotFound
 from gnmvidispine.vs_job import VSJob
+
+from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
+    DELIVERABLE_ASSET_STATUSES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
+    PUBLICATION_STATUS
+from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
+    DELIVERABLE_ASSET_STATUS_INGESTING, DELIVERABLE_ASSET_STATUS_INGESTED, \
+    DELIVERABLE_ASSET_TYPES_DICT
+from .choices import DELIVERABLE_ASSET_TYPE_CHOICES, DELIVERABLE_STATUS_ALL_FILES_INGESTED, \
+    DELIVERABLE_STATUS_FILES_TO_INGEST, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE, \
+    DELIVERABLE_ASSET_TYPE_OTHER_TRAILER, \
+    DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS
+from .exceptions import ImportFailedError, NoShapeError
+from .files import get_path_for_deliverable, find_files_for_deliverable, create_folder, \
+    get_local_path_for_deliverable
+from .templatetags.deliverable_tags import sizeof_fmt
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +41,9 @@ def seconds_to_timestamp(seconds):
 
 
 class Deliverable(models.Model):
-    project_id = models.CharField(null=False, blank=False, max_length=61)
+    project_id = models.CharField(null=True, blank=True, max_length=61)
+    commission_id = models.BigIntegerField(null=False, blank=False, db_index=True)
+    pluto_core_project_id = models.BigIntegerField(null=False, blank=False, db_index=True)
     name = models.CharField(null=False, blank=False, unique=True, max_length=255)
     created = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
@@ -76,7 +87,7 @@ class Deliverable(models.Model):
         # Remove assets rows that are not found on the FS and does not have an item tied to it
         assets_to_delete = self.assets.filter(
             type__isnull=True,
-            item_id__isnull=True
+            online_item_id__isnull=True
         ).exclude(
             id__in=[a.id for a in assets_on_fs]
         )
@@ -126,11 +137,11 @@ class Deliverable(models.Model):
         """
         created = False
         try:
-            asset = DeliverableAsset.objects.get(item_id=item_id, deliverable=self)
+            asset = DeliverableAsset.objects.get(online_item_id=item_id, deliverable=self)
             logger.info('Asset for item "{item_id}" already existed: {asset}'.format(item_id=item_id, asset=asset))
         except DeliverableAsset.DoesNotExist:
             asset = DeliverableAsset(
-                item_id=item_id,
+                online_item_id=item_id,
                 deliverable=self
             )
             item = asset.item(user)
@@ -211,7 +222,9 @@ class DeliverableAsset(models.Model):
 
     # Fields set on ingest
     job_id = models.TextField(null=True, blank=True)
-    item_id = models.TextField(null=True, blank=True)
+    online_item_id = models.TextField(null=True, blank=True)
+    nearline_item_id = models.TextField(null=True, blank=True)
+    archive_item_id = models.TextField(null=True, blank=True)
 
     ingest_complete_dt = models.DateTimeField(null=True, blank=True)
     file_removed_dt = models.DateTimeField(null=True, blank=True)
@@ -219,6 +232,11 @@ class DeliverableAsset(models.Model):
     created_from_existing_item = models.BooleanField(default=False)
 
     deliverable = models.ForeignKey(Deliverable, related_name='assets', on_delete=models.PROTECT)
+
+    gnm_website_master = models.ForeignKey('GNMWebsite', on_delete=models.CASCADE, null=True)
+    youtube_master = models.ForeignKey('Youtube', on_delete=models.CASCADE, null=True)
+    DailyMotion_master = models.ForeignKey('DailyMotion', on_delete=models.CASCADE, null=True)
+    mainstream_master = models.ForeignKey('Mainstream', on_delete=models.CASCADE, null=True)
 
     def __init__(self, *args, **kwargs):
         super(DeliverableAsset, self).__init__(*args, **kwargs)
@@ -246,7 +264,7 @@ class DeliverableAsset(models.Model):
         :param commit: if True, save the deliverable to the database immediately (default true)
         :return: None
         """
-        if self.item_id is None:
+        if self.online_item_id is None:
             # self.item_id = create_placeholder_item(user, metadata_document_from_dict(dict(
             #     title=self.get_name(),
             #     gnm_asset_category='Deliverable',
@@ -286,7 +304,7 @@ class DeliverableAsset(models.Model):
         """
         if self.created_from_existing_item:
             return
-        if self.item_id is None:
+        if self.online_item_id is None:
             raise ImportFailedError('No item id could be found')
         #self.job_id = create_import_job(user, self.absolute_path, self.item_id)
         current_item = self.item(user=user)
@@ -413,9 +431,9 @@ class DeliverableAsset(models.Model):
         """
         if self.__item is not None:
             return self.__item
-        if self.item_id is not None:
+        if self.online_item_id is not None:
             self.__item = VSItem(url=settings.VIDISPINE_URL,user=settings.VIDISPINE_USER,passwd=settings.VIDISPINE_PASSWORD,run_as=user)
-            self.__item.populate(self.item_id)
+            self.__item.populate(self.online_item_id)
             return self.__item
         return None
 
@@ -435,10 +453,10 @@ class DeliverableAsset(models.Model):
         return None
 
     def purge(self, user=None):
-        if self.item_id is not None:
+        if self.online_item_id is not None:
             try:
                 exists_in_other_deliverable = DeliverableAsset.objects.filter(
-                    Q(item_id=self.item_id) & ~Q(id=self.id)
+                    Q(item_id=self.online_item_id) & ~Q(id=self.id)
                 ).exists()
                 if not self.created_from_existing_item and not exists_in_other_deliverable:
                     self.item(user).delete()
@@ -446,7 +464,7 @@ class DeliverableAsset(models.Model):
             except VSException:
                 logger.exception(
                     'Failed to delete item id "{item_id}" for deliverable asset "{id}"'.format(
-                        item_id=self.item_id,
+                        item_id=self.online_item_id,
                         id=self.id
                     ))
             super(DeliverableAsset, self).delete()
@@ -470,3 +488,59 @@ class DeliverableAsset(models.Model):
     def __str__(self):
         return '{name}'.format(name=self.filename)
 
+
+class GNMWebsite(models.Model):
+    media_atom_id = models.UUIDField(null=True, blank=True)
+    upload_status = models.TextField(null=True, blank=True,
+                                     choices=UPLOAD_STATUS, db_index=True)
+    production_office = models.TextField(null=True, blank=True, choices=PRODUCTION_OFFICE,
+                                         db_index=True)
+    tags = ArrayField(models.CharField(null=True, max_length=255), null=True, blank=True, db_index=True)
+    publication_date = models.DateTimeField(null=True, blank=True)
+    website_title = models.TextField(null=True, blank=True, db_index=True)
+    website_description = models.TextField(null=True, blank=True)
+    primary_tone = models.TextField(null=True, blank=True, choices=PRIMARY_TONE, db_index=True)
+    publication_status = models.TextField(null=True, blank=True, choices=PUBLICATION_STATUS)
+
+
+class Mainstream(models.Model):
+    mainstream_title = models.TextField(null=False, blank=False)
+    mainstream_description = models.TextField(null=True, blank=True)
+    mainstream_tags = ArrayField(models.CharField(null=False, max_length=255), null=False)
+    mainstream_rules_contains_adult_content = models.BooleanField()
+    upload_status = models.TextField(null=True, blank=True, choices=UPLOAD_STATUS, db_index=True)
+
+
+class Youtube(models.Model):
+    youtube_id = models.TextField(null=False, blank=False, db_index=True)
+    youtube_title = models.TextField(null=False, blank=False)
+    youtube_description = models.TextField(null=True, blank=True)
+    youtube_tags = ArrayField(models.CharField(null=False, max_length=255), null=True)
+    youtube_categories = ArrayField(models.BigIntegerField(null=False), null=True)
+    youtube_channels = ArrayField(models.CharField(null=False, max_length=255), null=True)
+    publication_date = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return '{title}'.format(title=self.youtube_title)
+
+
+class DailyMotion(models.Model):
+    daily_motion_url = models.TextField(null=True, blank=True)
+    daily_motion_title = models.TextField(null=False, blank=False)
+    daily_motion_description = models.TextField(null=True, blank=True)
+    daily_motion_tags = ArrayField(models.CharField(null=False, max_length=255), null=True)
+    daily_motion_category = models.BigIntegerField(null=True, blank=True)
+    publication_date = models.DateTimeField(null=True, blank=True)
+    upload_status = models.TextField(null=True, blank=True, choices=UPLOAD_STATUS, db_index=True)
+    daily_motion_no_mobile_access = models.BooleanField()
+    daily_motion_contains_adult_content = models.BooleanField()
+
+
+class LogEntry(models.Model):
+    timestamp = models.DateTimeField(null=False, blank=False)
+    related_gnm_website = models.ForeignKey(GNMWebsite, on_delete=models.CASCADE, null=True, db_index=True)
+    related_youtube = models.ForeignKey(Youtube, on_delete=models.CASCADE, null=True, db_index=True)
+    related_daily_motion = models.ForeignKey(DailyMotion, on_delete=models.CASCADE, null=True, db_index=True)
+    related_mainstream = models.ForeignKey(Mainstream, on_delete=models.CASCADE, null=True, db_index=True)
+    sender = models.TextField(null=False, blank=False, db_index=True)
+    log_line = models.TextField(null=False, blank=False)

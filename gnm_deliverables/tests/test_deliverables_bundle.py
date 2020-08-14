@@ -44,7 +44,7 @@ class TestDeliverablesBundle(TestCase):
 
         with mock.patch("gnm_deliverables.models.find_files_for_deliverable", side_effect=mock_find_files) as find_files_for_deliverable:
             from gnm_deliverables.models import Deliverable, DeliverableAsset
-            d = Deliverable(project_id=4567, name="some test")
+            d = Deliverable(project_id=4567, name="some test", commission_id=7654, pluto_core_project_id=9898)
             d.save()
 
             result = d.sync_assets_from_file_system()
@@ -54,8 +54,7 @@ class TestDeliverablesBundle(TestCase):
 
             added_assets = [x for x in DeliverableAsset.objects.filter(deliverable=d)]
             self.assertEqual(4, len(added_assets))
-
-            check_item = added_assets[2]
+            check_item = [a for a in added_assets if a.filename.endswith('file3.mxf')][0]
             self.assertEqual(check_item.filename, "/path/to/media/file3.mxf")
             self.assertEqual(check_item.absolute_path,"file:///path/to/media/file3.mxf")
             self.assertEqual(check_item.size, 1506)
