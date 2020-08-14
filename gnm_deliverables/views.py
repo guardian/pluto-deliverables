@@ -115,10 +115,8 @@ class CountDeliverablesView(APIView):
         logger.info(self.kwargs["project_id"])
         bundle_id = self.kwargs["project_id"]
         parent_bundle = Deliverable.objects.get(project_id=bundle_id)
-        deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,
-                                                             pk__in=self.request.data).count()
+        deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,).count()
         unimported_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,
-                                                           pk__in=self.request.data,
                                                            ingest_complete_dt__isnull=True).count()
 
         result = {'total_asset_count': deliverables_count,
