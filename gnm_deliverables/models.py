@@ -259,11 +259,15 @@ class DeliverableAsset(models.Model):
     def create_placeholder(self, user, commit=True):
         """
         requests Vidispine to create a placeholder item for this deliverable, if it does not have an ID on it.
-        if the deliverable does already have an item id, this is a no-op
-        :param user: user to run the request as
+        if the deliverable does already have an item id, this is a no-op.
+        this is automatically called from start_file_import, so you don't need to call it directly.
+        :param user: (string) user to run the request as
         :param commit: if True, save the deliverable to the database immediately (default true)
         :return: None
         """
+        if not isinstance(user, str):
+            raise TypeError("create_placeholder user must be a string")
+
         if self.online_item_id is None:
             # self.item_id = create_placeholder_item(user, metadata_document_from_dict(dict(
             #     title=self.get_name(),
@@ -281,14 +285,17 @@ class DeliverableAsset(models.Model):
             new_item = VSItem(url=settings.VIDISPINE_URL,user=settings.VIDISPINE_USER,passwd=settings.VIDISPINE_PASSWORD, run_as=user)
             new_item.createPlaceholder(dict(
                  title=self.get_name(),
-                 gnm_asset_category='Deliverable',
-                 gnm_asset_status='Ready for Editing',
-                 gnm_type='Deliverable',
-                 gnm_deliverable_parent_project=self.deliverable.project_id,
-                 gnm_deliverable_parent_deliverables=str(self.deliverable.id),
+                 gnm_category='Deliverable',
+                 original_filename=self.absolute_path,
+                 gnm_owner=user,
+                 gnm_containing_projects=str(self.deliverable.pluto_core_project_id),
+                 gnm_file_created=self.modified_dt,
+                 gnm_deliverable_bundle=str(self.deliverable.pluto_core_project_id),
+                 gnm_deliverable_id=str(self.id),
             ))
             if commit:
                 self.save()
+            return new_item
             #we don't store stuff in collections any more
             #add_to_collection(user, self.deliverable.project_id, self.item_id)
 
@@ -305,14 +312,12 @@ class DeliverableAsset(models.Model):
         if self.created_from_existing_item:
             return
         if self.online_item_id is None:
-            raise ImportFailedError('No item id could be found')
-        #self.job_id = create_import_job(user, self.absolute_path, self.item_id)
-        current_item = self.item(user=user)
-        if current_item is None:
             current_item = self.create_placeholder(user, commit=False)
+        else:
+            current_item = self.item(user=user)
 
         #FIXME: shape_tag needs to be properly determined
-        import_job = current_item.import_to_shape(uri=self.absolute_path,shape_tag=["lowres"],priority="MEDIUM")
+        import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"), priority="MEDIUM")
         self.job_id = import_job.name
         if commit:
             self.save()
@@ -347,10 +352,10 @@ class DeliverableAsset(models.Model):
         job = self.job(user)
         if job is not None:
             status = job.status()
-            finished = job.get_metadata("finished")
-            if finished:
-                self.ingest_complete_dt = parser.parse(finished)
-                self.save()
+            #
+            # if finished:
+            #     self.ingest_complete_dt = parser.parse(finished)
+            #     self.save()
             if status in ['FINISHED', 'FINISHED_WARNING']:
                 self.remove_file()
                 return DELIVERABLE_ASSET_STATUS_INGESTED

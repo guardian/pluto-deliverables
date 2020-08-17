@@ -203,6 +203,39 @@ class AdoptExistingVidispineItemView(APIView):
             return Response({"status": "server_error", "detail": str(e)})
 
 
+class SetTypeView(APIView):
+    """
+    set the deliverable type of the item and  possibly trigger ingest
+    """
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+    parser_classes = (JSONParser, )
+
+    def put(self, request, bundleId, assetId):
+        try:
+            item = DeliverableAsset.objects.get(id=assetId)
+        except DeliverableAsset.DoesNotExist:
+            return Response({"status":"notfound","detail": "No such item exists"},status=404)
+
+        if item.deliverable.pluto_core_project_id!=bundleId:
+            return Response({"status":"notfound","detail":"No such item exists"},status=404)
+
+        if "type" not in request.data:
+            return Response({"status":"error","detail":"No type field in body"},status=400)
+        if not isinstance(request.data["type"], int):
+            return Response({"status":"error","detail":"Type must be an integer identifier"},status=400)
+
+        try:
+            item.type = request.data["type"]
+            if item.online_item_id is None:
+                item.start_file_import(user=request.user.get_username())
+            else:
+                item.save()
+            return Response(status=201)
+        except Exception as e:
+            logger.exception("Could not update item type: ", exc_info=e)
+            return Response({"status":"server_error","detail":str(e)},status=500)
+
 ## -----------------------------------------------------------------------------
 ## everything below here is kept for reference
 ## -----------------------------------------------------------------------------
