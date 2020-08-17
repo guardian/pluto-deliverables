@@ -314,7 +314,7 @@ class DeliverableAsset(models.Model):
         else:
             current_item = self.item(user=user)
 
-
+        #FIXME: shape_tag needs to be properly determined
         import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
                                                   priority="MEDIUM",
                                                   essence=True,

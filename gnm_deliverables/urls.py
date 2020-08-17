@@ -4,8 +4,10 @@ URLS for the Guardian Project plugin
 
 from django.urls import path, re_path
 from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI
-from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, SetTypeView, VSNotifyView, TemporaryLoginUI, CountDeliverablesView
 from django.views.decorators.csrf import csrf_exempt
+
+from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, SetTypeView, VSNotifyView, CountDeliverablesView, TemporaryLoginUI
+
 from django.contrib import admin
 
 urlpatterns = [
