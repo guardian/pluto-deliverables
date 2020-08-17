@@ -1,5 +1,7 @@
 interface Project {
-    project_id: string;
+    project_id: string; //this field is deprecated
+    pluto_core_project_id: number;  //this is now the correct project id
+    commission_id: number;
     name: string;
     created: string;
     local_open_uri: string;
