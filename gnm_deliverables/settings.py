@@ -124,7 +124,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-VIDISPINE_URL="http://vidispine.local"
+VIDISPINE_URL="http://vidispine.local:80"
 VIDISPINE_USER="admin"
 VIDISPINE_PASSWORD="admin"
 

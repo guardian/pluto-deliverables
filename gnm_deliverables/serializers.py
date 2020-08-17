@@ -5,7 +5,6 @@ from .models import DeliverableAsset, Deliverable, GNMWebsite, Youtube, Mainstre
 
 
 class DeliverableAssetSerializer(serializers.ModelSerializer):
-    has_ongoing_job = serializers.SerializerMethodField('get_has_ongoing_job')
     status = serializers.SerializerMethodField('get_status')
     version = serializers.SerializerMethodField('get_version')
     duration = serializers.SerializerMethodField('get_duration')
@@ -17,7 +16,7 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
     @cached_property
     def user(self):
         if 'request' in self.context:
-            return self.context['request'].user
+            return self.context['request'].user.username
         else:
             return "admin"
 
@@ -27,8 +26,8 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
     def get_status_string(self, obj):
         return obj.status_string(self.user)
 
-    def get_has_ongoing_job(self, obj):
-        return obj.has_ongoing_job(self.user)
+    # def get_has_ongoing_job(self, obj):
+    #     return obj.has_ongoing_job(self.user)
 
     def get_version(self, obj):
         return obj.version(self.user)
@@ -39,7 +38,7 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliverableAsset
         fields = 'id type filename size access_dt modified_dt changed_dt job_id online_item_id nearline_item_id archive_item_id ' \
-                 'deliverable has_ongoing_job status type_string version duration size_string status_string changed_string'.split()
+                 'deliverable status type_string version duration size_string status_string changed_string'.split()
         read_only_fields = 'id filename size access_dt modified_dt changed_dt job_id item_id deliverable'.split()
 
 
