@@ -131,7 +131,11 @@ VIDISPINE_URL="http://vidispine.local:80"
 VIDISPINE_USER="admin"
 VIDISPINE_PASSWORD="admin"
 
+#DEPLOYMENT_ROOT is the place we are deploted, i.e. the full base URL that the client's browser will connect to us at.
 DEPLOYMENT_ROOT = os.environ.get("DEPLOYMENT_ROOT", "http://localhost:9000")
+#VS_CALLBACK_ROOT is the place that Vidispine should expect to find us for notifications.  In normal deployment, this
+#is _in-cluster_ so should be an http:// link to our k8s Service and NOT the external-facing https:// one.
+VS_CALLBACK_ROOT = os.environ.get("VS_CALLBACK_ROOT", "http://localhost:9000")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

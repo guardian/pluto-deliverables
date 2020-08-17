@@ -12,10 +12,9 @@ from django.forms.models import modelformset_factory
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import TemplateView
-from django.views.generic.detail import SingleObjectMixin
-# from gnm_misc_utils.csrf_exempt_session_authentication import CsrfExemptSessionAuthentication
 from gnmvidispine.vidispine_api import VSNotFound, VSException
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic import TemplateView, View
 from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView, \
@@ -235,6 +234,10 @@ class SetTypeView(APIView):
         except Exception as e:
             logger.exception("Could not update item type: ", exc_info=e)
             return Response({"status":"server_error","detail":str(e)},status=500)
+
+
+class VSNotifyView(View):
+    pass
 
 ## -----------------------------------------------------------------------------
 ## everything below here is kept for reference
