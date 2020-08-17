@@ -23,14 +23,15 @@ class TestDeliverablesAsset(TestCase):
 
             asset.save = mock.MagicMock()
             asset.create_placeholder("fred")
-            mocked_create_placeholder.assert_called_once_with(dict(
-                title="Full master for test",
-                gnm_asset_category='Deliverable',
-                gnm_asset_status='Ready for Editing',
-                gnm_type='Deliverable',
-                gnm_deliverable_parent_project=1234,
-                gnm_deliverable_parent_deliverables="None",
-            ))
+            mocked_create_placeholder.assert_called_once_with({'title': 'Full master for test',
+                                                               'gnm_category': 'Deliverable',
+                                                               'original_filename': None,
+                                                               'gnm_owner': 'fred',
+                                                               'gnm_containing_projects': 'None',
+                                                               'gnm_file_created': None,
+                                                               'gnm_deliverable_bundle': 'None',
+                                                               'gnm_deliverable_id': 'None'
+                                                               })
             asset.save.assert_called_once()
 
     def test_asset_create_placeholder_existing(self):
@@ -51,20 +52,6 @@ class TestDeliverablesAsset(TestCase):
             asset.create_placeholder("fred")
             mocked_create_placeholder.assert_not_called()
             asset.save.assert_not_called()
-
-    def test_asset_start_file_import_no_itemid(self):
-        """
-        start_file_import should raise ImportFailedError if attempted with no item id
-        :return:
-        """
-        from gnm_deliverables.models import Deliverable, DeliverableAsset, ImportFailedError
-        parent = Deliverable(project_id=1234, name="test")
-        asset = DeliverableAsset(
-            deliverable=parent,
-        )
-
-        with self.assertRaises(ImportFailedError):
-            asset.start_file_import("testuser")
 
     def test_asset_start_file_import(self):
         """
@@ -94,7 +81,14 @@ class TestDeliverablesAsset(TestCase):
 
         asset.item.assert_called_once_with(user="testuser")
         asset.save.assert_called_once()
-        mocked_item.import_to_shape.assert_called_once_with(uri="file:///path/to/some/file.mp4", shape_tag=["lowres"],priority="MEDIUM")
+        mocked_item.import_to_shape.assert_called_once_with(essence=True,
+                                                            jobMetadata={'import_source': 'pluto-deliverables',
+                                                                         'project_id': 'None',
+                                                                         'asset_id': 'None'},
+                                                            priority='MEDIUM',
+                                                            thumbnails=False,
+                                                            uri='file://file:///path/to/some/file.mp4')
+
         self.assertEqual(asset.job_id, "VX-345")
 
     def test_asset_duration(self):

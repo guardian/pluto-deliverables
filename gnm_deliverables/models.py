@@ -317,7 +317,15 @@ class DeliverableAsset(models.Model):
             current_item = self.item(user=user)
 
         #FIXME: shape_tag needs to be properly determined
-        import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"), priority="MEDIUM")
+        import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
+                                                  priority="MEDIUM",
+                                                  essence=True,
+                                                  thumbnails=False,
+                                                  jobMetadata={
+                                                      "import_source": "pluto-deliverables",
+                                                      "project_id": str(self.deliverable.pluto_core_project_id),
+                                                      "asset_id": str(self.id)
+                                                  })
         self.job_id = import_job.name
         if commit:
             self.save()
