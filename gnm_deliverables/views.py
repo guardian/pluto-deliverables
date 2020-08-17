@@ -112,7 +112,6 @@ class CountDeliverablesView(APIView):
     parser_classes = (JSONParser,)
 
     def get(self, *args, **kwargs):
-        logger.info(self.kwargs["project_id"])
         bundle_id = self.kwargs["project_id"]
         parent_bundle = Deliverable.objects.get(project_id=bundle_id)
         deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,).count()

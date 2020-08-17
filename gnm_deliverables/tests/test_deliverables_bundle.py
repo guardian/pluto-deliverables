@@ -3,8 +3,12 @@ from datetime import datetime
 
 import mock
 import pytz
+from django.contrib.auth.models import User
 from django.test import TestCase
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, force_authenticate
+
+from gnm_deliverables.models import Deliverable
+from gnm_deliverables.views import CountDeliverablesView
 
 
 class TestDeliverablesBundle(TestCase):
@@ -48,7 +52,8 @@ class TestDeliverablesBundle(TestCase):
         with mock.patch("gnm_deliverables.models.find_files_for_deliverable",
                         side_effect=mock_find_files) as find_files_for_deliverable:
             from gnm_deliverables.models import Deliverable, DeliverableAsset
-            d = Deliverable(project_id=4567, name="some test", commission_id=7654, pluto_core_project_id=9898)
+            d = Deliverable(project_id=4567, name="some test", commission_id=7654,
+                            pluto_core_project_id=9898)
             d.save()
 
             result = d.sync_assets_from_file_system()
@@ -67,21 +72,24 @@ class TestDeliverablesBundle(TestCase):
             self.assertEqual(check_item.changed_dt, files_date)
 
     def test_count_assets(self):
+        deliverable = mock.Mock(Deliverable, project_id=2, name='test', pk=1)
 
-        with mock.patch("gnm_deliverables.views.CountDeliverablesView.as_view") as MockCount:
-            from gnm_deliverables.models import Deliverable
+        with mock.patch("gnm_deliverables.models.Deliverable.objects.get") as mock_deliverable, \
+                mock.patch(
+                    "gnm_deliverables.models.DeliverableAsset.objects.filter") as mock_assets:
+            mock_deliverable.return_value = deliverable
+            mock_assets.return_value.count.return_value = 2
 
-            MockCount.return_value = {"total_asset_count": 2, "unimported_asset_count": 1}
+            factory = APIRequestFactory()
+            user = User.objects.create_user(
+                'user01', 'user01@example.com', 'user01P4ssw0rD')
 
-            parent = Deliverable(project_id=1234, name="test", pk=1)
-
-            factory=APIRequestFactory()
-            request_endpoint = '/api/bundle/{}/count'.format(parent.project_id)
+            request_endpoint = '/api/bundle/{}/count'.format(deliverable.project_id)
 
             request = factory.get(request_endpoint)
-            view = MockCount
-            response = view(request, project_id=parent.project_id)
+            force_authenticate(request, user=user)
+            view = CountDeliverablesView.as_view()
+            response = view(request, project_id=deliverable.project_id)
 
-            self.assertEqual(response,
-                             {"total_asset_count": 2, "unimported_asset_count": 1})
-            MockCount.assert_called_once()
+            expected_response = {"total_asset_count": 2, "unimported_asset_count": 2}
+            self.assertEqual(response.data, expected_response)
