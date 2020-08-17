@@ -129,6 +129,7 @@ VIDISPINE_USER="admin"
 VIDISPINE_PASSWORD="admin"
 
 DEPLOYMENT_ROOT = "http://localhost:9000"
+VS_CALLBACK_ROOT = "http://localhost:9000"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

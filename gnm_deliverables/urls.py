@@ -4,7 +4,7 @@ URLS for the Guardian Project plugin
 
 from django.urls import path, re_path
 from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI
-from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, SetTypeView, CountDeliverablesView
+from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, SetTypeView, VSNotifyView, CountDeliverablesView
 from django.contrib import admin
 
 urlpatterns = [
@@ -19,6 +19,7 @@ urlpatterns = [
     path(r'api/deliverable', DeliverableAPIView.as_view()),
     path(r'api/typeslist', DeliverablesTypeListAPI.as_view(), name="asset-types"),
     path(r'api/bundle/<int:project_id>/count', CountDeliverablesView.as_view()),
+    path(r'api/notify/', VSNotifyView.as_view(), name="vs-notifications"),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view())
     # path(r'(?P<project_id>.+-\d+)/create/?', DeliverableCreateView, name='deliverables_create'),
     # path(r'(?P<pk>\d+)/?', DeliverableDetailView, name='deliverables_detail'),
