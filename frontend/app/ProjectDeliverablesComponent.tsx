@@ -228,6 +228,32 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     }
   };
 
+  const updateItemType = async (assetId: bigint, newvalue: number) => {
+    const url = `/api/bundle/${parentBundleInfo?.pluto_core_project_id}/asset/${assetId}/setType`;
+
+    try {
+      setCentralMessage("Updating item type...");
+      await axios.put(
+        url,
+        { type: newvalue },
+        {
+          headers: {
+            "X-CSRFToken": Cookies.get("csrftoken"),
+          },
+        }
+      );
+      window.setTimeout(() => {
+        setCentralMessage("Update completed");
+        return loadRecord();
+      }, 1000);
+    } catch (error) {
+      console.error("failed to update type: ", error);
+      setCentralMessage(
+        `Could not update the type, please contact MultimediaTech`
+      );
+    }
+  };
+
   const getSelectedDeliverables = (): Deliverable[] =>
     deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
 
@@ -322,9 +348,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                       content={typeOptions}
                       showTip={true}
                       value={del.type}
-                      onChange={(newvalue) =>
-                        console.log(`You selected ${newvalue}`)
-                      }
+                      onChange={(newvalue) => updateItemType(del.id, newvalue)}
                     />
                   </TableCell>
                   <TableCell>{del.modified_dt}</TableCell>
