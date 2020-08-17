@@ -207,6 +207,10 @@ class AdoptExistingVidispineItemView(APIView):
 ## everything below here is kept for reference
 ## -----------------------------------------------------------------------------
 
+## -----------------------------------------------------------------------------
+## everything below here is kept for reference
+## -----------------------------------------------------------------------------
+
 class ModelSearchAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
