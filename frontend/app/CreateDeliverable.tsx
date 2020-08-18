@@ -130,6 +130,7 @@ const CreateDeliverable: React.FC<RouteComponentProps> = () => {
   };
 
   if (saveCompleted) return <Redirect to={`/project/${projectIdInput}`} />;
+
   return (
     <>
       <Typography variant="h2">Create new bundle</Typography>

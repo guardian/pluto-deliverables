@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'gnm_deliverables.deployment_route_redirector.DeploymentRouteRedirector'
 ]
 
 ROOT_URLCONF = 'gnm_deliverables.urls'
@@ -127,12 +128,12 @@ USE_L10N = True
 
 USE_TZ = True
 
-VIDISPINE_URL="http://vidispine.local:80"
-VIDISPINE_USER="admin"
-VIDISPINE_PASSWORD="admin"
+VIDISPINE_URL=os.environ.get("VIDISPINE_URL","http://vidispine.local:80")
+VIDISPINE_USER=os.environ.get("VIDISPINE_USER","admin")
+VIDISPINE_PASSWORD=os.environ.get("VIDISPINE_PASSWORD","admin")
 
 DEPLOYMENT_ROOT = os.environ.get("DEPLOYMENT_ROOT", "http://localhost:9000")
-VS_CALLBACK_ROOT = "http://localhost:9000"
+VS_CALLBACK_ROOT = os.environ.get("CALLBACK_ROOT","http://localhost:9000")
 
 
 # Static files (CSS, JavaScript, Images)
