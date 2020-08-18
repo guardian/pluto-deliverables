@@ -3,6 +3,7 @@
 import functools  # for reduce()
 import logging
 import re
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -14,7 +15,6 @@ from django.urls import reverse
 from gnmvidispine.vidispine_api import VSNotFound, VSException
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import TemplateView, View
-from django.contrib.auth.views import LoginView
 from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView, \
@@ -25,6 +25,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
+
 from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
@@ -37,6 +38,10 @@ import functools    #for reduce()
 import urllib.parse
 from .vs_notification import VSNotification
 from datetime import datetime
+from django.conf import settings
+import functools    #for reduce()
+import urllib.parse
+
 
 logger = logging.getLogger(__name__)
 
@@ -49,17 +54,10 @@ class NewDeliverableUI(TemplateView):
     template_name = "gnm_deliverables/new_ui.html"
 
     def get_context_data(self, **kwargs):
-        full_url = settings.__getattr__("DEPLOYMENT_ROOT")
-        parts = urllib.parse.urlparse(full_url)
         return {
-            "deployment_root": parts.path,
-            "cbVersion": "DEV", ##FIXME: this needs to be injected from config
+            "deployment_root": settings.__getattr__("DEPLOYMENT_ROOT"),
+            "cbVersion": "DEV",  ##FIXME: this needs to be injected from config
         }
-
-
-class TemporaryLoginUI(LoginView):
-    template_name = "temporary/login.html"
-    redirect_authenticated_user = True
 
 
 class NewDeliverablesAPIList(ListAPIView):
@@ -247,43 +245,12 @@ class SetTypeView(APIView):
             return Response({"status":"server_error","detail":str(e)},status=500)
 
 
-class VSNotifyView(APIView):
-    def post(self, request):
-        logger.debug("Received content from Vidispine: {0}".format(request.body))
-        try:
-            content = VSNotification.from_bytes(request.body)
-        except Exception as e:
-            logger.exception("Could not interpret content from Vidispine: ", exc_info=e)
-            return Response({"status":"error", "detail":str(e)}, status=400)
+class VSNotifyView(View):
+    pass
 
-        vsids = content.vsIDs
-        if content.import_source != "pluto-deliverables":
-            logger.warning("Received a job notification {0} for item {1} that is not ours".format(vsids[1], vsids[0]))
-            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
-
-        try:
-            asset = DeliverableAsset.objects.get(pk=content.asset_id)
-        except DeliverableAsset.DoesNotExist:
-            logger.warning("Received a notification for asset {0} that does not exist".format(content.asset_id))
-            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
-
-        if content.didFail:
-            asset.status = DELIVERABLE_ASSET_STATUS_INGEST_FAILED
-            asset.ingest_complete_dt = datetime.now()
-            asset.save()
-        elif content.isRunning:
-            asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
-            asset.save()
-        elif content.status == "FINISHED":
-            #don't delete local files here. We pick those up with a timed job run via a mgt command
-            asset.ingest_complete_dt = datetime.now()
-            asset.online_item_id = vsids[0]
-            asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
-            asset.save()
-        else:
-            logger.warning("Received unknown job status {0} from {1}".format(content.status, vsids[1]))
-        return Response(data=None, status=200)
-
+## -----------------------------------------------------------------------------
+## everything below here is kept for reference
+## -----------------------------------------------------------------------------
 
 ## -----------------------------------------------------------------------------
 ## everything below here is kept for reference
