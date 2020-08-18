@@ -258,19 +258,30 @@ class VSNotifyView(APIView):
 
         vsids = content.vsIDs
         if content.import_source != "pluto-deliverables":
-            logger.warning("Received a job notification {0} for item {1} that is not ours", vsids[1], vsids[0])
+            logger.warning("Received a job notification {0} for item {1} that is not ours".format(vsids[1], vsids[0]))
             return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
 
         try:
             asset = DeliverableAsset.objects.get(pk=content.asset_id)
         except DeliverableAsset.DoesNotExist:
-            logger.warning("Received a notification for asset {0} that does not exist", content.asset_id)
+            logger.warning("Received a notification for asset {0} that does not exist".format(content.asset_id))
             return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
 
-        #don't delete local files here. We pick those up with a timed job run via a mgt command
-        asset.ingest_complete_dt = datetime.now()
-        asset.online_item_id = vsids[0]
-        asset.save()
+        if content.didFail:
+            asset.status = DELIVERABLE_ASSET_STATUS_INGEST_FAILED
+            asset.ingest_complete_dt = datetime.now()
+            asset.save()
+        elif content.isRunning:
+            asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
+            asset.save()
+        elif content.status == "FINISHED":
+            #don't delete local files here. We pick those up with a timed job run via a mgt command
+            asset.ingest_complete_dt = datetime.now()
+            asset.online_item_id = vsids[0]
+            asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
+            asset.save()
+        else:
+            logger.warning("Received unknown job status {0} from {1}".format(content.status, vsids[1]))
         return Response(data=None, status=200)
 
 
