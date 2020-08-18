@@ -3,7 +3,6 @@
 import functools  # for reduce()
 import logging
 import re
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -36,7 +35,8 @@ from .serializers import DeliverableAssetSerializer, DeliverableSerializer
 from django.conf import settings
 import functools    #for reduce()
 import urllib.parse
-
+from .vs_notification import VSNotification
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -247,12 +247,32 @@ class SetTypeView(APIView):
             return Response({"status":"server_error","detail":str(e)},status=500)
 
 
-class VSNotifyView(View):
-    pass
+class VSNotifyView(APIView):
+    def post(self, request):
+        logger.debug("Received content from Vidispine: {0}".format(request.body))
+        try:
+            content = VSNotification.from_bytes(request.body)
+        except Exception as e:
+            logger.exception("Could not interpret content from Vidispine: ", exc_info=e)
+            return Response({"status":"error", "detail":str(e)}, status=400)
 
-## -----------------------------------------------------------------------------
-## everything below here is kept for reference
-## -----------------------------------------------------------------------------
+        vsids = content.vsIDs
+        if content.import_source != "pluto-deliverables":
+            logger.warning("Received a job notification {0} for item {1} that is not ours", vsids[1], vsids[0])
+            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
+
+        try:
+            asset = DeliverableAsset.objects.get(pk=content.asset_id)
+        except DeliverableAsset.DoesNotExist:
+            logger.warning("Received a notification for asset {0} that does not exist", content.asset_id)
+            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
+
+        #don't delete local files here. We pick those up with a timed job run via a mgt command
+        asset.ingest_complete_dt = datetime.now()
+        asset.online_item_id = vsids[0]
+        asset.save()
+        return Response(data=None, status=200)
+
 
 ## -----------------------------------------------------------------------------
 ## everything below here is kept for reference
