@@ -26,7 +26,10 @@ SECRET_KEY = 'ouu5awo+ny)_4@x2e2v6cm5aur4rdli(0e#tu0hvekurbbf)*o'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+if "DEPLOYMENT_HOST" in os.environ:
+    ALLOWED_HOSTS += [os.environ["DEPLOYMENT_HOST"]]
+if "CALLBACK_HOST" in os.environ:
+    ALLOWED_HOSTS += [os.environ["CALLBACK_HOST"]]
 
 # Application definition
 
@@ -128,7 +131,7 @@ VIDISPINE_URL="http://vidispine.local"
 VIDISPINE_USER="admin"
 VIDISPINE_PASSWORD="admin"
 
-DEPLOYMENT_ROOT = "http://localhost:9000"
+DEPLOYMENT_ROOT = os.environ.get("DEPLOYMENT_ROOT", "http://localhost:9000")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

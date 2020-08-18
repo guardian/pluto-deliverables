@@ -8,6 +8,11 @@ import ProjectsListComponent from "./ProjectsListComponent";
 import axios from "axios";
 import ProjectDeliverablesComponent from "./ProjectDeliverablesComponent";
 import CreateDeliverable from "./CreateDeliverable";
+import { Header, AppSwitcher } from "pluto-headers";
+import { handleUnauthorized } from "./utils/interceptor";
+import NotLoggedIn from "./NotLoggedIn";
+
+require("./app.css");
 
 const theme = createMuiTheme({
   typography: {
@@ -32,18 +37,88 @@ axios.interceptors.request.use(function (config) {
 });
 
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loading: true,
+      isLoggedIn: false,
+      tokenExpired: false,
+      plutoConfig: {},
+    };
+
+    this.handleUnauthorizedFailed = this.handleUnauthorizedFailed.bind(this);
+    this.onLoginValid = this.onLoginValid.bind(this);
+
+    axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        handleUnauthorized(
+          this.state.plutoConfig,
+          error,
+          this.handleUnauthorizedFailed
+        );
+
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  handleUnauthorizedFailed() {
+    this.setState({
+      isLoggedIn: false,
+      tokenExpired: true,
+    });
+  }
+
+  async onLoginValid(valid, loginData) {
+    // Fetch the oauth config
+    try {
+      const response = await fetch("/meta/oauth/config.json");
+      if (response.status === 200) {
+        const data = await response.json();
+        this.setState({ plutoConfig: data });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    this.setState(
+      {
+        isLoggedIn: valid,
+      },
+      () => {
+        this.setState({ loading: false });
+      }
+    );
+  }
+
   render() {
+    if (!this.state.loading && !this.state.isLoggedIn) {
+      console.log("not logged in, redirecting to route");
+      return <NotLoggedIn tokenExpired={this.state.tokenExpired} timeOut={5} />;
+    }
+
     return (
       <ThemeProvider theme={theme}>
-        <Switch>
-          <Route path="/project/:projectid/new" component={CreateDeliverable} />
-          <Route path="/project/new" component={CreateDeliverable} />
-          <Route
-            path="/project/:projectid"
-            component={ProjectDeliverablesComponent}
-          />
-          <Route exact path="/" component={ProjectsListComponent} />
-        </Switch>
+        <>
+          <Header></Header>
+          <AppSwitcher onLoginValid={this.onLoginValid}></AppSwitcher>
+        </>
+        <div className="main-body">
+          <Switch>
+            <Route
+              path="/project/:projectid/new"
+              component={CreateDeliverable}
+            />
+            <Route path="/project/new" component={CreateDeliverable} />
+            <Route
+              path="/project/:projectid"
+              component={ProjectDeliverablesComponent}
+            />
+            <Route exact path="/" component={ProjectsListComponent} />
+          </Switch>
+        </div>
       </ThemeProvider>
     );
   }

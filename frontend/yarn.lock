@@ -5913,6 +5913,10 @@ please-upgrade-node@^3.2.0:
   dependencies:
     semver-compare "^1.0.0"
 
+"pluto-headers@https://gitlab.com/codmill/customer-projects/guardian/pluto-headers.git#v1.0.2-1":
+  version "1.0.2-1"
+  resolved "https://gitlab.com/codmill/customer-projects/guardian/pluto-headers.git#3540750ed52e6645eca99990a01f821a2960f031"
+
 pn@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/pn/-/pn-1.1.0.tgz#e2f4cef0e219f463c179ab37463e4e1ecdccbafb"
