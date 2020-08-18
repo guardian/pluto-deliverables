@@ -32,7 +32,7 @@ from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGES
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
 from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
-from .models import Deliverable, DeliverableAsset
+from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream
 from .serializers import DeliverableAssetSerializer, DeliverableSerializer
 
 logger = logging.getLogger(__name__)
@@ -740,3 +740,33 @@ class DeliverableAPIRetrieveView(RetrieveAPIView):
     authentication_classes = (IsAuthenticated,)
     serializer_class = DeliverableSerializer
     model = Deliverable
+
+
+class GNMWebsiteAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, request, *args, **kwargs):
+        bundle_id = self.request.GET["project_id"]
+        parent_bundle = Deliverable.objects.get(project_id=bundle_id)
+        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle)
+        gnm_website = GNMWebsite.objects.get(deliverableasset=deliverables)
+
+        return gnm_website
+
+class MainstreamAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, request, *args, **kwargs):
+        bundle_id = self.request.GET["project_id"]
+        parent_bundle = Deliverable.objects.get(project_id=bundle_id)
+        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle)
+        mainstream = Mainstream.objects.get(deliverableasset=deliverables)
+
+        return mainstream
+
+
+
