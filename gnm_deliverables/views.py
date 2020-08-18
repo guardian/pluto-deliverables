@@ -15,6 +15,7 @@ from django.urls import reverse
 from gnmvidispine.vidispine_api import VSNotFound, VSException
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import TemplateView, View
+from django.contrib.auth.views import LoginView
 from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView, \
@@ -25,7 +26,6 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
-
 from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
@@ -42,7 +42,6 @@ from django.conf import settings
 import functools    #for reduce()
 import urllib.parse
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -54,10 +53,17 @@ class NewDeliverableUI(TemplateView):
     template_name = "gnm_deliverables/new_ui.html"
 
     def get_context_data(self, **kwargs):
+        full_url = settings.__getattr__("DEPLOYMENT_ROOT")
+        parts = urllib.parse.urlparse(full_url)
         return {
-            "deployment_root": settings.__getattr__("DEPLOYMENT_ROOT"),
-            "cbVersion": "DEV",  ##FIXME: this needs to be injected from config
+            "deployment_root": parts.path,
+            "cbVersion": "DEV", ##FIXME: this needs to be injected from config
         }
+
+
+class TemporaryLoginUI(LoginView):
+    template_name = "temporary/login.html"
+    redirect_authenticated_user = True
 
 
 class NewDeliverablesAPIList(ListAPIView):
