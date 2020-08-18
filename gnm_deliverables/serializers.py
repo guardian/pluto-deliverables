@@ -2,10 +2,9 @@ from django.utils.functional import cached_property
 from rest_framework import serializers
 
 from .models import DeliverableAsset, Deliverable, GNMWebsite, Youtube, Mainstream, DailyMotion, LogEntry
-
+from .choices import DELIVERABLE_ASSET_STATUSES_DICT
 
 class DeliverableAssetSerializer(serializers.ModelSerializer):
-    status = serializers.SerializerMethodField('get_status')
     version = serializers.SerializerMethodField('get_version')
     duration = serializers.SerializerMethodField('get_duration')
     type_string = serializers.CharField(read_only=True)
@@ -20,11 +19,8 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
         else:
             return "admin"
 
-    def get_status(self, obj):
-        return obj.status(self.user)
-
     def get_status_string(self, obj):
-        return obj.status_string(self.user)
+        return DELIVERABLE_ASSET_STATUSES_DICT.get(obj.status, "(not set)")
 
     # def get_has_ongoing_job(self, obj):
     #     return obj.has_ongoing_job(self.user)
