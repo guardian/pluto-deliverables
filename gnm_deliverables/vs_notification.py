@@ -71,3 +71,18 @@ class VSNotification(object):
     @property
     def currentStepStatus(self, default=None):
         return self._content.get("currentStepStatus", default)
+
+    @property
+    def didFail(self):
+        status = self._content.get("status", "STARTED")
+        return status=="FAILED_TOTAL" or status=="ABORTED_PENDING" or status=="ABORTED"
+
+    @property
+    def hasWarning(self):
+        status = self._content.get("status","STARTED")
+        return status=="FINISHED_WARNING"
+
+    @property
+    def isRunning(self):
+        status = self._content.get("status","")
+        return status=="READY" or status=="STARTED" or status=="VIDINET_JOB"
