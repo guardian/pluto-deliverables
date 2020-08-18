@@ -139,10 +139,10 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
               {projects.map((entry, idx) => (
                 <TableRow key={idx}>
                   <TableCell>{entry.name}</TableCell>
-                  <TableCell>{entry.project_id}</TableCell>
+                  <TableCell>{entry.pluto_core_project_id}</TableCell>
                   <TableCell>{entry.created}</TableCell>
                   <TableCell>
-                    <ActionIcons id={entry.project_id} />
+                    <ActionIcons id={entry.pluto_core_project_id.toString()} />
                   </TableCell>
                 </TableRow>
               ))}

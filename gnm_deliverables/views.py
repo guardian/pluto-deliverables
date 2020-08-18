@@ -76,7 +76,7 @@ class NewDeliverableAssetAPIList(ListAPIView):
 
     def get_queryset(self):
         bundle_id = self.request.GET["project_id"]
-        parent_bundle = Deliverable.objects.get(project_id=bundle_id)
+        parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
         return DeliverableAsset.objects.filter(deliverable=parent_bundle)
 
     def get(self, *args, **kwargs):
@@ -97,9 +97,8 @@ class DeliverableAPIView(APIView):
 
     def delete(self, *args, **kwargs):
         bundle_id = self.request.GET["project_id"]
-        parent_bundle = Deliverable.objects.get(project_id=bundle_id)
-        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle,
-                                                       pk__in=self.request.data)
+        parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
+        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle, pk__in=self.request.data)
 
         deliverables.delete()
 
@@ -130,7 +129,7 @@ class NewDeliverableAPIScan(APIView):
 
     def post(self, request):
         try:
-            bundle = Deliverable.objects.get(project_id=request.GET["project_id"])
+            bundle = Deliverable.objects.get(pluto_core_project_id=request.GET["project_id"])
             results = bundle.sync_assets_from_file_system()
             return Response({"status": "ok", "detail": "resync performed", **results}, status=200)
         except Deliverable.DoesNotExist:
@@ -176,8 +175,8 @@ class AdoptExistingVidispineItemView(APIView):
         if not self.vs_validator.match(vs_id):
             return Response({"status": "error", "detail": "vidispine id is invalid"}, status=400)
         try:
-            # FIXME: once bearer token auth is integrated, then the user= field must be set in create_asset_from_vs_item
-            bundle = Deliverable.objects.get(project_id=project_id)
+            #FIXME: once bearer token auth is integrated, then the user= field must be set in create_asset_from_vs_item
+            bundle = Deliverable.objects.get(pluto_core_project_id=project_id)
             asset, created = bundle.create_asset_from_vs_item(vs_id, user="admin")
             if created:
                 return Response({"status": "ok", "detail": "item attached"}, status=200)
@@ -203,6 +202,10 @@ class AdoptExistingVidispineItemView(APIView):
             logger.exception("Unexpected error adopting VS item {0}: ".format(vs_id))
             return Response({"status": "server_error", "detail": str(e)})
 
+
+## -----------------------------------------------------------------------------
+## everything below here is kept for reference
+## -----------------------------------------------------------------------------
 
 class ModelSearchAPIView(APIView):
     permission_classes = (IsAuthenticated,)
