@@ -8,8 +8,7 @@ import ProjectsListComponent from "./ProjectsListComponent";
 import axios from "axios";
 import ProjectDeliverablesComponent from "./ProjectDeliverablesComponent";
 import CreateDeliverable from "./CreateDeliverable";
-import { Header, AppSwitcher } from "pluto-headers";
-import { handleUnauthorized } from "./utils/interceptor";
+import { Header, AppSwitcher, handleUnauthorized } from "pluto-headers";
 import NotLoggedIn from "./NotLoggedIn";
 
 require("./app.css");
