@@ -17,7 +17,7 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from gnmvidispine.vs_item import VSItem, VSException, VSNotFound
 from gnmvidispine.vs_job import VSJob
-
+from gnmvidispine.vs_item import VSMetadataBuilder
 from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
     DELIVERABLE_ASSET_TYPES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
     PUBLICATION_STATUS
@@ -275,16 +275,24 @@ class DeliverableAsset(models.Model):
                               user=settings.VIDISPINE_USER,
                               passwd=settings.VIDISPINE_PASSWORD,
                               run_as=user)
-            new_item.createPlaceholder(dict(
-                 title=self.get_name(),
-                 gnm_category='Deliverable',
-                 original_filename=self.absolute_path,
-                 gnm_owner=user,
-                 gnm_containing_projects=str(self.deliverable.pluto_core_project_id),
-                 gnm_file_created=self.modified_dt,
-                 gnm_deliverable_bundle=str(self.deliverable.pluto_core_project_id),
-                 gnm_deliverable_id=str(self.id),
-            ))
+
+            builder = new_item.get_metadata_builder()
+            builder.addMeta({
+                "title": self.get_name()
+            })
+            builder.addGroup("Asset",{
+                "gnm_category": "Deliverable",
+                "original_filename": self.absolute_path,
+                "gnm_owner": user,
+                "gnm_containing_projects": str(self.deliverable.pluto_core_project_id),
+                "gnm_file_created": self.modified_dt
+            })
+            builder.addGroup("Deliverable", {
+                "gnm_deliverable_bundle": str(self.deliverable.pluto_core_project_id),
+                "gnm_deliverable_id": str(self.id)
+            })
+            new_item.createPlaceholder(builder.as_xml())
+
             if commit:
                 self.save()
             return new_item
