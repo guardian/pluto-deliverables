@@ -3,7 +3,6 @@
 import functools  # for reduce()
 import logging
 import re
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -33,14 +32,13 @@ from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
 from .models import Deliverable, DeliverableAsset
 from .serializers import DeliverableAssetSerializer, DeliverableSerializer
-from django.conf import settings
-import functools    #for reduce()
 import urllib.parse
 from .vs_notification import VSNotification
 from datetime import datetime
 from django.conf import settings
 import functools    #for reduce()
 import urllib.parse
+
 
 logger = logging.getLogger(__name__)
 
@@ -251,12 +249,43 @@ class SetTypeView(APIView):
             return Response({"status":"server_error","detail":str(e)},status=500)
 
 
-class VSNotifyView(View):
-    pass
+class VSNotifyView(APIView):
+    def post(self, request):
+        logger.debug("Received content from Vidispine: {0}".format(request.body))
+        try:
+            content = VSNotification.from_bytes(request.body)
+        except Exception as e:
+            logger.exception("Could not interpret content from Vidispine: ", exc_info=e)
+            return Response({"status":"error", "detail":str(e)}, status=400)
 
-## -----------------------------------------------------------------------------
-## everything below here is kept for reference
-## -----------------------------------------------------------------------------
+        vsids = content.vsIDs
+        if content.import_source != "pluto-deliverables":
+            logger.warning("Received a job notification {0} for item {1} that is not ours".format(vsids[1], vsids[0]))
+            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
+
+        try:
+            asset = DeliverableAsset.objects.get(pk=content.asset_id)
+        except DeliverableAsset.DoesNotExist:
+            logger.warning("Received a notification for asset {0} that does not exist".format(content.asset_id))
+            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
+
+        if content.didFail:
+            asset.status = DELIVERABLE_ASSET_STATUS_INGEST_FAILED
+            asset.ingest_complete_dt = datetime.now()
+            asset.save()
+        elif content.isRunning:
+            asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
+            asset.save()
+        elif content.status == "FINISHED":
+            #don't delete local files here. We pick those up with a timed job run via a mgt command
+            asset.ingest_complete_dt = datetime.now()
+            asset.online_item_id = vsids[0]
+            asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
+            asset.save()
+        else:
+            logger.warning("Received unknown job status {0} from {1}".format(content.status, vsids[1]))
+        return Response(data=None, status=200)
+
 
 ## -----------------------------------------------------------------------------
 ## everything below here is kept for reference

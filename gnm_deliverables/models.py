@@ -19,11 +19,9 @@ from gnmvidispine.vs_item import VSItem, VSException, VSNotFound
 from gnmvidispine.vs_job import VSJob
 
 from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
-    DELIVERABLE_ASSET_STATUSES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
+    DELIVERABLE_ASSET_TYPES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
     PUBLICATION_STATUS
-from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
-    DELIVERABLE_ASSET_STATUS_INGESTING, DELIVERABLE_ASSET_STATUS_INGESTED, \
-    DELIVERABLE_ASSET_TYPES_DICT
+from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, DELIVERABLE_ASSET_STATUSES
 from .choices import DELIVERABLE_ASSET_TYPE_CHOICES, DELIVERABLE_STATUS_ALL_FILES_INGESTED, \
     DELIVERABLE_STATUS_FILES_TO_INGEST, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE, \
     DELIVERABLE_ASSET_TYPE_OTHER_TRAILER, \
@@ -229,6 +227,10 @@ class DeliverableAsset(models.Model):
     ingest_complete_dt = models.DateTimeField(null=True, blank=True)
     file_removed_dt = models.DateTimeField(null=True, blank=True)
 
+    status = models.IntegerField(null=False,
+                                 choices=DELIVERABLE_ASSET_STATUSES,
+                                 default=DELIVERABLE_ASSET_STATUS_NOT_INGESTED)
+
     created_from_existing_item = models.BooleanField(default=False)
 
     deliverable = models.ForeignKey(Deliverable, related_name='assets', on_delete=models.PROTECT)
@@ -314,7 +316,6 @@ class DeliverableAsset(models.Model):
         else:
             current_item = self.item(user=user)
 
-        #FIXME: shape_tag needs to be properly determined
         import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
                                                   priority="MEDIUM",
                                                   essence=True,
@@ -323,7 +324,8 @@ class DeliverableAsset(models.Model):
                                                       "import_source": "pluto-deliverables",
                                                       "project_id": str(self.deliverable.pluto_core_project_id),
                                                       "asset_id": str(self.id)
-                                                  })
+                                                  },
+                                                  run_as=user)
         self.job_id = import_job.name
         if commit:
             self.save()
@@ -351,29 +353,6 @@ class DeliverableAsset(models.Model):
         #     'FAILED_TOTAL',
         #     'ABORTED'
         # ]
-
-    def status(self, user):
-        if self.ingest_complete_dt is not None:
-            return DELIVERABLE_ASSET_STATUS_INGESTED
-        job = self.job(user)
-        if job is not None:
-            status = job.status()
-            #
-            # if finished:
-            #     self.ingest_complete_dt = parser.parse(finished)
-            #     self.save()
-            if status in ['FINISHED', 'FINISHED_WARNING']:
-                self.remove_file()
-                return DELIVERABLE_ASSET_STATUS_INGESTED
-            elif status in ['FAILED_TOTAL', 'ABORTED']:
-                return DELIVERABLE_ASSET_STATUS_INGEST_FAILED
-            else:
-                return DELIVERABLE_ASSET_STATUS_INGESTING
-        return DELIVERABLE_ASSET_STATUS_NOT_INGESTED
-
-    def status_string(self, user):
-        status = self.status(user)
-        return DELIVERABLE_ASSET_STATUSES_DICT.get(status)
 
     def version(self, user):
         """
