@@ -275,7 +275,7 @@ class DeliverableAsset(models.Model):
             new_item = VSItem(url=settings.VIDISPINE_URL,
                               user=settings.VIDISPINE_USER,
                               passwd=settings.VIDISPINE_PASSWORD,
-                              )#run_as=user)
+                              run_as=user)
 
             builder = new_item.get_metadata_builder()
             builder.addMeta({
@@ -326,7 +326,7 @@ class DeliverableAsset(models.Model):
                                                       "project_id": str(self.deliverable.pluto_core_project_id),
                                                       "asset_id": str(self.id)
                                                   },
-                                                  )#run_as=user)
+                                                  run_as=user)
         self.job_id = import_job.name
         if commit:
             self.save()
