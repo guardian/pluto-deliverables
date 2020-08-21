@@ -26,9 +26,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 if "DEPLOYMENT_HOST" in os.environ:
-    ALLOWED_HOSTS += [os.environ["DEPLOYMENT_HOST"]]
+    ALLOWED_HOSTS.append(os.environ["DEPLOYMENT_HOST"])
 if "CALLBACK_HOST" in os.environ:
-    ALLOWED_HOSTS += [os.environ["CALLBACK_HOST"]]
+    ALLOWED_HOSTS.append(os.environ["CALLBACK_HOST"])
 
 # Application definition
 
@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'gnm_deliverables',
-    "django_nose"
+    'django_nose',
+    'rest_framework'
 ]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -123,11 +124,34 @@ USE_L10N = True
 
 USE_TZ = True
 
-VIDISPINE_URL = "http://vidispine.local"
-VIDISPINE_USER = "admin"
-VIDISPINE_PASSWORD = "admin"
+### Vidispine configuration. These should be the locations that the _server portion_ can access VS, not the browser.
+VIDISPINE_URL=os.environ.get("VIDISPINE_URL","http://vidispine.local:80")
+VIDISPINE_USER=os.environ.get("VIDISPINE_USER","admin")
+VIDISPINE_PASSWORD=os.environ.get("VIDISPINE_PASSWORD","admin")
 
+
+### DEPLOYMENT_ROOT is the place we are deploted, i.e. the full base URL that the client's browser will connect to us at.
 DEPLOYMENT_ROOT = os.environ.get("DEPLOYMENT_ROOT", "http://localhost:9000")
+### VS_CALLBACK_ROOT is the place that Vidispine should expect to find us for notifications.  In normal deployment, this
+#### is _in-cluster_ so should be an http:// link to our k8s Service and NOT the external-facing https:// one.
+VS_CALLBACK_ROOT = os.environ.get("CALLBACK_ROOT", "http://localhost:9000")
+
+### Message queue configuration. These should be the locations that the _server portion_ can access Rabbitmq
+RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "localhost")
+RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
+RABBITMQ_VHOST = os.environ.get("RABBITMQ_VHOST", "prexit")
+RABBITMQ_EXCHANGE = 'pluto-deliverables'
+RABBITMQ_USER = os.environ.get("RABBITMQ_USER","pluto-ng")
+RABBITMQ_PASSWD = os.environ.get("RABBITMQ_PASSWD","")
+
+# Transcode presets to use.  The first value is a regex to match against the MIME type, the second is the name of the VS preset
+TRANSCODE_PRESETS = {
+    r'^video/': "lowres",
+    r'^audio/': "lowaudio",
+    r'^image/': "lowimage",
+    r'^application/x-mxf': "lowres",
+    r'^application/x-material-exchange-format': "lowres"
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -164,8 +188,7 @@ AUTHENTICATION_BACKENDS = (
     "gnm_deliverables.jwt_auth_backend.JwtAuth",
 )
 
-# TODO add signing cert JWT_VALIDATION_KEY
-# JWT_VALIDATION_KEY = open(BASE_DIR + '{path to pem file}').read()
+JWT_CERTIFICATE_PATH = os.environ.get("JWT_CERTIFICATE_PATH", os.path.join(BASE_DIR, "publiccert.pem"))
 JWT_EXPECTED_AUDIENCE = os.environ.get('JWT_EXPECTED_AUDIENCE',
                                        ["master-realm", "account"])  # ["master-realm", "account"]
 JWT_EXPECTED_ISSUER = os.environ.get("JWT_EXPECTED_ISSUER",
