@@ -2,17 +2,12 @@
 URLS for the Guardian Project plugin
 """
 
+from django.contrib import admin
 from django.urls import path, re_path
 
-from .views import DeliverableCreateView, DeliverableDetailView, DeliverableAssetUpdateAPIView, \
-    DeliverablesSearchAPIView, DeliverableAssetCheckTypeChange, NaughtyListAPIView, \
-    NaughtyListUIView, DeliverableCreateFolderView, DeliverablesListView, \
-    DeliverablesSearchForWorkingGroupAPIView, SearchForDeliverableAPIView, \
-    DeliverableAPIRetrieveView
-from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
 from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
-from django.contrib.auth.decorators import login_required
-from django.contrib import admin
+from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
+    NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
