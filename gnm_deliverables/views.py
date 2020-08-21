@@ -33,7 +33,7 @@ from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGES
 from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
 from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream
-from .serializers import DeliverableAssetSerializer, DeliverableSerializer
+from .serializers import DeliverableAssetSerializer, DeliverableSerializer, GNMWebsiteSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -751,12 +751,22 @@ class GNMWebsiteAPIView(APIView):
     parser_classes = (JSONParser,)
 
     def get(self, request, *args, **kwargs):
-        bundle_id = self.request.GET["project_id"]
-        parent_bundle = Deliverable.objects.get(project_id=bundle_id)
-        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle)
-        gnm_website = GNMWebsite.objects.get(deliverableasset=deliverables)
+        asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
+        gnm_website = GNMWebsite.objects.get(deliverableasset=asset)
 
         return gnm_website
+
+    def post(self, request):
+        try:
+            asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
+            gnmwebsite = GNMWebsiteSerializer(data=request.DATA)
+
+            return Response({"status": "ok", "detail": "website created", gnmwebsite},
+                            status=200)
+        except asset.DoesNotExist:
+            return Response({"status": "error", "detail": "Asset not known"}, status=404)
+        except Exception as e:
+            return Response({"status": "error", "detail": str(e)}, status=500)
 
 class MainstreamAPIView(APIView):
     permission_classes = (IsAuthenticated,)
