@@ -27,7 +27,8 @@ from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGESTED, \
-    DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
+    DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING, DELIVERABLE_ASSET_STATUS_TRANSCODED, \
+    DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED, DELIVERABLE_ASSET_STATUS_TRANSCODING
 from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
 from .models import Deliverable, DeliverableAsset
@@ -249,6 +250,24 @@ class SetTypeView(APIView):
             return Response({"status":"server_error","detail":str(e)},status=500)
 
 
+class TestCreateProxyView(APIView):
+    def post(self, request, bundleId, assetId):
+        try:
+            item = DeliverableAsset.objects.get(id=assetId)
+        except DeliverableAsset.DoesNotExist:
+            return Response({"status":"notfound","detail":"No such item exists"}, status=404)
+
+        try:
+            job_id = item.create_proxy()
+            if job_id is None:
+                return Response({"status":"not_needed", "detail":"A proxy already exists"}, status=409)
+            else:
+                return Response({"status":"ok", "job_id":job_id},status=200)
+        except Exception as e:
+            logger.exception("Could not create proxy for asset id {0}: ".format(assetId), exc_info=e)
+            return Response({"status":"error","detail":str(e)}, status=500)
+
+
 class VSNotifyView(APIView):
     def post(self, request):
         logger.debug("Received content from Vidispine: {0}".format(request.body))
@@ -270,17 +289,35 @@ class VSNotifyView(APIView):
             return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
 
         if content.didFail:
-            asset.status = DELIVERABLE_ASSET_STATUS_INGEST_FAILED
+            if content.type == "TRANSCODE":
+                asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED
+            else:
+                asset.status = DELIVERABLE_ASSET_STATUS_INGEST_FAILED
             asset.ingest_complete_dt = datetime.now()
             asset.save()
         elif content.isRunning:
-            asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
+            if content.type == "TRANSCODE":
+                asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODING
+            else:
+                asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
             asset.save()
         elif content.status == "FINISHED":
+            if content.type == "TRANSCODE":
+                asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
+            else:
+                asset.online_item_id = vsids[0]
+                asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
+                try:
+                    asset.create_proxy()
+                except Exception as e:
+                    logger.exception("{0} for asset {1} in bundle {2}: could not create proxy due to:".format(asset.online_item_id,
+                                                                                                              asset.id,
+                                                                                                              asset.deliverable.id),
+                                     exc_info=e)
+
             #don't delete local files here. We pick those up with a timed job run via a mgt command
             asset.ingest_complete_dt = datetime.now()
-            asset.online_item_id = vsids[0]
-            asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
+
             asset.save()
         else:
             logger.warning("Received unknown job status {0} from {1}".format(content.status, vsids[1]))

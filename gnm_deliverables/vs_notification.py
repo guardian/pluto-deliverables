@@ -65,6 +65,15 @@ class VSNotification(object):
         )
 
     @property
+    def type(self, default=None):
+        """
+        gets the job type
+        :param default:
+        :return:
+        """
+        return self._content.get("type", None)
+
+    @property
     def status(self, default=None):
         return self._content.get("status", default)
 

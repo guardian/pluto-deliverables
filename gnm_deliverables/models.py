@@ -21,7 +21,7 @@ from gnmvidispine.vidispine_api import HTTPError as VSHTTPError
 
 from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
     DELIVERABLE_ASSET_TYPES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
-    PUBLICATION_STATUS
+    PUBLICATION_STATUS, DELIVERABLE_ASSET_STATUS_TRANSCODING
 from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, DELIVERABLE_ASSET_STATUSES
 from .choices import DELIVERABLE_ASSET_TYPE_CHOICES, DELIVERABLE_STATUS_ALL_FILES_INGESTED, \
     DELIVERABLE_STATUS_FILES_TO_INGEST, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE, \
@@ -31,12 +31,15 @@ from .exceptions import ImportFailedError, NoShapeError
 from .files import get_path_for_deliverable, find_files_for_deliverable, create_folder, \
     get_local_path_for_deliverable
 from .templatetags.deliverable_tags import sizeof_fmt
-
+from .transcodepreset import TranscodePresetFinder
 logger = logging.getLogger(__name__)
 
 
 def seconds_to_timestamp(seconds):
     return time.strftime('%H:%M:%S', time.gmtime(float(seconds)))
+
+
+transcode_preset_finder = TranscodePresetFinder()
 
 
 class Deliverable(models.Model):
@@ -330,6 +333,41 @@ class DeliverableAsset(models.Model):
         self.job_id = import_job.name
         if commit:
             self.save()
+
+    def create_proxy(self, priority='MEDIUM'):
+        """
+        tells VS to start proxying the file.  This is done seperately to the ingest portion, so that we can use
+        Vidispine's understanding of the file format in order to determine which is the appropriate transcoding
+        to use.
+        Can raise either a VSException or a vidispine_api.HttpError if the operation fails.
+        This is normally called from the callback endpoint, so we have no user present suitable for "run-as"
+        :return:
+        """
+        item_info = self.item(None)     # caller should catch exceptions from this
+        if item_info is None:
+            raise ValueError("Item is not imported")
+
+        mime_type = item_info.get("mimeType")
+        if mime_type is None:
+            logger.error("{0} for deliverable asset {1} in {2}: Could not determine MIME type for transcode".format(item_info.name, self.id, self.deliverable.id))
+            return None
+
+        preset_name = transcode_preset_finder.match(mime_type)
+        if preset_name is None:
+            logger.error("{0} for deliverable asset {1} in {2}: Did not recognise MIME type {3}".format(item_info.name, self.id, self.deliverable.id, mime_type))
+            raise ValueError("Did not recognise MIME type of item")
+
+        job_id = item_info.transcode(preset_name, priority, wait=False, create_thumbnails=True,
+                                     job_metadata={
+                                        "import_source": "pluto-deliverables",
+                                        "project_id": str(self.deliverable.pluto_core_project_id),
+                                        "asset_id": str(self.id)
+                                    })
+
+        self.job_id = job_id
+        self.status = DELIVERABLE_ASSET_STATUS_TRANSCODING
+        self.save()
+        return job_id
 
     def has_ongoing_job(self, user):
         """
