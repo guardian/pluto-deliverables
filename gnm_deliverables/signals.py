@@ -23,13 +23,17 @@ class MessageRelay(object):
     def setup_connection():
         connection = pika.BlockingConnection(
             pika.ConnectionParameters(
-                host=getattr(settings,"RABBIQMQ_HOST","localhost"),
+                host=getattr(settings,"RABBITMQ_HOST","localhost"),
                 port=getattr(settings,"RABBITMQ_PORT", 5672),
-                virtual_host=getattr(settings, "RABBITMQ_VHOST", "prexit")
+                virtual_host=getattr(settings, "RABBITMQ_VHOST", "prexit"),
+                credentials=pika.credentials.PlainCredentials(
+                    getattr(settings,"RABBITMQ_USER","pluto-ng"),
+                    getattr(settings,"RABBITMQ_PASSWD","")
+                )
             )
         )
         channel = connection.channel()
-        channel.exchange_declare(exchange_type='topic',exchange='pluto-deliverables')
+        channel.exchange_declare(exchange_type='topic',exchange=getattr(settings, "RABBITMQ_EXCHANGE", 'pluto-deliverables'))
         return channel
 
     def relay_message(self, affected_model, action):
@@ -50,6 +54,8 @@ class MessageRelay(object):
                     logger.info("{0} an instance of DeliverableAsset with id {1} at {2}".format(action, affected_model.pk, affected_model.absolute_path))
                     content = DeliverableAssetSerializer(affected_model)
                 elif affected_model.__class__.__name__=="Migration": #silently ignore this one
+                    content = None
+                elif affected_model.__class__.__name__=="User": #silently ignore this one
                     content = None
                 else:
                     content = None

@@ -17,6 +17,7 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from gnmvidispine.vs_item import VSItem, VSException, VSNotFound
 from gnmvidispine.vs_job import VSJob
+from gnmvidispine.vidispine_api import HTTPError as VSHTTPError
 
 from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
     DELIVERABLE_ASSET_TYPES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
@@ -274,7 +275,7 @@ class DeliverableAsset(models.Model):
             new_item = VSItem(url=settings.VIDISPINE_URL,
                               user=settings.VIDISPINE_USER,
                               passwd=settings.VIDISPINE_PASSWORD,
-                              run_as=user)
+                              )#run_as=user)
 
             builder = new_item.get_metadata_builder()
             builder.addMeta({
@@ -291,7 +292,7 @@ class DeliverableAsset(models.Model):
                 "gnm_deliverable_bundle": str(self.deliverable.pluto_core_project_id),
                 "gnm_deliverable_id": str(self.id)
             })
-            new_item.createPlaceholder(builder.as_xml())
+            new_item.createPlaceholder(builder.as_xml().decode("utf8"))
 
             if commit:
                 self.save()
@@ -325,7 +326,7 @@ class DeliverableAsset(models.Model):
                                                       "project_id": str(self.deliverable.pluto_core_project_id),
                                                       "asset_id": str(self.id)
                                                   },
-                                                  run_as=user)
+                                                  )#run_as=user)
         self.job_id = import_job.name
         if commit:
             self.save()
@@ -365,6 +366,10 @@ class DeliverableAsset(models.Model):
             return self.item(user).get_shape("original").essence_version
         except AttributeError:
             return None
+        except VSException as e:
+            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
+        except VSHTTPError as e:
+            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
         # item = self.item(user)
         # shape = get_shape_with_tag(item, 'original')
         # if shape is None:
@@ -372,12 +377,17 @@ class DeliverableAsset(models.Model):
         # return safeget(shape, 'essenceVersion')
 
     def duration(self, user):
-        current_item = self.item(user)
-        if current_item is None:
-            return None
+        try:
+            current_item = self.item(user)
+            if current_item is None:
+                return None
 
-        duration_string = current_item.get("durationSeconds", allowArray=False)
-        return seconds_to_timestamp(duration_string) if duration_string is not None else None
+            duration_string = current_item.get("durationSeconds", allowArray=False)
+            return seconds_to_timestamp(duration_string) if duration_string is not None else None
+        except VSException as e:
+            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
+        except VSHTTPError as e:
+            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
         # item = self.item(user)
         # fields = get_fields_in_inf(item, ['durationSeconds'])
         # duration = safeget(fields, 'durationSeconds', 'value', 0, 'value')

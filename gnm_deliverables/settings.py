@@ -26,7 +26,10 @@ SECRET_KEY = 'ouu5awo+ny)_4@x2e2v6cm5aur4rdli(0e#tu0hvekurbbf)*o'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+if "DEPLOYMENT_HOST" in os.environ:
+    ALLOWED_HOSTS.append(os.environ["DEPLOYMENT_HOST"])
+if "CALLBACK_HOST" in os.environ:
+    ALLOWED_HOSTS.append(os.environ["CALLBACK_HOST"])
 
 # Application definition
 
@@ -38,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'gnm_deliverables',
-    "django_nose"
+    'django_nose',
+    'rest_framework'
 ]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -125,17 +129,25 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+### Vidispine configuration. These should be the locations that the _server portion_ can access VS, not the browser.
 VIDISPINE_URL=os.environ.get("VIDISPINE_URL","http://vidispine.local:80")
 VIDISPINE_USER=os.environ.get("VIDISPINE_USER","admin")
 VIDISPINE_PASSWORD=os.environ.get("VIDISPINE_PASSWORD","admin")
 
 
-#DEPLOYMENT_ROOT is the place we are deploted, i.e. the full base URL that the client's browser will connect to us at.
+### DEPLOYMENT_ROOT is the place we are deploted, i.e. the full base URL that the client's browser will connect to us at.
 DEPLOYMENT_ROOT = os.environ.get("DEPLOYMENT_ROOT", "http://localhost:9000")
-#VS_CALLBACK_ROOT is the place that Vidispine should expect to find us for notifications.  In normal deployment, this
-#is _in-cluster_ so should be an http:// link to our k8s Service and NOT the external-facing https:// one.
+### VS_CALLBACK_ROOT is the place that Vidispine should expect to find us for notifications.  In normal deployment, this
+#### is _in-cluster_ so should be an http:// link to our k8s Service and NOT the external-facing https:// one.
 VS_CALLBACK_ROOT = os.environ.get("CALLBACK_ROOT", "http://localhost:9000")
+
+### Message queue configuration. These should be the locations that the _server portion_ can access Rabbitmq
+RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "localhost")
+RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
+RABBITMQ_VHOST = os.environ.get("RABBITMQ_VHOST", "prexit")
+RABBITMQ_EXCHANGE = 'pluto-deliverables'
+RABBITMQ_USER = os.environ.get("RABBITMQ_USER","pluto-ng")
+RABBITMQ_PASSWD = os.environ.get("RABBITMQ_PASSWD","")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -164,6 +176,6 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'DEBUG',
+        'level': 'INFO',
     },
 }
