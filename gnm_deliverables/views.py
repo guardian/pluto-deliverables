@@ -25,6 +25,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGESTED, \
@@ -279,6 +280,9 @@ class TestCreateProxyView(APIView):
 
 
 class VSNotifyView(APIView):
+    authentication_classes = (BasicAuthentication, )    #we need to bypass the default of JwtAuthentication for the tests to work.
+    permission_classes = (AllowAny, )                   #we don't have authentication on the VS endpoint
+
     def post(self, request):
         logger.debug("Received content from Vidispine: {0}".format(request.body))
         try:
