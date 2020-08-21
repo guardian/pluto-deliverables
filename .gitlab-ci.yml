@@ -14,7 +14,7 @@ django:
     POSTGRES_HOST_AUTH_METHOD: trust
     DB_HOST: "postgres"
   script:
-    - apk add postgresql-dev alpine-sdk
+    - apk add postgresql-dev alpine-sdk libffi-dev
     - git submodule init
     - git submodule update
     - pip install -r requirements.txt

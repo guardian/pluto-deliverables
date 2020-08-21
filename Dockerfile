@@ -3,12 +3,12 @@ FROM python:3.8-alpine
 COPY requirements.txt /opt/pluto-deliverables/requirements.txt
 ADD gnmvidispine /tmp/gnmvidispine
 WORKDIR /opt/pluto-deliverables
-RUN apk add --no-cache alpine-sdk linux-headers openssl-dev mailcap postgresql-dev postgresql-libs && \
+RUN apk add --no-cache alpine-sdk linux-headers openssl-dev libffi-dev mailcap postgresql-dev postgresql-libs && \
     pip install -r /tmp/gnmvidispine/requirements.txt && \
     cd /tmp/gnmvidispine && python /tmp/gnmvidispine/setup.py install && cd /opt/pluto-deliverables && \
     pip install -r requirements.txt uwsgi && \
     rm -rf /tmp/gnmvidispine && \
-    apk --no-cache del alpine-sdk linux-headers openssl-dev postgresql-dev
+    apk --no-cache del alpine-sdk linux-headers openssl-dev libffi-dev postgresql-dev
 COPY manage.py /opt/pluto-deliverables/manage.py
 ADD --chown=nobody:root gnm_deliverables /opt/pluto-deliverables/gnm_deliverables/
 ##annoying, but until my Mac gets upgraded to support later Docker I can't use chown-in-copy :(

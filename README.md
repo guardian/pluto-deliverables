@@ -95,3 +95,25 @@ $ curl http://localhost:9000/api/bundle/new -X POST -d '{"name":"fred","project_
 You need to set the environment variable CI (to anything, but conventionally 1) in order for the tests to work.
 This is because normally the app attempts to connect to rabbitmq at startup and fails if it isn't there.  With CI
 set in the environment, this stage is skipped.
+
+### Using bearer auth token locally
+1. Set up the [prexit-local](https://gitlab.com/codmill/customer-projects/guardian/prexit-local) development environment
+2. Get the key that was generated when Keycloak was set up and save the blob with a PEM header/footer on it like this:
+    ```
+    -----BEGIN CERTIFICATE-----
+    {paste-blob-here}
+    -----END CERTIFICATE-----
+    ```
+   Add this file to the app root i.e.`/gnm_deliverables/{certificate_name}.pem`.
+   
+   Make sure the `JWT_VALIDATION_KEY` variable has the correct path to the PEM file.
+3. Make sure that Docker is pointing to minikube before you build the container 
+    ```bash
+    $ eval $(minikube docker-env)  
+    ```
+    Build the docker container: 
+    ```bash
+    $ docker build . -t guardianmultimedia/pluto-deliverables:DEV
+    ```
+4. Go to ``https://prexit.local/deliverables/`` 
+

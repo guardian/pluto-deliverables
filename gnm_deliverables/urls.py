@@ -2,11 +2,13 @@
 URLS for the Guardian Project plugin
 """
 
-from django.urls import path, re_path
-from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI
-from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, SetTypeView, VSNotifyView, TemporaryLoginUI, CountDeliverablesView, TestCreateProxyView
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib import admin
+from django.urls import path, re_path
+from django.views.decorators.csrf import csrf_exempt
+from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
+from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
+    NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, \
+    TemporaryLoginUI, SetTypeView, TestCreateProxyView, VSNotifyView
 
 urlpatterns = [
     path(r'admin/', admin.site.urls),
