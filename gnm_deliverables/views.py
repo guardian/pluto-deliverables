@@ -27,6 +27,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
 
+from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
@@ -53,6 +54,7 @@ class NewDeliverableUI(TemplateView):
 
 
 class NewDeliverablesAPIList(ListAPIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = DeliverableSerializer
@@ -63,6 +65,7 @@ class NewDeliverablesAPIList(ListAPIView):
 
 
 class NewDeliverablesAPICreate(CreateAPIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -70,6 +73,7 @@ class NewDeliverablesAPICreate(CreateAPIView):
 
 
 class NewDeliverableAssetAPIList(ListAPIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = DeliverableAssetSerializer
@@ -91,6 +95,7 @@ class NewDeliverableAssetAPIList(ListAPIView):
 
 
 class DeliverableAPIView(APIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -98,7 +103,8 @@ class DeliverableAPIView(APIView):
     def delete(self, *args, **kwargs):
         bundle_id = self.request.GET["project_id"]
         parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
-        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle, pk__in=self.request.data)
+        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle,
+                                                       pk__in=self.request.data)
 
         deliverables.delete()
 
@@ -106,6 +112,7 @@ class DeliverableAPIView(APIView):
 
 
 class CountDeliverablesView(APIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -113,7 +120,7 @@ class CountDeliverablesView(APIView):
     def get(self, *args, **kwargs):
         bundle_id = self.kwargs["project_id"]
         parent_bundle = Deliverable.objects.get(project_id=bundle_id)
-        deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,).count()
+        deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle, ).count()
         unimported_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,
                                                            ingest_complete_dt__isnull=True).count()
 
@@ -124,6 +131,7 @@ class CountDeliverablesView(APIView):
 
 
 class NewDeliverableAPIScan(APIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -147,6 +155,7 @@ class DeliverablesTypeListAPI(APIView):
     "section": [ [id,name], [id,name], ... ],
     }
     """
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -160,6 +169,7 @@ class AdoptExistingVidispineItemView(APIView):
     """
     tries to adopt the given vidispine item into the bundle list.
     """
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -175,7 +185,7 @@ class AdoptExistingVidispineItemView(APIView):
         if not self.vs_validator.match(vs_id):
             return Response({"status": "error", "detail": "vidispine id is invalid"}, status=400)
         try:
-            #FIXME: once bearer token auth is integrated, then the user= field must be set in create_asset_from_vs_item
+            # FIXME: once bearer token auth is integrated, then the user= field must be set in create_asset_from_vs_item
             bundle = Deliverable.objects.get(pluto_core_project_id=project_id)
             asset, created = bundle.create_asset_from_vs_item(vs_id, user="admin")
             if created:
@@ -208,6 +218,7 @@ class AdoptExistingVidispineItemView(APIView):
 ## -----------------------------------------------------------------------------
 
 class ModelSearchAPIView(APIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -564,8 +575,8 @@ class DeliverableAssetUpdateAPIView(RetrieveUpdateAPIView):
     """
     API view called on type change on the details page
     """
+    authentication_classes = (JwtRestAuth,)
     serializer_class = DeliverableAssetSerializer
-    authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     model = DeliverableAsset
@@ -627,6 +638,7 @@ class NaughtyListAPIView(APIView):
     """
     Return a JSON showing projects that don't have any deliverables attached
     """
+    authentication_classes = (JwtRestAuth,)
     renderer_classes = (JSONRenderer,)
     permission_classes = (IsAuthenticated,)
 
@@ -670,6 +682,7 @@ class NaughtyListAPIView(APIView):
 
 
 class DeliverableCreateFolderView(APIView):
+    authentication_classes = (JwtRestAuth,)
     renderer_classes = (JSONRenderer,)
     permission_classes = (IsAuthenticated,)
 
@@ -706,8 +719,9 @@ class SearchForDeliverableAPIView(RetrieveAPIView):
     """
     see if we have any deliverable assets with the given file name. This is used for tagging during the backup process.
     """
+    authentication_classes = (JwtRestAuth,)
     renderer_classes = (JSONRenderer,)
-    authentication_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = DeliverableAssetSerializer
 
     def get_object(self, queryset=None):
@@ -740,6 +754,7 @@ class DeliverableAPIRetrieveView(RetrieveAPIView):
     """
     from .serializers import DeliverableSerializer
     renderer_classes = (JSONRenderer,)
-    authentication_classes = (IsAuthenticated,)
+    authentication_classes = (JwtRestAuth,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = DeliverableSerializer
     model = Deliverable
