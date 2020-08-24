@@ -32,8 +32,9 @@ from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGES
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
 from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
-from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream
-from .serializers import DeliverableAssetSerializer, DeliverableSerializer, GNMWebsiteSerializer
+from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream, Youtube
+from .serializers import DeliverableAssetSerializer, DeliverableSerializer, GNMWebsiteSerializer, \
+    YoutubeSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -751,22 +752,35 @@ class GNMWebsiteAPIView(APIView):
     parser_classes = (JSONParser,)
 
     def get(self, request, *args, **kwargs):
-        asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
-        gnm_website = GNMWebsite.objects.get(deliverableasset=asset)
+        queryset = (DeliverableAsset.objects.filter(pk=self.kwargs["asset_id"])
+                                    .select_related('gnm_website_master'))
 
-        return gnm_website
 
-    def post(self, request):
+        return queryset
+
+    def post(self, request, *args, **kwargs):
         try:
             asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
-            gnmwebsite = GNMWebsiteSerializer(data=request.DATA)
+            gnmwebsite = GNMWebsiteSerializer(asset.gnm_website_master, data=request.DATA)
 
-            return Response({"status": "ok", "detail": "website created", gnmwebsite},
-                            status=200)
+            if gnmwebsite.is_valid():
+                gnmwebsite.save()
+
+            return Response({"status": "ok", "detail": "website created"}
+                            , status=200)
         except asset.DoesNotExist:
             return Response({"status": "error", "detail": "Asset not known"}, status=404)
         except Exception as e:
             return Response({"status": "error", "detail": str(e)}, status=500)
+
+    def delete(self, request, *args, **kwargs):
+        asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
+        gnmwebsite = GNMWebsite.objects.get(deliverableasset=asset)
+
+        gnmwebsite.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class MainstreamAPIView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -774,12 +788,55 @@ class MainstreamAPIView(APIView):
     parser_classes = (JSONParser,)
 
     def get(self, request, *args, **kwargs):
-        bundle_id = self.request.GET["project_id"]
-        parent_bundle = Deliverable.objects.get(project_id=bundle_id)
-        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle)
-        mainstream = Mainstream.objects.get(deliverableasset=deliverables)
+        queryset = (DeliverableAsset.objects.filter(pk=self.request.GET["assetId"])
+                                            .select_related('mainstream_master'))
+        return queryset
 
-        return mainstream
+    def delete(self, request, *args, **kwargs):
+        asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
+        mainstream = Mainstream.objects.get(deliverableasset=asset)
+
+        mainstream.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class YoutubeAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, request, *args, **kwargs):
+        queryset = (DeliverableAsset.objects.filter(pk=self.request.GET["assetId"])
+                                            .select_related('youtube_master'))
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        try:
+            asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
+            youtube = YoutubeSerializer(asset.youtube_master, data=request.DATA)
+
+            return Response({"status": "ok", "detail": "website created"}
+                            , status=200)
+        except asset.DoesNotExist:
+            return Response({"status": "error", "detail": "Asset not known"}, status=404)
+        except Exception as e:
+            return Response({"status": "error", "detail": str(e)}, status=500)
 
 
+    def delete(self, request, *args, **kwargs):
+        asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
+        youtube = Youtube.objects.get(deliverableasset=asset)
 
+        youtube.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class DailyMotionAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, request, *args, **kwargs):
+        queryset = (DeliverableAsset.objects.filter(pk=self.request.GET["assetId"])
+                    .select_related('DailyMotion_master'))
+        return queryset
