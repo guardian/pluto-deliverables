@@ -29,7 +29,6 @@ class TestNotificationView(TestCase):
 
         ##make the request
         fake_notification = b"""{"field":[{"key":"asset_id","value":"99999"},{"key":"import_source","value":"pluto-deliverables"}]}"""
-        self.client.force_login(user=User.objects.get(username="peter"))
 
         with patch("gnm_deliverables.models.DeliverableAsset.create_proxy") as mock_create_proxy:
             response = self.client.post(reverse("vs-notifications"), fake_notification, content_type="application/json")
@@ -66,7 +65,6 @@ class TestNotificationView(TestCase):
         }
 
         fake_notification = json.dumps(notification_content).encode("UTF-8")
-        self.client.force_login(user=User.objects.get(username="peter"))
         with patch("gnm_deliverables.models.DeliverableAsset.create_proxy") as mock_create_proxy:
             response = self.client.post(reverse("vs-notifications"), fake_notification, content_type="application/json")
 
@@ -103,7 +101,6 @@ class TestNotificationView(TestCase):
         }
 
         fake_notification = json.dumps(notification_content).encode("UTF-8")
-        self.client.force_login(user=User.objects.get(username="peter"))
         with patch("gnm_deliverables.models.DeliverableAsset.create_proxy") as mock_create_proxy:
             response = self.client.post(reverse("vs-notifications"), fake_notification, content_type="application/json")
 
@@ -137,7 +134,6 @@ class TestNotificationView(TestCase):
         }
 
         fake_notification = json.dumps(notification_content).encode("UTF-8")
-        self.client.force_login(user=User.objects.get(username="peter"))
 
         with patch("gnm_deliverables.models.DeliverableAsset.create_proxy") as mock_create_proxy:
             response = self.client.post(reverse("vs-notifications"), fake_notification, content_type="application/json")
@@ -173,7 +169,6 @@ class TestNotificationView(TestCase):
         }
 
         fake_notification = json.dumps(notification_content).encode("UTF-8")
-        self.client.force_login(user=User.objects.get(username="peter"))
 
         with patch("gnm_deliverables.models.DeliverableAsset.create_proxy") as mock_create_proxy:
             response = self.client.post(reverse("vs-notifications"), fake_notification, content_type="application/json")
