@@ -15,11 +15,13 @@ class JwtAuth(object):
     @staticmethod
     def load_public_key_from_cert():
         try:
-            cert_raw = settings.JWT_VALIDATION_KEY.encode("ASCII")
-            cert = load_pem_x509_certificate(cert_raw, default_backend())
-            return cert.public_key()
+            with open(settings.JWT_CERTIFICATE_PATH, "r") as certfile:
+                cert_raw = certfile.read().encode("ASCII")
+                cert = load_pem_x509_certificate(cert_raw, default_backend())
+                return cert.public_key()
         except Exception as e:
             logger.error('Could not read certificate: ' + str(e))
+            raise
 
     def __init__(self):
         self._public_key = self.load_public_key_from_cert()
@@ -27,14 +29,14 @@ class JwtAuth(object):
     def authenticate(self, request, **credentials):
         token = credentials.get("token", None)
         if token:
-            logger.info("JwtAuth got token {0}".format(token))
+            logger.debug("JwtAuth got token {0}".format(token))
             try:
                 decoded = jwt.decode(token,
                                      key=self._public_key,
                                      algorithms=["RS256"],
                                      audience=getattr(settings, "JWT_EXPECTED_AUDIENCE", None),
                                      issuer=getattr(settings, "JWT_EXPECTED_ISSUER", None))
-                logger.info("JwtAuth success")
+                logger.debug("JwtAuth success")
 
                 return User(
                     username=decoded.get("username"),
