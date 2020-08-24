@@ -144,15 +144,6 @@ RABBITMQ_EXCHANGE = 'pluto-deliverables'
 RABBITMQ_USER = os.environ.get("RABBITMQ_USER","pluto-ng")
 RABBITMQ_PASSWD = os.environ.get("RABBITMQ_PASSWD","")
 
-# Transcode presets to use.  The first value is a regex to match against the MIME type, the second is the name of the VS preset
-TRANSCODE_PRESETS = {
-    r'^video/': "lowres",
-    r'^audio/': "lowaudio",
-    r'^image/': "lowimage",
-    r'^application/x-mxf': "lowres",
-    r'^application/x-material-exchange-format': "lowres"
-}
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
