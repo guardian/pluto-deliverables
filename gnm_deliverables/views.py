@@ -99,7 +99,8 @@ class DeliverableAPIView(APIView):
     def delete(self, *args, **kwargs):
         bundle_id = self.request.GET["project_id"]
         parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
-        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle, pk__in=self.request.data)
+        deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle,
+                                                       pk__in=self.request.data)
 
         deliverables.delete()
 
@@ -114,7 +115,7 @@ class CountDeliverablesView(APIView):
     def get(self, *args, **kwargs):
         bundle_id = self.kwargs["project_id"]
         parent_bundle = Deliverable.objects.get(project_id=bundle_id)
-        deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,).count()
+        deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle, ).count()
         unimported_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,
                                                            ingest_complete_dt__isnull=True).count()
 
@@ -176,7 +177,7 @@ class AdoptExistingVidispineItemView(APIView):
         if not self.vs_validator.match(vs_id):
             return Response({"status": "error", "detail": "vidispine id is invalid"}, status=400)
         try:
-            #FIXME: once bearer token auth is integrated, then the user= field must be set in create_asset_from_vs_item
+            # FIXME: once bearer token auth is integrated, then the user= field must be set in create_asset_from_vs_item
             bundle = Deliverable.objects.get(pluto_core_project_id=project_id)
             asset, created = bundle.create_asset_from_vs_item(vs_id, user="admin")
             if created:
@@ -752,9 +753,9 @@ class GNMWebsiteAPIView(APIView):
     parser_classes = (JSONParser,)
 
     def get(self, request, *args, **kwargs):
-        queryset = (DeliverableAsset.objects.filter(pk=self.kwargs["asset_id"])
-                                    .select_related('gnm_website_master'))
 
+        queryset = (DeliverableAsset.objects.filter(pk=self.kwargs["asset_id"])
+                    .select_related('gnm_website_master'))
 
         return queryset
 
@@ -789,7 +790,7 @@ class MainstreamAPIView(APIView):
 
     def get(self, request, *args, **kwargs):
         queryset = (DeliverableAsset.objects.filter(pk=self.request.GET["assetId"])
-                                            .select_related('mainstream_master'))
+                    .select_related('mainstream_master'))
         return queryset
 
     def delete(self, request, *args, **kwargs):
@@ -800,6 +801,7 @@ class MainstreamAPIView(APIView):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class YoutubeAPIView(APIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
@@ -807,7 +809,7 @@ class YoutubeAPIView(APIView):
 
     def get(self, request, *args, **kwargs):
         queryset = (DeliverableAsset.objects.filter(pk=self.request.GET["assetId"])
-                                            .select_related('youtube_master'))
+                    .select_related('youtube_master'))
         return queryset
 
     def post(self, request, *args, **kwargs):
@@ -822,7 +824,6 @@ class YoutubeAPIView(APIView):
         except Exception as e:
             return Response({"status": "error", "detail": str(e)}, status=500)
 
-
     def delete(self, request, *args, **kwargs):
         asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
         youtube = Youtube.objects.get(deliverableasset=asset)
@@ -830,6 +831,7 @@ class YoutubeAPIView(APIView):
         youtube.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class DailyMotionAPIView(APIView):
     permission_classes = (IsAuthenticated,)
