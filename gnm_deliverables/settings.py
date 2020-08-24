@@ -189,8 +189,7 @@ AUTHENTICATION_BACKENDS = (
     "gnm_deliverables.jwt_auth_backend.JwtAuth",
 )
 
-# TODO add signing cert JWT_VALIDATION_KEY
-# JWT_VALIDATION_KEY = open(BASE_DIR + '{path to pem file}').read()
+JWT_CERTIFICATE_PATH = os.environ.get("JWT_CERTIFICATE_PATH", os.path.join(BASE_DIR, "publiccert.pem"))
 JWT_EXPECTED_AUDIENCE = os.environ.get('JWT_EXPECTED_AUDIENCE',
                                        ["master-realm", "account"])  # ["master-realm", "account"]
 JWT_EXPECTED_ISSUER = os.environ.get("JWT_EXPECTED_ISSUER",
