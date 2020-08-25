@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import functools  # for reduce()
+import json
 import logging
 import re
 
@@ -9,7 +10,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms.models import modelformset_factory
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -34,7 +35,7 @@ from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
 from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream, Youtube
 from .serializers import DeliverableAssetSerializer, DeliverableSerializer, GNMWebsiteSerializer, \
-    YoutubeSerializer
+    YoutubeSerializer, MainstreamSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -748,22 +749,23 @@ class DeliverableAPIRetrieveView(RetrieveAPIView):
 
 
 class GNMWebsiteAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
     def get(self, request, *args, **kwargs):
-
-        queryset = (DeliverableAsset.objects.filter(pk=self.kwargs["asset_id"])
+        queryset = (DeliverableAsset.objects
+                    .filter(deliverable__project_id__exact=self.kwargs["project_id"],
+                            pk=self.kwargs["asset_id"])
                     .select_related('gnm_website_master'))
 
-        return queryset
+        return Response(json.dumps(queryset), status=200)
 
-    def post(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         try:
-            asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
+            asset = (DeliverableAsset.objects
+                     .get(deliverable__project_id__exact=self.kwargs["project_id"],
+                          pk=self.kwargs["asset_id"]))
             gnmwebsite = GNMWebsiteSerializer(asset.gnm_website_master, data=request.DATA)
-
             if gnmwebsite.is_valid():
                 gnmwebsite.save()
 
@@ -792,6 +794,21 @@ class MainstreamAPIView(APIView):
         queryset = (DeliverableAsset.objects.filter(pk=self.request.GET["assetId"])
                     .select_related('mainstream_master'))
         return queryset
+
+    def put(self, request, *args, **kwargs):
+        try:
+            asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
+            mainstream = MainstreamSerializer(asset.mainstream_master, data=request.DATA)
+
+            if mainstream.is_valid():
+                mainstream.save()
+
+            return Response({"status": "ok", "detail": "website created"}
+                            , status=200)
+        except asset.DoesNotExist:
+            return Response({"status": "error", "detail": "Asset not known"}, status=404)
+        except Exception as e:
+            return Response({"status": "error", "detail": str(e)}, status=500)
 
     def delete(self, request, *args, **kwargs):
         asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
