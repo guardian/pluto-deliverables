@@ -32,7 +32,7 @@ from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGES
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
 from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
-from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion
+from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, LogEntry
 from .serializers import DeliverableAssetSerializer, DeliverableSerializer, GNMWebsiteSerializer, \
     YoutubeSerializer, MainstreamSerializer, DailyMotionSerializer
 
@@ -836,3 +836,22 @@ class DailyMotionAPIView(MetadataAPIView):
     def update_asset_metadata(self, asset, metadata):
         asset.DailyMotion_master = metadata
 
+
+class PlatformLogsView(APIView):
+    def get(self, request, project_id, asset_id, platform):
+        try:
+            asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
+        except ObjectDoesNotExist:
+            return Response({"status": "error", "details": "not found"}, status=404)
+        if platform == 'youtube' and asset.youtube_master_id:
+            log_entries = LogEntry.objects.filter(related_youtube=asset.youtube_master_id)
+        elif platform == 'gnmwebsite' and asset.gnm_website_master_id:
+            log_entries = LogEntry.objects.filter(related_gnm_website_id=asset.gnm_website_master_id)
+        elif platform == 'mainstream' and asset.mainstream_master_id:
+            log_entries = LogEntry.objects.filter(related_mainstream=asset.mainstream_master_id)
+        elif platform == 'dailymotion' and asset.DailyMotion_master_id:
+            log_entries = LogEntry.objects.filter(related_daily_motion=asset.DailyMotion_master_id)
+        else:
+            return Response({"status": "error", "details": "not found"}, status=404)
+        data = [entry.log_line for entry in log_entries.order_by('-timestamp')]
+        return Response({"logs": data }, status=200)
