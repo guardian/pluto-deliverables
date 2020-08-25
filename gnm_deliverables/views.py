@@ -756,19 +756,19 @@ class MetadataAPIView(APIView):
         try:
             asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
             try:
-                existing_youtube = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                existing = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
                                                        deliverableasset=asset_id)
-                put_youtube = self.metadata_serializer(existing_youtube, data=request.data)
-                if put_youtube.is_valid():
-                    put_youtube.save()
+                put = self.metadata_serializer(existing, data=request.data)
+                if put.is_valid():
+                    put.save()
                     return Response({"status": "ok", "detail": "website created"}, status=200)
                 else:
                     return Response({"status": "error", "detail": "invalid data"}, status=400)
             except ObjectDoesNotExist:
-                put_youtube = self.metadata_serializer(data=request.data)
-                if put_youtube.is_valid():
-                    new_youtube = put_youtube.save()
-                    asset.youtube_master = new_youtube
+                put = self.metadata_serializer(data=request.data)
+                if put.is_valid():
+                    created = put.save()
+                    self.update_asset_metadata(asset, created)
                     asset.save()
                     return Response({"status": "ok", "detail": "website created"}, status=200)
                 else:
@@ -778,6 +778,14 @@ class MetadataAPIView(APIView):
         except Exception as e:
             return Response({"status": "error", "detail": str(e)}, status=500)
 
+    def delete(self, request, project_id, asset_id, *args, **kwargs):
+        entry = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                                      deliverableasset=asset_id)
+        entry.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update_asset_metadata(self, asset, metadata):
+        pass
 
 class GNMWebsiteAPIView(APIView):
     renderer_classes = (JSONRenderer,)
@@ -866,12 +874,8 @@ class YoutubeAPIView(MetadataAPIView):
         except ObjectDoesNotExist:
             return Response(status=404)
 
-    def delete(self, request, project_id, asset_id, *args, **kwargs):
-        youtube = Youtube.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
-                                      deliverableasset=asset_id)
-        youtube.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
+    def update_asset_metadata(self, asset, metadata):
+        asset.youtube_master = metadata
 
 class DailyMotionAPIView(APIView):
     permission_classes = (IsAuthenticated,)
