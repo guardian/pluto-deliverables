@@ -140,12 +140,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       const projectDeliverables = await getProjectDeliverables(projectid);
       setDeliverables(projectDeliverables);
     } catch (err) {
-      if(err.response) {  //server returned a bad status code
-        if(err.response.data.detail)
-          return setCentralMessage(err.response.data.detail)
-        else
-          return setCentralMessage(`Error code ${err.response.status}`)
-      } else if(err.request) {
+      if (err.response) {
+        //server returned a bad status code
+        if (err.response.data.detail)
+          return setCentralMessage(err.response.data.detail);
+        else return setCentralMessage(`Error code ${err.response.status}`);
+      } else if (err.request) {
         setCentralMessage(`Could not contact server: ${err.message}`);
       } else {
         setCentralMessage(err.message);
@@ -161,12 +161,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
       setDeliverables(projectDeliverables);
     } catch (err) {
-      if(err.response) {  //server returned a bad status code
-        if(err.response.data.detail)
-          return setCentralMessage(err.response.data.detail)
-        else
-          return setCentralMessage(`Error code ${err.response.status}`)
-      } else if(err.request) {
+      if (err.response) {
+        //server returned a bad status code
+        if (err.response.data.detail)
+          return setCentralMessage(err.response.data.detail);
+        else return setCentralMessage(`Error code ${err.response.status}`);
+      } else if (err.request) {
         setCentralMessage(`Could not contact server: ${err.message}`);
       } else {
         setCentralMessage(err.message);
