@@ -767,20 +767,19 @@ class MetadataAPIView(APIView):
                 existing = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
                                                        deliverableasset=asset_id)
 
-                if existing.etag == request.data.get('etag'):
-                    refresh_request = dict(request.data)
-                    refresh_request['etag'] = Now()
-                    put = self.metadata_serializer(existing, data=refresh_request)
-                    if put.is_valid():
-                        put.save()
-                        return Response({"status": "ok", "detail": "website created"}, status=200)
+                put = self.metadata_serializer(existing, data=request.data)
+                if put.is_valid():
+                    update_count = self.metadata_model.objects.filter(pk=existing.id, etag=put.validated_data['etag']).update(
+                        **put.validated_data)
+                    if update_count == 0:
+                        return Response({"status": "error", "detail": "etag conflict"}, status=409)
+                    elif update_count == 1:
+                        return Response({"status": "ok", "detail": "updated"}, status=200)
                     else:
-                        return Response({"status": "error", "detail": put.errors}, status=400)
+                        return Response({"status": "error", "detail": "database error"}, status=500)
                 else:
-                    return Response({"status": "error", "detail": existing.etag}, status=409)
+                    return Response({"status": "error", "detail": put.errors}, status=400)
             except ObjectDoesNotExist:
-                refresh_request = dict(request.PUT)
-                refresh_request['etag'] = Now()
                 put = self.metadata_serializer(data=request.data)
                 if put.is_valid():
                     created = put.save()
