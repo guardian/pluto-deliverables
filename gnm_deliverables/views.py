@@ -751,6 +751,14 @@ class MetadataAPIView(APIView):
     metadata_model = None
     metadata_serializer = None
 
+    def get(self, request, project_id, asset_id, *args, **kwargs):
+        try:
+            metadata = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                                                       deliverableasset=asset_id)
+            return Response(self.metadata_serializer(metadata).data)
+        except ObjectDoesNotExist:
+            return Response(status=404)
+
     def put(self, request, project_id, asset_id, *args, **kwargs):
         try:
             asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
@@ -831,15 +839,6 @@ class YoutubeAPIView(MetadataAPIView):
     parser_classes = (JSONParser,)
     metadata_model = Youtube
     metadata_serializer = YoutubeSerializer
-
-    def get(self, request, project_id, asset_id, *args, **kwargs):
-        print("ping {} {}".format(project_id, asset_id))
-        try:
-            queryset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
-            youtube_master = queryset[0].youtube_master
-            return Response(YoutubeSerializer(youtube_master).data)
-        except ObjectDoesNotExist:
-            return Response(status=404)
 
     def update_asset_metadata(self, asset, metadata):
         asset.youtube_master = metadata
