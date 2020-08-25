@@ -32,9 +32,9 @@ from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGES
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
 from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
-from .models import Deliverable, DeliverableAsset, Mainstream, Youtube, GNMWebsite
+from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion
 from .serializers import DeliverableAssetSerializer, DeliverableSerializer, GNMWebsiteSerializer, \
-    YoutubeSerializer, MainstreamSerializer
+    YoutubeSerializer, MainstreamSerializer, DailyMotionSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -770,7 +770,7 @@ class MetadataAPIView(APIView):
                     put.save()
                     return Response({"status": "ok", "detail": "website created"}, status=200)
                 else:
-                    return Response({"status": "error", "detail": "invalid data"}, status=400)
+                    return Response({"status": "error", "detail": put.errors}, status=400)
             except ObjectDoesNotExist:
                 put = self.metadata_serializer(data=request.data)
                 if put.is_valid():
@@ -779,7 +779,7 @@ class MetadataAPIView(APIView):
                     asset.save()
                     return Response({"status": "ok", "detail": "website created"}, status=200)
                 else:
-                    return Response({"status": "error", "detail": "invalid data"}, status=400)
+                    return Response({"status": "error", "detail": put.errors}, status=400)
         except ObjectDoesNotExist:
             return Response({"status": "error", "detail": "Asset not known"}, status=404)
         except Exception as e:
@@ -843,12 +843,14 @@ class YoutubeAPIView(MetadataAPIView):
     def update_asset_metadata(self, asset, metadata):
         asset.youtube_master = metadata
 
-class DailyMotionAPIView(APIView):
+
+class DailyMotionAPIView(MetadataAPIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
+    metadata_model = DailyMotion
+    metadata_serializer = DailyMotionSerializer
 
-    def get(self, request, *args, **kwargs):
-        queryset = (DeliverableAsset.objects.filter(pk=self.request.GET["assetId"])
-                    .select_related('DailyMotion_master'))
-        return queryset
+    def update_asset_metadata(self, asset, metadata):
+        asset.DailyMotion_master = metadata
+

@@ -8,7 +8,7 @@ from .views import DeliverableCreateView, DeliverableDetailView, DeliverableAsse
     DeliverablesSearchAPIView, DeliverableAssetCheckTypeChange, NaughtyListAPIView, \
     NaughtyListUIView, DeliverableCreateFolderView, DeliverablesListView, \
     DeliverablesSearchForWorkingGroupAPIView, SearchForDeliverableAPIView, \
-    DeliverableAPIRetrieveView, GNMWebsiteAPIView, MainstreamAPIView
+    DeliverableAPIRetrieveView, GNMWebsiteAPIView, YoutubeAPIView, DailyMotionAPIView, MainstreamAPIView
 from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
 from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
 from django.contrib.auth.decorators import login_required
@@ -27,7 +27,9 @@ urlpatterns = [
     path(r'api/bundle/<int:project_id>/count', CountDeliverablesView.as_view()),
     path(r'api/bundle/<str:project_id>/asset/<int:asset_id>/gnmwebsite', GNMWebsiteAPIView.as_view()),
     path(r'api/bundle/<str:project_id>/asset/<int:asset_id>/mainstream', MainstreamAPIView.as_view()),
-    re_path(r'.*', NewDeliverableUI.as_view())
+    path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/youtube', YoutubeAPIView.as_view()),
+    path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/dailymotion', DailyMotionAPIView.as_view()),
+    re_path(r'.*', NewDeliverableUI.as_view()),
     # path(r'(?P<project_id>.+-\d+)/create/?', DeliverableCreateView, name='deliverables_create'),
     # path(r'(?P<pk>\d+)/?', DeliverableDetailView, name='deliverables_detail'),
     # path(r'asset/(?P<pk>\d+)/?', DeliverableAssetUpdateAPIView.as_view(), name='deliverable_asset_update'),
