@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
+from django.db.models.functions import Now
 from django.forms.models import modelformset_factory
 from django.http import Http404
 from django.shortcuts import redirect
@@ -765,13 +766,21 @@ class MetadataAPIView(APIView):
             try:
                 existing = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
                                                        deliverableasset=asset_id)
-                put = self.metadata_serializer(existing, data=request.data)
-                if put.is_valid():
-                    put.save()
-                    return Response({"status": "ok", "detail": "website created"}, status=200)
+
+                if existing.etag == request.data.get('etag'):
+                    refresh_request = dict(request.data)
+                    refresh_request['etag'] = Now()
+                    put = self.metadata_serializer(existing, data=refresh_request)
+                    if put.is_valid():
+                        put.save()
+                        return Response({"status": "ok", "detail": "website created"}, status=200)
+                    else:
+                        return Response({"status": "error", "detail": put.errors}, status=400)
                 else:
-                    return Response({"status": "error", "detail": put.errors}, status=400)
+                    return Response({"status": "error", "detail": existing.etag}, status=409)
             except ObjectDoesNotExist:
+                refresh_request = dict(request.PUT)
+                refresh_request['etag'] = Now()
                 put = self.metadata_serializer(data=request.data)
                 if put.is_valid():
                     created = put.save()

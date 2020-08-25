@@ -61,14 +61,14 @@ class GNMWebsiteSerializer(serializers.ModelSerializer):
         model = GNMWebsite
         fields = ["media_atom_id", "upload_status", "production_office", "tags",
                   "publication_date", "website_title",
-                  "website_description", "primary_tone", "publication_status"]
+                  "website_description", "primary_tone", "publication_status", "etag"]
 
 
 class MainstreamSerializer(serializers.ModelSerializer):
     model = Mainstream
     fields = ["mainstream_title", "mainstream_description", "mainstream_tags",
               "mainstream_rules_contains_adult_content",
-              "upload_status"]
+              "upload_status", "etag"]
 
 
 class YoutubeSerializer(serializers.ModelSerializer):
@@ -76,7 +76,7 @@ class YoutubeSerializer(serializers.ModelSerializer):
         model = Youtube
         fields = ["youtube_id", "youtube_title", "youtube_description", "youtube_tags",
                   "youtube_categories", "youtube_channels",
-                  "publication_date"]
+                  "publication_date", "etag"]
 
 
 class DailyMotionSerializer(serializers.ModelSerializer):
@@ -85,7 +85,7 @@ class DailyMotionSerializer(serializers.ModelSerializer):
         fields = ["daily_motion_url", "daily_motion_title", "daily_motion_description",
                   "daily_motion_tags", "daily_motion_category",
                   "publication_date", "upload_status", "daily_motion_no_mobile_access",
-                  "daily_motion_contains_adult_content"]
+                  "daily_motion_contains_adult_content", "etag"]
 
 
 class LogEntrySerializer(serializers.ModelSerializer):
