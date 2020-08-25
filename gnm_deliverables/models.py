@@ -501,7 +501,7 @@ class GNMWebsite(models.Model):
     website_description = models.TextField(null=True, blank=True)
     primary_tone = models.TextField(null=True, blank=True, choices=PRIMARY_TONE, db_index=True)
     publication_status = models.TextField(null=True, blank=True, choices=PUBLICATION_STATUS)
-    etag = models.TextField(null=True, blank=True)
+    etag = models.DateTimeField(null=True, blank=True)
 
 class Mainstream(models.Model):
     mainstream_title = models.TextField(null=False, blank=False)
@@ -509,7 +509,7 @@ class Mainstream(models.Model):
     mainstream_tags = ArrayField(models.CharField(null=False, max_length=255), null=False)
     mainstream_rules_contains_adult_content = models.BooleanField()
     upload_status = models.TextField(null=True, blank=True, choices=UPLOAD_STATUS, db_index=True)
-    etag = models.TextField(null=True, blank=True)
+    etag = models.DateTimeField(null=True, blank=True)
 
 
 class Youtube(models.Model):
@@ -520,7 +520,7 @@ class Youtube(models.Model):
     youtube_categories = ArrayField(models.BigIntegerField(null=False), null=True)
     youtube_channels = ArrayField(models.CharField(null=False, max_length=255), null=True)
     publication_date = models.DateTimeField(null=True, blank=True)
-    etag = models.TextField(null=True, blank=True)
+    etag = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return '{title}'.format(title=self.youtube_title)
@@ -536,7 +536,7 @@ class DailyMotion(models.Model):
     upload_status = models.TextField(null=True, blank=True, choices=UPLOAD_STATUS, db_index=True)
     daily_motion_no_mobile_access = models.BooleanField()
     daily_motion_contains_adult_content = models.BooleanField()
-    etag = models.TextField(null=True, blank=True)
+    etag = models.DateTimeField(null=True, blank=True)
 
 
 class LogEntry(models.Model):
