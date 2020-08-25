@@ -787,96 +787,42 @@ class MetadataAPIView(APIView):
         pass
 
 
-class GNMWebsiteAPIView(APIView):
+class GNMWebsiteAPIView(MetadataAPIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
+    metadata_model = GNMWebsite
+    metadata_serializer = GNMWebsiteSerializer
 
-    def get(self, request, *args, **kwargs):
-        queryset = (DeliverableAsset.objects
-                    .filter(deliverable__project_id__exact=self.kwargs["project_id"],
-                            pk=self.kwargs["asset_id"])
-                    .select_related('gnm_website_master'))
-        json_query = GNMWebsiteSerializer(queryset)
-        return Response(json_query.data, status=200)
-
-    def put(self, request, *args, **kwargs):
+    def get(self, request, project_id, asset_id, *args, **kwargs):
         try:
-            gnmwebsite_exists = (GNMWebsite.objects
-                                 .get(deliverableasset_deliverable_pluto_core_project_id__exact=self.kwargs["project_id"],
-                                                       deliverableasset=self.kwargs["asset_id"]))
+            queryset = (DeliverableAsset.objects
+                        .get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id))
+            gnmwebsite_master = queryset.gnm_website_master
+            return Response(GNMWebsiteSerializer(gnmwebsite_master).data)
+        except ObjectDoesNotExist:
+            return Response(status=404)
+
+    def update_asset_metadata(self, asset, metadata):
+        asset.gnmwebsite_master = metadata
 
 
-
-            if gnmwebsite.is_valid():
-                gnmwebsite.save()
-
-                return Response(gnmwebsite.data, status=200)
-        # except asset.DoesNotExist:
-        #     return Response({"status": "error", "detail": "Asset not known"}, status=404)
-        except Exception as e:
-            return Response({"status": "error", "detail": str(e)}, status=500)
-
-    def delete(self, request, *args, **kwargs):
-        gnmwebsite = (DeliverableAsset.objects.filter(pk=self.kwargs["asset_id"])
-                      .select_related('gnm_website_master'))
-
-        gnmwebsite.delete()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class MainstreamAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+class MainstreamAPIView(MetadataAPIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
+    metadata_model = Mainstream
+    metadata_serializer = MainstreamSerializer
 
-    def get(self, request, *args, **kwargs):
-        queryset = (DeliverableAsset.objects.filter(
-            deliverable__project_id__exact=self.kwargs["project_id"],
-            pk=self.request.GET["assetId"])
-                    .select_related('mainstream_master'))
-        json_query = MainstreamSerializer(queryset)
-        return Response(json_query.data, status=200)
-
-    def post(self, request, *args, **kwargs):
+    def get(self, request, project_id, asset_id, *args, **kwargs):
         try:
-            asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
-            mainstream = MainstreamSerializer(asset.mainstream_master, data=request.DATA)
+            queryset = (DeliverableAsset.objects
+                        .get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id))
+            mainstream_master = queryset.mainstream_master
+            return Response(MainstreamSerializer(mainstream_master).data)
+        except ObjectDoesNotExist:
+            return Response(status=404)
 
-            if mainstream.is_valid():
-                mainstream.save()
-
-            return Response({"status": "ok", "detail": "website created"}
-                            , status=200)
-        except asset.DoesNotExist:
-            return Response({"status": "error", "detail": "Asset not known"}, status=404)
-        except Exception as e:
-            return Response({"status": "error", "detail": str(e)}, status=500)
-
-    def delete(self, request, *args, **kwargs):
-        asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
-        mainstream = Mainstream.objects.get(deliverableasset=asset)
-
-        mainstream.delete()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
-
-class LogEntryAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
-    renderer_classes = (JSONRenderer,)
-    parser_classes = (JSONParser,)
-
-    def get(self, request, *args, **kwargs):
-        queryset = (DeliverableAsset.objects.filter(
-            deliverable__project_id__exact=self.kwargs["project_id"],
-            pk=self.request.GET["assetId"])
-                    .select_related(self.kwargs["platform_name"] + '_master')
-                    .order_by(self.kwargs["platform_name"] + '__logentry__timestamp'))
-        json_query = MainstreamSerializer(queryset)
-        return Response(json_query.data, status=200)
+    def update_asset_metadata(self, asset, metadata):
+        asset.mainstream_master = metadata
 
 
 class YoutubeAPIView(MetadataAPIView):
