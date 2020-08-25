@@ -114,7 +114,6 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React state
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [lastError, setLastError] = useState<object | null>(null);
   const [selectedIDs, setSelectedIDs] = useState<bigint[]>([]);
   const [typeOptions, setTypeOptions] = useState<DeliverableTypes>({});
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -141,7 +140,16 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       const projectDeliverables = await getProjectDeliverables(projectid);
       setDeliverables(projectDeliverables);
     } catch (err) {
-      return setLastError(err);
+      if(err.response) {  //server returned a bad status code
+        if(err.response.data.detail)
+          return setCentralMessage(err.response.data.detail)
+        else
+          return setCentralMessage(`Error code ${err.response.status}`)
+      } else if(err.request) {
+        setCentralMessage(`Could not contact server: ${err.message}`);
+      } else {
+        setCentralMessage(err.message);
+      }
     }
   };
 
@@ -151,9 +159,18 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     try {
       const projectDeliverables = await getProjectDeliverables(projectid);
 
-      return setDeliverables(projectDeliverables);
+      setDeliverables(projectDeliverables);
     } catch (err) {
-      return Promise.all([setLastError(err), setLoading(false)]);
+      if(err.response) {  //server returned a bad status code
+        if(err.response.data.detail)
+          return setCentralMessage(err.response.data.detail)
+        else
+          return setCentralMessage(`Error code ${err.response.status}`)
+      } else if(err.request) {
+        setCentralMessage(`Could not contact server: ${err.message}`);
+      } else {
+        setCentralMessage(err.message);
+      }
     }
   };
 
