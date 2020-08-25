@@ -801,15 +801,6 @@ class GNMWebsiteAPIView(MetadataAPIView):
     metadata_model = GNMWebsite
     metadata_serializer = GNMWebsiteSerializer
 
-    def get(self, request, project_id, asset_id, *args, **kwargs):
-        try:
-            queryset = (DeliverableAsset.objects
-                        .get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id))
-            gnmwebsite_master = queryset.gnm_website_master
-            return Response(GNMWebsiteSerializer(gnmwebsite_master).data)
-        except ObjectDoesNotExist:
-            return Response(status=404)
-
     def update_asset_metadata(self, asset, metadata):
         asset.gnmwebsite_master = metadata
 
@@ -819,15 +810,6 @@ class MainstreamAPIView(MetadataAPIView):
     parser_classes = (JSONParser,)
     metadata_model = Mainstream
     metadata_serializer = MainstreamSerializer
-
-    def get(self, request, project_id, asset_id, *args, **kwargs):
-        try:
-            queryset = (DeliverableAsset.objects
-                        .get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id))
-            mainstream_master = queryset.mainstream_master
-            return Response(MainstreamSerializer(mainstream_master).data)
-        except ObjectDoesNotExist:
-            return Response(status=404)
 
     def update_asset_metadata(self, asset, metadata):
         asset.mainstream_master = metadata
