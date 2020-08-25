@@ -144,6 +144,10 @@ RABBITMQ_EXCHANGE = 'pluto-deliverables'
 RABBITMQ_USER = os.environ.get("RABBITMQ_USER","pluto-ng")
 RABBITMQ_PASSWD = os.environ.get("RABBITMQ_PASSWD","")
 
+### Locations where things live
+GNM_DELIVERABLES_SAN_ROOT       = os.environ.get("DELIVERABLES_ROOT_PATH", "/media")
+GNM_DELIVERABLES_SAN_ROOT_LOCAL = os.environ.get("DELIVERABLES_CLIENT_PATH", "/Volumes")
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
