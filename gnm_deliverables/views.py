@@ -791,6 +791,14 @@ class MetadataAPIView(APIView):
         entry.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def head(self, request, project_id, asset_id):
+        try:
+            metadata = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                                                       deliverableasset=asset_id)
+            return Response(status=204, headers={"ETag": metadata.etag})
+        except ObjectDoesNotExist:
+            return Response({"status": "error", "detail": "asset not found"}, status=404)
+
     def update_asset_metadata(self, asset, metadata):
         pass
 
