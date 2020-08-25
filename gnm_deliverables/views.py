@@ -7,7 +7,7 @@ import re
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
@@ -748,6 +748,37 @@ class DeliverableAPIRetrieveView(RetrieveAPIView):
     model = Deliverable
 
 
+class MetadataAPIView(APIView):
+    metadata_model = None
+    metadata_serializer = None
+
+    def put(self, request, project_id, asset_id, *args, **kwargs):
+        try:
+            asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
+            try:
+                existing_youtube = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                                                       deliverableasset=asset_id)
+                put_youtube = self.metadata_serializer(existing_youtube, data=request.data)
+                if put_youtube.is_valid():
+                    put_youtube.save()
+                    return Response({"status": "ok", "detail": "website created"}, status=200)
+                else:
+                    return Response({"status": "error", "detail": "invalid data"}, status=400)
+            except ObjectDoesNotExist:
+                put_youtube = self.metadata_serializer(data=request.data)
+                if put_youtube.is_valid():
+                    new_youtube = put_youtube.save()
+                    asset.youtube_master = new_youtube
+                    asset.save()
+                    return Response({"status": "ok", "detail": "website created"}, status=200)
+                else:
+                    return Response({"status": "error", "detail": "invalid data"}, status=400)
+        except ObjectDoesNotExist:
+            return Response({"status": "error", "detail": "Asset not known"}, status=404)
+        except Exception as e:
+            return Response({"status": "error", "detail": str(e)}, status=500)
+
+
 class GNMWebsiteAPIView(APIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -819,34 +850,26 @@ class MainstreamAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class YoutubeAPIView(APIView):
+class YoutubeAPIView(MetadataAPIView):
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
+    metadata_model = Youtube
+    metadata_serializer = YoutubeSerializer
 
-    def get(self, request, *args, **kwargs):
-        queryset = (DeliverableAsset.objects.filter(pk=self.request.GET["assetId"])
-                    .select_related('youtube_master'))
-        return queryset
-
-    def post(self, request, *args, **kwargs):
+    def get(self, request, project_id, asset_id, *args, **kwargs):
+        print("ping {} {}".format(project_id, asset_id))
         try:
-            asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
-            youtube = YoutubeSerializer(asset.youtube_master, data=request.DATA)
+            queryset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
+            youtube_master = queryset[0].youtube_master
+            return Response(YoutubeSerializer(youtube_master).data)
+        except ObjectDoesNotExist:
+            return Response(status=404)
 
-            return Response({"status": "ok", "detail": "website created"}
-                            , status=200)
-        except asset.DoesNotExist:
-            return Response({"status": "error", "detail": "Asset not known"}, status=404)
-        except Exception as e:
-            return Response({"status": "error", "detail": str(e)}, status=500)
-
-    def delete(self, request, *args, **kwargs):
-        asset = DeliverableAsset.objects.get(pk=self.kwargs["asset_id"])
-        youtube = Youtube.objects.get(deliverableasset=asset)
-
+    def delete(self, request, project_id, asset_id, *args, **kwargs):
+        youtube = Youtube.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                                      deliverableasset=asset_id)
         youtube.delete()
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
