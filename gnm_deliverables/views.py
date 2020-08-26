@@ -769,7 +769,9 @@ class MetadataAPIView(APIView):
 
                 put = self.metadata_serializer(existing, data=request.data)
                 if put.is_valid():
-                    update_count = self.metadata_model.objects.filter(pk=existing.id, etag=put.validated_data['etag']).update(
+                    current_etag = put.validated_data['etag']
+                    put.validated_data['etag'] = Now()
+                    update_count = self.metadata_model.objects.filter(pk=existing.id, etag=current_etag).update(
                         **put.validated_data)
                     if update_count == 0:
                         return Response({"status": "error", "detail": "etag conflict"}, status=409)
