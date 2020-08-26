@@ -321,6 +321,7 @@ class DeliverableAsset(models.Model):
         else:
             current_item = self.item(user=user)
 
+        #run_as should be taken care of by the VSItem base class, initated from self.item
         import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
                                                   priority="MEDIUM",
                                                   essence=True,
@@ -329,8 +330,7 @@ class DeliverableAsset(models.Model):
                                                       "import_source": "pluto-deliverables",
                                                       "project_id": str(self.deliverable.pluto_core_project_id),
                                                       "asset_id": str(self.id)
-                                                  },
-                                                  run_as=user)
+                                                  })
         self.job_id = import_job.name
         if commit:
             self.save()
