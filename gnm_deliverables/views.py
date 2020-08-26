@@ -33,7 +33,8 @@ from .choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGES
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
 from .exceptions import NoShapeError
 from .forms import DeliverableCreateForm
-from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, LogEntry
+from .models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
+    LogEntry
 from .serializers import DeliverableAssetSerializer, DeliverableSerializer, GNMWebsiteSerializer, \
     YoutubeSerializer, MainstreamSerializer, DailyMotionSerializer
 
@@ -754,62 +755,76 @@ class MetadataAPIView(APIView):
 
     def get(self, request, project_id, asset_id, *args, **kwargs):
         try:
-            metadata = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
-                                                       deliverableasset=asset_id)
+            metadata = self.metadata_model.objects.get(
+                deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                deliverableasset=asset_id)
             return Response(self.metadata_serializer(metadata).data)
         except ObjectDoesNotExist:
             return Response(status=404)
 
     def put(self, request, project_id, asset_id, *args, **kwargs):
         try:
-            asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
+            asset = DeliverableAsset.objects.get(
+                deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
             try:
-                existing = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
-                                                       deliverableasset=asset_id)
+                existing = self.metadata_model.objects.get(
+                    deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                    deliverableasset=asset_id)
 
                 put = self.metadata_serializer(existing, data=request.data)
                 if put.is_valid():
                     current_etag = put.validated_data['etag']
                     put.validated_data['etag'] = Now()
-                    update_count = self.metadata_model.objects.filter(pk=existing.id, etag=current_etag).update(
+                    logger.info(put.validated_data['etag'])
+                    update_count = self.metadata_model.objects.filter(pk=existing.id,
+                                                                      etag=current_etag).update(
                         **put.validated_data)
                     if update_count == 0:
                         return Response({"status": "error", "detail": "etag conflict"}, status=409)
                     elif update_count == 1:
                         return Response({"status": "ok", "detail": "updated"}, status=200)
                     else:
-                        return Response({"status": "error", "detail": "database error"}, status=500)
+                        return Response({"status": "error", "detail": "database error"},
+                                        status=500)
                 else:
                     return Response({"status": "error", "detail": put.errors}, status=400)
             except ObjectDoesNotExist:
                 put = self.metadata_serializer(data=request.data)
-                if put.is_valid():
-                    created = put.save()
-                    self.update_asset_metadata(asset, created)
-                    asset.save()
-                    return Response({"status": "ok", "detail": "website created"}, status=200)
+                if not self.is_metadata_set(project_id, asset_id):
+                    if put.is_valid():
+                        created = put.save()
+                        self.update_asset_metadata(asset, created)
+                        asset.save()
+                        return Response({"status": "ok", "detail": "website created"}, status=200)
+                    else:
+                        return Response({"status": "error", "detail": put.errors}, status=400)
                 else:
-                    return Response({"status": "error", "detail": put.errors}, status=400)
+                    return Response({"status": "error", "detail": "object already created"}, status=400)
         except ObjectDoesNotExist:
             return Response({"status": "error", "detail": "Asset not known"}, status=404)
         except Exception as e:
             return Response({"status": "error", "detail": str(e)}, status=500)
 
     def delete(self, request, project_id, asset_id, *args, **kwargs):
-        entry = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
-                                      deliverableasset=asset_id)
+        entry = self.metadata_model.objects.get(
+            deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+            deliverableasset=asset_id)
         entry.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def head(self, request, project_id, asset_id):
         try:
-            metadata = self.metadata_model.objects.get(deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
-                                                       deliverableasset=asset_id)
+            metadata = self.metadata_model.objects.get(
+                deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                deliverableasset=asset_id)
             return Response(status=204, headers={"ETag": metadata.etag})
         except ObjectDoesNotExist:
             return Response({"status": "error", "detail": "asset not found"}, status=404)
 
     def update_asset_metadata(self, asset, metadata):
+        pass
+
+    def is_metadata_set(self, project_id, asset_id):
         pass
 
 
@@ -820,7 +835,12 @@ class GNMWebsiteAPIView(MetadataAPIView):
     metadata_serializer = GNMWebsiteSerializer
 
     def update_asset_metadata(self, asset, metadata):
-        asset.gnmwebsite_master = metadata
+        asset.gnm_website_master = metadata
+
+    def is_metadata_set(self, project_id, asset_id):
+        asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id,
+                                             pk=asset_id)
+        return asset.gnm_website_master is not None
 
 
 class MainstreamAPIView(MetadataAPIView):
@@ -831,6 +851,11 @@ class MainstreamAPIView(MetadataAPIView):
 
     def update_asset_metadata(self, asset, metadata):
         asset.mainstream_master = metadata
+
+    def is_metadata_set(self, project_id, asset_id):
+        asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id,
+                                             pk=asset_id)
+        return asset.mainstream_master is not None
 
 
 class YoutubeAPIView(MetadataAPIView):
@@ -843,6 +868,11 @@ class YoutubeAPIView(MetadataAPIView):
     def update_asset_metadata(self, asset, metadata):
         asset.youtube_master = metadata
 
+    def is_metadata_set(self, project_id, asset_id):
+        asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id,
+                                             pk=asset_id)
+        return asset.youtube_master is not None
+
 
 class DailyMotionAPIView(MetadataAPIView):
     permission_classes = (IsAuthenticated,)
@@ -854,17 +884,24 @@ class DailyMotionAPIView(MetadataAPIView):
     def update_asset_metadata(self, asset, metadata):
         asset.DailyMotion_master = metadata
 
+    def is_metadata_set(self, project_id, asset_id):
+        asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id,
+                                             pk=asset_id)
+        return asset.DailyMotion_master is not None
+
 
 class PlatformLogsView(APIView):
     def get(self, request, project_id, asset_id, platform):
         try:
-            asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
+            asset = DeliverableAsset.objects.get(
+                deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
         except ObjectDoesNotExist:
             return Response({"status": "error", "details": "not found"}, status=404)
         if platform == 'youtube' and asset.youtube_master_id:
             log_entries = LogEntry.objects.filter(related_youtube=asset.youtube_master_id)
         elif platform == 'gnmwebsite' and asset.gnm_website_master_id:
-            log_entries = LogEntry.objects.filter(related_gnm_website_id=asset.gnm_website_master_id)
+            log_entries = LogEntry.objects.filter(
+                related_gnm_website_id=asset.gnm_website_master_id)
         elif platform == 'mainstream' and asset.mainstream_master_id:
             log_entries = LogEntry.objects.filter(related_mainstream=asset.mainstream_master_id)
         elif platform == 'dailymotion' and asset.DailyMotion_master_id:
@@ -872,4 +909,4 @@ class PlatformLogsView(APIView):
         else:
             return Response({"status": "error", "details": "not found"}, status=404)
         data = [entry.log_line for entry in log_entries.order_by('-timestamp')]
-        return Response({"logs": data }, status=200)
+        return Response({"logs": data}, status=200)
