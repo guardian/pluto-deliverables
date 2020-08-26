@@ -79,8 +79,7 @@ class TestDeliverablesAsset(TestCase):
                                                                          'asset_id': 'None'},
                                                             priority='MEDIUM',
                                                             thumbnails=False,
-                                                            uri='file://file:///path/to/some/file.mp4',
-                                                            run_as="testuser")
+                                                            uri='file://file:///path/to/some/file.mp4')
 
         self.assertEqual(asset.job_id, "VX-345")
 
