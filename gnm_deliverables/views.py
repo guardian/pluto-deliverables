@@ -231,6 +231,7 @@ class SetTypeView(APIView):
     """
     set the deliverable type of the item and  possibly trigger ingest
     """
+    authentication_classes = (JwtRestAuth, )
     permission_classes = (IsAuthenticated, )
     renderer_classes = (JSONRenderer, )
     parser_classes = (JSONParser, )
@@ -262,6 +263,9 @@ class SetTypeView(APIView):
 
 
 class TestCreateProxyView(APIView):
+    authentication_classes = (JwtRestAuth, BasicAuthentication, )
+    permission_classes = (IsAuthenticated, )
+
     def post(self, request, bundleId, assetId):
         try:
             item = DeliverableAsset.objects.get(id=assetId)
