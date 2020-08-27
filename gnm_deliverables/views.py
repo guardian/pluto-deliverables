@@ -771,23 +771,17 @@ class MetadataAPIView(APIView):
                     deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
                     deliverableasset=asset_id)
 
-                put = self.metadata_serializer(existing, data=request.data)
-                if put.is_valid():
-                    current_etag = put.validated_data['etag']
-                    put.validated_data['etag'] = Now()
-                    logger.info(put.validated_data['etag'])
-                    update_count = self.metadata_model.objects.filter(pk=existing.id,
-                                                                      etag=current_etag).update(
-                        **put.validated_data)
-                    if update_count == 0:
-                        return Response({"status": "error", "detail": "etag conflict"}, status=409)
-                    elif update_count == 1:
+                current_etag = existing.etag.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                if current_etag == request.data['etag']:
+                    del request.data['etag']
+                    put = self.metadata_serializer(existing, data=request.data)
+                    if put.is_valid():
+                        put.save()
                         return Response({"status": "ok", "detail": "updated"}, status=200)
                     else:
-                        return Response({"status": "error", "detail": "database error"},
-                                        status=500)
+                        return Response({"status": "error", "detail": put.errors}, status=400)
                 else:
-                    return Response({"status": "error", "detail": put.errors}, status=400)
+                    return Response({"status": "error", "detail": "etag conflict"}, status=409)
             except ObjectDoesNotExist:
                 put = self.metadata_serializer(data=request.data)
                 if not self.is_metadata_set(project_id, asset_id):
@@ -803,7 +797,7 @@ class MetadataAPIView(APIView):
         except ObjectDoesNotExist:
             return Response({"status": "error", "detail": "Asset not known"}, status=404)
         except Exception as e:
-            return Response({"status": "error", "detail": str(e)}, status=500)
+            return Response({"status": "error", "detail": "här " + str(e)}, status=500)
 
     def delete(self, request, project_id, asset_id, *args, **kwargs):
         entry = self.metadata_model.objects.get(
