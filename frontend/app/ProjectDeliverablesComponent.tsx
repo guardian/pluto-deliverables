@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import LocationLink from "./LocationLink";
 import { Helmet } from "react-helmet";
+import {Breadcrumb} from "pluto-headers";
 import {
   Button,
   IconButton,
@@ -345,8 +346,8 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       <BeforeUnloadComponent
         blockRoute={blockRoute}
         ignoreChildrenLinks={true}
-        alertMessage="One or more items are not ingesting. Are you sure you want to leave?"
-      >
+        alertMessage="One or more items are not ingesting. Are you sure you want to leave?"/>
+        <Breadcrumb projectId={projectid}/>
         <div>
           <h2 className={classes.sectionHeader}>Files</h2>
           {parentBundleInfo ? (
