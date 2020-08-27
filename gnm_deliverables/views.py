@@ -767,36 +767,49 @@ class MetadataAPIView(APIView):
             asset = DeliverableAsset.objects.get(
                 deliverable__pluto_core_project_id__exact=project_id, pk=asset_id)
             try:
-                existing = self.metadata_model.objects.get(
-                    deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
-                    deliverableasset=asset_id)
-
-                current_etag = existing.etag.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-                if current_etag == request.data.get('etag', None):
-                    del request.data['etag']
-                    put = self.metadata_serializer(existing, data=request.data)
-                    if put.is_valid():
-                        saved = put.save()
-                        return Response({"status": "ok", "data": self.metadata_serializer(saved).data}, status=200)
-                    else:
-                        return Response({"status": "error", "detail": put.errors}, status=400)
-                else:
-                    return Response({"status": "error", "detail": "etag conflict"}, status=409)
+                return self.put_update(request, asset, project_id, asset_id)
             except ObjectDoesNotExist:
-                put = self.metadata_serializer(data=request.data)
-                if 'etag' in request.data or self.is_metadata_set(project_id, asset_id):
-                    return Response({"status": "error", "detail": "conflict"}, status=409)
-                if put.is_valid():
-                    created = put.save()
-                    self.update_asset_metadata(asset, created)
-                    asset.save()
-                    return Response({"status": "ok", "data": self.metadata_serializer(created).data}, status=200)
-                else:
-                    return Response({"status": "error", "detail": put.errors}, status=400)
+                return self.put_insert(request, asset, project_id, asset_id)
         except ObjectDoesNotExist:
             return Response({"status": "error", "detail": "Asset not known"}, status=404)
         except Exception as e:
             return Response({"status": "error", "detail": str(e)}, status=500)
+
+    def put_insert(self, request, asset, project_id, asset_id):
+        put = self.metadata_serializer(data=request.data)
+        if 'etag' in request.data or self.is_metadata_set(project_id, asset_id):
+            return Response({"status": "error", "detail": "conflict"}, status=409)
+        if put.is_valid():
+            created = put.save()
+            self.update_asset_metadata(asset, created)
+            asset.save()
+            return Response({"status": "ok", "data": self.metadata_serializer(created).data}, status=200)
+        else:
+            return Response({"status": "error", "detail": put.errors}, status=400)
+
+    def put_update(self, request, asset, project_id, asset_id):
+        existing = self.metadata_model.objects.get(
+            deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+            deliverableasset=asset_id)
+
+        current_etag = existing.etag.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        if current_etag == request.data.get('etag', None):
+            del request.data['etag']
+            put = self.metadata_serializer(existing, data=request.data)
+            if put.is_valid():
+                put.validated_data['etag'] = Now()
+                update_count = self.metadata_model.objects.filter(pk=existing.id, etag=current_etag).update(**put.validated_data)
+                if update_count == 0:
+                    return Response({"status": "error", "detail": "etag conflict"}, status=409)
+                elif update_count == 1:
+                    updated = self.metadata_model.objects.get(pk=existing.id)
+                    return Response({"status": "ok", "data": self.metadata_serializer(updated).data }, status=200)
+                else:
+                    return Response({"status": "error", "detail": "internal"}, status=500)
+            else:
+                return Response({"status": "error", "detail": put.errors}, status=400)
+        else:
+            return Response({"status": "error", "detail": "etag conflict"}, status=409)
 
     def delete(self, request, project_id, asset_id):
         try:

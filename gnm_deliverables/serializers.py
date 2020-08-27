@@ -65,10 +65,11 @@ class GNMWebsiteSerializer(serializers.ModelSerializer):
 
 
 class MainstreamSerializer(serializers.ModelSerializer):
-    model = Mainstream
-    fields = ["mainstream_title", "mainstream_description", "mainstream_tags",
-              "mainstream_rules_contains_adult_content",
-              "upload_status", "etag"]
+    class Meta:
+        model = Mainstream
+        fields = ["mainstream_title", "mainstream_description", "mainstream_tags",
+                  "mainstream_rules_contains_adult_content",
+                  "upload_status", "etag"]
 
 
 class YoutubeSerializer(serializers.ModelSerializer):

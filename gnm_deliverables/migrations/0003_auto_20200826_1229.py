@@ -14,22 +14,22 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='dailymotion',
             name='etag',
-            field=models.DateTimeField(auto_now=True),
+            field=models.DateTimeField(auto_now_add=True),
         ),
         migrations.AddField(
             model_name='gnmwebsite',
             name='etag',
-            field=models.DateTimeField(auto_now=True),
+            field=models.DateTimeField(auto_now_add=True),
         ),
         migrations.AddField(
             model_name='mainstream',
             name='etag',
-            field=models.DateTimeField(auto_now=True),
+            field=models.DateTimeField(auto_now_add=True),
         ),
         migrations.AddField(
             model_name='youtube',
             name='etag',
-            field=models.DateTimeField(auto_now=True),
+            field=models.DateTimeField(auto_now_add=True),
         ),
         migrations.AlterField(
             model_name='deliverableasset',
