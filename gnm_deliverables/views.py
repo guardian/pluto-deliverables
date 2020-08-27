@@ -772,39 +772,41 @@ class MetadataAPIView(APIView):
                     deliverableasset=asset_id)
 
                 current_etag = existing.etag.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-                if current_etag == request.data['etag']:
+                if current_etag == request.data.get('etag', None):
                     del request.data['etag']
                     put = self.metadata_serializer(existing, data=request.data)
                     if put.is_valid():
-                        put.save()
-                        return Response({"status": "ok", "detail": "updated"}, status=200)
+                        saved = put.save()
+                        return Response({"status": "ok", "data": self.metadata_serializer(saved).data}, status=200)
                     else:
                         return Response({"status": "error", "detail": put.errors}, status=400)
                 else:
                     return Response({"status": "error", "detail": "etag conflict"}, status=409)
             except ObjectDoesNotExist:
                 put = self.metadata_serializer(data=request.data)
-                if not self.is_metadata_set(project_id, asset_id):
-                    if put.is_valid():
-                        created = put.save()
-                        self.update_asset_metadata(asset, created)
-                        asset.save()
-                        return Response({"status": "ok", "detail": "website created"}, status=200)
-                    else:
-                        return Response({"status": "error", "detail": put.errors}, status=400)
+                if 'etag' in request.data or self.is_metadata_set(project_id, asset_id):
+                    return Response({"status": "error", "detail": "conflict"}, status=409)
+                if put.is_valid():
+                    created = put.save()
+                    self.update_asset_metadata(asset, created)
+                    asset.save()
+                    return Response({"status": "ok", "data": self.metadata_serializer(created).data}, status=200)
                 else:
-                    return Response({"status": "error", "detail": "object already created"}, status=400)
+                    return Response({"status": "error", "detail": put.errors}, status=400)
         except ObjectDoesNotExist:
             return Response({"status": "error", "detail": "Asset not known"}, status=404)
         except Exception as e:
-            return Response({"status": "error", "detail": "här " + str(e)}, status=500)
+            return Response({"status": "error", "detail": str(e)}, status=500)
 
-    def delete(self, request, project_id, asset_id, *args, **kwargs):
-        entry = self.metadata_model.objects.get(
-            deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
-            deliverableasset=asset_id)
-        entry.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, project_id, asset_id):
+        try:
+            entry = self.metadata_model.objects.get(
+                deliverableasset__deliverable__pluto_core_project_id__exact=project_id,
+                deliverableasset=asset_id)
+            entry.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ObjectDoesNotExist:
+            return Response({"status": "error", "detail": "Asset not known"}, status=404)
 
     def head(self, request, project_id, asset_id):
         try:
