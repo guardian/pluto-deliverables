@@ -8,11 +8,10 @@ from django.views.decorators.csrf import csrf_exempt
 from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
 from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, \
-    TemporaryLoginUI, SetTypeView, TestCreateProxyView, VSNotifyView
+    SetTypeView, TestCreateProxyView, VSNotifyView
 
 urlpatterns = [
     path(r'admin/', admin.site.urls),
-    path(r'login/', TemporaryLoginUI.as_view(), name='login' ),
     # path(r'list/', login_required(DeliverablesListView.as_view()), name='deliverables'),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/setType', SetTypeView.as_view()),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/createProxy', TestCreateProxyView.as_view()),

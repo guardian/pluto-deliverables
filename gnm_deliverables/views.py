@@ -62,11 +62,6 @@ class NewDeliverableUI(TemplateView):
         }
 
 
-class TemporaryLoginUI(LoginView):
-    template_name = "temporary/login.html"
-    redirect_authenticated_user = True
-
-
 class NewDeliverablesAPIList(ListAPIView):
     authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
