@@ -34,6 +34,15 @@ var config = {
         test: /\.(css|s[ac]ss)$/,
         use: ["style-loader", "css-loader", "sass-loader"],
       },
+      {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: {
+          loader: "url-loader",
+          options: {
+            limit: 100000,
+          },
+        },
+      },
     ],
   },
   devtool: "source-map",

@@ -1,0 +1,82 @@
+<testsuites name="jest tests" tests="35" failures="0" time="4.798">
+  <testsuite name="MainstreamMaster" errors="0" failures="0" skipped="0" timestamp="2020-08-28T13:23:35" time="2.375" tests="6">
+    <testcase classname="MainstreamMaster Create Form should render Create Form of MainstreamMaster" name="MainstreamMaster Create Form should render Create Form of MainstreamMaster" time="0.215">
+    </testcase>
+    <testcase classname="MainstreamMaster Create Form should expect the fields to be read and write" name="MainstreamMaster Create Form should expect the fields to be read and write" time="0.097">
+    </testcase>
+    <testcase classname="MainstreamMaster Create Form should render errors when required fields are not set" name="MainstreamMaster Create Form should render errors when required fields are not set" time="0.095">
+    </testcase>
+    <testcase classname="MainstreamMaster Create Form should not render errors when required fields are set" name="MainstreamMaster Create Form should not render errors when required fields are set" time="0.1">
+    </testcase>
+    <testcase classname="MainstreamMaster Edit Form should render Edit Form of MainstreamMaster" name="MainstreamMaster Edit Form should render Edit Form of MainstreamMaster" time="0.105">
+    </testcase>
+    <testcase classname="MainstreamMaster Edit Form should expect the fields to be read and write" name="MainstreamMaster Edit Form should expect the fields to be read and write" time="0.084">
+    </testcase>
+  </testsuite>
+  <testsuite name="MasterList" errors="0" failures="0" skipped="0" timestamp="2020-08-28T13:23:35" time="2.506" tests="3">
+    <testcase classname="MasterList should render empty masters" name="MasterList should render empty masters" time="0.226">
+    </testcase>
+    <testcase classname="MasterList should render one fetched master data in the masterList" name="MasterList should render one fetched master data in the masterList" time="0.245">
+    </testcase>
+    <testcase classname="MasterList should render correct length of items in the masterList" name="MasterList should render correct length of items in the masterList" time="0.258">
+    </testcase>
+  </testsuite>
+  <testsuite name="DailymotionMaster" errors="0" failures="0" skipped="0" timestamp="2020-08-28T13:23:35" time="2.555" tests="6">
+    <testcase classname="DailymotionMaster Create Form should render Create Form of DailymotionMaster" name="DailymotionMaster Create Form should render Create Form of DailymotionMaster" time="0.222">
+    </testcase>
+    <testcase classname="DailymotionMaster Create Form should expect the fields to be read and write" name="DailymotionMaster Create Form should expect the fields to be read and write" time="0.133">
+    </testcase>
+    <testcase classname="DailymotionMaster Create Form should render errors when required fields are not set" name="DailymotionMaster Create Form should render errors when required fields are not set" time="0.102">
+    </testcase>
+    <testcase classname="DailymotionMaster Create Form should not render errors when required fields are set" name="DailymotionMaster Create Form should not render errors when required fields are set" time="0.182">
+    </testcase>
+    <testcase classname="DailymotionMaster Edit Form should render Edit Form of DailymotionMaster" name="DailymotionMaster Edit Form should render Edit Form of DailymotionMaster" time="0.098">
+    </testcase>
+    <testcase classname="DailymotionMaster Edit Form should expect the fields to be read and write" name="DailymotionMaster Edit Form should expect the fields to be read and write" time="0.123">
+    </testcase>
+  </testsuite>
+  <testsuite name="YoutubeMaster" errors="0" failures="0" skipped="0" timestamp="2020-08-28T13:23:35" time="2.684" tests="10">
+    <testcase classname="YoutubeMaster Admin User Create Form should render Create Form of YoutubeMaster" name="YoutubeMaster Admin User Create Form should render Create Form of YoutubeMaster" time="0.207">
+    </testcase>
+    <testcase classname="YoutubeMaster Admin User Create Form should expect the fields to be read and write" name="YoutubeMaster Admin User Create Form should expect the fields to be read and write" time="0.097">
+    </testcase>
+    <testcase classname="YoutubeMaster Admin User Create Form should render errors when required fields are not set" name="YoutubeMaster Admin User Create Form should render errors when required fields are not set" time="0.086">
+    </testcase>
+    <testcase classname="YoutubeMaster Admin User Create Form should not render errors when required fields are set" name="YoutubeMaster Admin User Create Form should not render errors when required fields are set" time="0.118">
+    </testcase>
+    <testcase classname="YoutubeMaster Admin User Edit Form should render Edit Form of YoutubeMaster" name="YoutubeMaster Admin User Edit Form should render Edit Form of YoutubeMaster" time="0.104">
+    </testcase>
+    <testcase classname="YoutubeMaster Admin User Edit Form should expect the fields to be read and write" name="YoutubeMaster Admin User Edit Form should expect the fields to be read and write" time="0.095">
+    </testcase>
+    <testcase classname="YoutubeMaster Normal User Create Form should render Create Form of YoutubeMaster" name="YoutubeMaster Normal User Create Form should render Create Form of YoutubeMaster" time="0.062">
+    </testcase>
+    <testcase classname="YoutubeMaster Normal User Create Form should expect the fields to be read and write" name="YoutubeMaster Normal User Create Form should expect the fields to be read and write" time="0.09">
+    </testcase>
+    <testcase classname="YoutubeMaster Normal User Edit Form should render Edit Form of YoutubeMaster" name="YoutubeMaster Normal User Edit Form should render Edit Form of YoutubeMaster" time="0.065">
+    </testcase>
+    <testcase classname="YoutubeMaster Normal User Edit Form should expect the fields to be read-only" name="YoutubeMaster Normal User Edit Form should expect the fields to be read-only" time="0.063">
+    </testcase>
+  </testsuite>
+  <testsuite name="GuardianMaster" errors="0" failures="0" skipped="0" timestamp="2020-08-28T13:23:35" time="2.881" tests="10">
+    <testcase classname="GuardianMaster Admin User Create Form should render Create Form of GuardianMaster" name="GuardianMaster Admin User Create Form should render Create Form of GuardianMaster" time="0.237">
+    </testcase>
+    <testcase classname="GuardianMaster Admin User Create Form should expect the fields to be read and write" name="GuardianMaster Admin User Create Form should expect the fields to be read and write" time="0.111">
+    </testcase>
+    <testcase classname="GuardianMaster Admin User Create Form should render errors when required fields are not set" name="GuardianMaster Admin User Create Form should render errors when required fields are not set" time="0.11">
+    </testcase>
+    <testcase classname="GuardianMaster Admin User Create Form should not render errors when required fields are set" name="GuardianMaster Admin User Create Form should not render errors when required fields are set" time="0.191">
+    </testcase>
+    <testcase classname="GuardianMaster Admin User Edit Form should render Edit Form of GuardianMaster" name="GuardianMaster Admin User Edit Form should render Edit Form of GuardianMaster" time="0.108">
+    </testcase>
+    <testcase classname="GuardianMaster Admin User Edit Form should expect the fields to be read and write" name="GuardianMaster Admin User Edit Form should expect the fields to be read and write" time="0.108">
+    </testcase>
+    <testcase classname="GuardianMaster Normal User Create Form should render Create Form of GuardianMaster" name="GuardianMaster Normal User Create Form should render Create Form of GuardianMaster" time="0.067">
+    </testcase>
+    <testcase classname="GuardianMaster Normal User Create Form should expect the fields to be read and write" name="GuardianMaster Normal User Create Form should expect the fields to be read and write" time="0.065">
+    </testcase>
+    <testcase classname="GuardianMaster Normal User Edit Form should render Edit Form of GuardianMaster" name="GuardianMaster Normal User Edit Form should render Edit Form of GuardianMaster" time="0.063">
+    </testcase>
+    <testcase classname="GuardianMaster Normal User Edit Form should expect the fields to be read-only" name="GuardianMaster Normal User Edit Form should expect the fields to be read-only" time="0.073">
+    </testcase>
+  </testsuite>
+</testsuites>

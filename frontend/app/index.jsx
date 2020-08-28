@@ -2,14 +2,17 @@ import React from "react";
 import { render } from "react-dom";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
 import { ThemeProvider, createMuiTheme } from "@material-ui/core";
-import { config, library } from "@fortawesome/fontawesome-svg-core";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import ProjectsListComponent from "./ProjectsListComponent";
 import axios from "axios";
 import ProjectDeliverablesComponent from "./ProjectDeliverablesComponent";
 import CreateDeliverable from "./CreateDeliverable";
 import { Header, AppSwitcher, handleUnauthorized } from "pluto-headers";
 import NotLoggedIn from "./NotLoggedIn";
+import YoutubeMaster from "./Master/YoutubeMaster";
+import GuardianMaster from "./Master/GuardianMaster";
+import MainstreamMaster from "./Master/MainstreamMaster";
+import DailymotionMaster from "./Master/DailymotionMaster";
+import SystemNotification from "./SystemNotification";
 
 require("./app.css");
 
@@ -42,6 +45,7 @@ class App extends React.Component {
     this.state = {
       loading: true,
       isLoggedIn: false,
+      isAdmin: false,
       tokenExpired: false,
       plutoConfig: {},
     };
@@ -72,11 +76,12 @@ class App extends React.Component {
 
   async onLoginValid(valid, loginData) {
     // Fetch the oauth config
+    let config;
     try {
       const response = await fetch("/meta/oauth/config.json");
       if (response.status === 200) {
-        const data = await response.json();
-        this.setState({ plutoConfig: data });
+        config = await response.json();
+        this.setState({ plutoConfig: config });
       }
     } catch (error) {
       console.error(error);
@@ -85,6 +90,7 @@ class App extends React.Component {
     this.setState(
       {
         isLoggedIn: valid,
+        isAdmin: loginData ?? loginData[config.adminClaimName],
       },
       () => {
         this.setState({ loading: false });
@@ -112,12 +118,65 @@ class App extends React.Component {
             />
             <Route path="/project/new" component={CreateDeliverable} />
             <Route
+              path="/project/:projectid/atom/new"
+              render={(props) => (
+                <GuardianMaster
+                  match={props.match}
+                  isAdmin={this.state.isAdmin}
+                />
+              )}
+            />
+            <Route
+              path="/project/:projectid/atom/:masterid"
+              render={(props) => (
+                <GuardianMaster
+                  match={props.match}
+                  isAdmin={this.state.isAdmin}
+                />
+              )}
+            />
+            <Route
+              path="/project/:projectid/youtube/new"
+              render={(props) => (
+                <YoutubeMaster
+                  match={props.match}
+                  isAdmin={this.state.isAdmin}
+                />
+              )}
+            />
+            <Route
+              path="/project/:projectid/youtube/:masterid"
+              render={(props) => (
+                <YoutubeMaster
+                  match={props.match}
+                  isAdmin={this.state.isAdmin}
+                />
+              )}
+            />
+            <Route
+              path="/project/:projectid/dailymotion/new"
+              component={DailymotionMaster}
+            />
+            <Route
+              path="/project/:projectid/dailymotion/:masterid"
+              component={DailymotionMaster}
+            />
+            <Route
+              path="/project/:projectid/mainstream/new"
+              component={MainstreamMaster}
+            />
+            <Route
+              path="/project/:projectid/mainstream/:masterid"
+              component={MainstreamMaster}
+            />
+            <Route
               path="/project/:projectid"
               component={ProjectDeliverablesComponent}
             />
             <Route exact path="/" component={ProjectsListComponent} />
           </Switch>
         </div>
+        <SystemNotification></SystemNotification>
       </ThemeProvider>
     );
   }

@@ -4,7 +4,7 @@
   "description": "Frontend for the projectlocker project",
   "main": "index.js",
   "scripts": {
-    "test": "jest --passWithNoTests",
+    "test": "jest",
     "test:watch": "jest --watch",
     "test:ci": "jest --ci",
     "build": "webpack -d",
@@ -25,7 +25,8 @@
     ],
     "verbose": true,
     "moduleNameMapper": {
-      "\\.(css|less)$": "identity-obj-proxy"
+      "\\.(css|less)$": "identity-obj-proxy",
+      "\\.(|jpg|jpeg|png)$": "<rootDir>/fileMock.js"
     },
     "transform": {
       "^.+\\.[jt]sx?$": "ts-jest",
@@ -42,12 +43,17 @@
   "author": "Andy Gallagher <andy.gallagher@theguardian.com>",
   "license": "ISC",
   "devDependencies": {
+    "@types/enzyme": "^3.10.5",
+    "@types/jest": "^26.0.0",
     "@types/js-cookie": "^2.2.6",
+    "@types/moxios": "^0.4.9",
     "@types/react": "^16.9.36",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.5",
+    "@types/sinon": "^9.0.4",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
+    "file-loader": "^6.0.0",
     "husky": ">=4",
     "jest": "^26.0.1",
     "jest-cli": "^24.8.0",
@@ -74,6 +80,7 @@
     "@fortawesome/react-fontawesome": "^0.1.8",
     "@material-ui/core": "^4.10.2",
     "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "@types/jsonwebtoken": "^8.5.0",
     "axios": "^0.19.2",
     "css-loader": "^1.0.0",
@@ -81,7 +88,7 @@
     "js-cookie": "^2.2.1",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.20.1",
-    "pluto-headers": "https://gitlab.com/codmill/customer-projects/guardian/pluto-headers.git#v1.0.2-2",
+    "pluto-headers": "https://gitlab.com/codmill/customer-projects/guardian/pluto-headers.git#v1.0.2-4",
     "query-string": "^6.13.1",
     "raven-js": "^3.24.1",
     "react": "^16.12.0",
@@ -89,6 +96,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "style-loader": "^0.23.1",
+    "url-loader": "^4.1.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "yarn": "^1.21.1"
