@@ -4,6 +4,7 @@ from rest_framework import serializers
 from .models import DeliverableAsset, Deliverable, GNMWebsite, Youtube, Mainstream, DailyMotion, LogEntry
 from .choices import DELIVERABLE_ASSET_STATUSES_DICT
 
+
 class DeliverableAssetSerializer(serializers.ModelSerializer):
     version = serializers.SerializerMethodField('get_version')
     duration = serializers.SerializerMethodField('get_duration')
@@ -14,16 +15,15 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
 
     @cached_property
     def user(self):
-        if 'request' in self.context:
+        try:
             return self.context['request'].user.username
-        else:
+        except AttributeError:
+            return "admin"
+        except KeyError:
             return "admin"
 
     def get_status_string(self, obj):
         return DELIVERABLE_ASSET_STATUSES_DICT.get(obj.status, "(not set)")
-
-    # def get_has_ongoing_job(self, obj):
-    #     return obj.has_ongoing_job(self.user)
 
     def get_version(self, obj):
         return obj.version(self.user)
