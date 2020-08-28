@@ -2,12 +2,16 @@
 URLS for the Guardian Project plugin
 """
 
+from django.contrib import admin
 from django.urls import path, re_path
 
 from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIView, DailyMotionAPIView, MainstreamAPIView, PlatformLogsView
 from gnm_deliverables.views.views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
 from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
 from django.contrib import admin
+from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
+from gnm_deliverables.views.views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
+    NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
 
 urlpatterns = [
     path('admin/', admin.site.urls),

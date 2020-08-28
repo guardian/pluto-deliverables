@@ -31,6 +31,7 @@ from rest_framework.views import APIView
 from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
+from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.exceptions import NoShapeError
 from gnm_deliverables.forms import DeliverableCreateForm
 from gnm_deliverables.models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
@@ -56,6 +57,7 @@ class NewDeliverableUI(TemplateView):
 
 
 class NewDeliverablesAPIList(ListAPIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = DeliverableSerializer
@@ -66,6 +68,7 @@ class NewDeliverablesAPIList(ListAPIView):
 
 
 class NewDeliverablesAPICreate(CreateAPIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -73,6 +76,7 @@ class NewDeliverablesAPICreate(CreateAPIView):
 
 
 class NewDeliverableAssetAPIList(ListAPIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = DeliverableAssetSerializer
@@ -94,6 +98,7 @@ class NewDeliverableAssetAPIList(ListAPIView):
 
 
 class DeliverableAPIView(APIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -110,6 +115,7 @@ class DeliverableAPIView(APIView):
 
 
 class CountDeliverablesView(APIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -128,6 +134,7 @@ class CountDeliverablesView(APIView):
 
 
 class NewDeliverableAPIScan(APIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -151,6 +158,7 @@ class DeliverablesTypeListAPI(APIView):
     "section": [ [id,name], [id,name], ... ],
     }
     """
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -164,6 +172,7 @@ class AdoptExistingVidispineItemView(APIView):
     """
     tries to adopt the given vidispine item into the bundle list.
     """
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -212,6 +221,7 @@ class AdoptExistingVidispineItemView(APIView):
 ## -----------------------------------------------------------------------------
 
 class ModelSearchAPIView(APIView):
+    authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -568,8 +578,8 @@ class DeliverableAssetUpdateAPIView(RetrieveUpdateAPIView):
     """
     API view called on type change on the details page
     """
+    authentication_classes = (JwtRestAuth,)
     serializer_class = DeliverableAssetSerializer
-    authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     model = DeliverableAsset
@@ -631,6 +641,7 @@ class NaughtyListAPIView(APIView):
     """
     Return a JSON showing projects that don't have any deliverables attached
     """
+    authentication_classes = (JwtRestAuth,)
     renderer_classes = (JSONRenderer,)
     permission_classes = (IsAuthenticated,)
 
@@ -674,11 +685,12 @@ class NaughtyListAPIView(APIView):
 
 
 class DeliverableCreateFolderView(APIView):
+    authentication_classes = (JwtRestAuth,)
     renderer_classes = (JSONRenderer,)
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, pk=None):
-        from .files import create_folder
+        from gnm_deliverables.files import create_folder
         import os
 
         try:
@@ -710,8 +722,9 @@ class SearchForDeliverableAPIView(RetrieveAPIView):
     """
     see if we have any deliverable assets with the given file name. This is used for tagging during the backup process.
     """
+    authentication_classes = (JwtRestAuth,)
     renderer_classes = (JSONRenderer,)
-    authentication_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = DeliverableAssetSerializer
 
     def get_object(self, queryset=None):
@@ -743,7 +756,8 @@ class DeliverableAPIRetrieveView(RetrieveAPIView):
     retrieve the deliverable associated with this address
     """
     renderer_classes = (JSONRenderer,)
-    authentication_classes = (IsAuthenticated,)
+    authentication_classes = (JwtRestAuth,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = DeliverableSerializer
     model = Deliverable
 
