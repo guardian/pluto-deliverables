@@ -4,14 +4,9 @@ URLS for the Guardian Project plugin
 
 from django.urls import path, re_path
 
-from .views import DeliverableCreateView, DeliverableDetailView, DeliverableAssetUpdateAPIView, \
-    DeliverablesSearchAPIView, DeliverableAssetCheckTypeChange, NaughtyListAPIView, \
-    NaughtyListUIView, DeliverableCreateFolderView, DeliverablesListView, \
-    DeliverablesSearchForWorkingGroupAPIView, SearchForDeliverableAPIView, \
-    DeliverableAPIRetrieveView, GNMWebsiteAPIView, YoutubeAPIView, DailyMotionAPIView, MainstreamAPIView, PlatformLogsView
-from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
-from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
-from django.contrib.auth.decorators import login_required
+from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIView, DailyMotionAPIView, MainstreamAPIView, PlatformLogsView
+from gnm_deliverables.views.views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
+from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
 from django.contrib import admin
 
 urlpatterns = [
