@@ -28,14 +28,6 @@ class TestGetInMetadataView(TestCase):
 
     def tearDown(self) -> None:
         pass
-        # from gnm_deliverables.models import Deliverable, DeliverableAsset
-        # for asset in DeliverableAsset.objects.filter(deliverable=4567):
-        #     asset.delete()
-        # try:
-        #     d = Deliverable.objects.get(project_id=4567)
-        #     d.delete()
-        # except Deliverable.DoesNotExist:
-        #     pass
 
     def test_get_metadata(self):
         c = self.client
@@ -58,9 +50,9 @@ class TestGetInMetadataView(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+
 class TestPutInMetadataView(TestCase):
     def setUp(self) -> None:
-        # self.gnmwebsite = GNMWebsite.objects.create(website_title='test.com')
         self.deliverable = Deliverable.objects.create(pluto_core_project_id=1, commission_id=1)
         self.asset = DeliverableAsset.objects.create(deliverable=self.deliverable, pk=1)
 
@@ -72,11 +64,6 @@ class TestPutInMetadataView(TestCase):
             'website_title': 'testing.com',
             'website_description': 'description',
             'etag': '2020-08-28T08:07:19.775337Z'}
-        # self.youtube_object = {
-        #
-        #     "youtube_id": "testvideo",
-        #     "youtube_title": "test"
-        # }
 
     def test_create_metadata(self):
         c = self.client
@@ -162,7 +149,6 @@ class TestDeleteInMetadataAPIView(TestCase):
                                             'asset_id': self.asset.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
 
     def test_delete_metadata_with_nonexisting_asset(self):
         c = self.client
