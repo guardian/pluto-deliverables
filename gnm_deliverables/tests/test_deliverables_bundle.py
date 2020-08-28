@@ -8,7 +8,7 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from gnm_deliverables.models import Deliverable
-from gnm_deliverables.views import CountDeliverablesView
+from gnm_deliverables.views.views import CountDeliverablesView
 
 
 class TestDeliverablesBundle(TestCase):

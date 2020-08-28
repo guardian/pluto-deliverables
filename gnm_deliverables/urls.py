@@ -5,8 +5,12 @@ URLS for the Guardian Project plugin
 from django.contrib import admin
 from django.urls import path, re_path
 
-from .views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
-from .views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
+from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIView, DailyMotionAPIView, MainstreamAPIView, PlatformLogsView
+from gnm_deliverables.views.views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
+from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
+from django.contrib import admin
+from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView
+from gnm_deliverables.views.views import NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
 
 urlpatterns = [
@@ -20,7 +24,12 @@ urlpatterns = [
     path(r'api/deliverable', DeliverableAPIView.as_view()),
     path(r'api/typeslist', DeliverablesTypeListAPI.as_view(), name="asset-types"),
     path(r'api/bundle/<int:project_id>/count', CountDeliverablesView.as_view()),
-    re_path(r'.*', NewDeliverableUI.as_view())
+    path(r'api/bundle/<str:project_id>/asset/<int:asset_id>/gnmwebsite', GNMWebsiteAPIView.as_view(), name="gnmwebsite"),
+    path(r'api/bundle/<str:project_id>/asset/<int:asset_id>/mainstream', MainstreamAPIView.as_view()),
+    path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/youtube', YoutubeAPIView.as_view(), name='youtube'),
+    path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/dailymotion', DailyMotionAPIView.as_view()),
+    path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logs', PlatformLogsView.as_view()),
+    re_path(r'.*', NewDeliverableUI.as_view()),
     # path(r'(?P<project_id>.+-\d+)/create/?', DeliverableCreateView, name='deliverables_create'),
     # path(r'(?P<pk>\d+)/?', DeliverableDetailView, name='deliverables_detail'),
     # path(r'asset/(?P<pk>\d+)/?', DeliverableAssetUpdateAPIView.as_view(), name='deliverable_asset_update'),
