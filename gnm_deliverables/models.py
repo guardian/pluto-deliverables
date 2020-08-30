@@ -7,6 +7,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime
 
 from dateutil import parser
 from django.conf import settings
@@ -78,7 +79,7 @@ class Deliverable(models.Model):
             assets_on_fs.append(asset)
             if created:
                 logger.info('Asset created: %s' % asset)
-                added_count+=1
+                added_count += 1
             else:
                 logger.info('Asset already existed: %s' % asset)
                 # Update defaults
@@ -97,9 +98,9 @@ class Deliverable(models.Model):
         delete_count = assets_to_delete.count()
         if delete_count > 0:
             assets_to_delete.delete()
-            removed_count+=1
+            removed_count += 1
             logger.info('Deleted %s asset rows' % delete_count)
-        return {"added":added_count,"removed":removed_count}
+        return {"added": added_count, "removed": removed_count}
 
     @cached_property
     def path(self):
@@ -141,7 +142,9 @@ class Deliverable(models.Model):
         created = False
         try:
             asset = DeliverableAsset.objects.get(online_item_id=item_id, deliverable=self)
-            logger.info('Asset for item "{item_id}" already existed: {asset}'.format(item_id=item_id, asset=asset))
+            logger.info(
+                'Asset for item "{item_id}" already existed: {asset}'.format(item_id=item_id,
+                                                                             asset=asset))
         except DeliverableAsset.DoesNotExist:
             asset = DeliverableAsset(
                 online_item_id=item_id,
@@ -154,14 +157,14 @@ class Deliverable(models.Model):
                 ##we can tidy the re-raise up later
                 raise NoShapeError('No original shape attached to item')
 
-            asset.filename = item.get("originalFilename",allowArray=False)
+            asset.filename = item.get("originalFilename", allowArray=False)
             asset.absolute_path = item.get("originalUri", allowArray=False)
 
             files = [x for x in shape.files()]
             if len(files) == 0:
                 raise NoShapeError("Original shape had no files on it")
             asset.size = files[0].size
-            mtime = None ##FIXME: sort this out
+            mtime = None  ##FIXME: sort this out
             asset.ingest_complete_dt = now()
             asset.created_from_existing_item = True
             asset.save()
@@ -188,7 +191,8 @@ class Deliverable(models.Model):
             # asset.created_from_existing_item = True
             # asset.save()
             # created = True
-            logger.info('Asset for item "{item_id}" created: {asset}'.format(item_id=item_id, asset=asset))
+            logger.info(
+                'Asset for item "{item_id}" created: {asset}'.format(item_id=item_id, asset=asset))
         return asset, created
 
     @classmethod
@@ -213,7 +217,8 @@ class Deliverable(models.Model):
 
 
 class DeliverableAsset(models.Model):
-    type = models.PositiveIntegerField(null=True, blank=True, choices=DELIVERABLE_ASSET_TYPE_CHOICES)
+    type = models.PositiveIntegerField(null=True, blank=True,
+                                       choices=DELIVERABLE_ASSET_TYPE_CHOICES)
 
     # Stat info
     filename = models.TextField(null=True, blank=True)
@@ -240,10 +245,10 @@ class DeliverableAsset(models.Model):
 
     deliverable = models.ForeignKey(Deliverable, related_name='assets', on_delete=models.PROTECT)
 
-    gnm_website_master = models.ForeignKey('GNMWebsite', on_delete=models.CASCADE, null=True)
-    youtube_master = models.ForeignKey('Youtube', on_delete=models.CASCADE, null=True)
-    DailyMotion_master = models.ForeignKey('DailyMotion', on_delete=models.CASCADE, null=True)
-    mainstream_master = models.ForeignKey('Mainstream', on_delete=models.CASCADE, null=True)
+    gnm_website_master = models.ForeignKey('GNMWebsite', on_delete=models.SET_NULL, null=True)
+    youtube_master = models.ForeignKey('Youtube', on_delete=models.SET_NULL, null=True)
+    DailyMotion_master = models.ForeignKey('DailyMotion', on_delete=models.SET_NULL, null=True)
+    mainstream_master = models.ForeignKey('Mainstream', on_delete=models.SET_NULL, null=True)
 
     def __init__(self, *args, **kwargs):
         super(DeliverableAsset, self).__init__(*args, **kwargs)
@@ -257,7 +262,7 @@ class DeliverableAsset(models.Model):
         :return:
         """
         raise Exception("update_metadata is not implemented yet")
-        #set_item_metadata(user, self.item_id, metadata_document_from_dict(dict(title=self.get_name()), md_group='Deliverable'))
+        # set_item_metadata(user, self.item_id, metadata_document_from_dict(dict(title=self.get_name()), md_group='Deliverable'))
 
     def get_name(self):
         # naming convention
@@ -384,7 +389,7 @@ class DeliverableAsset(models.Model):
                 return not current_job.finished()
 
         except VSNotFound:
-            #no job => no ongoing job!
+            # no job => no ongoing job!
             return None
         # job = self.job(user)
         # return job is not None and job.get('status', None) not in [
@@ -443,11 +448,11 @@ class DeliverableAsset(models.Model):
     # @cached_property
     # def changed_string(self):
     #     return date.strftime('%d/%m/%Y %I:%M %p') if self.changed_dt else ''
-        
+
     def type_allows_many(self):
         return self.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE \
-            or self.type == DELIVERABLE_ASSET_TYPE_OTHER_TRAILER \
-            or self.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS
+               or self.type == DELIVERABLE_ASSET_TYPE_OTHER_TRAILER \
+               or self.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS
 
     def _set_cached_item(self, newvalue):
         """
@@ -471,7 +476,8 @@ class DeliverableAsset(models.Model):
         if self.__item is not None:
             return self.__item
         if self.online_item_id is not None:
-            self.__item = VSItem(url=settings.VIDISPINE_URL,user=settings.VIDISPINE_USER,passwd=settings.VIDISPINE_PASSWORD,run_as=user)
+            self.__item = VSItem(url=settings.VIDISPINE_URL, user=settings.VIDISPINE_USER,
+                                 passwd=settings.VIDISPINE_PASSWORD, run_as=user)
             self.__item.populate(self.online_item_id)
             return self.__item
         return None
@@ -487,7 +493,8 @@ class DeliverableAsset(models.Model):
         if self.__job is not None:
             return self.__job
         if self.job_id is not None:
-            self.__job = VSJob(url=settings.VIDISPINE_URL, user=settings.VIDISPINE_USER, passwd=settings.VIDISPINE_PASSWORD, run_as=user)
+            self.__job = VSJob(url=settings.VIDISPINE_URL, user=settings.VIDISPINE_USER,
+                               passwd=settings.VIDISPINE_PASSWORD, run_as=user)
             return self.__job.populate(self.job_id)
         return None
 
@@ -511,13 +518,14 @@ class DeliverableAsset(models.Model):
     def remove_file(self):
         try:
             os.remove(str(self.absolute_path))
-            logger.info('Removed file for asset "{asset}": "{path}"'.format(asset=self, path=self.absolute_path))
+            logger.info('Removed file for asset "{asset}": "{path}"'.format(asset=self,
+                                                                            path=self.absolute_path))
             self.file_removed_dt = now()
             self.save()
             return True
         except OSError as e:
             logger.exception('Failed to remove "{path}"'.format(path=self.absolute_path))
-            #this _should_ get picked up by the periodic task remove_stale_files
+            # this _should_ get picked up by the periodic task remove_stale_files
             if e.errno == errno.ENOENT:
                 # No such file
                 self.file_removed_dt = now()
@@ -534,30 +542,34 @@ class GNMWebsite(models.Model):
                                      choices=UPLOAD_STATUS, db_index=True)
     production_office = models.TextField(null=True, blank=True, choices=PRODUCTION_OFFICE,
                                          db_index=True)
-    tags = ArrayField(models.CharField(null=True, max_length=255), null=True, blank=True, db_index=True)
+    tags = ArrayField(models.CharField(null=True, max_length=255), null=True, blank=True,
+                      db_index=True)
     publication_date = models.DateTimeField(null=True, blank=True)
     website_title = models.TextField(null=True, blank=True, db_index=True)
     website_description = models.TextField(null=True, blank=True)
     primary_tone = models.TextField(null=True, blank=True, choices=PRIMARY_TONE, db_index=True)
     publication_status = models.TextField(null=True, blank=True, choices=PUBLICATION_STATUS)
+    etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
 
 class Mainstream(models.Model):
     mainstream_title = models.TextField(null=False, blank=False)
     mainstream_description = models.TextField(null=True, blank=True)
-    mainstream_tags = ArrayField(models.CharField(null=False, max_length=255), null=False)
+    mainstream_tags = ArrayField(models.CharField(null=False, max_length=255), null=True, blank=True)
     mainstream_rules_contains_adult_content = models.BooleanField()
     upload_status = models.TextField(null=True, blank=True, choices=UPLOAD_STATUS, db_index=True)
+    etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
 
 class Youtube(models.Model):
     youtube_id = models.TextField(null=False, blank=False, db_index=True)
     youtube_title = models.TextField(null=False, blank=False)
     youtube_description = models.TextField(null=True, blank=True)
-    youtube_tags = ArrayField(models.CharField(null=False, max_length=255), null=True)
-    youtube_categories = ArrayField(models.BigIntegerField(null=False), null=True)
-    youtube_channels = ArrayField(models.CharField(null=False, max_length=255), null=True)
+    youtube_tags = ArrayField(models.CharField(null=True, max_length=255), null=True, blank=True)
+    youtube_categories = ArrayField(models.BigIntegerField(null=False), null=True, blank=True)
+    youtube_channels = ArrayField(models.CharField(null=True, max_length=255), null=True, blank=True)
     publication_date = models.DateTimeField(null=True, blank=True)
+    etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
     def __str__(self):
         return '{title}'.format(title=self.youtube_title)
@@ -567,19 +579,24 @@ class DailyMotion(models.Model):
     daily_motion_url = models.TextField(null=True, blank=True)
     daily_motion_title = models.TextField(null=False, blank=False)
     daily_motion_description = models.TextField(null=True, blank=True)
-    daily_motion_tags = ArrayField(models.CharField(null=False, max_length=255), null=True)
+    daily_motion_tags = ArrayField(models.CharField(null=True, max_length=255), null=True, blank=True)
     daily_motion_category = models.BigIntegerField(null=True, blank=True)
     publication_date = models.DateTimeField(null=True, blank=True)
     upload_status = models.TextField(null=True, blank=True, choices=UPLOAD_STATUS, db_index=True)
     daily_motion_no_mobile_access = models.BooleanField()
     daily_motion_contains_adult_content = models.BooleanField()
+    etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
 
 class LogEntry(models.Model):
     timestamp = models.DateTimeField(null=False, blank=False)
-    related_gnm_website = models.ForeignKey(GNMWebsite, on_delete=models.CASCADE, null=True, db_index=True)
-    related_youtube = models.ForeignKey(Youtube, on_delete=models.CASCADE, null=True, db_index=True)
-    related_daily_motion = models.ForeignKey(DailyMotion, on_delete=models.CASCADE, null=True, db_index=True)
-    related_mainstream = models.ForeignKey(Mainstream, on_delete=models.CASCADE, null=True, db_index=True)
+    related_gnm_website = models.ForeignKey(GNMWebsite, on_delete=models.CASCADE, null=True,
+                                            db_index=True)
+    related_youtube = models.ForeignKey(Youtube, on_delete=models.CASCADE, null=True,
+                                        db_index=True)
+    related_daily_motion = models.ForeignKey(DailyMotion, on_delete=models.CASCADE, null=True,
+                                             db_index=True)
+    related_mainstream = models.ForeignKey(Mainstream, on_delete=models.CASCADE, null=True,
+                                           db_index=True)
     sender = models.TextField(null=False, blank=False, db_index=True)
     log_line = models.TextField(null=False, blank=False)
