@@ -18,13 +18,12 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from gnmvidispine.vs_item import VSItem, VSException, VSNotFound
 from gnmvidispine.vs_job import VSJob
+from gnmvidispine.vidispine_api import HTTPError as VSHTTPError
 
 from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
-    DELIVERABLE_ASSET_STATUSES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
-    PUBLICATION_STATUS
-from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
-    DELIVERABLE_ASSET_STATUS_INGESTING, DELIVERABLE_ASSET_STATUS_INGESTED, \
-    DELIVERABLE_ASSET_TYPES_DICT
+    DELIVERABLE_ASSET_TYPES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
+    PUBLICATION_STATUS, DELIVERABLE_ASSET_STATUS_TRANSCODING
+from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, DELIVERABLE_ASSET_STATUSES
 from .choices import DELIVERABLE_ASSET_TYPE_CHOICES, DELIVERABLE_STATUS_ALL_FILES_INGESTED, \
     DELIVERABLE_STATUS_FILES_TO_INGEST, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE, \
     DELIVERABLE_ASSET_TYPE_OTHER_TRAILER, \
@@ -33,12 +32,15 @@ from .exceptions import ImportFailedError, NoShapeError
 from .files import get_path_for_deliverable, find_files_for_deliverable, create_folder, \
     get_local_path_for_deliverable
 from .templatetags.deliverable_tags import sizeof_fmt
-
+from .transcodepreset import TranscodePresetFinder
 logger = logging.getLogger(__name__)
 
 
 def seconds_to_timestamp(seconds):
     return time.strftime('%H:%M:%S', time.gmtime(float(seconds)))
+
+
+transcode_preset_finder = TranscodePresetFinder()
 
 
 class Deliverable(models.Model):
@@ -67,6 +69,7 @@ class Deliverable(models.Model):
                 deliverable=self,
                 size=f.size,
                 modified_dt=f.modified_dt,
+                status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED,
                 defaults=dict(
                     access_dt=f.access_dt,
                     changed_dt=f.changed_dt,
@@ -234,6 +237,10 @@ class DeliverableAsset(models.Model):
     ingest_complete_dt = models.DateTimeField(null=True, blank=True)
     file_removed_dt = models.DateTimeField(null=True, blank=True)
 
+    status = models.IntegerField(null=False,
+                                 choices=DELIVERABLE_ASSET_STATUSES,
+                                 default=DELIVERABLE_ASSET_STATUS_NOT_INGESTED)
+
     created_from_existing_item = models.BooleanField(default=False)
 
     deliverable = models.ForeignKey(Deliverable, related_name='assets', on_delete=models.PROTECT)
@@ -264,39 +271,43 @@ class DeliverableAsset(models.Model):
     def create_placeholder(self, user, commit=True):
         """
         requests Vidispine to create a placeholder item for this deliverable, if it does not have an ID on it.
-        if the deliverable does already have an item id, this is a no-op
-        :param user: user to run the request as
+        if the deliverable does already have an item id, this is a no-op.
+        this is automatically called from start_file_import, so you don't need to call it directly.
+        :param user: (string) user to run the request as
         :param commit: if True, save the deliverable to the database immediately (default true)
         :return: None
         """
+        if not isinstance(user, str):
+            raise TypeError("create_placeholder user must be a string")
+
         if self.online_item_id is None:
-            # self.item_id = create_placeholder_item(user, metadata_document_from_dict(dict(
-            #     title=self.get_name(),
-            #     gnm_asset_category='Deliverable',
-            #     gnm_asset_status='Ready for Editing',
-            #     gnm_type='Deliverable',
-            #     gnm_deliverable_parent_project=self.deliverable.project_id,
-            #     gnm_deliverable_parent_deliverables=str(self.deliverable.id),
-            #     gnm_storage_rule_deep_archive='storage_rule_deep_archive',
-            #     ExternalArchiveRequest=dict(
-            #         gnm_external_archive_external_archive_request='Requested Archive',
-            #         # TODO configurable media expiry field
-            #     )
-            # ), md_group='Deliverable'))
-            new_item = VSItem(url=settings.VIDISPINE_URL, user=settings.VIDISPINE_USER,
-                              passwd=settings.VIDISPINE_PASSWORD, run_as=user)
-            new_item.createPlaceholder(dict(
-                title=self.get_name(),
-                gnm_asset_category='Deliverable',
-                gnm_asset_status='Ready for Editing',
-                gnm_type='Deliverable',
-                gnm_deliverable_parent_project=self.deliverable.project_id,
-                gnm_deliverable_parent_deliverables=str(self.deliverable.id),
-            ))
+            new_item = VSItem(url=settings.VIDISPINE_URL,
+                              user=settings.VIDISPINE_USER,
+                              passwd=settings.VIDISPINE_PASSWORD,
+                              run_as=user)
+
+            builder = new_item.get_metadata_builder()
+            builder.addMeta({
+                "title": self.get_name()
+            })
+            builder.addGroup("Asset",{
+                "gnm_category": "Deliverable",
+                "original_filename": self.absolute_path,
+                "gnm_owner": user,
+                "gnm_containing_projects": str(self.deliverable.pluto_core_project_id),
+                "gnm_file_created": self.modified_dt
+            })
+            builder.addGroup("Deliverable", {
+                "gnm_deliverable_bundle": str(self.deliverable.pluto_core_project_id),
+                "gnm_deliverable_id": str(self.id)
+            })
+            new_item.createPlaceholder(builder.as_xml().decode("utf8"))
+
             if commit:
                 self.save()
-            # we don't store stuff in collections any more
-            # add_to_collection(user, self.deliverable.project_id, self.item_id)
+            return new_item
+            #we don't store stuff in collections any more
+            #add_to_collection(user, self.deliverable.project_id, self.item_id)
 
     def start_file_import(self, user, commit=True):
         """
@@ -311,18 +322,58 @@ class DeliverableAsset(models.Model):
         if self.created_from_existing_item:
             return
         if self.online_item_id is None:
-            raise ImportFailedError('No item id could be found')
-        # self.job_id = create_import_job(user, self.absolute_path, self.item_id)
-        current_item = self.item(user=user)
-        if current_item is None:
             current_item = self.create_placeholder(user, commit=False)
+        else:
+            current_item = self.item(user=user)
 
-        # FIXME: shape_tag needs to be properly determined
-        import_job = current_item.import_to_shape(uri=self.absolute_path, shape_tag=["lowres"],
-                                                  priority="MEDIUM")
+        #run_as should be taken care of by the VSItem base class, initated from self.item
+        import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
+                                                  priority="MEDIUM",
+                                                  essence=True,
+                                                  thumbnails=False,
+                                                  jobMetadata={
+                                                      "import_source": "pluto-deliverables",
+                                                      "project_id": str(self.deliverable.pluto_core_project_id),
+                                                      "asset_id": str(self.id)
+                                                  })
         self.job_id = import_job.name
         if commit:
             self.save()
+
+    def create_proxy(self, priority='MEDIUM'):
+        """
+        tells VS to start proxying the file.  This is done seperately to the ingest portion, so that we can use
+        Vidispine's understanding of the file format in order to determine which is the appropriate transcoding
+        to use.
+        Can raise either a VSException or a vidispine_api.HttpError if the operation fails.
+        This is normally called from the callback endpoint, so we have no user present suitable for "run-as"
+        :return:
+        """
+        item_info = self.item(None)     # caller should catch exceptions from this
+        if item_info is None:
+            raise ValueError("Item is not imported")
+
+        mime_type = item_info.get("mimeType")
+        if mime_type is None:
+            logger.error("{0} for deliverable asset {1} in {2}: Could not determine MIME type for transcode".format(item_info.name, self.id, self.deliverable.id))
+            return None
+
+        preset_name = transcode_preset_finder.match(mime_type)
+        if preset_name is None:
+            logger.error("{0} for deliverable asset {1} in {2}: Did not recognise MIME type {3}".format(item_info.name, self.id, self.deliverable.id, mime_type))
+            raise ValueError("Did not recognise MIME type of item")
+
+        job_id = item_info.transcode(preset_name, priority, wait=False, create_thumbnails=True,
+                                     job_metadata={
+                                        "import_source": "pluto-deliverables",
+                                        "project_id": str(self.deliverable.pluto_core_project_id),
+                                        "asset_id": str(self.id)
+                                    })
+
+        self.job_id = job_id
+        self.status = DELIVERABLE_ASSET_STATUS_TRANSCODING
+        self.save()
+        return job_id
 
     def has_ongoing_job(self, user):
         """
@@ -348,29 +399,6 @@ class DeliverableAsset(models.Model):
         #     'ABORTED'
         # ]
 
-    def status(self, user):
-        if self.ingest_complete_dt is not None:
-            return DELIVERABLE_ASSET_STATUS_INGESTED
-        job = self.job(user)
-        if job is not None:
-            status = job.status()
-            finished = job.get_metadata("finished")
-            if finished:
-                self.ingest_complete_dt = parser.parse(finished)
-                self.save()
-            if status in ['FINISHED', 'FINISHED_WARNING']:
-                self.remove_file()
-                return DELIVERABLE_ASSET_STATUS_INGESTED
-            elif status in ['FAILED_TOTAL', 'ABORTED']:
-                return DELIVERABLE_ASSET_STATUS_INGEST_FAILED
-            else:
-                return DELIVERABLE_ASSET_STATUS_INGESTING
-        return DELIVERABLE_ASSET_STATUS_NOT_INGESTED
-
-    def status_string(self, user):
-        status = self.status(user)
-        return DELIVERABLE_ASSET_STATUSES_DICT.get(status)
-
     def version(self, user):
         """
         asks VS to get the version of the item associated with this deliverable.
@@ -382,6 +410,10 @@ class DeliverableAsset(models.Model):
             return self.item(user).get_shape("original").essence_version
         except AttributeError:
             return None
+        except VSException as e:
+            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
+        except VSHTTPError as e:
+            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
         # item = self.item(user)
         # shape = get_shape_with_tag(item, 'original')
         # if shape is None:
@@ -389,12 +421,17 @@ class DeliverableAsset(models.Model):
         # return safeget(shape, 'essenceVersion')
 
     def duration(self, user):
-        current_item = self.item(user)
-        if current_item is None:
-            return None
+        try:
+            current_item = self.item(user)
+            if current_item is None:
+                return None
 
-        duration_string = current_item.get("durationSeconds", allowArray=False)
-        return seconds_to_timestamp(duration_string) if duration_string is not None else None
+            duration_string = current_item.get("durationSeconds", allowArray=False)
+            return seconds_to_timestamp(duration_string) if duration_string is not None else None
+        except VSException as e:
+            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
+        except VSHTTPError as e:
+            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
         # item = self.item(user)
         # fields = get_fields_in_inf(item, ['durationSeconds'])
         # duration = safeget(fields, 'durationSeconds', 'value', 0, 'value')

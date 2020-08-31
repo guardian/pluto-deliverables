@@ -117,3 +117,28 @@ set in the environment, this stage is skipped.
     ```
 4. Go to ``https://prexit.local/deliverables/`` 
 
+## Other setup
+
+In order to ingest and proxy media, gnm-deliverables relies on Vidispine.
+The following environment variables configure the Vidispine settings, with defaults supplied in `settings.py`:
+ - VIDISPINE_URL - location that the _backend_ expects to find Vidispine. In a containerised Kubernetes environment this
+ is often different to where a frontend component would expect to find it
+ - VIDISPINE_USER - user account for backend access. Admin rights are required; `run_as` is used internally to apply a
+ user's permissions to a VS request when performing a request that will be relayed abck to a client
+ - VIDISPINE_PASSWORD - password for the user account
+ - CALLBACK_ROOT - this is the base url where Vidispine should find the backend, in order to send notifications.  In a
+ containerised Kubernetes environment this is normally the name of the service that is fronting the backend (e.g. if the
+ backend is deployed behind a service called "pluto-deliverables" on port 9000, then this would be
+  `http://pluto-deliverables:9000`)
+  
+There is another Vidispine-relevant setting in the settings file, which is not configurable in the environment:
+ - TRANSCODE_PRESETS - this is a mapping table from media MIME type (expressed as a regex) to required transcode preset.
+ 
+The following environment variables configure the RabbitMQ settings.  The software _works_ without rabbitmq, but you get
+a lot of errors cluttering up the logs:
+ - RABBITMQ_HOST - hostname that the backend can find rabbitmq at
+ - RABBITMQ_PORT - port that rabbitmq is serving amqp on. Defaults to 5672, shouldn't need to change it
+ - RABBITMQ_VHOST - rabbitmq virtual host to communicate with
+ - RABBITMQ_EXCHANGE - exchange name that we should publish messages to
+ - RABBITMQ_USER - user name to access the server with. Must be able to declare exchanges and write data
+ - RABBITMQ_PASSWD - password associated with RABBITMQ_USER

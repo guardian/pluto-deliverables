@@ -56,7 +56,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'gnm_deliverables.urls'
@@ -147,6 +147,15 @@ RABBITMQ_PASSWD = os.environ.get("RABBITMQ_PASSWD","")
 ### Locations where things live
 GNM_DELIVERABLES_SAN_ROOT       = os.environ.get("DELIVERABLES_ROOT_PATH", "/media")
 GNM_DELIVERABLES_SAN_ROOT_LOCAL = os.environ.get("DELIVERABLES_CLIENT_PATH", "/Volumes")
+
+# Transcode presets to use.  The first value is a regex to match against the MIME type, the second is the name of the VS preset
+TRANSCODE_PRESETS = {
+    r'^video/': "lowres",
+    r'^audio/': "lowaudio",
+    r'^image/': "lowimage",
+    r'^application/x-mxf': "lowres",
+    r'^application/x-material-exchange-format': "lowres"
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

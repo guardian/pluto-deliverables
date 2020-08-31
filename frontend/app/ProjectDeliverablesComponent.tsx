@@ -114,7 +114,6 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React state
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [lastError, setLastError] = useState<object | null>(null);
   const [selectedIDs, setSelectedIDs] = useState<bigint[]>([]);
   const [typeOptions, setTypeOptions] = useState<DeliverableTypes>({});
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -141,7 +140,16 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       const projectDeliverables = await getProjectDeliverables(projectid);
       setDeliverables(projectDeliverables);
     } catch (err) {
-      return setLastError(err);
+      if (err.response) {
+        //server returned a bad status code
+        if (err.response.data.detail)
+          return setCentralMessage(err.response.data.detail);
+        else return setCentralMessage(`Error code ${err.response.status}`);
+      } else if (err.request) {
+        setCentralMessage(`Could not contact server: ${err.message}`);
+      } else {
+        setCentralMessage(err.message);
+      }
     }
   };
 
@@ -151,9 +159,18 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     try {
       const projectDeliverables = await getProjectDeliverables(projectid);
 
-      return setDeliverables(projectDeliverables);
+      setDeliverables(projectDeliverables);
     } catch (err) {
-      return Promise.all([setLastError(err), setLoading(false)]);
+      if (err.response) {
+        //server returned a bad status code
+        if (err.response.data.detail)
+          return setCentralMessage(err.response.data.detail);
+        else return setCentralMessage(`Error code ${err.response.status}`);
+      } else if (err.request) {
+        setCentralMessage(`Could not contact server: ${err.message}`);
+      } else {
+        setCentralMessage(err.message);
+      }
     }
   };
 
@@ -224,6 +241,32 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       console.error("failed to perform adoption: ", error);
       setCentralMessage(
         `Could not attach ${assetToAdd}, please contact MultimediaTech`
+      );
+    }
+  };
+
+  const updateItemType = async (assetId: bigint, newvalue: number) => {
+    const url = `/api/bundle/${parentBundleInfo?.pluto_core_project_id}/asset/${assetId}/setType`;
+
+    try {
+      setCentralMessage("Updating item type...");
+      await axios.put(
+        url,
+        { type: newvalue },
+        {
+          headers: {
+            "X-CSRFToken": Cookies.get("csrftoken"),
+          },
+        }
+      );
+      window.setTimeout(() => {
+        setCentralMessage("Update completed");
+        return loadRecord();
+      }, 1000);
+    } catch (error) {
+      console.error("failed to update type: ", error);
+      setCentralMessage(
+        `Could not update the type, please contact MultimediaTech`
       );
     }
   };
@@ -322,9 +365,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                       content={typeOptions}
                       showTip={true}
                       value={del.type}
-                      onChange={(newvalue) =>
-                        console.log(`You selected ${newvalue}`)
-                      }
+                      onChange={(newvalue) => updateItemType(del.id, newvalue)}
                     />
                   </TableCell>
                   <TableCell>{del.modified_dt}</TableCell>

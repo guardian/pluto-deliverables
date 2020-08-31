@@ -10,9 +10,9 @@ RUN apk add --no-cache alpine-sdk linux-headers openssl-dev libffi-dev mailcap p
     rm -rf /tmp/gnmvidispine && \
     apk --no-cache del alpine-sdk linux-headers openssl-dev libffi-dev postgresql-dev
 COPY manage.py /opt/pluto-deliverables/manage.py
-ADD gnm_deliverables /opt/pluto-deliverables/gnm_deliverables
-#annoying, but until my Mac gets upgraded to support later Docker I can't use chown-in-copy :(
-RUN chown -R nobody /opt/pluto-deliverables
+ADD --chown=nobody:root gnm_deliverables /opt/pluto-deliverables/gnm_deliverables/
+##annoying, but until my Mac gets upgraded to support later Docker I can't use chown-in-copy :(
+#RUN chown -R nobody /opt/pluto-deliverables
 ENV PYTHONPATH=/opt/pluto-deliverables
 RUN mkdir static && python manage.py collectstatic --noinput
 USER nobody

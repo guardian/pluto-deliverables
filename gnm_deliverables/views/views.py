@@ -3,7 +3,6 @@
 import functools  # for reduce()
 import logging
 import re
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -13,10 +12,9 @@ from django.forms.models import modelformset_factory
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import TemplateView
-from django.views.generic.detail import SingleObjectMixin
-# from gnm_misc_utils.csrf_exempt_session_authentication import CsrfExemptSessionAuthentication
 from gnmvidispine.vidispine_api import VSNotFound, VSException
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic import TemplateView, View
 from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView, \
@@ -27,10 +25,17 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
-
+from rest_framework.permissions import AllowAny
+import urllib.parse
+from gnm_deliverables.vs_notification import VSNotification
+from datetime import datetime
+from django.conf import settings
+import functools    #for reduce()
+import urllib.parse
 from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGESTED, \
-    DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING
+    DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING, DELIVERABLE_ASSET_STATUS_TRANSCODED, \
+    DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED, DELIVERABLE_ASSET_STATUS_TRANSCODING
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.exceptions import NoShapeError
 from gnm_deliverables.forms import DeliverableCreateForm
@@ -38,6 +43,7 @@ from gnm_deliverables.models import Deliverable, DeliverableAsset, GNMWebsite, M
     LogEntry
 from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, GNMWebsiteSerializer, \
     YoutubeSerializer, MainstreamSerializer, DailyMotionSerializer
+
 
 logger = logging.getLogger(__name__)
 
@@ -50,9 +56,11 @@ class NewDeliverableUI(TemplateView):
     template_name = "gnm_deliverables/new_ui.html"
 
     def get_context_data(self, **kwargs):
+        full_url = settings.__getattr__("DEPLOYMENT_ROOT")
+        parts = urllib.parse.urlparse(full_url)
         return {
-            "deployment_root": settings.__getattr__("DEPLOYMENT_ROOT"),
-            "cbVersion": "DEV",  ##FIXME: this needs to be injected from config
+            "deployment_root": parts.path,
+            "cbVersion": "DEV", ##FIXME: this needs to be injected from config
         }
 
 
@@ -214,6 +222,121 @@ class AdoptExistingVidispineItemView(APIView):
         except Exception as e:
             logger.exception("Unexpected error adopting VS item {0}: ".format(vs_id))
             return Response({"status": "server_error", "detail": str(e)})
+
+
+class SetTypeView(APIView):
+    """
+    set the deliverable type of the item and  possibly trigger ingest
+    """
+    authentication_classes = (JwtRestAuth, )
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+    parser_classes = (JSONParser, )
+
+    def put(self, request, bundleId, assetId):
+        try:
+            item = DeliverableAsset.objects.get(id=assetId)
+        except DeliverableAsset.DoesNotExist:
+            return Response({"status":"notfound","detail": "No such item exists"},status=404)
+
+        if item.deliverable.pluto_core_project_id!=bundleId:
+            return Response({"status":"notfound","detail":"No such item exists"},status=404)
+
+        if "type" not in request.data:
+            return Response({"status":"error","detail":"No type field in body"},status=400)
+        if not isinstance(request.data["type"], int):
+            return Response({"status":"error","detail":"Type must be an integer identifier"},status=400)
+
+        try:
+            item.type = request.data["type"]
+            if item.online_item_id is None:
+                item.start_file_import(user=request.user.get_username())
+            else:
+                item.save()
+            return Response(status=201)
+        except Exception as e:
+            logger.exception("Could not update item type: ", exc_info=e)
+            return Response({"status":"server_error","detail":str(e)},status=500)
+
+
+class TestCreateProxyView(APIView):
+    authentication_classes = (JwtRestAuth, BasicAuthentication, )
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, bundleId, assetId):
+        try:
+            item = DeliverableAsset.objects.get(id=assetId)
+        except DeliverableAsset.DoesNotExist:
+            return Response({"status":"notfound","detail":"No such item exists"}, status=404)
+
+        try:
+            job_id = item.create_proxy()
+            if job_id is None:
+                return Response({"status":"not_needed", "detail":"A proxy already exists"}, status=409)
+            else:
+                return Response({"status":"ok", "job_id":job_id},status=200)
+        except Exception as e:
+            logger.exception("Could not create proxy for asset id {0}: ".format(assetId), exc_info=e)
+            return Response({"status":"error","detail":str(e)}, status=500)
+
+
+class VSNotifyView(APIView):
+    authentication_classes = (BasicAuthentication, )    #we need to bypass the default of JwtAuthentication for the tests to work.
+    permission_classes = (AllowAny, )                   #we don't have authentication on the VS endpoint
+
+    def post(self, request):
+        logger.debug("Received content from Vidispine: {0}".format(request.body))
+        try:
+            content = VSNotification.from_bytes(request.body)
+        except Exception as e:
+            logger.exception("Could not interpret content from Vidispine: ", exc_info=e)
+            return Response({"status":"error", "detail":str(e)}, status=400)
+
+        vsids = content.vsIDs
+        if content.import_source != "pluto-deliverables":
+            logger.warning("Received a job notification {0} for item {1} that is not ours".format(vsids[1], vsids[0]))
+            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
+
+        try:
+            asset = DeliverableAsset.objects.get(pk=content.asset_id)
+        except DeliverableAsset.DoesNotExist:
+            logger.warning("Received a notification for asset {0} that does not exist".format(content.asset_id))
+            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
+
+        if content.didFail:
+            if content.type == "TRANSCODE":
+                asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED
+            else:
+                asset.status = DELIVERABLE_ASSET_STATUS_INGEST_FAILED
+            asset.ingest_complete_dt = datetime.now()
+            asset.save()
+        elif content.isRunning:
+            if content.type == "TRANSCODE":
+                asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODING
+            else:
+                asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
+            asset.save()
+        elif content.status == "FINISHED":
+            if content.type == "TRANSCODE":
+                asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
+            else:
+                asset.online_item_id = vsids[0]
+                asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
+                try:
+                    asset.create_proxy()
+                except Exception as e:
+                    logger.exception("{0} for asset {1} in bundle {2}: could not create proxy due to:".format(asset.online_item_id,
+                                                                                                              asset.id,
+                                                                                                              asset.deliverable.id),
+                                     exc_info=e)
+
+            #don't delete local files here. We pick those up with a timed job run via a mgt command
+            asset.ingest_complete_dt = datetime.now()
+
+            asset.save()
+        else:
+            logger.warning("Received unknown job status {0} from {1}".format(content.status, vsids[1]))
+        return Response(data=None, status=200)
 
 
 ## -----------------------------------------------------------------------------
