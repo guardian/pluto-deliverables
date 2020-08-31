@@ -12,6 +12,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.models import DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
     LogEntry
 from gnm_deliverables.serializers import GNMWebsiteSerializer, \
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 class MetadataAPIView(APIView):
     metadata_model = None
     metadata_serializer = None
+    authentication_classes = (JwtRestAuth,)
 
     def get(self, request, project_id, asset_id, *args, **kwargs):
         try:
@@ -144,7 +146,6 @@ class MainstreamAPIView(MetadataAPIView):
 
 
 class YoutubeAPIView(MetadataAPIView):
-    permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
     metadata_model = Youtube
@@ -160,7 +161,6 @@ class YoutubeAPIView(MetadataAPIView):
 
 
 class DailyMotionAPIView(MetadataAPIView):
-    permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
     metadata_model = DailyMotion
@@ -176,6 +176,8 @@ class DailyMotionAPIView(MetadataAPIView):
 
 
 class PlatformLogsView(APIView):
+    authentication_classes = (JwtRestAuth,)
+
     def get(self, request, project_id, asset_id, platform):
         try:
             asset = DeliverableAsset.objects.get(
