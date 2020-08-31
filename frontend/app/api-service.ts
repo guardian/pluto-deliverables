@@ -28,10 +28,6 @@ export const deleteProjectDeliverable = async (
   deliverableIds: bigint[]
 ): Promise<void> => {
   try {
-    // Added, otherwise the error "CSRF Failed: CSRF token missing or incorrect." occurs
-    axios.defaults.xsrfCookieName = "csrftoken";
-    axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-
     await axios.delete<void>(`${API_DELIVERABLE}?project_id=${projectId}`, {
       data: deliverableIds,
     });
