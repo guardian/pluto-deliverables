@@ -24,9 +24,13 @@ import {
   DialogActions,
   Input,
   TextField,
+  Collapse,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import {
   RouteComponentProps,
   useHistory,
@@ -38,6 +42,7 @@ import {
   getProjectDeliverables,
   deleteProjectDeliverable,
 } from "./api-service";
+import MasterList from "./MasterList/MasterList";
 
 interface HeaderTitles {
   label: string;
@@ -92,16 +97,20 @@ const useStyles = makeStyles({
     display: "inline",
     marginRight: "1em",
   },
-  visuallyHidden: {
-    border: 0,
-    clip: "rect(0 0 0 0)",
-    height: 1,
-    margin: -1,
-    overflow: "hidden",
-    padding: 0,
-    position: "absolute",
-    top: 20,
-    width: 1,
+  collapsableTableRow: {
+    "& td": {
+      paddingBottom: 0,
+      paddingTop: 0,
+    },
+
+    "& .expandable-cell": {
+      width: "100%",
+    },
+  },
+  root: {
+    "& > *": {
+      borderBottom: "unset",
+    },
   },
 });
 
@@ -280,6 +289,70 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     loadParentBundle();
   }, []);
 
+  const DeliverableRow = (props: { deliverable: Deliverable }) => {
+    const classes = useStyles();
+    const { deliverable } = props;
+    const [open, setOpen] = useState<boolean>(false);
+
+    return (
+      <React.Fragment>
+        <TableRow className={classes.root}>
+          <TableCell>
+            <input
+              type="checkbox"
+              onChange={(evt) => {
+                console.log(
+                  `checkbox ${deliverable.id} changed: ${evt.target.checked}`
+                );
+                if (evt.target.checked) {
+                  setSelectedIDs((prevContent) =>
+                    prevContent.concat(deliverable.id)
+                  );
+                } else {
+                  setSelectedIDs((prevContent) =>
+                    prevContent.filter((value) => value !== deliverable.id)
+                  );
+                }
+              }}
+            />
+          </TableCell>
+          <TableCell>{deliverable.filename}</TableCell>
+          <TableCell>{deliverable.version ?? "-"}</TableCell>
+          <TableCell>{deliverable.size_string ?? "-"}</TableCell>
+          <TableCell>{deliverable.duration ?? "-"}</TableCell>
+          <TableCell>
+            <DeliverableTypeSelector
+              content={typeOptions}
+              showTip={true}
+              value={deliverable.type}
+              onChange={(newvalue) => updateItemType(deliverable.id, newvalue)}
+            />
+          </TableCell>
+          <TableCell>{deliverable.modified_dt}</TableCell>
+          <TableCell>{deliverable.status_string}</TableCell>
+          <TableCell>
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              onClick={() => {
+                setOpen(!open);
+              }}
+            >
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </TableCell>
+        </TableRow>
+        <TableRow className={classes.collapsableTableRow}>
+          <TableCell className="expandable-cell" colSpan={9}>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <MasterList deliverable={deliverable} />
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      </React.Fragment>
+    );
+  };
+
   return (
     <>
       <div>
@@ -332,45 +405,15 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                 {tableHeaderTitles.map((entry, idx) => (
                   <TableCell key={`r${idx}`}>{entry.label}</TableCell>
                 ))}
+                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
               {deliverables.map((del, idx) => (
-                <TableRow key={del.id.toString()}>
-                  <TableCell>
-                    <input
-                      type="checkbox"
-                      onChange={(evt) => {
-                        console.log(
-                          `checkbox ${del.id} changed: ${evt.target.checked}`
-                        );
-                        if (evt.target.checked) {
-                          setSelectedIDs((prevContent) =>
-                            prevContent.concat(del.id)
-                          );
-                        } else {
-                          setSelectedIDs((prevContent) =>
-                            prevContent.filter((value) => value !== del.id)
-                          );
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>{del.filename}</TableCell>
-                  <TableCell>{del.version ?? "-"}</TableCell>
-                  <TableCell>{del.size_string ?? "-"}</TableCell>
-                  <TableCell>{del.duration ?? "-"}</TableCell>
-                  <TableCell>
-                    <DeliverableTypeSelector
-                      content={typeOptions}
-                      showTip={true}
-                      value={del.type}
-                      onChange={(newvalue) => updateItemType(del.id, newvalue)}
-                    />
-                  </TableCell>
-                  <TableCell>{del.modified_dt}</TableCell>
-                  <TableCell>{del.status_string}</TableCell>
-                </TableRow>
+                <DeliverableRow
+                  key={del.id.toString()}
+                  deliverable={del}
+                ></DeliverableRow>
               ))}
             </TableBody>
           </Table>
