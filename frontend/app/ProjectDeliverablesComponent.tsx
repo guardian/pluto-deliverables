@@ -141,6 +141,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       const rescanResult = await axios({
         method: "POST",
         url: `/api/bundle/scan?project_id=${projectid}`,
+        headers: {
+          "X-CSRFToken": Cookies.get("csrftoken"),
+        },
       });
 
       const projectDeliverables = await getProjectDeliverables(projectid);
@@ -231,7 +234,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     try {
       const result = await axios.post(
         `/api/bundle/adopt?project_id=${projectid}&vs_id=${assetToAdd}`,
-        {}
+        {},
+        {
+          headers: {
+            "X-CSRFToken": Cookies.get("csrftoken"),
+          },
+        }
       );
       setCentralMessage(`Attached ${assetToAdd} succeessfully`);
       setAssetToAdd("");

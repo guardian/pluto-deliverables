@@ -94,14 +94,27 @@ const CreateDeliverable: React.FC<RouteComponentProps> = () => {
   }, [commissionIdInput]);
 
   const doCreateProject = async () => {
+    const csrftoken = Cookies.get("csrftoken");
+    if (!csrftoken) {
+      console.warn("Could not find a csrf token! Request will probably fail");
+    }
+
     setIsSaving(true);
 
     try {
-      const result = await axios.post("/api/bundle/new", {
-        pluto_core_project_id: projectIdInput,
-        commission_id: commissionIdInput,
-        name: projectName,
-      });
+      const result = await axios.post(
+        "/api/bundle/new",
+        {
+          pluto_core_project_id: projectIdInput,
+          commission_id: commissionIdInput,
+          name: projectName,
+        },
+        {
+          headers: {
+            "X-CSRFToken": csrftoken,
+          },
+        }
+      );
 
       setIsSaving(false);
       if (result.status == 200) {
