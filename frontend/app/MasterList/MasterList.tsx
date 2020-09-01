@@ -258,21 +258,30 @@ const MasterList: React.FC<MasterListProps> = (props) => {
     return "";
   };
 
-  const getMasterLink = (master: Master, edit = false): string => {
-    const form = edit ? "" : "/new";
-
+  const getMasterLink = (master: Master): string => {
     switch (master.group) {
       case MasterEnum.Guardian:
-        return `${projectIdUrl}/atom${form}`;
+        return `${projectIdUrl}/atom`;
       case MasterEnum.Youtube:
-        return `${projectIdUrl}/youtube${form}`;
+        return `${projectIdUrl}/youtube`;
       case MasterEnum.Dailymotion:
-        return `${projectIdUrl}/dailymotion${form}`;
+        return `${projectIdUrl}/dailymotion`;
       case MasterEnum.Mainstream:
-        return `${projectIdUrl}/mainstream${form}`;
+        return `${projectIdUrl}/mainstream`;
     }
 
     return "";
+  };
+
+  const getMediaLink = (master: Master): string => {
+    switch (master.group) {
+      case MasterEnum.Guardian:
+        return `https://video.gutools.co.uk/${master.link}`;
+      case MasterEnum.Youtube:
+        return `https://www.youtube.com/watch?v=${master.link}`;
+    }
+
+    return master.link || "";
   };
 
   return (
@@ -309,9 +318,9 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                     <a
                       className="no-overflow"
                       target="_blank"
-                      href={master.link}
+                      href={getMediaLink(master)}
                     >
-                      {master.link}
+                      {getMediaLink(master)}
                     </a>
                   ) : (
                     ""
@@ -333,7 +342,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                 </TableCell>
                 <TableCell>
                   {master.title ? (
-                    <IconButton href={getMasterLink(master, true)}>
+                    <IconButton href={getMasterLink(master)}>
                       <EditIcon />
                     </IconButton>
                   ) : (
