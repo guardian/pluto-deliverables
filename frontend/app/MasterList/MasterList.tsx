@@ -189,9 +189,9 @@ const MasterList: React.FC<MasterListProps> = (props) => {
           return {
             group: MasterEnum.Dailymotion,
             publication_date: dailymotionMaster.publication_date,
-            title: "",
-            link: dailymotionMaster.dailymotion_url,
-            tags: dailymotionMaster.dailymotion_tags,
+            title: dailymotionMaster.daily_motion_title,
+            link: dailymotionMaster.daily_motion_url,
+            tags: dailymotionMaster.daily_motion_tags,
           };
         }
         if (master.group === MasterEnum.Mainstream && mainstreamMaster) {
