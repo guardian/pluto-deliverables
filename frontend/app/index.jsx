@@ -9,6 +9,7 @@ import CreateDeliverable from "./CreateDeliverable";
 import { Header, AppSwitcher, handleUnauthorized } from "pluto-headers";
 import NotLoggedIn from "./NotLoggedIn";
 import GuardianMaster from "./Master/GuardianMaster";
+import YoutubeMaster from "./Master/YoutubeMaster";
 import SystemNotification from "./SystemNotification";
 
 require("./app.css");
@@ -120,6 +121,15 @@ class App extends React.Component {
               path="/project/:projectid/asset/:assetid/atom"
               render={(props) => (
                 <GuardianMaster
+                  match={props.match}
+                  isAdmin={this.state.isAdmin}
+                />
+              )}
+            />
+            <Route
+              path="/project/:projectid/asset/:assetid/youtube"
+              render={(props) => (
+                <YoutubeMaster
                   match={props.match}
                   isAdmin={this.state.isAdmin}
                 />

@@ -130,6 +130,75 @@ export const getDeliverableYoutube = async (
   }
 };
 
+export const createYoutubeDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  youtubeMaster: CreateYoutubeMaster
+): Promise<YoutubeMaster> => {
+  const {
+    youtube_id,
+    youtube_title,
+    youtube_description,
+    youtube_tags,
+  } = youtubeMaster;
+  try {
+    const { status, data } = await axios.put<YoutubeMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_YOUTUBE}`,
+      {
+        youtube_id,
+        youtube_title,
+        youtube_description,
+        youtube_tags,
+      }
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not create Asset Youtube Master`);
+    }
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not create Asset Youtube Master`);
+  }
+};
+
+export const updateYoutubeDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  youtubeMaster: YoutubeMaster
+): Promise<YoutubeMaster> => {
+  try {
+    const { status, data } = await axios.put<YoutubeMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_YOUTUBE}`,
+      youtubeMaster
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not update Asset Youtube Master`);
+    }
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not update Asset Youtube Master`);
+  }
+};
+
+export const deleteYoutubeDeliverable = async (
+  deliverableId: string,
+  assetId: string
+): Promise<void> => {
+  try {
+    await axios.delete<void>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_YOUTUBE}`
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not delete Asset Youtube Master`);
+  }
+};
+
 export const getDeliverableDailymotion = async (
   deliverableId: string,
   assetId: string

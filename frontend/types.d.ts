@@ -44,11 +44,15 @@ interface GuardianMaster extends CreateGuardianMaster {
   publication_status: string;
 }
 
-interface YoutubeMaster {
+interface CreateYoutubeMaster {
   youtube_id: string;
   youtube_title: string;
   youtube_description: string;
   youtube_tags: string[];
+}
+
+interface YoutubeMaster extends CreateYoutubeMaster {
+  etag?: string;
   publication_date: string;
   youtube_categories?: string[];
   youtube_channels?: string[];
