@@ -250,3 +250,72 @@ export const getDeliverableMainstream = async (
     return Promise.reject(`Could not fetch Asset Mainstream master`);
   }
 };
+
+export const createMainstreamDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  mainstreamMaster: CreateMainstreamMaster
+): Promise<MainstreamMaster> => {
+  const {
+    mainstream_title,
+    mainstream_description,
+    mainstream_tags,
+    mainstream_rules_contains_adult_content,
+  } = mainstreamMaster;
+  try {
+    const { status, data } = await axios.put<MainstreamMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_MAINSTREAM}`,
+      {
+        mainstream_title,
+        mainstream_description,
+        mainstream_tags,
+        mainstream_rules_contains_adult_content,
+      }
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not create Asset Mainstream Master`);
+    }
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not create Asset Mainstream Master`);
+  }
+};
+
+export const updateMainstreamDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  mainstreamMaster: MainstreamMaster
+): Promise<MainstreamMaster> => {
+  try {
+    const { status, data } = await axios.put<MainstreamMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_MAINSTREAM}`,
+      mainstreamMaster
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not update Asset Mainstream Master`);
+    }
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not update Asset Mainstream Master`);
+  }
+};
+
+export const deleteMainstreamDeliverable = async (
+  deliverableId: string,
+  assetId: string
+): Promise<void> => {
+  try {
+    await axios.delete<void>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_MAINSTREAM}`
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not delete Asset Mainstream Master`);
+  }
+};
