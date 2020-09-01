@@ -11,6 +11,7 @@ import NotLoggedIn from "./NotLoggedIn";
 import GuardianMaster from "./Master/GuardianMaster";
 import YoutubeMaster from "./Master/YoutubeMaster";
 import MainstreamMaster from "./Master/MainstreamMaster";
+import DailymotionMaster from "./Master/DailymotionMaster";
 import SystemNotification from "./SystemNotification";
 
 require("./app.css");
@@ -139,6 +140,10 @@ class App extends React.Component {
             <Route
               path="/project/:projectid/asset/:assetid/mainstream"
               render={(props) => <MainstreamMaster match={props.match} />}
+            />
+            <Route
+              path="/project/:projectid/asset/:assetid/dailymotion"
+              render={(props) => <DailymotionMaster match={props.match} />}
             />
             <Route
               path="/project/:projectid"

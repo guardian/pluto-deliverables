@@ -225,6 +225,79 @@ export const getDeliverableDailymotion = async (
   }
 };
 
+export const createDailymotionDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  dailymotionMaster: CreateDailymotionMaster
+): Promise<DailymotionMaster> => {
+  const {
+    daily_motion_url,
+    daily_motion_title,
+    daily_motion_description,
+    daily_motion_tags,
+    daily_motion_no_mobile_access,
+    daily_motion_contains_adult_content,
+  } = dailymotionMaster;
+  try {
+    const { status, data } = await axios.put<DailymotionMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_DAILYMOTION}`,
+      {
+        daily_motion_url,
+        daily_motion_title,
+        daily_motion_description,
+        daily_motion_tags,
+        daily_motion_no_mobile_access,
+        daily_motion_contains_adult_content,
+      }
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not create Asset Dailymotion Master`);
+    }
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not create Asset Dailymotion Master`);
+  }
+};
+
+export const updateDailymotionDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  dailymotionMaster: DailymotionMaster
+): Promise<DailymotionMaster> => {
+  try {
+    const { status, data } = await axios.put<DailymotionMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_DAILYMOTION}`,
+      dailymotionMaster
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not update Asset Dailymotion Master`);
+    }
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not update Asset Dailymotion Master`);
+  }
+};
+
+export const deleteDailymotionDeliverable = async (
+  deliverableId: string,
+  assetId: string
+): Promise<void> => {
+  try {
+    await axios.delete<void>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_DAILYMOTION}`
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not delete Asset Dailymotion Master`);
+  }
+};
+
 export const getDeliverableMainstream = async (
   deliverableId: string,
   assetId: string

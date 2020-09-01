@@ -58,16 +58,20 @@ interface YoutubeMaster extends CreateYoutubeMaster {
   youtube_channels?: string[];
 }
 
-interface DailymotionMaster {
-  dailymotion_url: string;
-  dailymotion_title: string;
-  dailymotion_description: string;
-  dailymotion_category?: number;
-  dailymotion_tags: string[];
+interface CreateDailymotionMaster {
+  daily_motion_url: string;
+  daily_motion_title: string;
+  daily_motion_description: string;
+  daily_motion_tags: string[];
+  daily_motion_no_mobile_access: boolean;
+  daily_motion_contains_adult_content: boolean;
+}
+
+interface DailymotionMaster extends CreateDailymotionMaster {
+  etag?: string;
+  daily_motion_category?: number;
   publication_date: string;
   upload_status: string;
-  dailymotion_no_mobile_access: boolean;
-  dailymotion_contains_adult_content: boolean;
 }
 
 interface CreateMainstreamMaster {
