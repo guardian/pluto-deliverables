@@ -33,7 +33,42 @@ export const getDeliverableGNM = async (
   }
 };
 
-export const putGNMDeliverable = async (
+export const createGNMDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  guardianMaster: CreateGuardianMaster
+): Promise<GuardianMaster> => {
+  const {
+    production_office,
+    tags,
+    website_title,
+    website_description,
+    primary_tone,
+  } = guardianMaster;
+  try {
+    const { status, data } = await axios.put<GuardianMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_GNM}`,
+      {
+        production_office,
+        tags,
+        website_title,
+        website_description,
+        primary_tone,
+      }
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not create Asset GNM Website`);
+    }
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not create Asset GNM Website`);
+  }
+};
+
+export const updateGNMDeliverable = async (
   deliverableId: string,
   assetId: string,
   guardianMaster: GuardianMaster
@@ -47,17 +82,25 @@ export const putGNMDeliverable = async (
     if (status === 200) {
       return data;
     } else {
-      throw new Error(`Could not fetch Asset GNM Website`);
+      throw new Error(`Could not update Asset GNM Website`);
     }
   } catch (error) {
-    // Due to GET returns 404 if the metadata entry does not exists
-    // do not treat this is an error
-    if (error?.response?.status === 404) {
-      return Promise.reject();
-    }
-
     console.error(error);
-    return Promise.reject(`Could not fetch Asset GNM Website`);
+    return Promise.reject(`Could not update Asset GNM Website`);
+  }
+};
+
+export const deleteGNMDeliverable = async (
+  deliverableId: string,
+  assetId: string
+): Promise<void> => {
+  try {
+    await axios.delete<void>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_GNM}`
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not delete Asset GNM Website`);
   }
 };
 

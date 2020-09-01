@@ -28,15 +28,19 @@ interface Deliverable {
   status_string: string;
 }
 
-interface GuardianMaster {
-  media_atom_id?: string;
-  upload_status: string;
+interface CreateGuardianMaster {
   production_office: string;
   tags: string[];
-  publication_date: string;
   website_title: string;
   website_description: string;
   primary_tone: string;
+}
+
+interface GuardianMaster extends CreateGuardianMaster {
+  etag?: string;
+  media_atom_id?: string;
+  upload_status: string;
+  publication_date: string;
   publication_status: string;
 }
 

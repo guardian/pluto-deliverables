@@ -58,7 +58,7 @@ describe("MasterList", () => {
       {
         publication_date: new Date().toISOString(),
         website_title: "Atom headline",
-        media_atom_id: "https://www.theguardian.com/international",
+        media_atom_id: "atom-2",
         tags: ["primary tag", "source"],
         upload_status: "",
         production_office: "",
@@ -117,7 +117,9 @@ describe("MasterList", () => {
                 masterElement
                   .find(".MuiTableCell-root.MuiTableCell-body.link")
                   .text()
-              ).toEqual(masterList[0].media_atom_id);
+              ).toEqual(
+                `https://video.gutools.co.uk/${masterList[0].media_atom_id}`
+              );
               expect(
                 masterElement
                   .find(".MuiTableCell-root.MuiTableCell-body.platform")
@@ -160,7 +162,7 @@ describe("MasterList", () => {
     const guardianMaster: GuardianMaster = {
       publication_date: new Date().toISOString(),
       website_title: "Atom headline",
-      media_atom_id: "https://www.theguardian.com/international",
+      media_atom_id: "atom-2",
       tags: ["primary tag", "source"],
       upload_status: "",
       production_office: "",
@@ -215,8 +217,8 @@ describe("MasterList", () => {
                 ? guardianMaster.publication_date
                 : youtubeMaster.publication_date;
               const link = isMaster
-                ? guardianMaster.media_atom_id
-                : youtubeMaster.youtube_id;
+                ? `https://video.gutools.co.uk/${guardianMaster.media_atom_id}`
+                : `https://www.youtube.com/watch?v=${youtubeMaster.youtube_id}`;
               const title = isMaster
                 ? guardianMaster.website_title
                 : youtubeMaster.youtube_title;
