@@ -70,11 +70,15 @@ interface DailymotionMaster {
   dailymotion_contains_adult_content: boolean;
 }
 
-interface MainstreamMaster {
+interface CreateMainstreamMaster {
   mainstream_title: string;
   mainstream_description: string;
   mainstream_tags: string[];
   mainstream_rules_contains_adult_content: boolean;
+}
+
+interface MainstreamMaster extends CreateMainstreamMaster {
+  etag?: string;
   upload_status: string;
 }
 
