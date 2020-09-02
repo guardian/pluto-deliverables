@@ -9,6 +9,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import {VidispineItem} from "../vidispine/item/VidispineItem";
 import {VError} from "ts-interface-checker";
+import DurationFormatter from "./DurationFormatter";
 
 interface DeliverableRowProps {
     deliverable: Deliverable;
@@ -38,12 +39,8 @@ const DeliverableRow:React.FC<DeliverableRowProps> = (props) => {
             const response = await axios.get(url);
             const item = new VidispineItem(response.data);  //throws a VError if the data is not valid
             console.log(`Got item data ${item}`)
-            const maybeVersionInfo = item.getMetadataString("__version")
-            try {
-                maybeVersionInfo ? setVersion(parseInt(maybeVersionInfo)) : undefined;
-            } catch (err) {
-                console.error("Vidispine version number was not a number!: ", err);
-            }
+            setVersion(item.getLatestVersion());
+
             const maybeDuration = item.getMetadataString("durationSeconds");
             try {
                 maybeDuration ? setDuration(parseFloat(maybeDuration)) : undefined;
@@ -108,7 +105,7 @@ const DeliverableRow:React.FC<DeliverableRowProps> = (props) => {
                 <TableCell>{props.deliverable.filename}</TableCell>
                 <TableCell>{version ?? "-"}</TableCell>
                 <TableCell>{props.deliverable.size_string ?? "-"}</TableCell>
-                <TableCell>{duration ?? "-"}</TableCell>
+                <TableCell>{duration ? <DurationFormatter durationSeconds={duration}/> : "-"}</TableCell>
                 <TableCell>
                     <DeliverableTypeSelector
                         content={props.typeOptions}

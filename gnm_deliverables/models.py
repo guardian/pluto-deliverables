@@ -402,44 +402,6 @@ class DeliverableAsset(models.Model):
         #     'ABORTED'
         # ]
 
-    def version(self, user):
-        """
-        asks VS to get the version of the item associated with this deliverable.
-        can raise a VSNotFound exception if either the item is not found or there is no original shape
-        :param user:  user to run the operation as
-        :return: the essence version number. Raises on error.
-        """
-        try:
-            return self.item(user).get_shape("original").essence_version
-        except AttributeError:
-            return None
-        except VSException as e:
-            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
-        except VSHTTPError as e:
-            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
-        # item = self.item(user)
-        # shape = get_shape_with_tag(item, 'original')
-        # if shape is None:
-        #     return None
-        # return safeget(shape, 'essenceVersion')
-
-    def duration(self, user):
-        try:
-            current_item = self.item(user)
-            if current_item is None:
-                return None
-
-            duration_string = current_item.get("durationSeconds", allowArray=False)
-            return seconds_to_timestamp(duration_string) if duration_string is not None else None
-        except VSException as e:
-            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
-        except VSHTTPError as e:
-            logger.exception("Could not retrieve version info for {0}: ".format(self.online_item_id), exc_info=e)
-        # item = self.item(user)
-        # fields = get_fields_in_inf(item, ['durationSeconds'])
-        # duration = safeget(fields, 'durationSeconds', 'value', 0, 'value')
-        # return seconds_to_timestamp(duration) if duration is not None else None
-
     @cached_property
     def type_string(self):
         return DELIVERABLE_ASSET_TYPES_DICT.get(self.type)
@@ -447,10 +409,6 @@ class DeliverableAsset(models.Model):
     @cached_property
     def size_string(self):
         return sizeof_fmt(self.size)
-
-    # @cached_property
-    # def changed_string(self):
-    #     return date.strftime('%d/%m/%Y %I:%M %p') if self.changed_dt else ''
 
     def type_allows_many(self):
         return self.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE \

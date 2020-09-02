@@ -26,12 +26,6 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
     def get_status_string(self, obj):
         return DELIVERABLE_ASSET_STATUSES_DICT.get(obj.status, "(not set)")
 
-    # def get_version(self, obj):
-    #     return obj.version(self.user)
-    #
-    # def get_duration(self, obj):
-    #     return obj.duration(self.user)
-
     class Meta:
         model = DeliverableAsset
         fields = ['id', 'type', 'filename', 'size', 'access_dt', 'modified_dt', 'changed_dt',
