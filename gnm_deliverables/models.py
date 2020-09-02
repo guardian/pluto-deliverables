@@ -30,7 +30,7 @@ from .choices import DELIVERABLE_ASSET_TYPE_CHOICES, DELIVERABLE_STATUS_ALL_FILE
     DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS
 from .exceptions import ImportFailedError, NoShapeError
 from .files import get_path_for_deliverable, find_files_for_deliverable, create_folder, \
-    get_local_path_for_deliverable
+    get_local_path_for_deliverable, create_folder_for_deliverable
 from .templatetags.deliverable_tags import sizeof_fmt
 from .transcodepreset import TranscodePresetFinder
 logger = logging.getLogger(__name__)
@@ -127,6 +127,9 @@ class Deliverable(models.Model):
 
     def create_folder(self):
         return create_folder(self.path)
+
+    def create_folder_for_deliverable(self):
+        return create_folder_for_deliverable(self.name)
 
     def create_asset_from_vs_item(self, item_id, user):
         """

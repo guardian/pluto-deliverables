@@ -87,24 +87,19 @@ class NewDeliverablesAPICreate(CreateAPIView):
 
         if bundle.is_valid():
             name = bundle.validated_data['name']
-            logger.info(bundle)
+
             try:
                 path, created = create_folder_for_deliverable(name)
                 if created and path:
-                    logger.info(request,
-                                'Created folder for deliverable at: {path}'.format(path=path))
+                    logger.info('Created folder for deliverable at: %s', path)
 
                     bundle.save()
                     return Response({"status": "ok", "data": bundle.data}, status=200)
                 elif not created and path:
-                    logger.error(request,
-                                 'The folder already existed for deliverable at: {path}'.format(
-                                     path=path))
+                    logger.error('The folder already existed for deliverable at: %s',path)
                     return Response({"status": "conflict", "data": bundle.data}, status=409)
                 else:
-                    logger.error(request,
-                                 'Failed to create folder for deliverable at: {path}'.format(
-                                     path=path))
+                    logger.error('Failed to create folder for deliverable at:  %s',path)
                     return Response({"status": "error", "data": bundle.data}, status=409)
 
             except OSError as e:
@@ -112,7 +107,8 @@ class NewDeliverablesAPICreate(CreateAPIView):
                              'Failed to create folder for {name}: {e}'.format(name=name,
                                                                               e=e.strerror))
                 return Response({"status": "error", "data": e.strerror}, status=500)
-
+        else:
+            return Response({"status": "error", "data": 'not valid bundle format'}, status=500)
 
 class NewDeliverableAssetAPIList(ListAPIView):
     authentication_classes = (JwtRestAuth,)
