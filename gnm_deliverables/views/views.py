@@ -3,47 +3,46 @@
 import functools  # for reduce()
 import logging
 import re
+import urllib.parse
+import urllib.parse
+from datetime import datetime
+
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.db.models.functions import Now
 from django.forms.models import modelformset_factory
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
-from gnmvidispine.vidispine_api import VSNotFound, VSException
+from django.views.generic import TemplateView
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic import TemplateView, View
+from gnmvidispine.vidispine_api import VSNotFound, VSException
 from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView, \
     ListAPIView, CreateAPIView
 from rest_framework.parsers import JSONParser
+from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-import urllib.parse
-from gnm_deliverables.vs_notification import VSNotification
-from datetime import datetime
-from django.conf import settings
-import functools    #for reduce()
-import urllib.parse
-from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
-    DELIVERABLE_ASSET_STATUS_INGESTED, \
-    DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING, DELIVERABLE_ASSET_STATUS_TRANSCODED, \
-    DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED, DELIVERABLE_ASSET_STATUS_TRANSCODING
-from gnm_deliverables.jwt_auth_backend import JwtRestAuth
-from gnm_deliverables.exceptions import NoShapeError
-from gnm_deliverables.forms import DeliverableCreateForm
-from gnm_deliverables.models import Deliverable, DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
-    LogEntry
-from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, GNMWebsiteSerializer, \
-    YoutubeSerializer, MainstreamSerializer, DailyMotionSerializer
 
+from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, \
+    DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
+    DELIVERABLE_ASSET_STATUS_INGESTED, \
+    DELIVERABLE_ASSET_STATUS_INGEST_FAILED, DELIVERABLE_ASSET_STATUS_INGESTING, \
+    DELIVERABLE_ASSET_STATUS_TRANSCODED, \
+    DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED, DELIVERABLE_ASSET_STATUS_TRANSCODING
+from gnm_deliverables.exceptions import NoShapeError
+from gnm_deliverables.files import create_folder_for_deliverable
+from gnm_deliverables.forms import DeliverableCreateForm
+from gnm_deliverables.jwt_auth_backend import JwtRestAuth
+from gnm_deliverables.models import Deliverable, DeliverableAsset
+from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer
+from gnm_deliverables.vs_notification import VSNotification
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +59,7 @@ class NewDeliverableUI(TemplateView):
         parts = urllib.parse.urlparse(full_url)
         return {
             "deployment_root": parts.path,
-            "cbVersion": "DEV", ##FIXME: this needs to be injected from config
+            "cbVersion": "DEV",  ##FIXME: this needs to be injected from config
         }
 
 
@@ -82,6 +81,34 @@ class NewDeliverablesAPICreate(CreateAPIView):
     parser_classes = (JSONParser,)
     serializer_class = DeliverableSerializer
 
+    def post(self, request, *args, **kwargs):
+
+        bundle = DeliverableSerializer(data=request.data)
+
+        if bundle.is_valid():
+            name = bundle.validated_data['name']
+
+            try:
+                path, created = create_folder_for_deliverable(name)
+                if created and path:
+                    logger.info('Created folder for deliverable at: %s', path)
+
+                    bundle.save()
+                    return Response({"status": "ok", "data": bundle.data}, status=200)
+                elif not created and path:
+                    logger.error('The folder already exists for deliverable at: %s', path)
+                    return Response({"status": "already exists", "data": bundle.data}, status=200)
+                else:
+                    logger.error('Failed to create folder for deliverable at:  %s',path)
+                    return Response({"status": "error", "data": bundle.data}, status=409)
+
+            except OSError as e:
+                logger.error(request,
+                             'Failed to create folder for {name}: {e}'.format(name=name,
+                                                                              e=e.strerror))
+                return Response({"status": "error", "data": e.strerror}, status=500)
+        else:
+            return Response({"status": "error", "data": 'not valid bundle format'}, status=500)
 
 class NewDeliverableAssetAPIList(ListAPIView):
     authentication_classes = (JwtRestAuth,)
@@ -228,24 +255,25 @@ class SetTypeView(APIView):
     """
     set the deliverable type of the item and  possibly trigger ingest
     """
-    authentication_classes = (JwtRestAuth, )
-    permission_classes = (IsAuthenticated, )
-    renderer_classes = (JSONRenderer, )
-    parser_classes = (JSONParser, )
+    authentication_classes = (JwtRestAuth,)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
 
     def put(self, request, bundleId, assetId):
         try:
             item = DeliverableAsset.objects.get(id=assetId)
         except DeliverableAsset.DoesNotExist:
-            return Response({"status":"notfound","detail": "No such item exists"},status=404)
+            return Response({"status": "notfound", "detail": "No such item exists"}, status=404)
 
-        if item.deliverable.pluto_core_project_id!=bundleId:
-            return Response({"status":"notfound","detail":"No such item exists"},status=404)
+        if item.deliverable.pluto_core_project_id != bundleId:
+            return Response({"status": "notfound", "detail": "No such item exists"}, status=404)
 
         if "type" not in request.data:
-            return Response({"status":"error","detail":"No type field in body"},status=400)
+            return Response({"status": "error", "detail": "No type field in body"}, status=400)
         if not isinstance(request.data["type"], int):
-            return Response({"status":"error","detail":"Type must be an integer identifier"},status=400)
+            return Response({"status": "error", "detail": "Type must be an integer identifier"},
+                            status=400)
 
         try:
             item.type = request.data["type"]
@@ -256,33 +284,36 @@ class SetTypeView(APIView):
             return Response(status=201)
         except Exception as e:
             logger.exception("Could not update item type: ", exc_info=e)
-            return Response({"status":"server_error","detail":str(e)},status=500)
+            return Response({"status": "server_error", "detail": str(e)}, status=500)
 
 
 class TestCreateProxyView(APIView):
-    authentication_classes = (JwtRestAuth, BasicAuthentication, )
-    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JwtRestAuth, BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, bundleId, assetId):
         try:
             item = DeliverableAsset.objects.get(id=assetId)
         except DeliverableAsset.DoesNotExist:
-            return Response({"status":"notfound","detail":"No such item exists"}, status=404)
+            return Response({"status": "notfound", "detail": "No such item exists"}, status=404)
 
         try:
             job_id = item.create_proxy()
             if job_id is None:
-                return Response({"status":"not_needed", "detail":"A proxy already exists"}, status=409)
+                return Response({"status": "not_needed", "detail": "A proxy already exists"},
+                                status=409)
             else:
-                return Response({"status":"ok", "job_id":job_id},status=200)
+                return Response({"status": "ok", "job_id": job_id}, status=200)
         except Exception as e:
-            logger.exception("Could not create proxy for asset id {0}: ".format(assetId), exc_info=e)
-            return Response({"status":"error","detail":str(e)}, status=500)
+            logger.exception("Could not create proxy for asset id {0}: ".format(assetId),
+                             exc_info=e)
+            return Response({"status": "error", "detail": str(e)}, status=500)
 
 
 class VSNotifyView(APIView):
-    authentication_classes = (BasicAuthentication, )    #we need to bypass the default of JwtAuthentication for the tests to work.
-    permission_classes = (AllowAny, )                   #we don't have authentication on the VS endpoint
+    authentication_classes = (
+    BasicAuthentication,)  # we need to bypass the default of JwtAuthentication for the tests to work.
+    permission_classes = (AllowAny,)  # we don't have authentication on the VS endpoint
 
     def post(self, request):
         logger.debug("Received content from Vidispine: {0}".format(request.body))
@@ -290,18 +321,21 @@ class VSNotifyView(APIView):
             content = VSNotification.from_bytes(request.body)
         except Exception as e:
             logger.exception("Could not interpret content from Vidispine: ", exc_info=e)
-            return Response({"status":"error", "detail":str(e)}, status=400)
+            return Response({"status": "error", "detail": str(e)}, status=400)
 
         vsids = content.vsIDs
         if content.import_source != "pluto-deliverables":
-            logger.warning("Received a job notification {0} for item {1} that is not ours".format(vsids[1], vsids[0]))
-            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
+            logger.warning(
+                "Received a job notification {0} for item {1} that is not ours".format(vsids[1],
+                                                                                       vsids[0]))
+            return Response(data=None, status=200)  # VS doesn't need to know, nod and smile
 
         try:
             asset = DeliverableAsset.objects.get(pk=content.asset_id)
         except DeliverableAsset.DoesNotExist:
-            logger.warning("Received a notification for asset {0} that does not exist".format(content.asset_id))
-            return Response(data=None, status=200)  #VS doesn't need to know, nod and smile
+            logger.warning("Received a notification for asset {0} that does not exist".format(
+                content.asset_id))
+            return Response(data=None, status=200)  # VS doesn't need to know, nod and smile
 
         if content.didFail:
             if content.type == "TRANSCODE":
@@ -325,17 +359,20 @@ class VSNotifyView(APIView):
                 try:
                     asset.create_proxy()
                 except Exception as e:
-                    logger.exception("{0} for asset {1} in bundle {2}: could not create proxy due to:".format(asset.online_item_id,
-                                                                                                              asset.id,
-                                                                                                              asset.deliverable.id),
-                                     exc_info=e)
+                    logger.exception(
+                        "{0} for asset {1} in bundle {2}: could not create proxy due to:".format(
+                            asset.online_item_id,
+                            asset.id,
+                            asset.deliverable.id),
+                        exc_info=e)
 
-            #don't delete local files here. We pick those up with a timed job run via a mgt command
+            # don't delete local files here. We pick those up with a timed job run via a mgt command
             asset.ingest_complete_dt = datetime.now()
 
             asset.save()
         else:
-            logger.warning("Received unknown job status {0} from {1}".format(content.status, vsids[1]))
+            logger.warning(
+                "Received unknown job status {0} from {1}".format(content.status, vsids[1]))
         return Response(data=None, status=200)
 
 
@@ -883,4 +920,3 @@ class DeliverableAPIRetrieveView(RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = DeliverableSerializer
     model = Deliverable
-

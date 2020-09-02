@@ -1,3 +1,4 @@
+import json
 from collections import namedtuple
 from datetime import datetime
 
@@ -5,10 +6,12 @@ import mock
 import pytz
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.urls import reverse
+from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from gnm_deliverables.models import Deliverable
-from gnm_deliverables.views.views import CountDeliverablesView
+from gnm_deliverables.views.views import CountDeliverablesView, NewDeliverablesAPICreate
 
 
 class TestDeliverablesBundle(TestCase):
@@ -93,3 +96,50 @@ class TestDeliverablesBundle(TestCase):
 
             expected_response = {"total_asset_count": 2, "unimported_asset_count": 2}
             self.assertEqual(response.data, expected_response)
+
+
+class TestPostNewDeliverableBundle(TestCase):
+
+    def setUp(self) -> None:
+        self.deliverable = {
+            "project_id": "1",
+            "pluto_core_project_id": 1,
+            "commission_id": 1,
+            "name": "testbundle"
+        }
+        self.user = User.objects.create_user(
+            'user01', 'user01@example.com', 'user01P4ssw0rD')
+
+    def test_create_bundle_and_asset_folder(self):
+
+        with mock.patch("gnm_deliverables.files.create_folder") as mock_create_folder:
+            mock_create_folder.return_value = '/media/shared/testbundle', True
+            factory = APIRequestFactory()
+
+            request = factory.post(reverse('bundle-create'),
+                                   json.dumps(self.deliverable),
+                                   content_type='application/json'
+                                   )
+            force_authenticate(request, user=self.user)
+            view = NewDeliverablesAPICreate.as_view()
+            response = view(request)
+            mock_create_folder.assert_called_once()
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data['data'].get('local_path'), '/Volumes/shared/testbundle')
+
+    def test_create_bundle_and_asset_folder_already_exists(self):
+        with mock.patch("gnm_deliverables.files.create_folder") as mock_create_folder:
+            mock_create_folder.return_value = '/media/shared/testbundle', False
+            factory = APIRequestFactory()
+
+            request = factory.post(reverse('bundle-create'),
+                                   json.dumps(self.deliverable),
+                                   content_type='application/json'
+                                   )
+            force_authenticate(request, user=self.user)
+            view = NewDeliverablesAPICreate.as_view()
+            response = view(request)
+            mock_create_folder.assert_called_once()
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)

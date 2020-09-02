@@ -16,7 +16,7 @@ urlpatterns = [
     # path(r'list/', login_required(DeliverablesListView.as_view()), name='deliverables'),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/setType', SetTypeView.as_view()),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/createProxy', TestCreateProxyView.as_view()),
-    path(r'api/bundle/new', NewDeliverablesAPICreate.as_view()),
+    path(r'api/bundle/new', NewDeliverablesAPICreate.as_view(), name='bundle-create'),
     path(r'api/bundle/scan', NewDeliverableAPIScan.as_view()),
     path(r'api/bundle/adopt', AdoptExistingVidispineItemView.as_view(), name="adopt-asset"),
     path(r'api/bundle', NewDeliverablesAPIList.as_view(), name="new-api-list"),
