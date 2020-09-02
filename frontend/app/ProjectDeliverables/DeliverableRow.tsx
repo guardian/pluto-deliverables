@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Collapse, IconButton, TableCell, TableRow} from "@material-ui/core";
 import DeliverableTypeSelector from "../DeliverableTypeSelector";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
@@ -7,6 +7,8 @@ import MasterList from "../MasterList/MasterList";
 import {ClassNameMap} from "@material-ui/core/styles/withStyles";
 import axios from "axios";
 import Cookies from "js-cookie";
+import {VidispineItem} from "../vidispine/item/VidispineItem";
+import {VError} from "ts-interface-checker";
 
 interface DeliverableRowProps {
     deliverable: Deliverable;
@@ -16,10 +18,52 @@ interface DeliverableRowProps {
     setCentralMessage:(msg:string)=>void;
     onCheckedUpdated:(isChecked:boolean)=>void;
     onNeedsUpdate:(assetId:bigint)=>void;
+    onOnlineLoadError?:(err:string)=>void;
+    vidispineBasePath:string;
 }
 
 const DeliverableRow:React.FC<DeliverableRowProps> = (props) => {
     const [open, setOpen] = useState<boolean>(false);
+    const [version, setVersion] = useState<number|undefined>(undefined);
+    const [duration, setDuration] = useState<number|undefined>(undefined);
+
+    const updateVidispineItem = async (attempt:number) => {
+        if(!props.deliverable.online_item_id) {
+            console.log(`Deliverable asset ${props.deliverable.filename} has no online item id`);
+            return;
+        }
+
+        const url = `${props.vidispineBasePath}/API/item/${props.deliverable.online_item_id}?content=metadata&field=__version,durationSeconds`;
+        try {
+            const response = await axios.get(url);
+            const item = new VidispineItem(response.data);  //throws a VError if the data is not valid
+            console.log(`Got item data ${item}`)
+            const maybeVersionInfo = item.getMetadataString("__version")
+            try {
+                maybeVersionInfo ? setVersion(parseInt(maybeVersionInfo)) : undefined;
+            } catch (err) {
+                console.error("Vidispine version number was not a number!: ", err);
+            }
+            const maybeDuration = item.getMetadataString("durationSeconds");
+            try {
+                maybeDuration ? setDuration(parseFloat(maybeDuration)) : undefined;
+            } catch(err) {
+                console.error("Vidispine durationSeconds was not a number!: ", err);
+            }
+        } catch(err) {
+            if(err instanceof VError) {
+                console.error("Vidispine sent an invalid response: ", err);
+                if(props.onOnlineLoadError) props.onOnlineLoadError("Vidispine sent an invalid response");
+            } else {
+                console.error("Could not load data from Vidispine: ", err);
+                if(props.onOnlineLoadError) props.onOnlineLoadError("Could not communicate with Vidispine")
+            }
+        }
+    }
+
+    useEffect(()=>{
+        updateVidispineItem(0);
+    }, []);
 
     const updateItemType = async (assetId: bigint, newvalue: number) => {
         const url = `/api/bundle/${props.parentBundleInfo?.pluto_core_project_id}/asset/${assetId}/setType`;
@@ -62,9 +106,9 @@ const DeliverableRow:React.FC<DeliverableRowProps> = (props) => {
                     />
                 </TableCell>
                 <TableCell>{props.deliverable.filename}</TableCell>
-                <TableCell>{props.deliverable.version ?? "-"}</TableCell>
+                <TableCell>{version ?? "-"}</TableCell>
                 <TableCell>{props.deliverable.size_string ?? "-"}</TableCell>
-                <TableCell>{props.deliverable.duration ?? "-"}</TableCell>
+                <TableCell>{duration ?? "-"}</TableCell>
                 <TableCell>
                     <DeliverableTypeSelector
                         content={props.typeOptions}

@@ -17,7 +17,9 @@ interface Deliverable {
   modified_dt: string;
   changed_dt: string;
   job_id: string | null;
-  item_id: string | null;
+  online_item_id: string | null;
+  nearline_item_id: string | null;
+  archive_item_id: string | null;
   deliverable: bigint;
   has_ongoing_job: boolean | null;
   status: bigint;

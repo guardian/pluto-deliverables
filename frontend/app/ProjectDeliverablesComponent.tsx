@@ -52,6 +52,9 @@ interface HeaderTitles {
 
 declare var deploymentRootPath: string;
 
+//FIXME: for testing only!!
+const vidispineBasePath = "https://vidispine.local";
+
 const tableHeaderTitles: HeaderTitles[] = [
   { label: "Selector", key: "id" },
   { label: "Filename", key: "filename" },
@@ -337,6 +340,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                   }
                   parentBundleInfo={parentBundleInfo}
                   onNeedsUpdate={()=>loadRecord()}
+                  vidispineBasePath={vidispineBasePath}
                 />
               ))}
             </TableBody>

@@ -7,8 +7,8 @@ from .models import DeliverableAsset, Deliverable, GNMWebsite, Youtube, Mainstre
 
 
 class DeliverableAssetSerializer(serializers.ModelSerializer):
-    version = serializers.SerializerMethodField('get_version')
-    duration = serializers.SerializerMethodField('get_duration')
+    # version = serializers.SerializerMethodField('get_version')
+    # duration = serializers.SerializerMethodField('get_duration')
     type_string = serializers.CharField(read_only=True)
     size_string = serializers.CharField(read_only=True)
     status_string = serializers.SerializerMethodField('get_status_string')
@@ -26,18 +26,18 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
     def get_status_string(self, obj):
         return DELIVERABLE_ASSET_STATUSES_DICT.get(obj.status, "(not set)")
 
-    def get_version(self, obj):
-        return obj.version(self.user)
-
-    def get_duration(self, obj):
-        return obj.duration(self.user)
+    # def get_version(self, obj):
+    #     return obj.version(self.user)
+    #
+    # def get_duration(self, obj):
+    #     return obj.duration(self.user)
 
     class Meta:
         model = DeliverableAsset
         fields = ['id', 'type', 'filename', 'size', 'access_dt', 'modified_dt', 'changed_dt',
                   'job_id', 'online_item_id', 'nearline_item_id', 'archive_item_id',
-                  'deliverable', 'status', 'type_string', 'version',
-                  'duration', 'size_string', 'status_string', 'changed_string',
+                  'deliverable', 'status', 'type_string',
+                  'size_string', 'status_string', 'changed_string',
                   'gnm_website_master', 'youtube_master', 'DailyMotion_master',
                   'mainstream_master']
         read_only_fields = ['id', 'filename', 'size', 'access_dt', 'modified_dt',
