@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 import { VidispineItem } from "../vidispine/item/VidispineItem";
 import { VError } from "ts-interface-checker";
 import DurationFormatter from "./DurationFormatter";
+import VidispineJobProgress from "./VidispineJobProgress";
 
 interface DeliverableRowProps {
   deliverable: Deliverable;
@@ -123,6 +124,14 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           />
         </TableCell>
         <TableCell>{props.deliverable.modified_dt}</TableCell>
+        <TableCell>
+          {props.deliverable.job_id ? (
+            <VidispineJobProgress
+              jobId={props.deliverable.job_id}
+              vidispineBaseUrl={props.vidispineBasePath}
+            />
+          ) : null}
+        </TableCell>
         <TableCell>{props.deliverable.status_string}</TableCell>
         <TableCell>
           <IconButton

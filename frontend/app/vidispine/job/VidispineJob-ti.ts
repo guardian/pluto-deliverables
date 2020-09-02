@@ -11,13 +11,13 @@ export const JobMetadata = t.iface([], {
 
 export const JobStepProgress = t.iface([], {
   value: "number",
-  total: "number",
+  total: t.opt("number"),
   unit: t.opt("string"),
 });
 
 export const VidispineJobStep = t.iface([], {
   description: t.opt("string"),
-  number: "number",
+  number: t.opt("number"),
   status: t.union(
     t.lit("NONE"),
     t.lit("READY"),
@@ -28,7 +28,7 @@ export const VidispineJobStep = t.iface([], {
     t.lit("STARTED_SUBTASKS"),
     t.lit("FINISHED"),
     t.lit("FAILED_RETRY"),
-    t.lit("FAILED_FATAL"),
+    t.lit("FAILED_TOTAL"),
     t.lit("WAITING"),
     t.lit("DISAPPEARED")
   ),
@@ -41,7 +41,7 @@ export const VidispineJobLog = t.iface([], {
   task: t.array("VidispineJobStep"),
 });
 
-export const VidispineJob = t.iface([], {
+export const VidispineJobIF = t.iface([], {
   jobId: "string",
   user: t.opt("string"),
   started: t.opt("string"),
@@ -83,8 +83,9 @@ export const VidispineJob = t.iface([], {
     t.lit("IMF_ANALYZE")
   ),
   priority: t.union(t.lit("HIGH"), t.lit("MEDIUM"), t.lit("LOW")),
-  currentStep: t.opt("JobMetadata"),
-  data: t.opt(t.array("VidispineJobStep")),
+  currentStep: t.opt("VidispineJobStep"),
+  data: t.opt(t.array("JobMetadata")),
+  steps: t.opt(t.array("VidispineJobStep")),
   totalSteps: "number",
   log: t.opt("VidispineJobLog"),
 });
@@ -94,6 +95,6 @@ const exportedTypeSuite: t.ITypeSuite = {
   JobStepProgress,
   VidispineJobStep,
   VidispineJobLog,
-  VidispineJob,
+  VidispineJobIF,
 };
 export default exportedTypeSuite;

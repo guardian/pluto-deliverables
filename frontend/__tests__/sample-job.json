@@ -1,0 +1,187 @@
+{
+  "jobId": "VX-21",
+  "user": "admin",
+  "started": "2020-08-21T09:04:04.032+0000",
+  "finished": "2020-08-21T09:04:19.975+0000",
+  "status": "FINISHED",
+  "type": "ESSENCE_VERSION",
+  "priority": "MEDIUM",
+  "currentStep": {
+    "description": "Finalizing media check.",
+    "number": 9,
+    "status": "FINISHED"
+  },
+  "data": [
+    { "key": "item", "value": "VX-32" },
+    { "key": "shapeIds", "value": "VX-33" },
+    { "key": "transcodeDurations", "value": "412222000@1000000" },
+    { "key": "transcodeEstimatedTimeLeft", "value": "4.6708E-6" },
+    { "key": "transcodeMediaTimes", "value": "19786624@48000" },
+    { "key": "transcodeProgress", "value": "99.9998" },
+    { "key": "transcodeWallTime", "value": "2.90233" }
+  ],
+  "totalSteps": 9,
+  "log": {
+    "task": [
+      {
+        "step": 50,
+        "attempts": 0,
+        "status": "FINISHED",
+        "timestamp": "2020-08-21T09:09:04.297+0000",
+        "description": "Closing transfer.",
+        "subTask": [],
+        "id": 452
+      },
+      {
+        "step": 100,
+        "attempts": 0,
+        "status": "FINISHED",
+        "timestamp": "2020-08-21T09:09:04.512+0000",
+        "description": "Setting up.",
+        "subStep": [
+          {
+            "timestamp": "2020-08-21T09:04:12.692+0000",
+            "description": "No thumbnail resource defined. Thumbnails will not be created."
+          }
+        ],
+        "subTask": [],
+        "id": 453
+      },
+      {
+        "step": 200,
+        "attempts": 0,
+        "status": "FINISHED",
+        "timestamp": "2020-08-21T09:09:11.238+0000",
+        "description": "Transferring content.",
+        "progress": { "value": 768506239, "total": 768506239, "unit": "bytes" },
+        "subStep": [
+          {
+            "timestamp": "2020-08-21T09:04:04.553+0000",
+            "description": "Transferring from URI file:///tmp/test/Live%20in%20Littlebourne.mp4 to file with id VX-16"
+          }
+        ],
+        "subTask": [],
+        "id": 454
+      },
+      {
+        "step": 300,
+        "attempts": 0,
+        "status": "FINISHED",
+        "timestamp": "2020-08-21T09:09:12.340+0000",
+        "description": "Performing media check.",
+        "subStep": [
+          {
+            "timestamp": "2020-08-21T09:04:11.284+0000",
+            "description": "Using http://localhost:8888/ to check file:///srv/media/VX-16.mp4"
+          },
+          {
+            "timestamp": "2020-08-21T09:04:11.299+0000",
+            "description": "Using http://localhost:8888/ to check file:///srv/media/VX-16.mp4"
+          }
+        ],
+        "subTask": [],
+        "id": 455
+      },
+      {
+        "step": 400,
+        "attempts": 0,
+        "status": "FINISHED",
+        "timestamp": "2020-08-21T09:09:12.604+0000",
+        "description": "Analyzing media check.",
+        "subStep": [
+          {
+            "timestamp": "2020-08-21T09:04:12.503+0000",
+            "description": "Created shape: VX-32"
+          }
+        ],
+        "subTask": [],
+        "id": 456
+      },
+      {
+        "step": 500,
+        "attempts": 0,
+        "status": "FINISHED",
+        "timestamp": "2020-08-21T09:09:12.791+0000",
+        "description": "Preparing transcode.",
+        "subStep": [
+          {
+            "timestamp": "2020-08-21T09:04:12.713+0000",
+            "description": "Created shape: VX-33"
+          },
+          {
+            "timestamp": "2020-08-21T09:04:12.721+0000",
+            "description": "Created file: VX-17 (VX-17.mov on storage VX-4) for transcoding into shape tag: original"
+          }
+        ],
+        "subTask": [],
+        "id": 457
+      },
+      {
+        "step": 600,
+        "attempts": 0,
+        "status": "FINISHED",
+        "timestamp": "2020-08-21T09:09:19.095+0000",
+        "description": "Transcoding.",
+        "progress": {
+          "value": 99.99980163574219,
+          "total": 100,
+          "unit": "percent"
+        },
+        "subStep": [
+          {
+            "timestamp": "2020-08-21T09:04:12.845+0000",
+            "description": "Starting transcode"
+          }
+        ],
+        "subTask": [],
+        "id": 458
+      },
+      {
+        "step": 700,
+        "attempts": 0,
+        "status": "FINISHED",
+        "timestamp": "2020-08-21T09:09:19.666+0000",
+        "description": "Performing media check.",
+        "subStep": [
+          {
+            "timestamp": "2020-08-21T09:04:19.272+0000",
+            "description": "Indexing item."
+          },
+          {
+            "timestamp": "2020-08-21T09:04:19.313+0000",
+            "description": "Media checking file: VX-17"
+          },
+          {
+            "timestamp": "2020-08-21T09:04:19.327+0000",
+            "description": "Using http://localhost:8888/ to check file:///srv/media/VX-17.mov"
+          },
+          {
+            "timestamp": "2020-08-21T09:04:19.335+0000",
+            "description": "Using http://localhost:8888/ to check file:///srv/media/VX-17.mov"
+          }
+        ],
+        "subTask": [],
+        "id": 459
+      },
+      {
+        "step": 800,
+        "attempts": 0,
+        "status": "FINISHED",
+        "timestamp": "2020-08-21T09:09:19.944+0000",
+        "description": "Finalizing media check.",
+        "subStep": [
+          {
+            "timestamp": "2020-08-21T09:04:19.723+0000",
+            "description": "Closed Captions(EIA-608,CEA-708) not found. Skipping step"
+          },
+          {
+            "timestamp": "2020-08-21T09:04:19.832+0000",
+            "description": "Indexing item."
+          }
+        ],
+        "subTask": [],
+        "id": 460
+      }
+    ]
+  }
+}

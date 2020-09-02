@@ -63,6 +63,7 @@ const tableHeaderTitles: HeaderTitles[] = [
   { label: "Duration", key: "duration" },
   { label: "Type", key: "type" },
   { label: "Last modified", key: "modified_dt" },
+  { label: "Import progress", key: "job_id" },
   { label: "Action/status", key: "status" },
 ];
 

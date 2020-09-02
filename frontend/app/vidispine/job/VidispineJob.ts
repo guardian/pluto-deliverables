@@ -8,13 +8,13 @@ interface JobMetadata {
 
 interface JobStepProgress {
   value: number;
-  total: number;
+  total?: number;
   unit?: string;
 }
 
 interface VidispineJobStep {
   description?: string;
-  number: number;
+  number?: number;
   status:
     | "NONE"
     | "READY"
@@ -25,7 +25,7 @@ interface VidispineJobStep {
     | "STARTED_SUBTASKS"
     | "FINISHED"
     | "FAILED_RETRY"
-    | "FAILED_FATAL"
+    | "FAILED_TOTAL"
     | "WAITING"
     | "DISAPPEARED";
   attempts?: number;
@@ -37,7 +37,7 @@ interface VidispineJobLog {
   task: VidispineJobStep[];
 }
 
-interface VidispineJob {
+interface VidispineJobIF {
   jobId: string;
   user?: string;
   started?: string;
@@ -78,9 +78,69 @@ interface VidispineJob {
     | "FILE_ANALYZE"
     | "IMF_ANALYZE";
   priority: "HIGH" | "MEDIUM" | "LOW";
-  currentStep?: JobMetadata;
-  data?: VidispineJobStep[];
+  currentStep?: VidispineJobStep;
+  data?: JobMetadata[];
+  steps?: VidispineJobStep[];
   totalSteps: number;
   log?: VidispineJobLog;
 }
 
+const {
+  JobMetadata,
+  JobStepProgress,
+  VidispineJobStep,
+  VidispineJobLog,
+  VidispineJobIF,
+} = createCheckers(VidispineJobTI);
+
+class VidispineJob {
+  data: VidispineJobIF;
+
+  /**
+   * try to construct a VidispineJob from an untyped object. Raises a VError if it does not validate
+   * @param fromObject object to create from
+   */
+  constructor(fromObject: any) {
+    VidispineJobIF.check(fromObject);
+    this.data = fromObject as VidispineJobIF;
+    return this;
+  }
+
+  /**
+   * returns the values of all metadata keys matching the given key
+   * @param key key to look for
+   * @return a string array of values, which can be empty if metadata is defined but there are no matching keys
+   */
+  getMetadataArray(key: string): string[] | undefined {
+    const maybeValues = this.data.data
+      ? this.data.data.filter((entry) => entry.key === key)
+      : undefined;
+    return maybeValues ? maybeValues.map((entry) => entry.value) : undefined;
+  }
+
+  /**
+   * returns a single metadata value, the first one matching the given key or undefined if there is no metadata or
+   * no keys matching
+   * @param key key to look for
+   * @return the metadata value or undefined
+   */
+  getMetadata(key: string): string | undefined {
+    const maybeValues = this.getMetadataArray(key);
+    return maybeValues && maybeValues.length > 0 ? maybeValues[0] : undefined;
+  }
+
+  /**
+   * returns true if the job is in any completed state
+   */
+  didFinish(): boolean {
+    return (
+      this.data.status == "FINISHED" ||
+      this.data.status == "FINISHED_WARNING" ||
+      this.data.status == "FAILED_TOTAL" ||
+      this.data.status == "WAITING" ||
+      this.data.status == "ABORTED_PENDING" ||
+      this.data.status == "ABORTED"
+    );
+  }
+}
+export { VidispineJob };
