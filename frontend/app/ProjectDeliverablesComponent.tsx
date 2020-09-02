@@ -43,6 +43,7 @@ import {
   deleteProjectDeliverable,
 } from "./api-service";
 import MasterList from "./MasterList/MasterList";
+import DeliverableRow from "./ProjectDeliverables/DeliverableRow";
 
 interface HeaderTitles {
   label: string;
@@ -254,32 +255,6 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     }
   };
 
-  const updateItemType = async (assetId: bigint, newvalue: number) => {
-    const url = `/api/bundle/${parentBundleInfo?.pluto_core_project_id}/asset/${assetId}/setType`;
-
-    try {
-      setCentralMessage("Updating item type...");
-      await axios.put(
-        url,
-        { type: newvalue },
-        {
-          headers: {
-            "X-CSRFToken": Cookies.get("csrftoken"),
-          },
-        }
-      );
-      window.setTimeout(() => {
-        setCentralMessage("Update completed");
-        return loadRecord();
-      }, 1000);
-    } catch (error) {
-      console.error("failed to update type: ", error);
-      setCentralMessage(
-        `Could not update the type, please contact MultimediaTech`
-      );
-    }
-  };
-
   const getSelectedDeliverables = (): Deliverable[] =>
     deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
 
@@ -289,69 +264,6 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     loadParentBundle();
   }, []);
 
-  const DeliverableRow = (props: { deliverable: Deliverable }) => {
-    const classes = useStyles();
-    const { deliverable } = props;
-    const [open, setOpen] = useState<boolean>(false);
-
-    return (
-      <React.Fragment>
-        <TableRow className={classes.root}>
-          <TableCell>
-            <input
-              type="checkbox"
-              onChange={(evt) => {
-                console.log(
-                  `checkbox ${deliverable.id} changed: ${evt.target.checked}`
-                );
-                if (evt.target.checked) {
-                  setSelectedIDs((prevContent) =>
-                    prevContent.concat(deliverable.id)
-                  );
-                } else {
-                  setSelectedIDs((prevContent) =>
-                    prevContent.filter((value) => value !== deliverable.id)
-                  );
-                }
-              }}
-            />
-          </TableCell>
-          <TableCell>{deliverable.filename}</TableCell>
-          <TableCell>{deliverable.version ?? "-"}</TableCell>
-          <TableCell>{deliverable.size_string ?? "-"}</TableCell>
-          <TableCell>{deliverable.duration ?? "-"}</TableCell>
-          <TableCell>
-            <DeliverableTypeSelector
-              content={typeOptions}
-              showTip={true}
-              value={deliverable.type}
-              onChange={(newvalue) => updateItemType(deliverable.id, newvalue)}
-            />
-          </TableCell>
-          <TableCell>{deliverable.modified_dt}</TableCell>
-          <TableCell>{deliverable.status_string}</TableCell>
-          <TableCell>
-            <IconButton
-              aria-label="expand row"
-              size="small"
-              onClick={() => {
-                setOpen(!open);
-              }}
-            >
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
-          </TableCell>
-        </TableRow>
-        <TableRow className={classes.collapsableTableRow}>
-          <TableCell className="expandable-cell" colSpan={9}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <MasterList deliverable={deliverable} />
-            </Collapse>
-          </TableCell>
-        </TableRow>
-      </React.Fragment>
-    );
-  };
 
   return (
     <>
@@ -413,7 +325,19 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                 <DeliverableRow
                   key={del.id.toString()}
                   deliverable={del}
-                ></DeliverableRow>
+                  classes={classes}
+                  typeOptions={typeOptions}
+                  setCentralMessage={setCentralMessage}
+                  onCheckedUpdated={(isChecked)=>isChecked ?
+                      setSelectedIDs((prevContent) =>
+                          prevContent.concat(del.id)
+                      ) :  setSelectedIDs((prevContent) =>
+                          prevContent.filter((value) => value !== del.id)
+                      )
+                  }
+                  parentBundleInfo={parentBundleInfo}
+                  onNeedsUpdate={()=>loadRecord()}
+                />
               ))}
             </TableBody>
           </Table>
