@@ -86,24 +86,30 @@ class VidispineItem implements ItemIF {
   /**
    * returns an array of version numbers, if it is present in the retrieved metadata
    */
-  getVersions():Array<number> | undefined {
+  getVersions(): Array<number> | undefined {
     const maybeValues = this.getMetadataValues("__version");
-    return maybeValues ? maybeValues.map(stringValue=>{
-      try {
-        return parseInt(stringValue);
-      } catch(err) {
-        console.warn("VS version was not a number");
-        return undefined;
-      }
-    }).filter(maybeValue=>maybeValue!==undefined) as Array<number>: undefined;
+    return maybeValues
+      ? (maybeValues
+          .map((stringValue) => {
+            try {
+              return parseInt(stringValue);
+            } catch (err) {
+              console.warn("VS version was not a number");
+              return undefined;
+            }
+          })
+          .filter((maybeValue) => maybeValue !== undefined) as Array<number>)
+      : undefined;
   }
 
   /**
    * returns the latest version number, if there is any version data present
    */
-  getLatestVersion():number|undefined {
+  getLatestVersion(): number | undefined {
     const maybeVersions = this.getVersions();
-    const sortedVersions = maybeVersions ? maybeVersions.sort((a,b)=>b-a) : undefined;
+    const sortedVersions = maybeVersions
+      ? maybeVersions.sort((a, b) => b - a)
+      : undefined;
     return sortedVersions ? sortedVersions[0] : undefined;
   }
 

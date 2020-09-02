@@ -267,7 +267,6 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     loadParentBundle();
   }, []);
 
-
   return (
     <>
       <div>
@@ -331,15 +330,17 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                   classes={classes}
                   typeOptions={typeOptions}
                   setCentralMessage={setCentralMessage}
-                  onCheckedUpdated={(isChecked)=>isChecked ?
-                      setSelectedIDs((prevContent) =>
+                  onCheckedUpdated={(isChecked) =>
+                    isChecked
+                      ? setSelectedIDs((prevContent) =>
                           prevContent.concat(del.id)
-                      ) :  setSelectedIDs((prevContent) =>
+                        )
+                      : setSelectedIDs((prevContent) =>
                           prevContent.filter((value) => value !== del.id)
-                      )
+                        )
                   }
                   parentBundleInfo={parentBundleInfo}
-                  onNeedsUpdate={()=>loadRecord()}
+                  onNeedsUpdate={() => loadRecord()}
                   vidispineBasePath={vidispineBasePath}
                 />
               ))}

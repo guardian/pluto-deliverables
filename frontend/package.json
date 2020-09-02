@@ -13,7 +13,8 @@
     "clean": "rm -rf node_modules ../public/javascripts/bundle.js",
     "snyk-protect": "snyk protect",
     "lint": "prettier --check app",
-    "lint:fix": "prettier --write app __tests__"
+    "lint:fix": "prettier --write app __tests__",
+    "update-interfaces": "ts-interface-builder app/vidispine/item/VidispineItem.ts app/vidispine/job/VidispineJob.ts"
   },
   "jest": {
     "moduleFileExtensions": [
