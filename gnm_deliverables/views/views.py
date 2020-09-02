@@ -96,8 +96,8 @@ class NewDeliverablesAPICreate(CreateAPIView):
                     bundle.save()
                     return Response({"status": "ok", "data": bundle.data}, status=200)
                 elif not created and path:
-                    logger.error('The folder already existed for deliverable at: %s',path)
-                    return Response({"status": "conflict", "data": bundle.data}, status=409)
+                    logger.error('The folder already exists for deliverable at: %s', path)
+                    return Response({"status": "already exists", "data": bundle.data}, status=200)
                 else:
                     logger.error('Failed to create folder for deliverable at:  %s',path)
                     return Response({"status": "error", "data": bundle.data}, status=409)
