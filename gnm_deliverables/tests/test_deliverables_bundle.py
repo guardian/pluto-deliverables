@@ -142,4 +142,4 @@ class TestPostNewDeliverableBundle(TestCase):
             response = view(request)
             mock_create_folder.assert_called_once()
 
-            self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
