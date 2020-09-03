@@ -281,7 +281,7 @@ class DeliverableAsset(models.Model):
         :return: None
         """
         if not isinstance(user, str):
-            raise TypeError("create_placeholder user must be a string")
+            raise TypeError("create_placeholder user must be a string, got a {0}".format(user.__class__.__name__))
 
         if self.online_item_id is None:
             new_item = VSItem(url=settings.VIDISPINE_URL,

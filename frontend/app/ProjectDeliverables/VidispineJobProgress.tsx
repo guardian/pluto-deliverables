@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import { VidispineJob } from "../vidispine/job/VidispineJob";
 import { VError } from "ts-interface-checker";
@@ -18,6 +18,10 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   const [jobData, setJobData] = useState<VidispineJob | undefined>(undefined);
   const [updateTimer, setUpdateTimer] = useState<number | undefined>(undefined);
   const [lastError, setLastError] = useState<string | undefined>(undefined);
+
+  //we need to use a reference so that the timer callback can get access to the job data
+  const jobDataRef = useRef<VidispineJob>();
+  jobDataRef.current = jobData;
 
   const [totalProgressWithinStep, setTotalProgressWithinStep] = useState<
     number | undefined
@@ -97,9 +101,16 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
    * called on an interval timer to update the job status, while it is
    */
   const updateHandler = () => {
-    console.log(jobData?.didFinish());
-    if (!jobData) return;
-    if (jobData && jobData.didFinish()) return; //don't try to reload data if the job has already completed
+    const job = jobDataRef.current;
+    console.log(job?.didFinish());
+    if (!job) {
+        console.log("no job data");
+        return;
+    }
+    if (job && job.didFinish()) {
+        console.log("job completed already");
+        return;
+    } //don't try to reload data if the job has already completed
     loadJobData();
   };
 

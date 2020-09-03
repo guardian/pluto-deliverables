@@ -74,6 +74,16 @@ class NewDeliverablesAPIList(ListAPIView):
         return Deliverable.objects.all()
 
 
+class NewDeliverablesApiGet(RetrieveAPIView):
+    authentication_classes = (JwtRestAuth,)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    queryset = Deliverable.objects
+    serializer_class = DeliverableSerializer
+    lookup_url_kwarg = "bundleId"
+    lookup_field = "pluto_core_project_id"
+
+
 class NewDeliverablesAPICreate(CreateAPIView):
     authentication_classes = (JwtRestAuth,)
     permission_classes = (IsAuthenticated,)
@@ -278,6 +288,8 @@ class SetTypeView(APIView):
         try:
             item.type = request.data["type"]
             if item.online_item_id is None:
+                logger.info("user object is {0}".format(request.user.__dict__))
+                logger.info("username is {0}".format(request.user.get_username()))
                 item.start_file_import(user=request.user.get_username())
             else:
                 item.save()
