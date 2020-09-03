@@ -22,6 +22,7 @@ interface DeliverableRowProps {
   onNeedsUpdate: (assetId: bigint) => void;
   onOnlineLoadError?: (err: string) => void;
   vidispineBasePath: string;
+  openJob:(jobId:string)=>void;
 }
 
 const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
@@ -129,6 +130,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
             <VidispineJobProgress
               jobId={props.deliverable.job_id}
               vidispineBaseUrl={props.vidispineBasePath}
+              openJob={props.openJob}
             />
           ) : null}
         </TableCell>

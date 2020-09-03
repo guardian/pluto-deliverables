@@ -2,14 +2,17 @@ import React, {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import { VidispineJob } from "../vidispine/job/VidispineJob";
 import { VError } from "ts-interface-checker";
-import { Grid, LinearProgress, Typography } from "@material-ui/core";
+import {Grid, IconButton, LinearProgress, Typography} from "@material-ui/core";
 import ErrorIcon from "@material-ui/icons/Error";
 import InfoIcon from "@material-ui/icons/Info";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import LaunchIcon from "@material-ui/icons/Launch";
 import { makeStyles } from "@material-ui/core/styles";
 
 interface VidispineJobProgressProps {
   jobId: string;
   vidispineBaseUrl: string;
+  openJob:(jobID:string)=>void;
 }
 
 const useStyles = makeStyles({});
@@ -126,9 +129,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   }, []);
 
   return (
-    <Grid container direction="column" id={`vs-job-${props.jobId}`}>
-      <Grid item>
-        <Grid container direction="column" spacing={3}>
+        <Grid container direction="column" spacing={3} id={`vs-job-${props.jobId}`}>
           <Grid item>
             <LinearProgress
               classes={classes}
@@ -138,8 +139,21 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
             />
           </Grid>
           <Grid item className="job-progress-caption">
-            {jobData?.data.currentStep?.description ? (
-              <Grid container direction="row">
+            <Grid container direction="row">
+            {jobData?.wasSuccess() ? (
+                <>
+                  <Grid item>
+                    <CheckCircleIcon fontSize="small" style={{ color: "green" }} />
+                  </Grid>
+                  <Grid item>
+                    <Typography variant="caption">
+                      Completed
+                    </Typography>
+                  </Grid>
+                </>
+            ) : null}
+            {jobData?.data.currentStep?.description && !jobData?.didFinish() ? (
+                <>
                 <Grid item>
                   <InfoIcon fontSize="small" style={{ color: "gray" }} />
                 </Grid>
@@ -148,10 +162,10 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
                     {jobData.data.currentStep.description}
                   </Typography>
                 </Grid>
-              </Grid>
+                </>
             ) : null}
             {jobData?.getMetadata("errorMessage") ? (
-              <Grid container direction="row">
+                <>
                 <Grid item>
                   <ErrorIcon fontSize="small" style={{ color: "red" }} />
                 </Grid>
@@ -160,12 +174,20 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
                     {jobData.getMetadata("errorMessage")}
                   </Typography>
                 </Grid>
-              </Grid>
+                </>
             ) : null}
+            <Grid item justify="flex-end">
+              <IconButton aria-label="expand row"
+                          size="small"
+                          onClick={() => {
+                            props.openJob(props.jobId);
+                          }}>
+                <LaunchIcon/>
+              </IconButton>
+            </Grid>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
-    </Grid>
   );
 };
 
