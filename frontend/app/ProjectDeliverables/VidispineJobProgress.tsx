@@ -1,8 +1,13 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { VidispineJob } from "../vidispine/job/VidispineJob";
 import { VError } from "ts-interface-checker";
-import {Grid, IconButton, LinearProgress, Typography} from "@material-ui/core";
+import {
+  Grid,
+  IconButton,
+  LinearProgress,
+  Typography,
+} from "@material-ui/core";
 import ErrorIcon from "@material-ui/icons/Error";
 import InfoIcon from "@material-ui/icons/Info";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
@@ -12,7 +17,7 @@ import { makeStyles } from "@material-ui/core/styles";
 interface VidispineJobProgressProps {
   jobId: string;
   vidispineBaseUrl: string;
-  openJob:(jobID:string)=>void;
+  openJob: (jobID: string) => void;
 }
 
 const useStyles = makeStyles({});
@@ -107,12 +112,12 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
     const job = jobDataRef.current;
     console.log(job?.didFinish());
     if (!job) {
-        console.log("no job data");
-        return;
+      console.log("no job data");
+      return;
     }
     if (job && job.didFinish()) {
-        console.log("job completed already");
-        return;
+      console.log("job completed already");
+      return;
     } //don't try to reload data if the job has already completed
     loadJobData();
   };
@@ -129,65 +134,65 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   }, []);
 
   return (
-        <Grid container direction="column" spacing={3} id={`vs-job-${props.jobId}`}>
-          <Grid item>
-            <LinearProgress
-              classes={classes}
-              variant="buffer"
-              value={totalProgressWithinStep}
-              valueBuffer={totalStepProgress}
-            />
-          </Grid>
-          <Grid item className="job-progress-caption">
-            <Grid container direction="row">
-            {jobData?.wasSuccess() ? (
-                <>
-                  <Grid item>
-                    <CheckCircleIcon fontSize="small" style={{ color: "green" }} />
-                  </Grid>
-                  <Grid item>
-                    <Typography variant="caption">
-                      Completed
-                    </Typography>
-                  </Grid>
-                </>
-            ) : null}
-            {jobData?.data.currentStep?.description && !jobData?.didFinish() ? (
-                <>
-                <Grid item>
-                  <InfoIcon fontSize="small" style={{ color: "gray" }} />
-                </Grid>
-                <Grid item>
-                  <Typography variant="caption">
-                    {jobData.data.currentStep.description}
-                  </Typography>
-                </Grid>
-                </>
-            ) : null}
-            {jobData?.getMetadata("errorMessage") ? (
-                <>
-                <Grid item>
-                  <ErrorIcon fontSize="small" style={{ color: "red" }} />
-                </Grid>
-                <Grid item>
-                  <Typography variant="caption" style={{ color: "red" }}>
-                    {jobData.getMetadata("errorMessage")}
-                  </Typography>
-                </Grid>
-                </>
-            ) : null}
-            <Grid item justify="flex-end">
-              <IconButton aria-label="expand row"
-                          size="small"
-                          onClick={() => {
-                            props.openJob(props.jobId);
-                          }}>
-                <LaunchIcon/>
-              </IconButton>
-            </Grid>
-            </Grid>
+    <Grid container direction="column" spacing={3} id={`vs-job-${props.jobId}`}>
+      <Grid item>
+        <LinearProgress
+          classes={classes}
+          variant="buffer"
+          value={totalProgressWithinStep}
+          valueBuffer={totalStepProgress}
+        />
+      </Grid>
+      <Grid item className="job-progress-caption">
+        <Grid container direction="row">
+          {jobData?.wasSuccess() ? (
+            <>
+              <Grid item>
+                <CheckCircleIcon fontSize="small" style={{ color: "green" }} />
+              </Grid>
+              <Grid item>
+                <Typography variant="caption">Completed</Typography>
+              </Grid>
+            </>
+          ) : null}
+          {jobData?.data.currentStep?.description && !jobData?.didFinish() ? (
+            <>
+              <Grid item>
+                <InfoIcon fontSize="small" style={{ color: "gray" }} />
+              </Grid>
+              <Grid item>
+                <Typography variant="caption">
+                  {jobData.data.currentStep.description}
+                </Typography>
+              </Grid>
+            </>
+          ) : null}
+          {jobData?.getMetadata("errorMessage") ? (
+            <>
+              <Grid item>
+                <ErrorIcon fontSize="small" style={{ color: "red" }} />
+              </Grid>
+              <Grid item>
+                <Typography variant="caption" style={{ color: "red" }}>
+                  {jobData.getMetadata("errorMessage")}
+                </Typography>
+              </Grid>
+            </>
+          ) : null}
+          <Grid item justify="flex-end">
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              onClick={() => {
+                props.openJob(props.jobId);
+              }}
+            >
+              <LaunchIcon />
+            </IconButton>
           </Grid>
         </Grid>
+      </Grid>
+    </Grid>
   );
 };
 

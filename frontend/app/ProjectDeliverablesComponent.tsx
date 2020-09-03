@@ -338,9 +338,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                   parentBundleInfo={parentBundleInfo}
                   onNeedsUpdate={() => loadRecord()}
                   vidispineBasePath={vidispineBasePath}
-                  openJob={(jobId:string)=> {
-                    const w = window.open(`/vs-jobs/job/${jobId}`,"_blank");
-                    if(w) w.focus();
+                  openJob={(jobId: string) => {
+                    const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
+                    if (w) w.focus();
                   }}
                 />
               ))}

@@ -142,11 +142,13 @@ class VidispineJob {
     );
   }
 
-    /**
-     * returns true if the job is in a state that indicates successful completion
-     */
+  /**
+   * returns true if the job is in a state that indicates successful completion
+   */
   wasSuccess(): boolean {
-      return this.data.status == "FINISHED" || this.data.status == "FINISHED_WARNING"
+    return (
+      this.data.status == "FINISHED" || this.data.status == "FINISHED_WARNING"
+    );
   }
 }
 export { VidispineJob };

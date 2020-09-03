@@ -22,7 +22,7 @@ interface DeliverableRowProps {
   onNeedsUpdate: (assetId: bigint) => void;
   onOnlineLoadError?: (err: string) => void;
   vidispineBasePath: string;
-  openJob:(jobId:string)=>void;
+  openJob: (jobId: string) => void;
 }
 
 const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
