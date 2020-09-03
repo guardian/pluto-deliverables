@@ -131,7 +131,9 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
               jobId={props.deliverable.job_id}
               vidispineBaseUrl={props.vidispineBaseUri}
               openJob={props.openJob}
-              onRecordNeedsUpdate={()=>props.onNeedsUpdate(props.deliverable.id)}
+              onRecordNeedsUpdate={() =>
+                props.onNeedsUpdate(props.deliverable.id)
+              }
             />
           ) : null}
         </TableCell>
