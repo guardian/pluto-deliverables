@@ -51,9 +51,7 @@ interface HeaderTitles {
 }
 
 declare var deploymentRootPath: string;
-
-//FIXME: for testing only!!
-const vidispineBasePath = "https://vidispine.local";
+declare var vidispineBaseUri: string;
 
 const tableHeaderTitles: HeaderTitles[] = [
   { label: "Selector", key: "id" },
@@ -337,7 +335,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                   }
                   parentBundleInfo={parentBundleInfo}
                   onNeedsUpdate={() => loadRecord()}
-                  vidispineBasePath={vidispineBasePath}
+                  vidispineBaseUri={vidispineBaseUri}
                   openJob={(jobId: string) => {
                     const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
                     if (w) w.focus();

@@ -57,9 +57,18 @@ class NewDeliverableUI(TemplateView):
     def get_context_data(self, **kwargs):
         full_url = settings.__getattr__("DEPLOYMENT_ROOT")
         parts = urllib.parse.urlparse(full_url)
+
+        cbVersion = "DEV"
+        try:
+            from gnm_deliverables.version import version_branch, version_commit
+            cbVersion = version_commit
+        except Exception as e:
+            logger.exception("Could not get version from source: ")
+
         return {
             "deployment_root": parts.path,
-            "cbVersion": "DEV",  ##FIXME: this needs to be injected from config
+            "cbVersion": cbVersion,
+            "vidispine_client_uri": settings.VIDISPINE_CLIENT_URI
         }
 
 

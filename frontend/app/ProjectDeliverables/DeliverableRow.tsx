@@ -21,7 +21,7 @@ interface DeliverableRowProps {
   onCheckedUpdated: (isChecked: boolean) => void;
   onNeedsUpdate: (assetId: bigint) => void;
   onOnlineLoadError?: (err: string) => void;
-  vidispineBasePath: string;
+  vidispineBaseUri: string;
   openJob: (jobId: string) => void;
 }
 
@@ -38,7 +38,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
       return;
     }
 
-    const url = `${props.vidispineBasePath}/API/item/${props.deliverable.online_item_id}?content=metadata&field=__version,durationSeconds`;
+    const url = `${props.vidispineBaseUri}/API/item/${props.deliverable.online_item_id}?content=metadata&field=__version,durationSeconds`;
     try {
       const response = await axios.get(url);
       const item = new VidispineItem(response.data); //throws a VError if the data is not valid
@@ -129,8 +129,9 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           {props.deliverable.job_id ? (
             <VidispineJobProgress
               jobId={props.deliverable.job_id}
-              vidispineBaseUrl={props.vidispineBasePath}
+              vidispineBaseUrl={props.vidispineBaseUri}
               openJob={props.openJob}
+              onRecordNeedsUpdate={()=>props.onNeedsUpdate(props.deliverable.id)}
             />
           ) : null}
         </TableCell>

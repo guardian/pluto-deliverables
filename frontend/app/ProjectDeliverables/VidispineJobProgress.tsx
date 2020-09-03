@@ -18,6 +18,7 @@ interface VidispineJobProgressProps {
   jobId: string;
   vidispineBaseUrl: string;
   openJob: (jobID: string) => void;
+  onRecordNeedsUpdate: ()=>void;
 }
 
 const useStyles = makeStyles({});
@@ -44,7 +45,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   /**
    * load in data for the job
    */
-  const loadJobData = async () => {
+  const loadJobData = async (initialMount=false) => {
     try {
       const response = await axios.get(
         `${props.vidispineBaseUrl}/API/job/${props.jobId}`
@@ -87,6 +88,8 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
 
       setJobData(jobInfo);
       setLastError(undefined);
+      //let the parent know when the job finishes, this triggers a reload of the row data
+      if(!initialMount && jobInfo?.didFinish()) props.onRecordNeedsUpdate();
     } catch (err) {
       if (err instanceof VError) {
         console.error(
@@ -123,9 +126,8 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   };
 
   useEffect(() => {
-    console.log("VidispineJobProgress mounting for job ", props.jobId);
     setUpdateTimer(window.setInterval(updateHandler, 5000));
-    loadJobData();
+    loadJobData(true);
 
     return () => {
       console.log("clearing update timer for ", props.jobId);
@@ -144,14 +146,14 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
         />
       </Grid>
       <Grid item className="job-progress-caption">
-        <Grid container direction="row">
+        <Grid container direction="row" alignItems="center" justify="space-between">
           {jobData?.wasSuccess() ? (
             <>
               <Grid item>
                 <CheckCircleIcon fontSize="small" style={{ color: "green" }} />
               </Grid>
               <Grid item>
-                <Typography variant="caption">Completed</Typography>
+                <Typography variant="caption" id={`vs-job-${props.jobId}-completed`}>Completed</Typography>
               </Grid>
             </>
           ) : null}
@@ -161,25 +163,36 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
                 <InfoIcon fontSize="small" style={{ color: "gray" }} />
               </Grid>
               <Grid item>
-                <Typography variant="caption">
+                <Typography variant="caption" id={`vs-job-${props.jobId}-info`}>
                   {jobData.data.currentStep.description}
                 </Typography>
               </Grid>
             </>
           ) : null}
-          {jobData?.getMetadata("errorMessage") ? (
+          {jobData?.getMetadata("errorMessage") || lastError ? (
             <>
               <Grid item>
                 <ErrorIcon fontSize="small" style={{ color: "red" }} />
               </Grid>
               <Grid item>
-                <Typography variant="caption" style={{ color: "red" }}>
-                  {jobData.getMetadata("errorMessage")}
-                </Typography>
+              {
+                jobData?.getMetadata("errorMessage") ?
+                  <Typography variant="caption" style={{color: "red"}} id={`vs-job-${props.jobId}-joberr`}>
+                    {jobData.getMetadata("errorMessage")}
+                  </Typography>
+                     : null
+              }
+                {
+                  lastError ?
+                      <Typography variant="caption" style={{color: "red"}} id={`vs-job-${props.jobId}-servererr`}>
+                        {lastError}
+                      </Typography>
+                      :null
+                }
               </Grid>
             </>
           ) : null}
-          <Grid item justify="flex-end">
+          <Grid item>
             <IconButton
               aria-label="expand row"
               size="small"
