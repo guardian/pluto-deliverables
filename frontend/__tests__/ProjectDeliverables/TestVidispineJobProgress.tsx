@@ -29,7 +29,9 @@ describe("VidispineJobProgress", () => {
     const openJobCb = sinon.spy();
     const needsUpdateCb = sinon.spy();
 
-    const mockJobText = await readFilePromise(__dirname + "/../sample-job.json");
+    const mockJobText = await readFilePromise(
+      __dirname + "/../sample-job.json"
+    );
 
     const rendered = mount(
       <VidispineJobProgress
@@ -66,6 +68,4 @@ describe("VidispineJobProgress", () => {
       expect(needsUpdateCb.callCount).toEqual(0);
     });
   });
-
-
 });

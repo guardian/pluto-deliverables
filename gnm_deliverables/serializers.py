@@ -7,8 +7,6 @@ from .models import DeliverableAsset, Deliverable, GNMWebsite, Youtube, Mainstre
 
 
 class DeliverableAssetSerializer(serializers.ModelSerializer):
-    # version = serializers.SerializerMethodField('get_version')
-    # duration = serializers.SerializerMethodField('get_duration')
     type_string = serializers.CharField(read_only=True)
     size_string = serializers.CharField(read_only=True)
     status_string = serializers.SerializerMethodField('get_status_string')

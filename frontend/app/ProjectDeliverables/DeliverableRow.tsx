@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Collapse, IconButton, TableCell, TableRow } from "@material-ui/core";
+import {
+  Collapse,
+  IconButton,
+  TableCell,
+  TableRow,
+  Tooltip,
+} from "@material-ui/core";
 import DeliverableTypeSelector from "../DeliverableTypeSelector";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
@@ -101,9 +107,6 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           <input
             type="checkbox"
             onChange={(evt) => {
-              console.log(
-                `checkbox ${props.deliverable.id} changed: ${evt.target.checked}`
-              );
               props.onCheckedUpdated(evt.target.checked);
             }}
           />
@@ -139,15 +142,17 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
         </TableCell>
         <TableCell>{props.deliverable.status_string}</TableCell>
         <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => {
-              setOpen(!open);
-            }}
-          >
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
+          <Tooltip title="Show syndication">
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              onClick={() => {
+                setOpen(!open);
+              }}
+            >
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </Tooltip>
         </TableCell>
       </TableRow>
       <TableRow className={props.classes.collapsableTableRow}>

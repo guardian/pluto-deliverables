@@ -62,9 +62,6 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
             100
           : undefined;
 
-      //overallProgress takes us to the _next_ step (it's the "buffering" part of the progress bar)
-      //therefore when currentStep.number==totalSteps it comes out >100%. Fix that here.
-      //if(overallProgress && overallProgress>100) overallProgress=100;
       if (overallProgress) setTotalStepProgress(overallProgress);
 
       let subprogress: number = 0;
