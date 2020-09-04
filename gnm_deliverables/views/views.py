@@ -176,15 +176,18 @@ class CountDeliverablesView(APIView):
 
     def get(self, *args, **kwargs):
         bundle_id = self.kwargs["project_id"]
-        parent_bundle = Deliverable.objects.get(project_id=bundle_id)
-        deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle, ).count()
-        unimported_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,
-                                                           ingest_complete_dt__isnull=True).count()
+        try:
+            parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
+            deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle, ).count()
+            unimported_count = DeliverableAsset.objects.filter(deliverable=parent_bundle,
+                                                               ingest_complete_dt__isnull=True).count()
 
-        result = {'total_asset_count': deliverables_count,
-                  'unimported_asset_count': unimported_count}
+            result = {'total_asset_count': deliverables_count,
+                      'unimported_asset_count': unimported_count}
 
-        return Response(result, status=200)
+            return Response(result, status=200)
+        except Deliverable.DoesNotExist:
+            return Response({"status":"notfound","detail":"Deliverable bundle does not exist"}, status=404)
 
 
 class NewDeliverableAPIScan(APIView):

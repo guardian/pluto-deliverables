@@ -46,7 +46,7 @@ transcode_preset_finder = TranscodePresetFinder()
 class Deliverable(models.Model):
     project_id = models.CharField(null=True, blank=True, max_length=61)
     commission_id = models.BigIntegerField(null=False, blank=False, db_index=True)
-    pluto_core_project_id = models.BigIntegerField(null=False, blank=False, db_index=True)
+    pluto_core_project_id = models.BigIntegerField(null=False, blank=False, db_index=True, unique=True)
     name = models.CharField(null=False, blank=False, unique=True, max_length=255)
     created = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
