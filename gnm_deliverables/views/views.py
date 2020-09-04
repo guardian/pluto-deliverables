@@ -101,7 +101,6 @@ class NewDeliverablesAPICreate(CreateAPIView):
     serializer_class = DeliverableSerializer
 
     def post(self, request, *args, **kwargs):
-
         bundle = DeliverableSerializer(data=request.data)
 
         if bundle.is_valid():
@@ -127,7 +126,13 @@ class NewDeliverablesAPICreate(CreateAPIView):
                                                                               e=e.strerror))
                 return Response({"status": "error", "data": e.strerror}, status=500)
         else:
-            return Response({"status": "error", "data": 'not valid bundle format'}, status=500)
+            for field, error_details in bundle.errors.items():
+                uniqueness_errors = list(filter(lambda entry: entry.code=='unique', error_details))
+                if len(uniqueness_errors)>0:
+                    return Response({"status":"conflict","field": field,"detail":"This field must be a unique value"}, status=409)
+
+            return Response({"status": "error", "detail": str(bundle.errors)}, status=400)
+
 
 class NewDeliverableAssetAPIList(ListAPIView):
     authentication_classes = (JwtRestAuth,)

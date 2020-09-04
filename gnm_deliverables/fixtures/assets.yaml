@@ -1,0 +1,69 @@
+- model: gnm_deliverables.deliverableasset
+  pk: 37
+  fields:
+    type: 1
+    filename: 1018_20130203231700.mp4
+    absolute_path: /tmp/Clean Test/1018_20130203231700.mp4
+    size: 295026527
+    access_dt: 2020-09-03 10:41:26.174967+00:00
+    modified_dt: 2020-09-03 10:41:26.798961+00:00
+    changed_dt: 2020-09-03 10:41:26.798961+00:00
+    job_id: VX-27
+    online_item_id: VX-36
+    nearline_item_id: null
+    archive_item_id: null
+    ingest_complete_dt: 2020-09-03 11:09:31.964214+00:00
+    file_removed_dt: null
+    status: 5
+    created_from_existing_item: false
+    deliverable: 3
+    gnm_website_master: null
+    youtube_master: null
+    DailyMotion_master: null
+    mainstream_master: null
+- model: gnm_deliverables.deliverableasset
+  pk: 39
+  fields:
+    type: 2
+    filename: comdey1.mov
+    absolute_path: /tmp/Clean Test/comdey1.mov
+    size: 1716108
+    access_dt: 2020-09-03 13:07:46.133845+00:00
+    modified_dt: 2020-09-03 13:07:46.136845+00:00
+    changed_dt: 2020-09-03 13:07:46.136845+00:00
+    job_id: VX-31
+    online_item_id: VX-38
+    nearline_item_id: null
+    archive_item_id: null
+    ingest_complete_dt: 2020-09-03 13:07:59.799662+00:00
+    file_removed_dt: null
+    status: 5
+    created_from_existing_item: false
+    deliverable: 3
+    gnm_website_master: null
+    youtube_master: null
+    DailyMotion_master: null
+    mainstream_master: null
+- model: gnm_deliverables.deliverableasset
+  pk: 40
+  fields:
+    type: 3
+    filename: comdey1.mov
+    absolute_path: /tmp/Clean Test/comdey1.mov
+    size: 1716108
+    access_dt: 2020-09-03 13:07:46.133845+00:00
+    modified_dt: 2020-09-03 13:07:46.136845+00:00
+    changed_dt: 2020-09-03 13:07:46.136845+00:00
+    job_id: VX-33
+    online_item_id: VX-39
+    nearline_item_id: null
+    archive_item_id: null
+    ingest_complete_dt: 2020-09-03 13:08:47.266297+00:00
+    file_removed_dt: null
+    status: 5
+    created_from_existing_item: false
+    deliverable: 3
+    gnm_website_master: null
+    youtube_master: null
+    DailyMotion_master: null
+    mainstream_master: null
