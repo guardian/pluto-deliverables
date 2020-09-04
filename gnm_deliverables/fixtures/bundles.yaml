@@ -1,0 +1,24 @@
+- model: gnm_deliverables.deliverable
+  pk: 2
+  fields:
+    project_id: null
+    commission_id: 456
+    pluto_core_project_id: 123
+    name: test2
+    created: 2020-08-31 09:29:57.882094+00:00
+- model: gnm_deliverables.deliverable
+  pk: 3
+  fields:
+    project_id: null
+    commission_id: 4444
+    pluto_core_project_id: 3333
+    name: Clean Test
+    created: 2020-09-03 10:09:06.975501+00:00
+- model: gnm_deliverables.deliverable
+  pk: 5
+  fields:
+    project_id: null
+    commission_id: 1
+    pluto_core_project_id: 1
+    name: hgdhfh
+    created: 2020-09-04 10:18:59.115210+00:00
