@@ -26,6 +26,15 @@ class JwtAuth(object):
     def __init__(self):
         self._public_key = self.load_public_key_from_cert()
 
+    @staticmethod
+    def _extract_username(claims):
+        username = claims.get("username")   #adfs uses this one
+        if username is None:
+            username = claims.get("preferred_username") #keycloak uses this one
+        if username is None:
+            logger.warning("Could not get username from claims set, expect problems")
+        return username
+
     def authenticate(self, request, **credentials):
         token = credentials.get("token", None)
         if token:
@@ -39,7 +48,7 @@ class JwtAuth(object):
                 logger.debug("JwtAuth success")
 
                 return User(
-                    username=decoded.get("username"),
+                    username=self._extract_username(decoded),
                     first_name=decoded.get("first_name"),
                     last_name=decoded.get("family_name"),
                     email=decoded.get("email"),

@@ -83,28 +83,6 @@ class TestDeliverablesAsset(TestCase):
 
         self.assertEqual(asset.job_id, "VX-345")
 
-    def test_asset_duration(self):
-        """
-        duration should call out to gnmvidispine to get the durationSeconds field and convert it to a timespan
-        :return:
-        """
-        from gnmvidispine.vs_item import VSItem
-        from gnm_deliverables.models import Deliverable, DeliverableAsset, ImportFailedError
-
-        parent = Deliverable(project_id=1234, name="test")
-        asset = DeliverableAsset(
-            deliverable=parent,
-            online_item_id="VX-12345",
-            absolute_path="file:///path/to/some/file.mp4"
-        )
-        mocked_item = mock.MagicMock(VSItem)
-        mocked_item.get = mock.MagicMock(return_value="325.6")
-        asset.item = mock.MagicMock(return_value=mocked_item)
-
-        result = asset.duration("testuser")
-        asset.item.assert_called_once_with("testuser")
-        self.assertEqual(result, "00:05:25")
-
     def test_asset_item(self):
         """
         item() should call out to gnmvidispine to populate an item and return it

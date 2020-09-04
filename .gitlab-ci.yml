@@ -54,6 +54,9 @@ upload:
     - apk add git
     - git submodule init
     - git submodule update
+    - echo "version_commit = \"$CI_COMMIT_SHA\"" > gnm_deliverables/version.py
+    - echo "version_branch = \"$CI_COMMIT_BRANCH\"" >> gnm_deliverables/version.py
+    - echo "version_timestamp = \"$CI_COMMIT_TIMESTAMP\"" >> gnm_deliverables/version.py
     - docker build . -t guardianmultimedia/pluto-deliverables:$CI_PIPELINE_IID
     - docker login -u "${DOCKER_USER}" -p "${DOCKER_PAT}"
     - docker push guardianmultimedia/pluto-deliverables:$CI_PIPELINE_IID

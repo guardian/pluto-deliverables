@@ -43,6 +43,7 @@ import {
   deleteProjectDeliverable,
 } from "./api-service";
 import MasterList from "./MasterList/MasterList";
+import DeliverableRow from "./ProjectDeliverables/DeliverableRow";
 
 interface HeaderTitles {
   label: string;
@@ -50,6 +51,7 @@ interface HeaderTitles {
 }
 
 declare var deploymentRootPath: string;
+declare var vidispineBaseUri: string;
 
 const tableHeaderTitles: HeaderTitles[] = [
   { label: "Selector", key: "id" },
@@ -59,6 +61,7 @@ const tableHeaderTitles: HeaderTitles[] = [
   { label: "Duration", key: "duration" },
   { label: "Type", key: "type" },
   { label: "Last modified", key: "modified_dt" },
+  { label: "Import progress", key: "job_id" },
   { label: "Action/status", key: "status" },
 ];
 
@@ -195,13 +198,8 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const loadParentBundle = async () => {
     try {
-      const response = await axios.get(`/api/bundle?project_id=${projectid}`);
-      const actualBundleInfo = response.data
-        ? response.data.length > 0
-          ? response.data[0]
-          : undefined
-        : undefined;
-      return setParentBundleInfo(actualBundleInfo);
+      const response = await axios.get(`/api/bundle/${projectid}`);
+      return setParentBundleInfo(response.data);
     } catch (err) {
       console.error("Could not load in parent bundle data: ", err);
       setCentralMessage("Could not load in parent bundle data");
@@ -254,32 +252,6 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     }
   };
 
-  const updateItemType = async (assetId: bigint, newvalue: number) => {
-    const url = `/api/bundle/${parentBundleInfo?.pluto_core_project_id}/asset/${assetId}/setType`;
-
-    try {
-      setCentralMessage("Updating item type...");
-      await axios.put(
-        url,
-        { type: newvalue },
-        {
-          headers: {
-            "X-CSRFToken": Cookies.get("csrftoken"),
-          },
-        }
-      );
-      window.setTimeout(() => {
-        setCentralMessage("Update completed");
-        return loadRecord();
-      }, 1000);
-    } catch (error) {
-      console.error("failed to update type: ", error);
-      setCentralMessage(
-        `Could not update the type, please contact MultimediaTech`
-      );
-    }
-  };
-
   const getSelectedDeliverables = (): Deliverable[] =>
     deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
 
@@ -288,70 +260,6 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     loadRecord();
     loadParentBundle();
   }, []);
-
-  const DeliverableRow = (props: { deliverable: Deliverable }) => {
-    const classes = useStyles();
-    const { deliverable } = props;
-    const [open, setOpen] = useState<boolean>(false);
-
-    return (
-      <React.Fragment>
-        <TableRow className={classes.root}>
-          <TableCell>
-            <input
-              type="checkbox"
-              onChange={(evt) => {
-                console.log(
-                  `checkbox ${deliverable.id} changed: ${evt.target.checked}`
-                );
-                if (evt.target.checked) {
-                  setSelectedIDs((prevContent) =>
-                    prevContent.concat(deliverable.id)
-                  );
-                } else {
-                  setSelectedIDs((prevContent) =>
-                    prevContent.filter((value) => value !== deliverable.id)
-                  );
-                }
-              }}
-            />
-          </TableCell>
-          <TableCell>{deliverable.filename}</TableCell>
-          <TableCell>{deliverable.version ?? "-"}</TableCell>
-          <TableCell>{deliverable.size_string ?? "-"}</TableCell>
-          <TableCell>{deliverable.duration ?? "-"}</TableCell>
-          <TableCell>
-            <DeliverableTypeSelector
-              content={typeOptions}
-              showTip={true}
-              value={deliverable.type}
-              onChange={(newvalue) => updateItemType(deliverable.id, newvalue)}
-            />
-          </TableCell>
-          <TableCell>{deliverable.modified_dt}</TableCell>
-          <TableCell>{deliverable.status_string}</TableCell>
-          <TableCell>
-            <IconButton
-              aria-label="expand row"
-              size="small"
-              onClick={() => {
-                setOpen(!open);
-              }}
-            >
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
-          </TableCell>
-        </TableRow>
-        <TableRow className={classes.collapsableTableRow}>
-          <TableCell className="expandable-cell" colSpan={9}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <MasterList deliverable={deliverable} />
-            </Collapse>
-          </TableCell>
-        </TableRow>
-      </React.Fragment>
-    );
-  };
 
   return (
     <>
@@ -413,7 +321,26 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                 <DeliverableRow
                   key={del.id.toString()}
                   deliverable={del}
-                ></DeliverableRow>
+                  classes={classes}
+                  typeOptions={typeOptions}
+                  setCentralMessage={setCentralMessage}
+                  onCheckedUpdated={(isChecked) =>
+                    isChecked
+                      ? setSelectedIDs((prevContent) =>
+                          prevContent.concat(del.id)
+                        )
+                      : setSelectedIDs((prevContent) =>
+                          prevContent.filter((value) => value !== del.id)
+                        )
+                  }
+                  parentBundleInfo={parentBundleInfo}
+                  onNeedsUpdate={() => loadRecord()}
+                  vidispineBaseUri={vidispineBaseUri}
+                  openJob={(jobId: string) => {
+                    const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
+                    if (w) w.focus();
+                  }}
+                />
               ))}
             </TableBody>
           </Table>

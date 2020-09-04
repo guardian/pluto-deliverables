@@ -109,8 +109,8 @@ class App extends React.Component {
     return (
       <ThemeProvider theme={theme}>
         <>
-          <Header></Header>
-          <AppSwitcher onLoginValid={this.onLoginValid}></AppSwitcher>
+          <Header />
+          <AppSwitcher onLoginValid={this.onLoginValid} />
         </>
         <div className="main-body">
           <Switch>
@@ -122,28 +122,22 @@ class App extends React.Component {
             <Route
               path="/project/:projectid/asset/:assetid/atom"
               render={(props) => (
-                <GuardianMaster
-                  match={props.match}
-                  isAdmin={this.state.isAdmin}
-                />
+                <GuardianMaster {...props} isAdmin={this.state.isAdmin} />
               )}
             />
             <Route
               path="/project/:projectid/asset/:assetid/youtube"
               render={(props) => (
-                <YoutubeMaster
-                  match={props.match}
-                  isAdmin={this.state.isAdmin}
-                />
+                <YoutubeMaster {...props} isAdmin={this.state.isAdmin} />
               )}
             />
             <Route
               path="/project/:projectid/asset/:assetid/mainstream"
-              render={(props) => <MainstreamMaster match={props.match} />}
+              render={(props) => <MainstreamMaster {...props} />}
             />
             <Route
               path="/project/:projectid/asset/:assetid/dailymotion"
-              render={(props) => <DailymotionMaster match={props.match} />}
+              render={(props) => <DailymotionMaster {...props} />}
             />
             <Route
               path="/project/:projectid"
@@ -152,7 +146,7 @@ class App extends React.Component {
             <Route exact path="/" component={ProjectsListComponent} />
           </Switch>
         </div>
-        <SystemNotification></SystemNotification>
+        <SystemNotification />
       </ThemeProvider>
     );
   }

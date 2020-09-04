@@ -9,13 +9,14 @@ from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIV
 from django.contrib import admin
 from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, VSNotifyView, \
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
-    NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView
+    NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet
 
 urlpatterns = [
     path(r'admin/', admin.site.urls),
     # path(r'list/', login_required(DeliverablesListView.as_view()), name='deliverables'),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/setType', SetTypeView.as_view()),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/createProxy', TestCreateProxyView.as_view()),
+    path(r'api/bundle/<int:bundleId>', NewDeliverablesApiGet.as_view()),
     path(r'api/bundle/new', NewDeliverablesAPICreate.as_view(), name='bundle-create'),
     path(r'api/bundle/scan', NewDeliverableAPIScan.as_view()),
     path(r'api/bundle/adopt', AdoptExistingVidispineItemView.as_view(), name="adopt-asset"),
