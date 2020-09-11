@@ -404,9 +404,19 @@ class DeliverableAPIStarted(RetrieveAPIView):
     #authentication_classes = (JwtRestAuth,)
     #permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
-    lookup_url_kwarg = "bundleId"
-    lookup_field = "deliverable_id"
+    serializer_class = DeliverableAssetSerializer
 
     def get_queryset(self):
-        return DeliverableAsset.objects.all()
+        bundle_id = self.request.GET["bundleId"]
+        parent_bundle = Deliverable.objects.get(pk=bundle_id)
+        return DeliverableAsset.objects.filter(deliverable=parent_bundle)
 
+    def get(self, *args, **kwargs):
+        try:
+            return super(DeliverableAPIStarted, self).get(*args, **kwargs)
+        except Deliverable.DoesNotExist:
+            return Response({"status": "error", "detail": "Bundle not known"}, status=404)
+        except KeyError:
+            return Response(
+                {"status": "error", "detail": "you must specify a bundleId= query param"},
+                status=400)
