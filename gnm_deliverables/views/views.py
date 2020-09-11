@@ -399,3 +399,14 @@ class VSNotifyView(APIView):
             logger.warning(
                 "Received unknown job status {0} from {1}".format(content.status, jobId))
         return Response(data=None, status=200)
+
+class DeliverableAPIStarted(RetrieveAPIView):
+    #authentication_classes = (JwtRestAuth,)
+    #permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    lookup_url_kwarg = "bundleId"
+    lookup_field = "deliverable_id"
+
+    def get_queryset(self):
+        return DeliverableAsset.objects.all()
+

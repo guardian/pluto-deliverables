@@ -9,7 +9,8 @@ from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIV
 from django.contrib import admin
 from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, VSNotifyView, \
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
-    NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet
+    NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet, \
+    DeliverableAPIStarted
 
 urlpatterns = [
     path(r'admin/', admin.site.urls),
@@ -30,5 +31,6 @@ urlpatterns = [
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/youtube', YoutubeAPIView.as_view(), name='youtube'),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/dailymotion', DailyMotionAPIView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logs', PlatformLogsView.as_view()),
+    path(r'api/bundle/started/<int:bundleId>', DeliverableAPIStarted.as_view()),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view()),
 ]
