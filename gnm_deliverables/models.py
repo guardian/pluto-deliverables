@@ -7,9 +7,6 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime
-
-from dateutil import parser
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -18,8 +15,6 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from gnmvidispine.vs_item import VSItem, VSException, VSNotFound
 from gnmvidispine.vs_job import VSJob
-from gnmvidispine.vidispine_api import HTTPError as VSHTTPError
-
 from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
     DELIVERABLE_ASSET_TYPES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
     PUBLICATION_STATUS, DELIVERABLE_ASSET_STATUS_TRANSCODING
@@ -173,27 +168,6 @@ class Deliverable(models.Model):
             asset.save()
             created = True
 
-            # data = get_fields_in_inf(item, ['originalFilename', 'originalUri'])
-            # asset.filename = safeget(data, 'originalFilename', 'value', 0, 'value')
-            # asset.absolute_path = safeget(data, 'originalUri', 'value', 0, 'value')
-            # component = safeget(shape, 'containerComponent')
-            # if component is None:
-            #     component = safeget(shape, 'binaryComponent')
-            #     if not component:
-            #         raise NoShapeError('No original shape attached to item')
-            #     component = component[0]
-            # container_md_fields = safeget(component, 'file', 0, 'metadata', 'field')
-            # asset.size = safeget(component, 'file', 0, 'size')
-            # container_data = get_fields(container_md_fields, ['mtime'], 'key')
-            # mtime = safeget(container_data, 'mtime', 'value')
-            # if mtime is not None:
-            #     asset.modified_dt = ts_to_dt(mtime, millis=True)
-            #     asset.changed_dt = asset.modified_dt
-            #     asset.access_dt = asset.modified_dt
-            # asset.ingest_complete_dt = now()
-            # asset.created_from_existing_item = True
-            # asset.save()
-            # created = True
             logger.info(
                 'Asset for item "{item_id}" created: {asset}'.format(item_id=item_id, asset=asset))
         return asset, created
@@ -394,13 +368,6 @@ class DeliverableAsset(models.Model):
         except VSNotFound:
             # no job => no ongoing job!
             return None
-        # job = self.job(user)
-        # return job is not None and job.get('status', None) not in [
-        #     'FINISHED',
-        #     'FINISHED_WARNING',
-        #     'FAILED_TOTAL',
-        #     'ABORTED'
-        # ]
 
     @cached_property
     def type_string(self):

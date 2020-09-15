@@ -13,7 +13,6 @@ from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingV
 
 urlpatterns = [
     path(r'admin/', admin.site.urls),
-    # path(r'list/', login_required(DeliverablesListView.as_view()), name='deliverables'),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/setType', SetTypeView.as_view()),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/createProxy', TestCreateProxyView.as_view()),
     path(r'api/bundle/<int:bundleId>', NewDeliverablesApiGet.as_view()),
@@ -32,17 +31,4 @@ urlpatterns = [
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/dailymotion', DailyMotionAPIView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logs', PlatformLogsView.as_view()),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view()),
-    # path(r'(?P<project_id>.+-\d+)/create/?', DeliverableCreateView, name='deliverables_create'),
-    # path(r'(?P<pk>\d+)/?', DeliverableDetailView, name='deliverables_detail'),
-    # path(r'asset/(?P<pk>\d+)/?', DeliverableAssetUpdateAPIView.as_view(), name='deliverable_asset_update'),
-    # path(r'asset/(?P<pk>\d+)/check/?', DeliverableAssetCheckTypeChange.as_view(), name='deliverable_asset_check_type'),
-    # path(r'api/search/(?P<project_id>.+-\d+)/', DeliverablesSearchAPIView.as_view(),
-    #     name='deliverables_api_for_project'),
-    # path(r'api/(?P<pk>\d+)', DeliverableAPIRetrieveView.as_view(), name='deliverable_api_retrieve'),
-    # path(r'api/byFileName/',SearchForDeliverableAPIView.as_view(), name='deliverable_search_by_filename' ),
-    # path(r'api/search/', DeliverablesSearchAPIView.as_view(), name='deliverables_api'),
-    # path(r'api/missing/', NaughtyListAPIView.as_view(), name='deliverables_naughtylist_api'),
-    # path(r'create_folder/(?P<pk>\d+)/?', DeliverableCreateFolderView.as_view(), name='deliverables_create_folder'),
-    # path(r'api/by-working-group/(?P<working_group>.*)/', DeliverablesSearchForWorkingGroupAPIView.as_view(), name='deliverables_search_workinggroup'),
-    # path(r'missing/', login_required(NaughtyListUIView.as_view()), name='deliverables_naughtylist')
 ]
