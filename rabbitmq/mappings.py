@@ -1,12 +1,9 @@
+from .AtomResponderProcessor import AtomResponderMessage
 
 ##This structure is imported by name in the run_rabbitmq_responder
 EXCHANGE_MAPPINGS = [
     {
-        "exchange": 'pluto-core',
-        "handler":  ProjectMessageProcessor(),
-    },
-    {
-        "exchange": "pluto-core",
-        "handler": CommissionMessageProcessor(),
+        "exchange": 'pluto-atomresponder',
+        "handler":  AtomResponderMessage(),
     }
 ]

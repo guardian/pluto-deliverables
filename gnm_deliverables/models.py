@@ -214,6 +214,9 @@ class DeliverableAsset(models.Model):
     ingest_complete_dt = models.DateTimeField(null=True, blank=True)
     file_removed_dt = models.DateTimeField(null=True, blank=True)
 
+    # Fields set by atom responder
+    atom_id = models.UUIDField(null=True)
+
     status = models.IntegerField(null=False,
                                  choices=DELIVERABLE_ASSET_STATUSES,
                                  default=DELIVERABLE_ASSET_STATUS_NOT_INGESTED)
