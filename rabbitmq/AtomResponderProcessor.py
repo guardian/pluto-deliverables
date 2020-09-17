@@ -54,7 +54,7 @@ class AtomResponderProcessor(MessageProcessor):
         asset = DeliverableAsset(
             type=AssetChoices.DELIVERABLE_ASSET_TYPE_VIDEO_FULL_MASTER,
             atom_id=atomid,
-            deliverable=bundle
+            deliverable=bundle,
         )
         return asset, True
 
@@ -80,6 +80,8 @@ class AtomResponderProcessor(MessageProcessor):
             (asset, created) = self.get_or_create_record(msg.atomId, msg.projectId, msg.commissionId)
             asset.online_item_id = msg.itemId
             asset.job_id = msg.jobId    ##once we save, we will get the notifications when the job completes
+            asset.size = msg.size
+            asset.filename = msg.title
             if created:
                 asset.status = AssetChoices.DELIVERABLE_ASSET_STATUS_INGESTING  #FIXME: it might not be this state?
             asset.save()

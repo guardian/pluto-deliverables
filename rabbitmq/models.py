@@ -1,4 +1,4 @@
-from django.db.models import Model, TextField, IntegerField, BooleanField, UUIDField
+from django.db.models import Model, TextField, IntegerField, FloatField, BooleanField, UUIDField
 from django.core.validators import RegexValidator
 # {"title": "dsa", "type": "video-upload", "assetVersion": -1, "projectId": "VX-600",
 # "enabled": true, "s3Key": "uploads/b98cf3c2-f56f-4a01-a2c8-acac4ad1e8d7--d60d06e4-0562-4558-b6f8-e7e924908201/complete",
@@ -19,3 +19,7 @@ class AtomResponderMessage(Model):
     jobId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
     itemId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
     commissionId = IntegerField()
+    size = IntegerField(null=True, blank=True)
+    mtime = FloatField(null=True, blank=True)
+    ctime = FloatField(null=True, blank=True)
+    atime = FloatField(null=True, blank=True)

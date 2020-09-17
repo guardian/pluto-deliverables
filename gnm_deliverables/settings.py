@@ -180,9 +180,19 @@ LOGGING = {
             'formatter': 'normal',
         },
     },
-    'pika': {
-        'handlers': ['console'],
-        'level': 'ERROR',
+    'loggers': {
+        'pika': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+        'rabbitmq': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        'gnm_deliverables': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        }
     },
     'root': {
         'handlers': ['console'],

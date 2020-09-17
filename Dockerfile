@@ -11,6 +11,7 @@ RUN apk add --no-cache alpine-sdk linux-headers openssl-dev libffi-dev mailcap p
     apk --no-cache del alpine-sdk linux-headers openssl-dev libffi-dev postgresql-dev
 COPY manage.py /opt/pluto-deliverables/manage.py
 ADD --chown=nobody:root gnm_deliverables /opt/pluto-deliverables/gnm_deliverables/
+ADD --chown=nobody:root rabbitmq /opt/pluto-deliverables/rabbitmq/
 ##annoying, but until my Mac gets upgraded to support later Docker I can't use chown-in-copy :(
 #RUN chown -R nobody /opt/pluto-deliverables
 ENV PYTHONPATH=/opt/pluto-deliverables

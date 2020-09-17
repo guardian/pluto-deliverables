@@ -90,7 +90,7 @@ class Command(BaseCommand):
                 host=settings.RABBITMQ_HOST,
                 port=getattr(settings, "RABBITMQ_PORT", 5672),
                 virtual_host=getattr(settings, "RABBITMQ_VHOST", "/"),
-                credentials=pika.PlainCredentials(username=settings.RABBITMQ_USER, password=settings.RABBITMQ_PASSWORD),
+                credentials=pika.PlainCredentials(username=settings.RABBITMQ_USER, password=settings.RABBITMQ_PASSWD),
                 connection_attempts=getattr(settings, "RABBITMQ_CONNECTION_ATTEMPTS", 3),
                 retry_delay=getattr(settings, "RABBITMQ_RETRY_DELAY", 3)
             ),
