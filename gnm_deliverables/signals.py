@@ -71,7 +71,6 @@ class MessageRelay(object):
                         routing_key=routing_key,
                         body=payload
                     )
-                    print("message sent")
                 break
             except pika.exceptions.ChannelWrongStateError:
                 while True:

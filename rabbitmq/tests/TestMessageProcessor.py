@@ -1,9 +1,10 @@
 from django.test import TestCase
 from rabbitmq.MessageProcessor import MessageProcessor
-from rabbitmq.serializers import CachedCommissionSerializer
+from rabbitmq.serializers import MockSerializer
 from mock import MagicMock, patch
 from collections import OrderedDict
 import pika
+
 
 class TestMessageProcessorRawReceive(TestCase):
     def test_raw_receieve_valid_commissiondata(self):
@@ -13,7 +14,7 @@ class TestMessageProcessorRawReceive(TestCase):
         :return:
         """
         class TestProcessor(MessageProcessor):
-            serializer = CachedCommissionSerializer
+            serializer = MockSerializer
 
         to_test = TestProcessor()
         to_test.valid_message_receive = MagicMock()
@@ -42,7 +43,7 @@ class TestMessageProcessorRawReceive(TestCase):
         :return:
         """
         class TestProcessor(MessageProcessor):
-            serializer = CachedCommissionSerializer
+            serializer = MockSerializer
 
         to_test = TestProcessor()
         to_test.valid_message_receive = MagicMock()
@@ -67,7 +68,7 @@ class TestMessageProcessorRawReceive(TestCase):
         :return:
         """
         class TestProcessor(MessageProcessor):
-            serializer = CachedCommissionSerializer
+            serializer = MockSerializer
 
         to_test = TestProcessor()
         to_test.valid_message_receive = MagicMock(side_effect=ValueError("too slow!"))
