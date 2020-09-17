@@ -340,8 +340,7 @@ class TestCreateProxyView(APIView):
 
 
 class VSNotifyView(APIView):
-    authentication_classes = (
-    BasicAuthentication,)  # we need to bypass the default of JwtAuthentication for the tests to work.
+    authentication_classes = (BasicAuthentication,)  # we need to bypass the default of JwtAuthentication for the tests to work.
     permission_classes = (AllowAny,)  # we don't have authentication on the VS endpoint
 
     def post(self, request):
