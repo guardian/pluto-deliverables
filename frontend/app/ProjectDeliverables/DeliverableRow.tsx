@@ -17,6 +17,7 @@ import { VidispineItem } from "../vidispine/item/VidispineItem";
 import { VError } from "ts-interface-checker";
 import DurationFormatter from "./DurationFormatter";
 import VidispineJobProgress from "./VidispineJobProgress";
+import LaunchIcon from "@material-ui/icons/Launch";
 // @ts-ignore
 import atomIcon from "../static/atom_icon.svg";
 
@@ -116,21 +117,30 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           />
         </TableCell>
         <TableCell>
-          <Grid container direction="column">
+          <Grid container direction="row" alignItems="center"  justify="space-between">
             <Grid item>
               <Typography>{props.deliverable.filename}</Typography>
             </Grid>
+            <Grid item>
             {
-              props.deliverable.atom_id ? <Grid item alignItems="flex-end">
+              props.deliverable.atom_id ?
                 <Tooltip title="Imported from media atom">
-                  <IconButton aria-label="Go to" onClick={
+                  <IconButton aria-label="Go to" style={{ paddingTop: 0, paddingBottom: 0, paddingRight: "3px", paddingLeft: "3px"}} onClick={
                     ()=>window.open(`${mediaAtomToolUrl}/${props.deliverable.atom_id}`, "_blank")}
                   >
                     <img src={atomIcon} alt="atom" style={{width: "26px", height: "26px"}}/>
                   </IconButton>
                 </Tooltip>
-              </Grid>: null
+              : null
             }
+            <Tooltip title="View media">
+              <IconButton aria-label="Go to" style={{ paddingTop: 0, paddingBottom: 0, paddingRight: "3px", paddingLeft: "3px"}} onClick={
+                ()=>window.open(`/vs/item/${props.deliverable.online_item_id}`, "_blank")
+              }>
+                <LaunchIcon style={{width: "26px", height: "26px"}}/>
+              </IconButton>
+            </Tooltip>
+            </Grid>
           </Grid>
         </TableCell>
         <TableCell>{version ?? "-"}</TableCell>
