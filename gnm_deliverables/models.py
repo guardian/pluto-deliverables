@@ -18,7 +18,7 @@ from gnmvidispine.vs_job import VSJob
 from .choices import DELIVERABLE_ASSET_STATUS_INGEST_FAILED, \
     DELIVERABLE_ASSET_TYPES_DICT, UPLOAD_STATUS, PRODUCTION_OFFICE, PRIMARY_TONE, \
     PUBLICATION_STATUS, DELIVERABLE_ASSET_STATUS_TRANSCODING
-from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, DELIVERABLE_ASSET_STATUSES
+from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, DELIVERABLE_ASSET_STATUSES, DELIVERABLE_ASSET_STATUS_TRANSCODED
 from .choices import DELIVERABLE_ASSET_TYPE_CHOICES, DELIVERABLE_STATUS_ALL_FILES_INGESTED, \
     DELIVERABLE_STATUS_FILES_TO_INGEST, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE, \
     DELIVERABLE_ASSET_TYPE_OTHER_TRAILER, \
@@ -214,6 +214,9 @@ class DeliverableAsset(models.Model):
     ingest_complete_dt = models.DateTimeField(null=True, blank=True)
     file_removed_dt = models.DateTimeField(null=True, blank=True)
 
+    # Fields set by atom responder
+    atom_id = models.UUIDField(null=True)
+
     status = models.IntegerField(null=False,
                                  choices=DELIVERABLE_ASSET_STATUSES,
                                  default=DELIVERABLE_ASSET_STATUS_NOT_INGESTED)
@@ -340,6 +343,16 @@ class DeliverableAsset(models.Model):
             logger.error("{0} for deliverable asset {1} in {2}: Did not recognise MIME type {3}".format(item_info.name, self.id, self.deliverable.id, mime_type))
             raise ValueError("Did not recognise MIME type of item")
 
+        try:
+            # raises VSNotFound if the shape does not exist, which is what we expect.
+            item_info.get_shape(preset_name)
+            logger.info("Item {0} already has a shape {1}, not transcoding it".format(item_info.name, preset_name))
+            self.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
+            self.save()
+        except VSNotFound:
+            pass
+
+        logger.info("Requesting transcode to {0} of {1}".format(item_info.name, preset_name))
         job_id = item_info.transcode(preset_name, priority, wait=False, create_thumbnails=True,
                                      job_metadata={
                                         "import_source": "pluto-deliverables",

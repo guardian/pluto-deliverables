@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'gnm_deliverables',
+    'rabbitmq',
     'django_nose',
     'rest_framework'
 ]
@@ -47,7 +48,7 @@ INSTALLED_APPS = [
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = [
     "--with-coverage",
-    "--cover-package=gnm_deliverables"
+    "--cover-package=gnm_deliverables,rabbitmq"
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -179,9 +180,19 @@ LOGGING = {
             'formatter': 'normal',
         },
     },
-    'pika': {
-        'handlers': ['console'],
-        'level': 'ERROR',
+    'loggers': {
+        'pika': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+        'rabbitmq': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        'gnm_deliverables': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        }
     },
     'root': {
         'handlers': ['console'],

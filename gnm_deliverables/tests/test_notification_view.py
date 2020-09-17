@@ -28,7 +28,7 @@ class TestNotificationView(TestCase):
         self.assertEqual(initial_state.status, DELIVERABLE_ASSET_STATUS_NOT_INGESTED)
 
         ##make the request
-        fake_notification = b"""{"field":[{"key":"asset_id","value":"99999"},{"key":"import_source","value":"pluto-deliverables"}]}"""
+        fake_notification = b"""{"field":[{"key":"asset_id","value":"99999"},{"key":"jobId","value":"VX-99998"},{"key":"import_source","value":"pluto-deliverables"}]}"""
 
         with patch("gnm_deliverables.models.DeliverableAsset.create_proxy") as mock_create_proxy:
             response = self.client.post(reverse("vs-notifications"), fake_notification, content_type="application/json")
@@ -58,7 +58,7 @@ class TestNotificationView(TestCase):
                 {"key":"import_source","value":"pluto-deliverables"},
                 {"key":"project_id","value":"12"},
                 {"key":"itemId","value":"VX-1234"},
-                {"key":"jobId","value":"VX-2345"},
+                {"key":"jobId","value":"VX-99998"},
                 {"key":"status","value":"FINISHED"},
                 {"key":"type","value":"ESSENCE_VERSION"}
             ]
@@ -94,7 +94,7 @@ class TestNotificationView(TestCase):
                 {"key":"import_source","value":"pluto-deliverables"},
                 {"key":"project_id","value":"12"},
                 {"key":"itemId","value":"VX-1234"},
-                {"key":"jobId","value":"VX-2345"},
+                {"key":"jobId","value":"VX-99998"},
                 {"key":"status","value":"FINISHED"},
                 {"key":"type","value":"TRANSCODE"}
             ]
@@ -128,7 +128,7 @@ class TestNotificationView(TestCase):
                 {"key":"import_source","value":"pluto-deliverables"},
                 {"key":"project_id","value":"12"},
                 {"key":"itemId","value":"VX-1234"},
-                {"key":"jobId","value":"VX-2345"},
+                {"key":"jobId","value":"VX-99998"},
                 {"key":"status","value":"FAILED_TOTAL"}
             ]
         }
@@ -163,7 +163,7 @@ class TestNotificationView(TestCase):
                 {"key":"import_source","value":"pluto-deliverables"},
                 {"key":"project_id","value":"12"},
                 {"key":"itemId","value":"VX-1234"},
-                {"key":"jobId","value":"VX-2345"},
+                {"key":"jobId","value":"VX-99998"},
                 {"key":"status","value":"STARTED"}
             ]
         }

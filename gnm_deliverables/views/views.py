@@ -340,8 +340,7 @@ class TestCreateProxyView(APIView):
 
 
 class VSNotifyView(APIView):
-    authentication_classes = (
-    BasicAuthentication,)  # we need to bypass the default of JwtAuthentication for the tests to work.
+    authentication_classes = (BasicAuthentication,)  # we need to bypass the default of JwtAuthentication for the tests to work.
     permission_classes = (AllowAny,)  # we don't have authentication on the VS endpoint
 
     def post(self, request):
@@ -352,15 +351,11 @@ class VSNotifyView(APIView):
             logger.exception("Could not interpret content from Vidispine: ", exc_info=e)
             return Response({"status": "error", "detail": str(e)}, status=400)
 
-        vsids = content.vsIDs
-        if content.import_source != "pluto-deliverables":
-            logger.warning(
-                "Received a job notification {0} for item {1} that is not ours".format(vsids[1],
-                                                                                       vsids[0]))
-            return Response(data=None, status=200)  # VS doesn't need to know, nod and smile
+        (itemId, jobId, fileId) = content.vsIDs
 
         try:
-            asset = DeliverableAsset.objects.get(pk=content.asset_id)
+            ## Search only on the job id, that way we will pick up ones that were initiated by atomresponder too!
+            asset = DeliverableAsset.objects.get(job_id=jobId)
         except DeliverableAsset.DoesNotExist:
             logger.warning("Received a notification for asset {0} that does not exist".format(
                 content.asset_id))
@@ -383,7 +378,7 @@ class VSNotifyView(APIView):
             if content.type == "TRANSCODE":
                 asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
             else:
-                asset.online_item_id = vsids[0]
+                asset.online_item_id = itemId
                 asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
                 try:
                     asset.create_proxy()
@@ -401,5 +396,5 @@ class VSNotifyView(APIView):
             asset.save()
         else:
             logger.warning(
-                "Received unknown job status {0} from {1}".format(content.status, vsids[1]))
+                "Received unknown job status {0} from {1}".format(content.status, jobId))
         return Response(data=None, status=200)
