@@ -28,7 +28,7 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
         model = DeliverableAsset
         fields = ['id', 'type', 'filename', 'size', 'access_dt', 'modified_dt', 'changed_dt',
                   'job_id', 'online_item_id', 'nearline_item_id', 'archive_item_id',
-                  'deliverable', 'status', 'type_string',
+                  'deliverable', 'status', 'type_string', 'atom_id',
                   'size_string', 'status_string', 'changed_string',
                   'gnm_website_master', 'youtube_master', 'DailyMotion_master',
                   'mainstream_master']

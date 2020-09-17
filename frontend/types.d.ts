@@ -28,6 +28,7 @@ interface Deliverable {
   duration: string | null;
   size_string: string;
   status_string: string;
+  atom_id: string | null;
 }
 
 interface CreateGuardianMaster {

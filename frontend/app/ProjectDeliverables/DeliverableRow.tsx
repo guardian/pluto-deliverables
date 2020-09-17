@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
-  Collapse,
+  Collapse, Grid,
   IconButton,
   TableCell,
   TableRow,
-  Tooltip,
+  Tooltip, Typography,
 } from "@material-ui/core";
 import DeliverableTypeSelector from "../DeliverableTypeSelector";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
@@ -17,6 +17,8 @@ import { VidispineItem } from "../vidispine/item/VidispineItem";
 import { VError } from "ts-interface-checker";
 import DurationFormatter from "./DurationFormatter";
 import VidispineJobProgress from "./VidispineJobProgress";
+// @ts-ignore
+import atomIcon from "../static/atom_icon.svg";
 
 interface DeliverableRowProps {
   deliverable: Deliverable;
@@ -30,6 +32,8 @@ interface DeliverableRowProps {
   vidispineBaseUri: string;
   openJob: (jobId: string) => void;
 }
+
+declare var mediaAtomToolUrl:string;
 
 const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   const [open, setOpen] = useState<boolean>(false);
@@ -111,7 +115,24 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
             }}
           />
         </TableCell>
-        <TableCell>{props.deliverable.filename}</TableCell>
+        <TableCell>
+          <Grid container direction="column">
+            <Grid item>
+              <Typography>{props.deliverable.filename}</Typography>
+            </Grid>
+            {
+              props.deliverable.atom_id ? <Grid item alignItems="flex-end">
+                <Tooltip title="Imported from media atom">
+                  <IconButton aria-label="Go to" onClick={
+                    ()=>window.open(`${mediaAtomToolUrl}/${props.deliverable.atom_id}`, "_blank")}
+                  >
+                    <img src={atomIcon} alt="atom" style={{width: "26px", height: "26px"}}/>
+                  </IconButton>
+                </Tooltip>
+              </Grid>: null
+            }
+          </Grid>
+        </TableCell>
         <TableCell>{version ?? "-"}</TableCell>
         <TableCell>{props.deliverable.size_string ?? "-"}</TableCell>
         <TableCell>
