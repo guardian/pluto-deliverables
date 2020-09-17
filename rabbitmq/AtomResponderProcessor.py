@@ -2,6 +2,8 @@ from .MessageProcessor import MessageProcessor
 from .serializers import AtomMessageSerializer
 from .models import AtomResponderMessage
 from gnm_deliverables.models import Deliverable, DeliverableAsset
+from gnmvidispine.vs_item import VSItem
+from django.conf import settings
 import gnm_deliverables.choices as AssetChoices
 import rabbitmq.constants as const
 import logging
@@ -64,6 +66,22 @@ class AtomResponderProcessor(MessageProcessor):
         asset.deliverable = new_bundle
         asset.save()
 
+    def set_vs_metadata(self, asset:DeliverableAsset):
+        if asset.online_item_id is None:
+            logger.info("Deliverable asset {} has no online item id, can't set metadata".format(str(asset)))
+            return
+
+        logger.info("Setting deliverables metadata on {0} for {1}".format(asset.online_item_id, str(asset)))
+        item = VSItem(url=settings.VIDISPINE_URL,user=settings.VIDISPINE_USER,passwd=settings.VIDISPINE_PASSWORD)
+        item.name = asset.online_item_id
+        builder = item.get_metadata_builder()
+        builder.addGroup(const.GROUP_GNM_DELIVERABLE, {
+            const.GNM_DELIVERABLE_ATOM_ID: asset.atom_id,
+            const.GNM_DELIVERABLE_BUNDLE: asset.deliverable.id,
+            const.GNM_DELIVERABLE_ID: asset.id
+        })
+        builder.commit()
+
     def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body):
         """
         handles the incoming message
@@ -79,12 +97,17 @@ class AtomResponderProcessor(MessageProcessor):
             logger.info("Received notification of a new master {0} at item {1}".format(msg.title, msg.itemId))
             (asset, created) = self.get_or_create_record(msg.atomId, msg.projectId, msg.commissionId)
             asset.online_item_id = msg.itemId
-            asset.job_id = msg.jobId    ##once we save, we will get the notifications when the job completes
+            asset.job_id = msg.jobId    ##once we save this value, we can process the notifications when the job completes
             asset.size = msg.size
             asset.filename = msg.title
             if created:
                 asset.status = AssetChoices.DELIVERABLE_ASSET_STATUS_INGESTING  #FIXME: it might not be this state?
             asset.save()
+            if created:
+                try:
+                    self.set_vs_metadata(asset)
+                except Exception as e:
+                    logger.exception("Could not update Vidispne metadata on {}: ".format(asset.online_item_id), exc_info=e)
         elif msg.type == const.MESSAGE_TYPE_PAC:
             logger.info("PAC messages not implemented yet")
         elif msg.type == const.MESSAGE_TYPE_PROJECT_ASSIGNED:
