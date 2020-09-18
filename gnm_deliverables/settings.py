@@ -138,6 +138,9 @@ DEPLOYMENT_ROOT = os.environ.get("DEPLOYMENT_ROOT", "http://localhost:9000")
 #### is _in-cluster_ so should be an http:// link to our k8s Service and NOT the external-facing https:// one.
 VS_CALLBACK_ROOT = os.environ.get("CALLBACK_ROOT", "http://localhost:9000")
 
+### Location that the browser can find the media atom tool
+MEDIA_ATOM_TOOL_URI = os.environ.get("MEDIA_ATOM_TOOL_URI", "https://media-atom-tool.local")
+
 ### Message queue configuration. These should be the locations that the _server portion_ can access Rabbitmq
 RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "localhost")
 RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
