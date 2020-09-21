@@ -187,7 +187,11 @@ LOGGING = {
         },
         'rabbitmq': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
+        },
+        'gnm_deliverables.jwt_auth_backend': {
+            'handlers': ['console'],
+            'level': 'WARNING',
         },
         'gnm_deliverables': {
             'handlers': ['console'],
