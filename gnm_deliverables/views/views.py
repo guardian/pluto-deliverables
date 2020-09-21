@@ -374,6 +374,8 @@ class VSNotifyView(APIView):
             else:
                 asset.online_item_id = itemId
                 asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
+                # don't delete local files here. We pick those up via receiving the rabbitmq notification of this event
+                asset.ingest_complete_dt = datetime.now()
                 try:
                     asset.create_proxy()
                 except Exception as e:
@@ -383,9 +385,6 @@ class VSNotifyView(APIView):
                             asset.id,
                             asset.deliverable.id),
                         exc_info=e)
-
-            # don't delete local files here. We pick those up with a timed job run via a mgt command
-            asset.ingest_complete_dt = datetime.now()
 
             asset.save()
         else:

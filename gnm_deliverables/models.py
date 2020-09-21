@@ -457,6 +457,10 @@ class DeliverableAsset(models.Model):
             super(DeliverableAsset, self).delete()
 
     def remove_file(self):
+        """
+        Try to remove the original source file from disk, once it's been ingested. Sets file_removed_dt and saves the model.
+        :return: True if the file was removed, False if not.
+        """
         try:
             os.remove(str(self.absolute_path))
             logger.info('Removed file for asset "{asset}": "{path}"'.format(asset=self,
@@ -465,13 +469,16 @@ class DeliverableAsset(models.Model):
             self.save()
             return True
         except OSError as e:
-            logger.exception('Failed to remove "{path}"'.format(path=self.absolute_path))
             # this _should_ get picked up by the periodic task remove_stale_files
             if e.errno == errno.ENOENT:
                 # No such file
-                self.file_removed_dt = now()
-                self.save()
-                return True
+                if self.file_removed_dt is None:
+                    self.file_removed_dt = now()
+                    self.save()
+                return False
+            else:
+                logger.exception('Failed to remove "{path}"'.format(path=self.absolute_path))
+                return False
 
     def __str__(self):
         return '{name}'.format(name=self.filename)
