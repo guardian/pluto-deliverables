@@ -400,23 +400,25 @@ class VSNotifyView(APIView):
                 "Received unknown job status {0} from {1}".format(content.status, jobId))
         return Response(data=None, status=200)
 
-class DeliverableAPIStarted(RetrieveAPIView):
+
+class DeliverableAPIStarted(APIView):
     #authentication_classes = (JwtRestAuth,)
     #permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
-    serializer_class = DeliverableAssetSerializer
-
-    def get_queryset(self):
-        bundle_id = self.request.GET["bundleId"]
-        parent_bundle = Deliverable.objects.get(pk=bundle_id)
-        return DeliverableAsset.objects.filter(deliverable=parent_bundle)
+    parser_classes = (JSONParser,)
 
     def get(self, *args, **kwargs):
+        bundle_id = self.request.GET["bundleId"]
         try:
-            return super(DeliverableAPIStarted, self).get(*args, **kwargs)
+            parent_bundle = Deliverable.objects.get(pk=bundle_id)
+
+            if parent_bundle.assets.filter(status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED).exists():
+                result = {'ingests_started': 'False'}
+            else:
+                result = {'ingests_started': 'True'}
+            return Response(result, status=200)
         except Deliverable.DoesNotExist:
             return Response({"status": "error", "detail": "Bundle not known"}, status=404)
         except KeyError:
             return Response(
-                {"status": "error", "detail": "you must specify a bundleId= query param"},
-                status=400)
+                {"status": "error", "detail": "you must specify a bundleId= query param"}, status=400)

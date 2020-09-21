@@ -36,6 +36,7 @@ import {
   useHistory,
   useLocation,
   useParams,
+    Prompt
 } from "react-router-dom";
 import DeliverableTypeSelector from "./DeliverableTypeSelector";
 import {
@@ -135,6 +136,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [assetToAdd, setAssetToAdd] = useState<string>("");
   const [adoptInProgress, setAdoptInProgress] = useState<boolean>(false);
   const [centralMessage, setCentralMessage] = useState<string>("");
+  let [isBlocking, setIsBlocking] = useState(true);
 
   // Material-UI
   const classes = useStyles();
@@ -263,6 +265,10 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   return (
     <>
+        <Prompt
+            when={isBlocking}
+            message='Some items have not started ingesting.'
+        />
       <div>
         <h2 className={classes.sectionHeader}>Files</h2>
         {parentBundleInfo ? <LocationLink bundleInfo={parentBundleInfo} /> : ""}
