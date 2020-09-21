@@ -77,7 +77,7 @@ def find_files_for_deliverable(name):
 def create_folder(path, permission=None):
     if permission is None:
         from django.conf import settings
-        permission=getattr(settings, 'GNM_DELIVERABLES_FOLDER_PERMISSION', stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP)
+        permission=getattr(settings, 'GNM_DELIVERABLES_FOLDER_PERMISSION', stat.S_IRWXU | stat.S_IRWXG)
     try:
         os.makedirs(path)
         os.chmod(path, permission)
