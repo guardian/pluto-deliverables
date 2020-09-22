@@ -443,7 +443,7 @@ class DeliverableAsset(models.Model):
         if self.online_item_id is not None:
             try:
                 exists_in_other_deliverable = DeliverableAsset.objects.filter(
-                    Q(item_id=self.online_item_id) & ~Q(id=self.id)
+                    Q(online_item_id=self.online_item_id) & ~Q(id=self.id)
                 ).exists()
                 if not self.created_from_existing_item and not exists_in_other_deliverable:
                     self.item(user).delete()

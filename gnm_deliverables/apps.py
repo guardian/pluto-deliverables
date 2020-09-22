@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 import os
 
+
 class GnmDeliverablesConfig(AppConfig):
     name = 'gnm_deliverables'
 

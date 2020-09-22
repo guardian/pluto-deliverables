@@ -77,7 +77,6 @@ class TestRelayMessage(TestCase):
             r.relay_message(fake_instance,"create")
 
             expected_output = JSONRenderer().render(DeliverableAssetSerializer(fake_instance).data)
-
             mock_channel.basic_publish.assert_called_once_with(
                 exchange='pluto-deliverables',
                 routing_key='deliverables.deliverableasset.create',

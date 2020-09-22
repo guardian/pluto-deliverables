@@ -6,7 +6,8 @@ import re
 import urllib.parse
 import urllib.parse
 from datetime import datetime
-
+import os
+from rabbitmq.time_funcs import get_current_time
 from django.conf import settings
 from django.views.generic import TemplateView
 from gnmvidispine.vidispine_api import VSNotFound, VSException
@@ -162,7 +163,15 @@ class DeliverableAPIView(APIView):
         deliverables = DeliverableAsset.objects.filter(deliverable=parent_bundle,
                                                        pk__in=self.request.data)
 
-        deliverables.delete()
+        for asset in deliverables:
+            try:
+                if os.path.exists(str(asset.absolute_path)):
+                    asset.remove_file()
+                #asset.purge(user=self.request.user.get_username())
+                asset.purge()
+                asset.delete()
+            except Exception as e:
+                logger.error("Could not delete existing path or asset for asset {0}: {1}".format(str(asset), str(e)))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -360,7 +369,7 @@ class VSNotifyView(APIView):
                 asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED
             else:
                 asset.status = DELIVERABLE_ASSET_STATUS_INGEST_FAILED
-            asset.ingest_complete_dt = datetime.now()
+            asset.ingest_complete_dt = get_current_time()
             asset.save()
         elif content.isRunning:
             if content.type == "TRANSCODE":
@@ -372,7 +381,7 @@ class VSNotifyView(APIView):
             if content.type == "TRANSCODE":
                 asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
                 # don't delete local files here. We pick those up via receiving the rabbitmq notification of this event
-                asset.ingest_complete_dt = datetime.now()
+                asset.ingest_complete_dt = get_current_time()
             else:
                 asset.online_item_id = itemId
                 asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
