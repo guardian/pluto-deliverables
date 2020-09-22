@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
   Collapse,
+  Grid,
   IconButton,
   TableCell,
   TableRow,
   Tooltip,
+  Typography,
 } from "@material-ui/core";
 import DeliverableTypeSelector from "../DeliverableTypeSelector";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
@@ -17,6 +19,9 @@ import { VidispineItem } from "../vidispine/item/VidispineItem";
 import { VError } from "ts-interface-checker";
 import DurationFormatter from "./DurationFormatter";
 import VidispineJobProgress from "./VidispineJobProgress";
+import LaunchIcon from "@material-ui/icons/Launch";
+// @ts-ignore
+import atomIcon from "../static/atom_icon.svg";
 
 interface DeliverableRowProps {
   deliverable: Deliverable;
@@ -30,6 +35,8 @@ interface DeliverableRowProps {
   vidispineBaseUri: string;
   openJob: (jobId: string) => void;
 }
+
+declare var mediaAtomToolUrl: string;
 
 const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   const [open, setOpen] = useState<boolean>(false);
@@ -111,7 +118,64 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
             }}
           />
         </TableCell>
-        <TableCell>{props.deliverable.filename}</TableCell>
+        <TableCell>
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justify="space-between"
+          >
+            <Grid item>
+              <Typography>{props.deliverable.filename}</Typography>
+            </Grid>
+            <Grid item>
+              {props.deliverable.atom_id ? (
+                <Tooltip title="Imported from media atom">
+                  <IconButton
+                    aria-label="Go to"
+                    style={{
+                      paddingTop: 0,
+                      paddingBottom: 0,
+                      paddingRight: "3px",
+                      paddingLeft: "3px",
+                    }}
+                    onClick={() =>
+                      window.open(
+                        `${mediaAtomToolUrl}/${props.deliverable.atom_id}`,
+                        "_blank"
+                      )
+                    }
+                  >
+                    <img
+                      src={atomIcon}
+                      alt="atom"
+                      style={{ width: "26px", height: "26px" }}
+                    />
+                  </IconButton>
+                </Tooltip>
+              ) : null}
+              <Tooltip title="View media">
+                <IconButton
+                  aria-label="Go to"
+                  style={{
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    paddingRight: "3px",
+                    paddingLeft: "3px",
+                  }}
+                  onClick={() =>
+                    window.open(
+                      `/vs/item/${props.deliverable.online_item_id}`,
+                      "_blank"
+                    )
+                  }
+                >
+                  <LaunchIcon style={{ width: "26px", height: "26px" }} />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          </Grid>
+        </TableCell>
         <TableCell>{version ?? "-"}</TableCell>
         <TableCell>{props.deliverable.size_string ?? "-"}</TableCell>
         <TableCell>

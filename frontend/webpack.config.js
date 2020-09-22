@@ -1,6 +1,7 @@
 var webpack = require("webpack");
 var path = require("path");
 var TerserPlugin = require("terser-webpack-plugin");
+var svgToMiniDataUri = require("mini-svg-data-uri");
 
 var BUILD_DIR = path.resolve(__dirname, "../gnm_deliverables/static");
 var APP_DIR = path.resolve(__dirname, "app");
@@ -43,6 +44,17 @@ var config = {
           },
         },
       },
+      {
+        test: /\.svg$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              generator: (content) => svgToMiniDataUri(content.toString()),
+            },
+          },
+        ],
+      }
     ],
   },
   devtool: "source-map",
