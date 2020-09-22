@@ -30,7 +30,7 @@ class MessageRelay(object):
             )
         )
         channel = connection.channel()
-        channel.exchange_declare(exchange_type='topic',exchange=getattr(settings, "RABBITMQ_EXCHANGE", 'pluto-deliverables'))
+
         return channel
 
     def relay_message(self, affected_model, action):

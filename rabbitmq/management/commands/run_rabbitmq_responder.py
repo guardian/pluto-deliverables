@@ -31,7 +31,6 @@ class Command(BaseCommand):
         sanitised_routingkey = re.sub(r'[^\w\d]', '', handler.routing_key)
 
         queuename = "deliverables-{0}".format(sanitised_routingkey)
-        channel.exchange_declare(exchange="deliverables-dlx", exchange_type="direct")
         channel.queue_declare("deliverables-dlq", durable=True)
         channel.queue_bind("deliverables-dlq","deliverables-dlx")
 
