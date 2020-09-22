@@ -7,7 +7,7 @@ import pika
 import pika.exceptions
 from django.conf import settings
 from time import sleep
-import os
+from rabbitmq.declaration import declare_rabbitmq_setup
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class MessageRelay(object):
             )
         )
         channel = connection.channel()
-
+        declare_rabbitmq_setup(channel)
         return channel
 
     def relay_message(self, affected_model, action):
