@@ -371,11 +371,11 @@ class VSNotifyView(APIView):
         elif content.status == "FINISHED":
             if content.type == "TRANSCODE":
                 asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
+                # don't delete local files here. We pick those up via receiving the rabbitmq notification of this event
+                asset.ingest_complete_dt = datetime.now()
             else:
                 asset.online_item_id = itemId
                 asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
-                # don't delete local files here. We pick those up via receiving the rabbitmq notification of this event
-                asset.ingest_complete_dt = datetime.now()
                 try:
                     asset.create_proxy()
                 except Exception as e:
