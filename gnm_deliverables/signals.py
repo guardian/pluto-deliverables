@@ -50,9 +50,6 @@ class MessageRelay(object):
                 elif isinstance(affected_model, DeliverableAsset):
                     logger.info("{0} an instance of DeliverableAsset with id {1} at {2}".format(action, affected_model.pk, affected_model.absolute_path))
                     content = DeliverableAssetSerializer(affected_model)
-                    # if not content.is_valid():
-                    #     logger.error("update signal received invalid DeliverableAsset: ", content.errors)
-                    #     content = None
                 elif affected_model.__class__.__name__=="Migration": #silently ignore this one
                     content = None
                 elif affected_model.__class__.__name__=="User": #silently ignore this one
@@ -65,8 +62,6 @@ class MessageRelay(object):
                     channel = MessageRelay.setup_connection()
                     routing_key = "deliverables.{0}.{1}".format(affected_model.__class__.__name__.lower(), action)
                     payload = JSONRenderer().render(content.data)
-                    logger.debug("data pre-serialization is {0}".format(affected_model.__dict__))
-                    logger.debug("serialized data is {0}".format(payload))
                     channel.basic_publish(
                         exchange='pluto-deliverables',
                         routing_key=routing_key,
