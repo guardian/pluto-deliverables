@@ -173,8 +173,8 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
     try {
       const projectDeliverables = await getProjectDeliverables(projectid);
-      loadStartedStatus();
       setDeliverables(projectDeliverables);
+      await loadStartedStatus();
     } catch (err) {
       if (err.response) {
         //server returned a bad status code
@@ -269,7 +269,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       const response = await axios.get(
         `/api/bundle/started?bundleId=${projectid}`
       );
-      if (response.data.ingests_started == "true") {
+      if (response.data.ingests_started == true) {
         setBlockRoute(false);
       } else {
         setBlockRoute(true);

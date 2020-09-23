@@ -31,6 +31,6 @@ urlpatterns = [
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/youtube', YoutubeAPIView.as_view(), name='youtube'),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/dailymotion', DailyMotionAPIView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logs', PlatformLogsView.as_view()),
-    path(r'api/bundle/started/<int:bundleId>', DeliverableAPIStarted.as_view()),
+    path(r'api/bundle/started', DeliverableAPIStarted.as_view()),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view()),
 ]

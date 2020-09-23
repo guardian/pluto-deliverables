@@ -413,9 +413,9 @@ class DeliverableAPIStarted(APIView):
             parent_bundle = Deliverable.objects.get(pk=bundle_id)
 
             if parent_bundle.assets.filter(status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED).exists():
-                result = {'ingests_started': 'false'}
+                result = {'ingests_started': False}
             else:
-                result = {'ingests_started': 'true'}
+                result = {'ingests_started': True}
             return Response(result, status=200)
         except Deliverable.DoesNotExist:
             return Response({"status": "error", "detail": "Bundle not known"}, status=404)

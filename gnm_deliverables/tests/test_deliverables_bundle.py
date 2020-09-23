@@ -114,7 +114,7 @@ class TestDeliverablesBundle(TestCase):
             view = DeliverableAPIStarted.as_view()
             response = view(request)
 
-            expected_response = {"ingests_started": "false"}
+            expected_response = {"ingests_started": False}
             self.assertEqual(response.data, expected_response)
 
 
