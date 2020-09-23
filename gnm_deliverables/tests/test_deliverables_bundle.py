@@ -107,14 +107,14 @@ class TestDeliverablesBundle(TestCase):
             user = User.objects.create_user(
                 'user01', 'user01@example.com', 'user01P4ssw0rD')
 
-            request_endpoint = '/api/bundle/started?bundleID='.format(deliverable.project_id)
+            request_endpoint = '/api/bundle/started?bundleId={0}'.format(deliverable.pk)
 
             request = factory.get(request_endpoint)
             force_authenticate(request, user=user)
             view = DeliverableAPIStarted.as_view()
             response = view(request)
 
-            expected_response = {"ingests_started": "true"}
+            expected_response = {"ingests_started": "false"}
             self.assertEqual(response.data, expected_response)
 
 
