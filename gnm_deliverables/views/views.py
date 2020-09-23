@@ -402,8 +402,8 @@ class VSNotifyView(APIView):
 
 
 class DeliverableAPIStarted(APIView):
-    #authentication_classes = (JwtRestAuth,)
-    #permission_classes = (IsAuthenticated,)
+    authentication_classes = (JwtRestAuth,)
+    permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
@@ -413,12 +413,11 @@ class DeliverableAPIStarted(APIView):
             parent_bundle = Deliverable.objects.get(pk=bundle_id)
 
             if parent_bundle.assets.filter(status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED).exists():
-                result = {'ingests_started': 'False'}
+                result = {'ingests_started': 'false'}
             else:
-                result = {'ingests_started': 'True'}
+                result = {'ingests_started': 'true'}
             return Response(result, status=200)
         except Deliverable.DoesNotExist:
             return Response({"status": "error", "detail": "Bundle not known"}, status=404)
         except KeyError:
-            return Response(
-                {"status": "error", "detail": "you must specify a bundleId= query param"}, status=400)
+            return Response({"status": "error", "detail": "You must specify a bundleId= query parameter"}, status=400)

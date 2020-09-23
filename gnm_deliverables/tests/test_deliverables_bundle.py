@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from gnm_deliverables.models import Deliverable
-from gnm_deliverables.views.views import CountDeliverablesView, NewDeliverablesAPICreate
+from gnm_deliverables.views.views import CountDeliverablesView, NewDeliverablesAPICreate, DeliverableAPIStarted
 
 
 class TestDeliverablesBundle(TestCase):
@@ -95,6 +95,29 @@ class TestDeliverablesBundle(TestCase):
             response = view(request, project_id=deliverable.project_id)
 
             expected_response = {"total_asset_count": 2, "unimported_asset_count": 2}
+            self.assertEqual(response.data, expected_response)
+
+    def test_started(self):
+        deliverable = mock.Mock(Deliverable, project_id=2, name='test', pk=1)
+
+        with mock.patch("gnm_deliverables.models.Deliverable.objects.get") as mock_deliverable, \
+                mock.patch(
+                    "gnm_deliverables.models.Deliverable.assets.filter") as mock_assets_filter:
+            mock_deliverable.return_value = deliverable
+            mock_assets_filter.return_value = True
+
+            factory = APIRequestFactory()
+            user = User.objects.create_user(
+                'user01', 'user01@example.com', 'user01P4ssw0rD')
+
+            request_endpoint = '/api/bundle/started?bundleID='.format(deliverable.project_id)
+
+            request = factory.get(request_endpoint)
+            force_authenticate(request, user=user)
+            view = DeliverableAPIStarted.as_view()
+            response = view(request, bundleID=deliverable.project_id)
+
+            expected_response = {"ingests_started": "true"}
             self.assertEqual(response.data, expected_response)
 
 

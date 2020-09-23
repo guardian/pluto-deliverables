@@ -36,7 +36,6 @@ import {
   useHistory,
   useLocation,
   useParams,
-    Prompt
 } from "react-router-dom";
 import DeliverableTypeSelector from "./DeliverableTypeSelector";
 import {
@@ -45,6 +44,7 @@ import {
 } from "./api-service";
 import MasterList from "./MasterList/MasterList";
 import DeliverableRow from "./ProjectDeliverables/DeliverableRow";
+import BeforeUnloadComponent from 'react-beforeunload-component';
 
 interface HeaderTitles {
   label: string;
@@ -136,7 +136,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [assetToAdd, setAssetToAdd] = useState<string>("");
   const [adoptInProgress, setAdoptInProgress] = useState<boolean>(false);
   const [centralMessage, setCentralMessage] = useState<string>("");
-  let [isBlocking, setIsBlocking] = useState(true);
+  const [blockRoute, setBlockRoute] = useState(false);
 
   // Material-UI
   const classes = useStyles();
@@ -153,6 +153,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
       const projectDeliverables = await getProjectDeliverables(projectid);
       setDeliverables(projectDeliverables);
+      loadStartedStatus();
     } catch (err) {
       if (err.response) {
         //server returned a bad status code
@@ -172,7 +173,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
     try {
       const projectDeliverables = await getProjectDeliverables(projectid);
-
+      loadStartedStatus();
       setDeliverables(projectDeliverables);
     } catch (err) {
       if (err.response) {
@@ -263,12 +264,26 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     loadParentBundle();
   }, []);
 
+  const loadStartedStatus = async () => {
+      try {
+          const response = await axios.get(`/api/bundle/started?bundleId=${projectid}`);
+          if (response.data.ingests_started == 'true') {
+            setBlockRoute(false);
+          } else {
+            setBlockRoute(true);
+          }
+      } catch (err) {
+          console.error("Could not load if bundle has started ingesting: ", err);
+      }
+  };
+
   return (
     <>
-        <Prompt
-            when={isBlocking}
-            message='Some items have not started ingesting.'
-        />
+        <BeforeUnloadComponent
+            blockRoute={blockRoute}
+            ignoreChildrenLinks={true}
+            alertMessage="One or more items are not ingesting. Are you sure you want to leave?"
+        >
       <div>
         <h2 className={classes.sectionHeader}>Files</h2>
         {parentBundleInfo ? <LocationLink bundleInfo={parentBundleInfo} /> : ""}
@@ -389,6 +404,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           </Button>
         </DialogActions>
       </Dialog>
+        </BeforeUnloadComponent>
     </>
   );
 };
