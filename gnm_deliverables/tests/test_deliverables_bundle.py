@@ -100,11 +100,8 @@ class TestDeliverablesBundle(TestCase):
     def test_started(self):
         deliverable = mock.Mock(Deliverable, project_id=2, name='test', pk=1)
 
-        with mock.patch("gnm_deliverables.models.Deliverable.objects.get") as mock_deliverable, \
-                mock.patch(
-                    "gnm_deliverables.models.Deliverable.assets.filter") as mock_assets_filter:
+        with mock.patch("gnm_deliverables.models.Deliverable.objects.get") as mock_deliverable:
             mock_deliverable.return_value = deliverable
-            mock_assets_filter.return_value = True
 
             factory = APIRequestFactory()
             user = User.objects.create_user(
@@ -115,7 +112,7 @@ class TestDeliverablesBundle(TestCase):
             request = factory.get(request_endpoint)
             force_authenticate(request, user=user)
             view = DeliverableAPIStarted.as_view()
-            response = view(request, bundleID=deliverable.project_id)
+            response = view(request)
 
             expected_response = {"ingests_started": "true"}
             self.assertEqual(response.data, expected_response)
