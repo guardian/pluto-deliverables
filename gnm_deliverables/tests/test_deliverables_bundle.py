@@ -98,7 +98,7 @@ class TestDeliverablesBundle(TestCase):
             self.assertEqual(response.data, expected_response)
 
     def test_started(self):
-        deliverable = mock.Mock(Deliverable, project_id=2, name='test', pk=1)
+        deliverable = mock.Mock(Deliverable, project_id=2, name='test', pk=1, pluto_core_project_id=2)
 
         with mock.patch("gnm_deliverables.models.Deliverable.objects.get") as mock_deliverable:
             mock_deliverable.return_value = deliverable
@@ -107,7 +107,7 @@ class TestDeliverablesBundle(TestCase):
             user = User.objects.create_user(
                 'user01', 'user01@example.com', 'user01P4ssw0rD')
 
-            request_endpoint = '/api/bundle/started?bundleId={0}'.format(deliverable.pk)
+            request_endpoint = '/api/bundle/started?project_id={0}'.format(deliverable.pluto_core_project_id)
 
             request = factory.get(request_endpoint)
             force_authenticate(request, user=user)

@@ -267,7 +267,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const loadStartedStatus = async () => {
     try {
       const response = await axios.get(
-        `/api/bundle/started?bundleId=${projectid}`
+        `/api/bundle/started?project_id=${projectid}`
       );
       if (response.data.ingests_started == true) {
         setBlockRoute(false);

@@ -408,9 +408,9 @@ class DeliverableAPIStarted(APIView):
     parser_classes = (JSONParser,)
 
     def get(self, *args, **kwargs):
-        bundle_id = self.request.GET["bundleId"]
+        project_id = self.request.GET["project_id"]
         try:
-            parent_bundle = Deliverable.objects.get(pk=bundle_id)
+            parent_bundle = Deliverable.objects.get(pluto_core_project_id=project_id)
 
             if parent_bundle.assets.filter(status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED).exists():
                 result = {'ingests_started': False}
