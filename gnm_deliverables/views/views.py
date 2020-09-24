@@ -38,8 +38,8 @@ from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, \
     DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED, DELIVERABLE_ASSET_STATUS_TRANSCODING
 from gnm_deliverables.exceptions import NoShapeError
 from gnm_deliverables.files import create_folder_for_deliverable
-from gnm_deliverables.forms import DeliverableCreateForm
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
+from gnm_deliverables.hmac_auth_backend import HmacRestAuth
 from gnm_deliverables.models import Deliverable, DeliverableAsset
 from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer
 from gnm_deliverables.vs_notification import VSNotification
@@ -421,3 +421,16 @@ class DeliverableAPIStarted(APIView):
             return Response({"status": "error", "detail": "Bundle not known"}, status=404)
         except KeyError:
             return Response({"status": "error", "detail": "You must specify a bundleId= query parameter"}, status=400)
+
+
+class LaunchDetectorUpdateView(APIView):
+    authentication_classes = (HmacRestAuth, )
+    permission_classes = (IsAuthenticated, )
+    parser_classes = (JSONParser, )
+    renderer_classes = (JSONRenderer, )
+
+    def post(self, request, atom_id=None):
+        logger.info("Received update from launch detector: {0}".format(request.data))
+
+        return Response({"status":"not_implemented"}, status=500)
+

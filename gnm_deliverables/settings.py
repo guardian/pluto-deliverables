@@ -153,6 +153,8 @@ RABBITMQ_PASSWD = os.environ.get("RABBITMQ_PASSWD","")
 GNM_DELIVERABLES_SAN_ROOT       = os.environ.get("DELIVERABLES_ROOT_PATH", "/media/shared")
 GNM_DELIVERABLES_SAN_ROOT_LOCAL = os.environ.get("DELIVERABLES_CLIENT_PATH", "/Volumes/shared")
 
+### Launch detector integration
+LAUNCH_DETECTOR_SHARED_KEY = os.environ.get("LAUNCH_DETECTOR_SHARED_KEY","something_here")
 # Transcode presets to use.  The first value is a regex to match against the MIME type, the second is the name of the VS preset
 TRANSCODE_PRESETS = {
     r'^video/': "lowres",
