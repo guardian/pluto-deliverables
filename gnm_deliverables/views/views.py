@@ -8,27 +8,20 @@ import urllib.parse
 from datetime import datetime
 
 from django.conf import settings
-from django.contrib import messages
-from django.core.exceptions import ValidationError
-from django.db.models import Q
-from django.forms.models import modelformset_factory
-from django.http import Http404
-from django.shortcuts import redirect
-from django.urls import reverse
 from django.views.generic import TemplateView
-from django.views.generic.detail import SingleObjectMixin
 from gnmvidispine.vidispine_api import VSNotFound, VSException
 from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView, \
+from rest_framework.generics import RetrieveAPIView, \
     ListAPIView, CreateAPIView
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
+import gnm_deliverables.launch_detector
+from jsonschema import ValidationError
 
 from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, \
     DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
@@ -432,5 +425,23 @@ class LaunchDetectorUpdateView(APIView):
     def post(self, request, atom_id=None):
         logger.info("Received update from launch detector: {0}".format(request.data))
 
-        return Response({"status":"not_implemented"}, status=500)
+        try:
+            msg = gnm_deliverables.launch_detector.LaunchDetectorUpdate(request.data)
+        except ValidationError as e:
+            logger.error("External update didn't validate: {0}".format(str(e)))
+            logger.error("Offending content was: {0}".format(request.data))
+            return Response({"status":"invalid_data"}, status=400)
+        try:
+            asset = gnm_deliverables.launch_detector.find_asset_for(msg)
+
+            gnm_deliverables.launch_detector.update_gnmwebsite(msg, asset)
+            gnm_deliverables.launch_detector.update_dailymotion(msg, asset)
+            gnm_deliverables.launch_detector.update_mainstream(msg, asset)
+            return Response({"status":"ok", "detail":"updated","atom_id":msg.atom_id}, status=200)
+        except DeliverableAsset.DoesNotExist:
+            logger.error("Could not find a deliverable asset matching the atom id {0}".format(msg.atom_id))
+            return Response({"status":"not_found","atom_id":msg.atom_id}, status=404)
+        except Exception as e:
+            logger.exception("Could not process incoming update for {0}: ".format(atom_id), exc_info=e)
+            return Response({"status":"server_error", "detail": str(e)}, status=500)
 

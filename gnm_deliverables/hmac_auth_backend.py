@@ -76,6 +76,7 @@ class HmacRestAuth(BaseAuthentication):
 
         if signature != presented_signature:
             logger.warning("Signature mismatched. Presented {0} but we calculated {1}".format(presented_signature, signature))
+            logger.warning("string_to_sign was {0}".format(string_to_sign))
             raise AuthenticationFailed
 
         return User(
@@ -85,5 +86,5 @@ class HmacRestAuth(BaseAuthentication):
             email="",
             is_staff=False,
             is_active=True,
-            is_superuser=False   #until we have groups added in to the JWT claim
+            is_superuser=False
         ), "hmac"
