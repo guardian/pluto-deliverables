@@ -130,3 +130,5 @@ type PrimaryTone =
   | "Performance";
 
 type PublicationStatus = "Unpublished" | "Published" | "Superceded";
+
+declare module 'react-beforeunload-component';

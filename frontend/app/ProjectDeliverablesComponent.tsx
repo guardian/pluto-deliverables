@@ -44,6 +44,7 @@ import {
 } from "./api-service";
 import MasterList from "./MasterList/MasterList";
 import DeliverableRow from "./ProjectDeliverables/DeliverableRow";
+import BeforeUnloadComponent from "react-beforeunload-component";
 
 interface HeaderTitles {
   label: string;
@@ -135,6 +136,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [assetToAdd, setAssetToAdd] = useState<string>("");
   const [adoptInProgress, setAdoptInProgress] = useState<boolean>(false);
   const [centralMessage, setCentralMessage] = useState<string>("");
+  const [blockRoute, setBlockRoute] = useState(false);
 
   // Material-UI
   const classes = useStyles();
@@ -151,6 +153,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
       const projectDeliverables = await getProjectDeliverables(projectid);
       setDeliverables(projectDeliverables);
+      loadStartedStatus();
     } catch (err) {
       if (err.response) {
         //server returned a bad status code
@@ -170,8 +173,8 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
     try {
       const projectDeliverables = await getProjectDeliverables(projectid);
-
       setDeliverables(projectDeliverables);
+      await loadStartedStatus();
     } catch (err) {
       if (err.response) {
         //server returned a bad status code
@@ -261,128 +264,155 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     loadParentBundle();
   }, []);
 
+  const loadStartedStatus = async () => {
+    try {
+      const response = await axios.get(
+        `/api/bundle/started?project_id=${projectid}`
+      );
+      if (response.data.ingests_started == true) {
+        setBlockRoute(false);
+      } else {
+        setBlockRoute(true);
+      }
+    } catch (err) {
+      console.error("Could not load if bundle has started ingesting: ", err);
+    }
+  };
+
   return (
     <>
-      <div>
-        <h2 className={classes.sectionHeader}>Files</h2>
-        {parentBundleInfo ? <LocationLink bundleInfo={parentBundleInfo} /> : ""}
-      </div>
-      <span className={classes.buttonContainer}>
-        <Button
-          className={classes.buttons}
-          variant="outlined"
-          onClick={() => doRefresh()}
-        >
-          Refresh
-        </Button>
-        <Button
-          className={classes.buttons}
-          variant="outlined"
-          disabled={selectedIDs.length === 0}
-          onClick={() => setOpenDialog(true)}
-        >
-          Delete
-        </Button>
-        <Typography className={classes.centralMessage}>
-          {centralMessage}
-        </Typography>
-        <Button
-          className={classes.addAssetButton}
-          style={{ display: assetToAdd == "" ? "none" : "inherit" }}
-          variant="outlined"
-          disabled={assetToAdd == "" || adoptInProgress}
-          onClick={doAdoptItem}
-        >
-          Add Item
-        </Button>
-        <TextField
-          className={classes.adoptAssetInput}
-          onChange={(evt) => setAssetToAdd(evt.target.value)}
-          value={assetToAdd}
-          label="paste Pluto master or asset ID"
-          InputProps={{
-            readOnly: adoptInProgress,
-          }}
-        />
-      </span>
-      <Paper elevation={3}>
-        <TableContainer>
-          <Table className={classes.table}>
-            <TableHead>
-              <TableRow>
-                {tableHeaderTitles.map((entry, idx) => (
-                  <TableCell key={`r${idx}`}>{entry.label}</TableCell>
-                ))}
-                <TableCell />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {deliverables.map((del, idx) => (
-                <DeliverableRow
-                  key={del.id.toString()}
-                  deliverable={del}
-                  classes={classes}
-                  typeOptions={typeOptions}
-                  setCentralMessage={setCentralMessage}
-                  onCheckedUpdated={(isChecked) =>
-                    isChecked
-                      ? setSelectedIDs((prevContent) =>
-                          prevContent.concat(del.id)
-                        )
-                      : setSelectedIDs((prevContent) =>
-                          prevContent.filter((value) => value !== del.id)
-                        )
-                  }
-                  parentBundleInfo={parentBundleInfo}
-                  onNeedsUpdate={() => loadRecord()}
-                  vidispineBaseUri={vidispineBaseUri}
-                  openJob={(jobId: string) => {
-                    const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
-                    if (w) w.focus();
-                  }}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-      <hr />
-      <Dialog
-        open={openDialog}
-        onClose={closeDialog}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+      <BeforeUnloadComponent
+        blockRoute={blockRoute}
+        ignoreChildrenLinks={true}
+        alertMessage="One or more items are not ingesting. Are you sure you want to leave?"
       >
-        <DialogTitle id="alert-dialog-title">
-          Delete Deliverable{selectedIDs.length > 1 ? "s" : ""}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete the deliverable
-            {selectedIDs.length > 1 ? "s" : ""}{" "}
-            {getSelectedDeliverables()
-              .map((selectedDeliverable) => `"${selectedDeliverable.filename}"`)
-              .join(", ")}
-            ?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="contained" onClick={closeDialog}>
-            Cancel
+        <div>
+          <h2 className={classes.sectionHeader}>Files</h2>
+          {parentBundleInfo ? (
+            <LocationLink bundleInfo={parentBundleInfo} />
+          ) : (
+            ""
+          )}
+        </div>
+        <span className={classes.buttonContainer}>
+          <Button
+            className={classes.buttons}
+            variant="outlined"
+            onClick={() => doRefresh()}
+          >
+            Refresh
           </Button>
           <Button
-            variant="contained"
-            color="secondary"
-            startIcon={<DeleteIcon />}
-            onClick={() => {
-              setOpenDialog(false);
-              deleteSelectedDeliverables();
-            }}
+            className={classes.buttons}
+            variant="outlined"
+            disabled={selectedIDs.length === 0}
+            onClick={() => setOpenDialog(true)}
           >
             Delete
           </Button>
-        </DialogActions>
-      </Dialog>
+          <Typography className={classes.centralMessage}>
+            {centralMessage}
+          </Typography>
+          <Button
+            className={classes.addAssetButton}
+            style={{ display: assetToAdd == "" ? "none" : "inherit" }}
+            variant="outlined"
+            disabled={assetToAdd == "" || adoptInProgress}
+            onClick={doAdoptItem}
+          >
+            Add Item
+          </Button>
+          <TextField
+            className={classes.adoptAssetInput}
+            onChange={(evt) => setAssetToAdd(evt.target.value)}
+            value={assetToAdd}
+            label="paste Pluto master or asset ID"
+            InputProps={{
+              readOnly: adoptInProgress,
+            }}
+          />
+        </span>
+        <Paper elevation={3}>
+          <TableContainer>
+            <Table className={classes.table}>
+              <TableHead>
+                <TableRow>
+                  {tableHeaderTitles.map((entry, idx) => (
+                    <TableCell key={`r${idx}`}>{entry.label}</TableCell>
+                  ))}
+                  <TableCell />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {deliverables.map((del, idx) => (
+                  <DeliverableRow
+                    key={del.id.toString()}
+                    deliverable={del}
+                    classes={classes}
+                    typeOptions={typeOptions}
+                    setCentralMessage={setCentralMessage}
+                    onCheckedUpdated={(isChecked) =>
+                      isChecked
+                        ? setSelectedIDs((prevContent) =>
+                            prevContent.concat(del.id)
+                          )
+                        : setSelectedIDs((prevContent) =>
+                            prevContent.filter((value) => value !== del.id)
+                          )
+                    }
+                    parentBundleInfo={parentBundleInfo}
+                    onNeedsUpdate={() => loadRecord()}
+                    vidispineBaseUri={vidispineBaseUri}
+                    openJob={(jobId: string) => {
+                      const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
+                      if (w) w.focus();
+                    }}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+        <hr />
+        <Dialog
+          open={openDialog}
+          onClose={closeDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            Delete Deliverable{selectedIDs.length > 1 ? "s" : ""}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete the deliverable
+              {selectedIDs.length > 1 ? "s" : ""}{" "}
+              {getSelectedDeliverables()
+                .map(
+                  (selectedDeliverable) => `"${selectedDeliverable.filename}"`
+                )
+                .join(", ")}
+              ?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" onClick={closeDialog}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<DeleteIcon />}
+              onClick={() => {
+                setOpenDialog(false);
+                deleteSelectedDeliverables();
+              }}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </BeforeUnloadComponent>
     </>
   );
 };

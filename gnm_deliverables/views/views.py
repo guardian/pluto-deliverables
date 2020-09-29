@@ -399,3 +399,25 @@ class VSNotifyView(APIView):
             logger.warning(
                 "Received unknown job status {0} from {1}".format(content.status, jobId))
         return Response(data=None, status=200)
+
+
+class DeliverableAPIStarted(APIView):
+    authentication_classes = (JwtRestAuth,)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, *args, **kwargs):
+        project_id = self.request.GET["project_id"]
+        try:
+            parent_bundle = Deliverable.objects.get(pluto_core_project_id=project_id)
+
+            if parent_bundle.assets.filter(status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED).exists():
+                result = {'ingests_started': False}
+            else:
+                result = {'ingests_started': True}
+            return Response(result, status=200)
+        except Deliverable.DoesNotExist:
+            return Response({"status": "error", "detail": "Bundle not known"}, status=404)
+        except KeyError:
+            return Response({"status": "error", "detail": "You must specify a bundleId= query parameter"}, status=400)
