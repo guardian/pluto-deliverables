@@ -7,7 +7,7 @@ import hmac
 from django.conf import settings
 import logging
 import re
-
+import urllib.parse
 logger = logging.getLogger(__name__)
 
 
@@ -61,8 +61,17 @@ class HmacRestAuth(BaseAuthentication):
             logger.warning("Content checksum mismatched. Presented {0} but we calculated {1}".format(checksum, actual_checksum))
             raise AuthenticationFailed
 
+        full_base_url = settings.__getattr__("DEPLOYMENT_ROOT")
+        base_url_parts = urllib.parse.urlparse(full_base_url)
+
+        if len(base_url_parts.path) > 0:
+            basepath = base_url_parts.path.rstrip("/")
+            signing_path = basepath + request.path
+        else:
+            signing_path = request.path
+
         string_to_sign = "{path}\n{http_date}\n{content_type}\n{checksum_string}\n{method}".format(
-            path=request.path,
+            path=signing_path,
             http_date=request.META.get("HTTP_DATE"),
             content_type=request.content_type,
             checksum_string=checksum,
