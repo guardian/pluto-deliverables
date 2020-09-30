@@ -67,8 +67,8 @@ class Command(BaseCommand):
             chl.add_on_close_callback(self.channel_closed)
             chl.add_on_cancel_callback(self.channel_closed)
 
-    def channel_closed(self, *args):
-        logger.error("Critical connection closed, terminating")
+    def channel_closed(self, connection, error=None):
+        logger.error("RabbitMQ connection failed: {0}".format(str(error)))
         self.exit_code = 1
         self.runloop.stop()
 
