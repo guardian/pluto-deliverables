@@ -38,7 +38,7 @@ class Command(BaseCommand):
         channel.exchange_declare(exchange=exchange_name, exchange_type="topic")
         channel.queue_declare(queuename, arguments={
             'x-message-ttl': getattr(settings,"RABBITMQ_QUEUE_TTL", 5000),
-            'x-deadletter-exchange': "deliverables-dlx"
+            'x-dead-letter-exchange': "deliverables-dlx"
         })
         channel.queue_bind(queuename, exchange_name, routing_key=handler.routing_key)
         channel.basic_consume(queuename,
