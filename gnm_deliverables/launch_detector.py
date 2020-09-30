@@ -3,6 +3,7 @@ import jsonschema
 import datetime
 import dateutil.parser
 from .models import *
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -10,6 +11,7 @@ logger = logging.getLogger(__name__)
 class InlineChangeRecord(object):
     def __init__(self, initial_data):
         self._content = initial_data
+    timestamp_splitter = re.compile(r'\[.*]$')
 
     @property
     def user(self):
@@ -18,7 +20,8 @@ class InlineChangeRecord(object):
     @property
     def at(self) -> datetime.datetime:
         # "at" parameter is mandatory
-        return dateutil.parser.isoparse(self._content["at"])
+        string_to_parse = self.timestamp_splitter.sub("",self._content["at"])
+        return dateutil.parser.isoparse(string_to_parse)
 
 
 class LaunchDetectorUpdate(object):
