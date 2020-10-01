@@ -6,7 +6,7 @@ import re
 from functools import partial
 import sys
 import signal
-
+from rabbitmq.declaration import declare_rabbitmq_setup
 logger = logging.getLogger(__name__)
 
 
@@ -30,12 +30,11 @@ class Command(BaseCommand):
         logger.info("Establishing connection to exchange {0} from {1}...".format(exchange_name, handler.__class__.__name__))
         sanitised_routingkey = re.sub(r'[^\w\d]', '', handler.routing_key)
 
+        declare_rabbitmq_setup(channel)
         queuename = "deliverables-{0}".format(sanitised_routingkey)
-        channel.exchange_declare(exchange="deliverables-dlx", exchange_type="direct")
         channel.queue_declare("deliverables-dlq", durable=True)
         channel.queue_bind("deliverables-dlq","deliverables-dlx")
 
-        channel.exchange_declare(exchange=exchange_name, exchange_type="topic")
         channel.queue_declare(queuename, arguments={
             'x-message-ttl': getattr(settings,"RABBITMQ_QUEUE_TTL", 5000),
             'x-dead-letter-exchange': "deliverables-dlx"

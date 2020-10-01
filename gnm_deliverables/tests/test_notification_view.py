@@ -73,10 +73,10 @@ class TestNotificationView(TestCase):
             final_state = DeliverableAsset.objects.get(pk=1)
             self.assertEqual(final_state.online_item_id, "VX-1234")
             self.assertEqual(final_state.status, DELIVERABLE_ASSET_STATUS_INGESTED)
-            self.assertIsNotNone(final_state.ingest_complete_dt)
+            self.assertIsNone(final_state.ingest_complete_dt)
             mock_create_proxy.assert_called_once()
 
-    def TestNotificationViewtRANSCODEUpdate(self):
+    def TestNotificationViewTranscodeUpdate(self):
         """
         NotificationView should update an existing item with completion data and NOT request a transcode if the job
         is a transcode

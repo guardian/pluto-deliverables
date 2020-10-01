@@ -7,7 +7,7 @@ import pika
 import pika.exceptions
 from django.conf import settings
 from time import sleep
-import os
+from rabbitmq.declaration import declare_rabbitmq_setup
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +16,6 @@ class MessageRelay(object):
     """
     MessageRelay encapsulates the logic that sends messages to rabbitmq. This is done to lazily initialize the connection.
     """
-    def __init__(self):
-        self.channel = None
-
     @staticmethod
     def setup_connection():
         connection = pika.BlockingConnection(
@@ -33,7 +30,7 @@ class MessageRelay(object):
             )
         )
         channel = connection.channel()
-        channel.exchange_declare(exchange_type='topic',exchange=getattr(settings, "RABBITMQ_EXCHANGE", 'pluto-deliverables'))
+        declare_rabbitmq_setup(channel)
         return channel
 
     def relay_message(self, affected_model, action):
@@ -62,11 +59,10 @@ class MessageRelay(object):
                     logger.error("model_saved got an unexpected model class: {0}.{1}".format(affected_model.__class__.__module__, affected_model.__class__.__name__))
 
                 if content:
-                    if self.channel is None:
-                        self.channel = MessageRelay.setup_connection()
+                    channel = MessageRelay.setup_connection()
                     routing_key = "deliverables.{0}.{1}".format(affected_model.__class__.__name__.lower(), action)
                     payload = JSONRenderer().render(content.data)
-                    self.channel.basic_publish(
+                    channel.basic_publish(
                         exchange='pluto-deliverables',
                         routing_key=routing_key,
                         body=payload
