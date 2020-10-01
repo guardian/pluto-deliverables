@@ -367,6 +367,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                       const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
                       if (w) w.focus();
                     }}
+                    project_id={projectid}
                   />
                 ))}
               </TableBody>

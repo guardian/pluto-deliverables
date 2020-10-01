@@ -8,27 +8,20 @@ import urllib.parse
 from datetime import datetime
 
 from django.conf import settings
-from django.contrib import messages
-from django.core.exceptions import ValidationError
-from django.db.models import Q
-from django.forms.models import modelformset_factory
-from django.http import Http404
-from django.shortcuts import redirect
-from django.urls import reverse
 from django.views.generic import TemplateView
-from django.views.generic.detail import SingleObjectMixin
 from gnmvidispine.vidispine_api import VSNotFound, VSException
 from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, RetrieveAPIView, \
+from rest_framework.generics import RetrieveAPIView, \
     ListAPIView, CreateAPIView
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.status import HTTP_409_CONFLICT
 from rest_framework.views import APIView
+import gnm_deliverables.launch_detector
+from jsonschema import ValidationError
 
 from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, \
     DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
@@ -38,8 +31,8 @@ from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, \
     DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED, DELIVERABLE_ASSET_STATUS_TRANSCODING
 from gnm_deliverables.exceptions import NoShapeError
 from gnm_deliverables.files import create_folder_for_deliverable
-from gnm_deliverables.forms import DeliverableCreateForm
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
+from gnm_deliverables.hmac_auth_backend import HmacRestAuth
 from gnm_deliverables.models import Deliverable, DeliverableAsset
 from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer
 from gnm_deliverables.vs_notification import VSNotification
@@ -421,3 +414,53 @@ class DeliverableAPIStarted(APIView):
             return Response({"status": "error", "detail": "Bundle not known"}, status=404)
         except KeyError:
             return Response({"status": "error", "detail": "You must specify a bundleId= query parameter"}, status=400)
+
+
+class LaunchDetectorUpdateView(APIView):
+    authentication_classes = (HmacRestAuth, )
+    permission_classes = (IsAuthenticated, )
+    parser_classes = (JSONParser, )
+    renderer_classes = (JSONRenderer, )
+
+    def post(self, request, atom_id=None):
+        from time import sleep
+        logger.info("Received update from launch detector: {0}".format(request.data))
+        try:
+            msg = gnm_deliverables.launch_detector.LaunchDetectorUpdate(request.data)
+        except ValidationError as e:
+            logger.error("External update didn't validate: {0}".format(str(e)))
+            logger.error("Offending content was: {0}".format(request.data))
+            return Response({"status":"invalid_data"}, status=400)
+
+        if msg.atom_id=="":
+            logger.error("Received empty body")
+            return Response({"status":"invalid_data"},status=400)
+        attempt = 1
+        while True:
+            try:
+                return self.try_update(request, msg)
+            except DeliverableAsset.DoesNotExist:
+                logger.error("Could not find a deliverable asset matching the atom id {0}".format(msg.atom_id))
+                if attempt>=5:
+                    return Response({"status":"not_found","atom_id":msg.atom_id}, status=404)
+                else:
+                    attempt+=1
+                    #asynchronous retries would be a LOT better. But would be a lot more work too. We'll
+                    #re-visit if this causes problems.  Max delay is 15s.
+                    logger.warning("Retrying for attempt {} after 3s...".format(attempt))
+                    sleep(3)
+            except Exception as e:
+                logger.exception("Could not process incoming update for {0}: ".format(atom_id), exc_info=e)
+                return Response({"status":"server_error", "detail": str(e)}, status=500)
+
+    def try_update(self, request, msg):
+        asset = gnm_deliverables.launch_detector.find_asset_for(msg)
+
+        logger.info("Found asset ID {} for {}".format(asset.pk, asset.atom_id))
+        gnm_deliverables.launch_detector.update_gnmwebsite(msg, asset)
+        gnm_deliverables.launch_detector.update_dailymotion(msg, asset)
+        gnm_deliverables.launch_detector.update_mainstream(msg, asset)
+        asset.save()
+        return Response({"status":"ok", "detail":"updated","atom_id":msg.atom_id}, status=200)
+
+

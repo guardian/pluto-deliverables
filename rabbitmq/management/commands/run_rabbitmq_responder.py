@@ -38,7 +38,7 @@ class Command(BaseCommand):
         channel.exchange_declare(exchange=exchange_name, exchange_type="topic")
         channel.queue_declare(queuename, arguments={
             'x-message-ttl': getattr(settings,"RABBITMQ_QUEUE_TTL", 5000),
-            'x-deadletter-exchange': "deliverables-dlx"
+            'x-dead-letter-exchange': "deliverables-dlx"
         })
         channel.queue_bind(queuename, exchange_name, routing_key=handler.routing_key)
         channel.basic_consume(queuename,
@@ -67,8 +67,8 @@ class Command(BaseCommand):
             chl.add_on_close_callback(self.channel_closed)
             chl.add_on_cancel_callback(self.channel_closed)
 
-    def channel_closed(self, *args):
-        logger.error("Critical connection closed, terminating")
+    def channel_closed(self, connection, error=None):
+        logger.error("RabbitMQ connection failed: {0}".format(str(error)))
         self.exit_code = 1
         self.runloop.stop()
 

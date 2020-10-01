@@ -34,6 +34,7 @@ interface DeliverableRowProps {
   onOnlineLoadError?: (err: string) => void;
   vidispineBaseUri: string;
   openJob: (jobId: string) => void;
+  project_id: number;
 }
 
 declare var mediaAtomToolUrl: string;
@@ -222,7 +223,10 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
       <TableRow className={props.classes.collapsableTableRow}>
         <TableCell className="expandable-cell" colSpan={9}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <MasterList deliverable={props.deliverable} />
+            <MasterList
+              deliverable={props.deliverable}
+              project_id={props.project_id}
+            />
           </Collapse>
         </TableCell>
       </TableRow>
