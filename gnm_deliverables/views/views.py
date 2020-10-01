@@ -432,6 +432,9 @@ class LaunchDetectorUpdateView(APIView):
             logger.error("Offending content was: {0}".format(request.data))
             return Response({"status":"invalid_data"}, status=400)
 
+        if msg.atom_id=="":
+            logger.error("Received empty body")
+            return Response({"status":"invalid_data"},status=400)
         attempt = 1
         while True:
             try:
@@ -453,9 +456,11 @@ class LaunchDetectorUpdateView(APIView):
     def try_update(self, request, msg):
         asset = gnm_deliverables.launch_detector.find_asset_for(msg)
 
+        logger.info("Found asset ID {} for {}".format(asset.pk, asset.atom_id))
         gnm_deliverables.launch_detector.update_gnmwebsite(msg, asset)
         gnm_deliverables.launch_detector.update_dailymotion(msg, asset)
         gnm_deliverables.launch_detector.update_mainstream(msg, asset)
+        asset.save()
         return Response({"status":"ok", "detail":"updated","atom_id":msg.atom_id}, status=200)
 
 

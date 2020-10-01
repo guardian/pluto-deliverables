@@ -1,10 +1,21 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
+from django.urls import reverse
+from rest_framework.test import APIClient
 from gnm_deliverables.launch_detector import LaunchDetectorUpdate
 from datetime import datetime
 import pytz
+from gnm_deliverables.models import DeliverableAsset
+from uuid import UUID
 
 
 class TestLaunchDetectorUpdate(TestCase):
+    fixtures = [
+        'users',
+        'assets',
+        'bundles'
+    ]
+
     def test_validate(self):
         """
         LaunchDetectorUpdate should validate a message with nulls
@@ -46,3 +57,56 @@ class TestLaunchDetectorUpdate(TestCase):
 
         result = LaunchDetectorUpdate(content)
         self.assertEqual(result.published.at, datetime(2020,9,30,17,39,17,tzinfo=pytz.UTC))
+
+    def test_launchdetector_integrationtest(self):
+        """
+        Integration test for launch detector endpoint
+        :return:
+        """
+        from pprint import pprint
+
+
+        content = {
+            'title': 'yet more testing deliverables integration',
+            'category': 'News',
+            'atomId': 'ed94ddcb-1a9a-4081-89c2-432c7db123d9',
+            'duration': 75,
+            'source': None,
+            'description': None,
+            'posterImage': None,
+            'trailText': None,
+            'byline': [],
+            'keywords': [],
+            'trailImage': None,
+            'commissionId': '10',
+            'projectId': '60',
+            'masterId': None,
+            'published': {
+               'user': 'andy.gallagher@guardian.co.uk',
+               'at': '2020-09-30T17:39:17Z[Etc/UTC]'
+            },
+            'lastModified': {
+               'user': 'andy.gallagher@guardian.co.uk',
+               'at': '2020-09-30T17:39:17Z[Etc/UTC]'
+            }
+        }
+
+        client = APIClient()
+        user = User.objects.get(username='peter')
+        client.force_authenticate(user=user)
+
+        response = client.post(
+            reverse('atom_update', kwargs={'atom_id': 'ed94ddcb-1a9a-4081-89c2-432c7db123d9'}),
+            data=content,
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        updated_item = DeliverableAsset.objects.get(pk=674)
+
+        pprint(updated_item.__dict__)
+        self.assertEqual(updated_item.atom_id, UUID('ed94ddcb-1a9a-4081-89c2-432c7db123d9'))
+        self.assertIsNotNone(updated_item.gnm_website_master)
+        self.assertIsNotNone(updated_item.DailyMotion_master)
+        self.assertIsNotNone(updated_item.mainstream_master)

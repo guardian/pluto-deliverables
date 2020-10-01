@@ -213,6 +213,7 @@ def update_gnmwebsite(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
     if msg.published is not None:
         rec.publication_date = msg.published.at
         rec.publication_status = 'Published'
+    asset.gnm_website_master = rec  #no-op if it was already set like this
     rec.save()
     asset.save()
 
@@ -238,7 +239,12 @@ def update_dailymotion(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.daily_motion_tags = msg.keywords
     if rec.daily_motion_title is None or rec.daily_motion_title=="":
         rec.daily_motion_title = msg.title
+    if rec.daily_motion_no_mobile_access is None:
+        rec.daily_motion_no_mobile_access = False
+    if rec.daily_motion_contains_adult_content is None:
+        rec.daily_motion_contains_adult_content = False
 
+    asset.DailyMotion_master = rec  #no-op if it was already set like this
     rec.save()
     asset.save()
 
@@ -261,7 +267,10 @@ def update_mainstream(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.mainstream_title = msg.title
     if rec.mainstream_tags is None or rec.mainstream_tags.size==0:
         rec.mainstream_tags = msg.keywords
+    if rec.mainstream_rules_contains_adult_content is None:
+        rec.mainstream_rules_contains_adult_content = False
 
+    asset.mainstream_master = rec  #no-op if it was already set like this
     rec.save()
     asset.save()
 
