@@ -63,9 +63,6 @@ class TestLaunchDetectorUpdate(TestCase):
         Integration test for launch detector endpoint
         :return:
         """
-        from pprint import pprint
-
-
         content = {
             'title': 'yet more testing deliverables integration',
             'category': 'News',
@@ -105,7 +102,6 @@ class TestLaunchDetectorUpdate(TestCase):
 
         updated_item = DeliverableAsset.objects.get(pk=674)
 
-        pprint(updated_item.__dict__)
         self.assertEqual(updated_item.atom_id, UUID('ed94ddcb-1a9a-4081-89c2-432c7db123d9'))
         self.assertIsNotNone(updated_item.gnm_website_master)
         self.assertIsNotNone(updated_item.DailyMotion_master)
