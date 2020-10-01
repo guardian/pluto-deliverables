@@ -41,7 +41,9 @@ describe("MasterList", () => {
   });
 
   it("should render empty masters", () => {
-    const wrapper = mount(<MasterList deliverable={deliverable} />);
+    const wrapper = mount(
+      <MasterList deliverable={deliverable} project_id={1} />
+    );
     const masterElements = wrapper
       .find(".MuiTableRow-root")
       .not(".MuiTableRow-head");
@@ -71,12 +73,14 @@ describe("MasterList", () => {
       },
     ];
 
-    const wrapper = mount(<MasterList deliverable={deliverable} />);
+    const wrapper = mount(
+      <MasterList deliverable={deliverable} project_id={2} />
+    );
 
     return moxios.wait(async () => {
       const request = moxios.requests.at(0);
       expect(request.config.url).toEqual(
-        `/api/bundle/${deliverable.id}/asset/${deliverable.id}/gnmwebsite`
+        `/api/bundle/2/asset/${deliverable.id}/gnmwebsite`
       );
 
       request
@@ -180,12 +184,14 @@ describe("MasterList", () => {
       youtube_tags: ["secondary tag", "origin"],
       youtube_description: "",
     };
-    const wrapper = mount(<MasterList deliverable={deliverable} />);
+    const wrapper = mount(
+      <MasterList deliverable={deliverable} project_id={3} />
+    );
 
     return moxios.wait(async () => {
       const request = moxios.requests.at(0);
       expect(request.config.url).toEqual(
-        `/api/bundle/${deliverable.id}/asset/${deliverable.id}/gnmwebsite`
+        `/api/bundle/3/asset/${deliverable.id}/gnmwebsite`
       );
 
       request

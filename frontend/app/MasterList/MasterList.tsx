@@ -78,12 +78,13 @@ declare var deploymentRootPath: string;
 
 interface MasterListProps {
   deliverable: Deliverable;
+  project_id: number;
 }
 
 const MasterList: React.FC<MasterListProps> = (props) => {
   const classes = useStyles();
-  const { deliverable } = props;
-  const projectIdUrl = `${deploymentRootPath}project/${deliverable.deliverable.toString()}/asset/${deliverable.id.toString()}`;
+  const { deliverable, project_id } = props;
+  const projectIdUrl = `${deploymentRootPath}project/${project_id.toString()}/asset/${deliverable.id.toString()}`;
   const [loading, setLoading] = useState<boolean>(true);
   const [masters, setMasters] = useState<Master[]>([
     {
@@ -129,7 +130,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       let gnmMaster: GuardianMaster;
       try {
         gnmMaster = await getDeliverableGNM(
-          deliverable.deliverable.toString(),
+          project_id.toString(),
           deliverable.id.toString()
         );
       } catch (error) {
@@ -139,7 +140,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       let youtubeMaster: YoutubeMaster;
       try {
         youtubeMaster = await getDeliverableYoutube(
-          deliverable.deliverable.toString(),
+          project_id.toString(),
           deliverable.id.toString()
         );
       } catch (error) {
@@ -149,7 +150,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       let dailymotionMaster: DailymotionMaster;
       try {
         dailymotionMaster = await getDeliverableDailymotion(
-          deliverable.deliverable.toString(),
+          project_id.toString(),
           deliverable.id.toString()
         );
       } catch (error) {
@@ -159,7 +160,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       let mainstreamMaster: MainstreamMaster;
       try {
         mainstreamMaster = await getDeliverableMainstream(
-          deliverable.deliverable.toString(),
+          project_id.toString(),
           deliverable.id.toString()
         );
       } catch (error) {
