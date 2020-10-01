@@ -423,25 +423,39 @@ class LaunchDetectorUpdateView(APIView):
     renderer_classes = (JSONRenderer, )
 
     def post(self, request, atom_id=None):
+        from time import sleep
         logger.info("Received update from launch detector: {0}".format(request.data))
-
         try:
             msg = gnm_deliverables.launch_detector.LaunchDetectorUpdate(request.data)
         except ValidationError as e:
             logger.error("External update didn't validate: {0}".format(str(e)))
             logger.error("Offending content was: {0}".format(request.data))
             return Response({"status":"invalid_data"}, status=400)
-        try:
-            asset = gnm_deliverables.launch_detector.find_asset_for(msg)
 
-            gnm_deliverables.launch_detector.update_gnmwebsite(msg, asset)
-            gnm_deliverables.launch_detector.update_dailymotion(msg, asset)
-            gnm_deliverables.launch_detector.update_mainstream(msg, asset)
-            return Response({"status":"ok", "detail":"updated","atom_id":msg.atom_id}, status=200)
-        except DeliverableAsset.DoesNotExist:
-            logger.error("Could not find a deliverable asset matching the atom id {0}".format(msg.atom_id))
-            return Response({"status":"not_found","atom_id":msg.atom_id}, status=404)
-        except Exception as e:
-            logger.exception("Could not process incoming update for {0}: ".format(atom_id), exc_info=e)
-            return Response({"status":"server_error", "detail": str(e)}, status=500)
+        attempt = 1
+        while True:
+            try:
+                return self.try_update(request, msg)
+            except DeliverableAsset.DoesNotExist:
+                logger.error("Could not find a deliverable asset matching the atom id {0}".format(msg.atom_id))
+                if attempt>=5:
+                    return Response({"status":"not_found","atom_id":msg.atom_id}, status=404)
+                else:
+                    attempt+=1
+                    #asynchronous retries would be a LOT better. But would be a lot more work too. We'll
+                    #re-visit if this causes problems.  Max delay is 15s.
+                    logger.warning("Retrying for attempt {} after 3s...".format(attempt))
+                    sleep(3)
+            except Exception as e:
+                logger.exception("Could not process incoming update for {0}: ".format(atom_id), exc_info=e)
+                return Response({"status":"server_error", "detail": str(e)}, status=500)
+
+    def try_update(self, request, msg):
+        asset = gnm_deliverables.launch_detector.find_asset_for(msg)
+
+        gnm_deliverables.launch_detector.update_gnmwebsite(msg, asset)
+        gnm_deliverables.launch_detector.update_dailymotion(msg, asset)
+        gnm_deliverables.launch_detector.update_mainstream(msg, asset)
+        return Response({"status":"ok", "detail":"updated","atom_id":msg.atom_id}, status=200)
+
 
