@@ -157,7 +157,8 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
                   </IconButton>
                 </Tooltip>
               ) : null}
-              {props.deliverable.online_item_id || props.deliverable.archive_item_id ? (
+              {props.deliverable.online_item_id ||
+              props.deliverable.archive_item_id ? (
                 <Tooltip title="View media">
                   <IconButton
                     aria-label="Go to"
@@ -168,9 +169,9 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
                       paddingLeft: "3px",
                     }}
                     onClick={() => {
-                      const targetUrl = props.deliverable.online_item_id ?
-                        `/vs/item/${props.deliverable.online_item_id}` :
-                        `${archiverHunterURL}${props.deliverable.archive_item_id}`;
+                      const targetUrl = props.deliverable.online_item_id
+                        ? `/vs/item/${props.deliverable.online_item_id}`
+                        : `${archiverHunterURL}${props.deliverable.archive_item_id}`;
                       window.open(targetUrl, "_blank");
                     }}
                   >
