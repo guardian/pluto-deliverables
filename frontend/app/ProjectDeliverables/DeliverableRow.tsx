@@ -22,6 +22,7 @@ import VidispineJobProgress from "./VidispineJobProgress";
 import LaunchIcon from "@material-ui/icons/Launch";
 // @ts-ignore
 import atomIcon from "../static/atom_icon.svg";
+import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
 
 interface DeliverableRowProps {
   deliverable: Deliverable;
@@ -38,6 +39,7 @@ interface DeliverableRowProps {
 }
 
 declare var mediaAtomToolUrl: string;
+declare var archiverHunterURL: string;
 
 const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   const [open, setOpen] = useState<boolean>(false);
@@ -155,25 +157,53 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
                   </IconButton>
                 </Tooltip>
               ) : null}
-              <Tooltip title="View media">
-                <IconButton
-                  aria-label="Go to"
-                  style={{
-                    paddingTop: 0,
-                    paddingBottom: 0,
-                    paddingRight: "3px",
-                    paddingLeft: "3px",
-                  }}
-                  onClick={() =>
-                    window.open(
-                      `/vs/item/${props.deliverable.online_item_id}`,
-                      "_blank"
-                    )
-                  }
-                >
-                  <LaunchIcon style={{ width: "26px", height: "26px" }} />
-                </IconButton>
-              </Tooltip>
+              {props.deliverable.online_item_id ? (
+                <Tooltip title="View media">
+                  <IconButton
+                    aria-label="Go to"
+                    style={{
+                      paddingTop: 0,
+                      paddingBottom: 0,
+                      paddingRight: "3px",
+                      paddingLeft: "3px",
+                    }}
+                    onClick={() =>
+                      window.open(
+                        `/vs/item/${props.deliverable.online_item_id}`,
+                        "_blank"
+                      )
+                    }
+                  >
+                    <LaunchIcon style={{ width: "26px", height: "26px" }} />
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                  props.deliverable.archive_item_id ? (
+                      <Tooltip title="View media">
+                          <IconButton
+                              aria-label="Go to"
+                              style={{
+                                  paddingTop: 0,
+                                  paddingBottom: 0,
+                                  paddingRight: "3px",
+                                  paddingLeft: "3px",
+                              }}
+                              onClick={() =>
+                                  window.open(
+                                      `${archiverHunterURL}${props.deliverable.archive_item_id}`,
+                                      "_blank"
+                                  )
+                              }
+                          >
+                              <LaunchIcon style={{ width: "26px", height: "26px" }} />
+                          </IconButton>
+                      </Tooltip>
+                  ) : (
+                      <Tooltip title="No media could be found!">
+                        <PriorityHighIcon style={{ width: "26px", height: "26px" }} />
+                      </Tooltip>
+                  )
+              )}
             </Grid>
           </Grid>
         </TableCell>
