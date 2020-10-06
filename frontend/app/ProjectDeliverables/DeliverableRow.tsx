@@ -157,7 +157,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
                   </IconButton>
                 </Tooltip>
               ) : null}
-              {props.deliverable.online_item_id ? (
+              {props.deliverable.online_item_id || props.deliverable.archive_item_id ? (
                 <Tooltip title="View media">
                   <IconButton
                     aria-label="Go to"
@@ -167,32 +167,12 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
                       paddingRight: "3px",
                       paddingLeft: "3px",
                     }}
-                    onClick={() =>
-                      window.open(
-                        `/vs/item/${props.deliverable.online_item_id}`,
-                        "_blank"
-                      )
-                    }
-                  >
-                    <LaunchIcon style={{ width: "26px", height: "26px" }} />
-                  </IconButton>
-                </Tooltip>
-              ) : props.deliverable.archive_item_id ? (
-                <Tooltip title="View media">
-                  <IconButton
-                    aria-label="Go to"
-                    style={{
-                      paddingTop: 0,
-                      paddingBottom: 0,
-                      paddingRight: "3px",
-                      paddingLeft: "3px",
+                    onClick={() => {
+                      const targetUrl = props.deliverable.online_item_id ?
+                        `/vs/item/${props.deliverable.online_item_id}` :
+                        `${archiverHunterURL}${props.deliverable.archive_item_id}`;
+                      window.open(targetUrl, "_blank");
                     }}
-                    onClick={() =>
-                      window.open(
-                        `${archiverHunterURL}${props.deliverable.archive_item_id}`,
-                        "_blank"
-                      )
-                    }
                   >
                     <LaunchIcon style={{ width: "26px", height: "26px" }} />
                   </IconButton>

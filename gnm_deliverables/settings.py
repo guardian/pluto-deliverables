@@ -219,4 +219,4 @@ JWT_EXPECTED_AUDIENCE = os.environ.get('JWT_EXPECTED_AUDIENCE',
 JWT_EXPECTED_ISSUER = os.environ.get("JWT_EXPECTED_ISSUER",
                                      "https://keycloak.local/auth/realms/master")
 
-ARCHIVE_HUNTER_URL = os.environ.get("ARCHIVE_HUNTER_URL", "")
+ARCHIVE_HUNTER_URL = os.environ.get("ARCHIVE_HUNTER_URL", "https://archive-hunter-root/")
