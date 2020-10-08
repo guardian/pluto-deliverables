@@ -188,9 +188,9 @@ class CountDeliverablesView(APIView):
         try:
             parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
             deliverables_count = DeliverableAsset.objects.filter(deliverable=parent_bundle, ).count()
-            not_started = DeliverableAsset.objects.filter(deliverable=parent_bundle, status=0).count()
-            ingest_failed = DeliverableAsset.objects.filter(deliverable=parent_bundle, status=3).count()
-            transcode_failed = DeliverableAsset.objects.filter(deliverable=parent_bundle, status=6).count()
+            not_started = DeliverableAsset.objects.filter(deliverable=parent_bundle, status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED).count()
+            ingest_failed = DeliverableAsset.objects.filter(deliverable=parent_bundle, status=DELIVERABLE_ASSET_STATUS_INGEST_FAILED).count()
+            transcode_failed = DeliverableAsset.objects.filter(deliverable=parent_bundle, status=DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED).count()
             unimported_count = not_started + ingest_failed + transcode_failed
 
             result = {'total_asset_count': deliverables_count,
