@@ -63,7 +63,8 @@ class NewDeliverableUI(TemplateView):
             "deployment_root": parts.path,
             "cbVersion": cbVersion,
             "vidispine_client_uri": settings.VIDISPINE_CLIENT_URI,
-            "media_atom_uri": settings.MEDIA_ATOM_TOOL_URI
+            "media_atom_uri": settings.MEDIA_ATOM_TOOL_URI,
+            "archive_hunter_url": settings.ARCHIVE_HUNTER_URL
         }
 
 
