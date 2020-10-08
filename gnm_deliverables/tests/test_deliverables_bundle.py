@@ -94,7 +94,7 @@ class TestDeliverablesBundle(TestCase):
             view = CountDeliverablesView.as_view()
             response = view(request, project_id=deliverable.project_id)
 
-            expected_response = {"total_asset_count": 2, "unimported_asset_count": 2}
+            expected_response = {"total_asset_count": 2, "unimported_asset_count": 6}
             self.assertEqual(response.data, expected_response)
 
     def test_started(self):
