@@ -61,6 +61,9 @@ const useStyles = makeStyles({
     "& .MuiDivider-root": {
       marginTop: "3px",
     },
+    "& .atom-tool-warning": {
+      paddingTop: "20px",
+    },
   },
   formButtons: {
     display: "flex",
@@ -334,6 +337,16 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
             )}
           </div>
         </form>
+        {isEditing ? (
+          <div className="atom-tool-warning">
+            You can not adjust this here. You need to do it in Atom Tool.&nbsp;
+            <a href="https://video.gutools.co.uk/" target="_blank">
+              https://video.gutools.co.uk/
+            </a>
+          </div>
+        ) : (
+          ""
+        )}
       </div>
       <Dialog
         className={classes.dialog}

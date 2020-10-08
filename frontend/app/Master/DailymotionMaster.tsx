@@ -91,6 +91,7 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
     upload_status: "",
     daily_motion_no_mobile_access: false,
     daily_motion_contains_adult_content: false,
+    daily_motion_category: 1,
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isDirty, setIsDirty] = useState<boolean>(false);
@@ -188,7 +189,7 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
       | HTMLTextAreaElement
       | HTMLInputElement
       | HTMLSelectElement
-      | { name?: string; value: any }
+      | { name?: number; value: any }
     >,
     field: keyof DailymotionMaster
   ): void => {
@@ -241,11 +242,6 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
           {isEditing ? (
             <>
               <TextField
-                label="Dailymotion Category"
-                value={master.daily_motion_category || ""}
-                disabled
-              />
-              <TextField
                 label="Upload Status"
                 value={master.upload_status || ""}
                 disabled
@@ -256,23 +252,15 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
                 value={master.publication_date || ""}
                 disabled
               />
+              <TextField
+                label="Dailymotion URL"
+                value={master.daily_motion_url || ""}
+                disabled
+              />
             </>
           ) : (
             ""
           )}
-
-          <TextField
-            label="Dailymotion URL"
-            value={master.daily_motion_url || ""}
-            onChange={(event) => fieldChanged(event, "daily_motion_url")}
-            error={isDirty && !master.daily_motion_url}
-            helperText={
-              isDirty && !master.daily_motion_url
-                ? "Dailymotion URL is required"
-                : ""
-            }
-            required
-          ></TextField>
 
           <CommonMaster
             prefix="Dailymotion"
@@ -284,6 +272,19 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
             onChange={onCommonMasterChanged}
             isDirty={isDirty}
           ></CommonMaster>
+
+          <TextField
+            label="Dailymotion Category"
+            value={master.daily_motion_category || ""}
+            onChange={(event) => fieldChanged(event, "daily_motion_category")}
+            error={isDirty && !master.daily_motion_category}
+            helperText={
+              isDirty && !master.daily_motion_category
+                ? "Dailymotion Category is required"
+                : ""
+            }
+            required
+          />
 
           <FormControlLabel
             control={

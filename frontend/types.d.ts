@@ -68,11 +68,11 @@ interface CreateDailymotionMaster {
   daily_motion_tags: string[];
   daily_motion_no_mobile_access: boolean;
   daily_motion_contains_adult_content: boolean;
+  daily_motion_category: number;
 }
 
 interface DailymotionMaster extends CreateDailymotionMaster {
   etag?: string;
-  daily_motion_category?: number;
   publication_date: string;
   upload_status: string;
 }

@@ -237,6 +237,7 @@ export const createDailymotionDeliverable = async (
     daily_motion_tags,
     daily_motion_no_mobile_access,
     daily_motion_contains_adult_content,
+    daily_motion_category,
   } = dailymotionMaster;
   try {
     const { status, data } = await axios.put<DailymotionMaster>(
@@ -248,6 +249,7 @@ export const createDailymotionDeliverable = async (
         daily_motion_tags,
         daily_motion_no_mobile_access,
         daily_motion_contains_adult_content,
+        daily_motion_category,
       }
     );
 
