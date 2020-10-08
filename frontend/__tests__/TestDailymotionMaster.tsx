@@ -89,9 +89,8 @@ describe("DailymotionMaster", () => {
       const errors = wrapper.find(
         ".MuiFormHelperText-root.Mui-error.Mui-required"
       );
-      expect(errors).toHaveLength(2);
-      expect(errors.at(0).text()).toEqual("Dailymotion URL is required");
-      expect(errors.at(1).text()).toEqual("Dailymotion title is required");
+      expect(errors).toHaveLength(1);
+      expect(errors.at(0).text()).toEqual("Dailymotion title is required");
     });
 
     it("should not render errors when required fields are set", () => {
@@ -99,8 +98,7 @@ describe("DailymotionMaster", () => {
         "input.MuiInputBase-input.MuiInput-input"
       );
 
-      textFields.at(0).simulate("change", { target: { value: "url" } });
-      textFields.at(1).simulate("change", { target: { value: "title" } });
+      textFields.at(0).simulate("change", { target: { value: "title" } });
 
       const button = wrapper.find(`button[type="submit"]`);
 
