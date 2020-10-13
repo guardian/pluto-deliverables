@@ -16,7 +16,7 @@ class TestInmeta(TestCase):
         from gnm_deliverables.inmeta import make_doc
         from gnm_deliverables.models import DeliverableAsset
         test_asset = DeliverableAsset.objects.get(pk=37)
-        content = make_doc(test_asset)
+        content = make_doc(test_asset, "test")
 
         tnode = content.find("meta-group/meta[@name='title']")
         self.assertEqual(tnode.attrib["value"], "1018_20130203231700.mp4")

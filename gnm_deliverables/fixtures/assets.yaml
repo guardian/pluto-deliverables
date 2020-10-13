@@ -20,7 +20,16 @@
     gnm_website_master: null
     youtube_master: null
     DailyMotion_master: null
-    mainstream_master: null
+    mainstream_master: 4
+- model: gnm_deliverables.mainstream
+  pk: 4
+  fields:
+    mainstream_title: Test mainstream title
+    mainstream_description: Test mainstream description
+    mainstream_tags: []
+    mainstream_rules_contains_adult_content: false
+    upload_status: Not Ready
+    etag: 2020-01-02T03:04:05Z
 - model: gnm_deliverables.deliverableasset
   pk: 39
   fields:

@@ -4,10 +4,9 @@ import logging
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import Now
-# from gnm_misc_utils.csrf_exempt_session_authentication import CsrfExemptSessionAuthentication
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -199,6 +198,85 @@ class PlatformLogsView(APIView):
             return Response({"status": "error", "details": "not found"}, status=404)
         data = [entry.log_line for entry in log_entries.order_by('-timestamp')]
         return Response({"logs": data}, status=200)
+
+
+class PlatformLogUpdateView(APIView):
+    authentication_classes = (BasicAuthentication, )
+    parser_classes = (JSONParser, )
+    renderer_classes = (JSONRenderer, )
+
+    def post(self, request, project_id, asset_id, platform:str):
+        """
+        receives a log update and saves it.
+        expects a JSON body in the format { "sender": "sender-name", "log": "log-line", "completed":true/false/absent, "failed":true/false/absent }.
+        logs are timestamped as they arrive
+        :param request:
+        :param project_id:
+        :param asset_id:
+        :param platform:
+        :return:
+        """
+        from datetime import datetime
+
+        try:
+            asset = DeliverableAsset.objects.get(pk=asset_id)
+
+            newentry = LogEntry(
+                timestamp=datetime.now(),
+                sender=request.data["sender"],
+                log_line=request.data["log"]
+            )
+
+            did_fail = False
+            did_succeed = False
+            asset_needs_save = False
+            if "completed" in request.data and request.data["completed"]:
+                if "failed" in request.data and request.data["failed"]:
+                    did_fail = True
+                else:
+                    did_succeed = True
+
+            lcplatform = platform.lower()
+            if lcplatform=="dailymotion":
+                related_id = asset.DailyMotion_master_id
+                newentry.related_daily_motion = asset.DailyMotion_master
+                if not did_fail and not did_succeed:
+                    if asset.DailyMotion_master.upload_status!='Uploading':
+                        asset.DailyMotion_master.upload_status = 'Uploading'
+                        asset.DailyMotion_master.save()
+                elif did_fail:
+                    asset.DailyMotion_master.upload_status='Upload Failed'
+                    asset.DailyMotion_master.save()
+                elif did_succeed:
+                    asset.DailyMotion_master.upload_status='Upload Complete'
+                    asset.DailyMotion_master.save()
+            elif lcplatform=="mainstream":
+                related_id = asset.mainstream_master_id
+                newentry.related_mainstream = asset.mainstream_master
+                if not did_fail and not did_succeed:
+                    if asset.mainstream_master.upload_status!='Uploading':
+                        asset.mainstream_master.upload_status = 'Uploading'
+                        asset.mainstream_master.save()
+                elif did_fail:
+                    asset.mainstream_master.upload_status='Upload Failed'
+                    asset.mainstream_master.save()
+                elif did_succeed:
+                    asset.mainstream_master.upload_status='Upload Complete'
+                    asset.mainstream_master.save()
+            else:
+                return Response({"status":"bad_request","detail":"platform not recognised or does not support log entries"}, status=400)
+
+            if related_id is None:
+                return Response({"status":"bad_request","detail":"no syndication data for this platform on this id"}, status=400)
+            else:
+                newentry.save()
+                return Response({"status":"ok"},status=200)
+        except KeyError as e:
+            logger.error("Invalid log updated for {0} {1}: missing key {2}".format(platform, asset_id, str(e)))
+            return Response({"status":"bad_request","detail":"{0}: field missing".format(e)},status=400)
+
+        except DeliverableAsset.DoesNotExist:
+            return Response({"status":"notfound","detail":"no deliverable asset matching id"},status=404)
 
 
 class TriggerOutputView(APIView):
