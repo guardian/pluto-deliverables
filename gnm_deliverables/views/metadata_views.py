@@ -220,7 +220,7 @@ class TriggerOutputView(APIView):
             if not asset.mainstream_master:
                 return Response({"status":"error","details":"No mainstream syndication data"}, status=400)
             else:
-                filepath = write_inmeta(asset, os.path.join(output_dir, platform_name))
+                filepath = write_inmeta(asset, platform_name, os.path.join(output_dir, platform_name))
                 asset.mainstream_master.upload_status = 'Ready for Upload'
                 asset.mainstream_master.save()
                 return Response({"status":"ok","filepath":filepath})
@@ -228,7 +228,7 @@ class TriggerOutputView(APIView):
             if not asset.DailyMotion_master:
                 return Response({"status":"error","details":"No daily motion syndication data"}, status=400)
             else:
-                filepath = write_inmeta(asset, os.path.join(output_dir, platform_name))
+                filepath = write_inmeta(asset, platform_name, os.path.join(output_dir, platform_name))
                 asset.DailyMotion_master.upload_status = 'Ready for Upload'
                 asset.DailyMotion_master.save()
                 return Response({"status":"ok","filepath":filepath})

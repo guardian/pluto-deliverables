@@ -40,8 +40,8 @@ def find_free_filepath(output_dir:str, filebase:str)->str:
         i+=1
 
 
-def write_inmeta(asset:DeliverableAsset, output_dir:str)->str:
-    content = make_doc(asset)
+def write_inmeta(asset:DeliverableAsset, platform:str, output_dir:str)->str:
+    content = make_doc(asset, platform)
 
     if content is None:
         logger.error("Could not make content doc?")
@@ -52,7 +52,7 @@ def write_inmeta(asset:DeliverableAsset, output_dir:str)->str:
     return filepath
 
 
-def make_doc(asset:DeliverableAsset) -> ET.Element:
+def make_doc(asset:DeliverableAsset, platform:str) -> ET.Element:
     """
     create an ElementTree document that represents the given asset as inmeta
     :param asset: DeliverableAsset instance
@@ -71,6 +71,9 @@ def make_doc(asset:DeliverableAsset) -> ET.Element:
     field(groupEl, "itemId", asset.online_item_id)
     field(groupEl, "title", os.path.basename(asset.filename))
     field(groupEl, 'size', str(asset.size))
+    field(groupEl, "pluto_deliverables_asset_id", str(asset.id))
+    field(groupEl, "pluto_deliverables_bundle_id", str(asset.deliverable.id))
+    field(groupEl, "pluto_deliverables_platform", platform)
 
     if asset.gnm_website_master:
         field(groupEl, "gnm_website_headline", asset.gnm_website_master.website_title)
