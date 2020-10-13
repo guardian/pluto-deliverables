@@ -1,0 +1,93 @@
+from .models import DeliverableAsset
+import xml.etree.cElementTree as ET
+import os.path
+
+
+def field(parent:ET.Element,name:str,value:str):
+    """
+    private function to output a single meta line
+    :param parent:
+    :param name:
+    :param value:
+    :return:
+    """
+    ET.SubElement(parent,"meta",{"name":name,"value":value})
+
+
+def find_free_filepath(output_dir:str, filebase:str)->str:
+    """
+    finds the first non-existing filepath
+    :param output_dir:
+    :param filebase:
+    :return:
+    """
+    i=0
+    while True:
+        if i==0:
+            prefix = ""
+        else:
+            prefix = "{0}".format(i)
+        filepath = os.path.join(output_dir, "{0}{1}.xml".format(prefix,filebase))
+        if not os.path.exists(filepath):
+            return filepath
+
+
+def write_inmeta(asset:DeliverableAsset, output_dir:str)->str:
+    content = make_doc(asset)
+
+    filepath = find_free_filepath(output_dir, os.path.basename(asset.filename))
+    with open(filepath, "w") as f:
+        f.write(ET.tostring(content,"UTF-8"))
+    return filepath
+
+
+def make_doc(asset:DeliverableAsset) -> ET.Element:
+    """
+    create an ElementTree document that represents the given asset as inmeta
+    :param asset: DeliverableAsset instance
+    :return: populate ElementTree
+    """
+    rootEl = ET.Element("meta-data")
+
+    moveInfoEl = ET.SubElement(rootEl, "meta-movie-info")
+    ET.SubElement(moveInfoEl, "meta-movie", {"tokens":"format duration bitrate size tracks"})
+    ET.SubElement(moveInfoEl, "meta-track", {"tokens": "type format start duration bitrate size"})
+    ET.SubElement(moveInfoEl, "meta-video-track", {"tokens": "width height framerate"})
+    ET.SubElement(moveInfoEl, "meta-audio-track", {"tokens": "channels bitspersample samplerate"})
+    ET.SubElement(moveInfoEl, "meta-hint-track", {"tokens": "payload fmtp"})
+
+    groupEl = ET.SubElement(rootEl, "meta-group", {"type":"movie meta"})
+    field(groupEl, "itemId", asset.online_item_id)
+    field(groupEl, "title", os.path.basename(asset.filename))
+    field(groupEl, 'size', str(asset.size))
+
+    if asset.gnm_website_master:
+        field(groupEl, "gnm_website_headline", asset.gnm_website_master.website_title)
+        field(groupEl, "gnm_website_standfirst", asset.gnm_website_master.website_title)
+        field(groupEl, "gnm_website_trail", asset.gnm_website_master.website_description)
+        field(groupEl, "gnm_master_website_primary_tone", asset.gnm_website_master.primary_tone)
+        #field(groupEl, "", asset.gnm_website_master.tags)
+        field(groupEl, "gnm_master_generic_production_office", asset.gnm_website_master.production_office)
+        field(groupEl, "gnm_master_website_publication_status", asset.gnm_website_master.publication_status)
+
+    if asset.DailyMotion_master:
+        field(groupEl, "gnm_master_dailymotion_keywords", asset.DailyMotion_master.daily_motion_tags)
+        field(groupEl, "gnm_master_dailymotion_owner", "The Guardian")
+        field(groupEl, "gnm_master_dailymotion_status", asset.DailyMotion_master.upload_status)
+        field(groupEl, "gnm_master_dailymotion_dailymotionurl", asset.DailyMotion_master.daily_motion_url)
+        field(groupEl, "gnm_master_dailymotion_dailymotioncategory","{0}".format(asset.DailyMotion_master.daily_motion_category))
+        field(groupEl, "gnm_master_dailymotion_author","The Guardian")
+        field(groupEl, "gnm_master_dailymotion_description", asset.DailyMotion_master.daily_motion_description)
+        field(groupEl, "gnm_master_dailymotion_title", asset.DailyMotion_master.daily_motion_title)
+        field(groupEl, "gnm_master_dailymotion_uploadstatus", asset.DailyMotion_master.upload_status)
+        field(groupEl, "gnm_master_dailymotion_nomobile", "{0}".format(asset.DailyMotion_master.daily_motion_no_mobile_access))
+        field(groupEl, "gnm_master_dailymotion_adult_content", "{0}".format(asset.DailyMotion_master.daily_motion_contains_adult_content))
+
+    if asset.mainstream_master:
+        field(groupEl, "gnm_master_mainstreamsyndication_title", asset.mainstream_master.mainstream_title)
+        field(groupEl, "gnm_master_mainstreamsyndication_keywords", asset.mainstream_master.mainstream_tags)
+        field(groupEl, "gnm_master_mainstreamsyndication_description", asset.mainstream_master.mainstream_description)
+        field(groupEl, "gnm_master_mainstreamsyndication_author", "The Guardian")
+        field(groupEl, "gnm_master_mainstreamsyndication_publish", "")
+        field(groupEl, "gnm_master_mainstreamsyndication_remove", "")
+    return rootEl

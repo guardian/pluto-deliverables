@@ -169,6 +169,9 @@ TRANSCODE_PRESETS = {
     r'^application/x-material-exchange-format': "lowres"
 }
 
+# Watchfolder base path to output syndication trigger files
+CDS_WATCHFOLDER_PATH = None
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 

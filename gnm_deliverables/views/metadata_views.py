@@ -11,7 +11,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from gnm_deliverables.inmeta import write_inmeta
+from django.conf import settings
+import os
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.models import DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
     LogEntry
@@ -197,3 +199,38 @@ class PlatformLogsView(APIView):
             return Response({"status": "error", "details": "not found"}, status=404)
         data = [entry.log_line for entry in log_entries.order_by('-timestamp')]
         return Response({"logs": data}, status=200)
+
+
+class TriggerOutputView(APIView):
+    authentication_classes = (JwtRestAuth, )
+
+    def post(self, request, platform:str, asset_id:int):
+        try:
+            asset = DeliverableAsset.objects.get(pk=asset_id)
+        except DeliverableAsset.DoesNotExist:
+            return Response({"status":"error","details":"Asset not found"}, status=404)
+
+        output_dir = getattr(settings,"CDS_WATCHFOLDER_PATH")
+        if output_dir is None:
+            logger.warning("CDS_WATCHFOLDER_PATH not set, can't output syndication")
+            return Response({"status":"error","details":"CDS_WATCHFOLDER_PATH not set"}, status=500)
+
+        platform_name = platform.lower()
+        if platform_name=="mainstream":
+            if not asset.mainstream_master:
+                return Response({"status":"error","details":"No mainstream syndication data"}, status=400)
+            else:
+                filepath = write_inmeta(asset, os.path.join(output_dir, platform_name))
+                return Response({"status":"ok","filepath":filepath})
+        elif platform_name=="dailymotion":
+            if not asset.DailyMotion_master:
+                return Response({"status":"error","details":"No daily motion syndication data"}, status=400)
+            else:
+                filepath = write_inmeta(asset, os.path.join(output_dir, platform_name))
+                return Response({"status":"ok","filepath":filepath})
+        elif platform_name=="youtube":
+            return Response({"status":"error","detail":"Youtube syndication should go via media atom tool"},status=400)
+        elif platform_name=="gnmwebsite":
+            return Response({"status":"error","detail":"GNM website should go via the media atom tool"},status=400)
+        else:
+            return Response({"status":"error","detail":"Unrecognised platform name"})
