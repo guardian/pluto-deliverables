@@ -17,7 +17,7 @@ class TestPlatformLogUpdate(TestCase):
         PlatformLogupdate view should add a log entry for the given record
         :return:
         """
-        user = User.objects.get(username='peter')
+        user = User.objects.get(username='admin')
         asset = DeliverableAsset.objects.get(pk=37)
 
         self.assertNotEqual(asset.mainstream_master.upload_status,"Uploading")
@@ -42,7 +42,7 @@ class TestPlatformLogUpdate(TestCase):
         PlatformLogupdate view should add a log entry for the given record and mark completed if the request says so
         :return:
         """
-        user = User.objects.get(username='peter')
+        user = User.objects.get(username='admin')
         asset = DeliverableAsset.objects.get(pk=37)
 
         self.assertNotEqual(asset.mainstream_master.upload_status,"Upload Complete")
@@ -67,7 +67,7 @@ class TestPlatformLogUpdate(TestCase):
         PlatformLogupdate view should add a log entry for the given record and mark failed if the request says so
         :return:
         """
-        user = User.objects.get(username='peter')
+        user = User.objects.get(username='admin')
         asset = DeliverableAsset.objects.get(pk=37)
 
         self.assertNotEqual(asset.mainstream_master.upload_status,"Upload Failed")

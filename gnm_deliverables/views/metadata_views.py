@@ -10,14 +10,14 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from gnm_deliverables.inmeta import write_inmeta
 from django.conf import settings
 import os
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.models import DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
     LogEntry
-from gnm_deliverables.serializers import GNMWebsiteSerializer, \
-    YoutubeSerializer, MainstreamSerializer, DailyMotionSerializer
+from gnm_deliverables.serializers import *
 
 logger = logging.getLogger(__name__)
 
@@ -196,7 +196,19 @@ class PlatformLogsView(APIView):
             log_entries = LogEntry.objects.filter(related_daily_motion=asset.DailyMotion_master_id)
         else:
             return Response({"status": "error", "details": "not found"}, status=404)
-        data = [entry.log_line for entry in log_entries.order_by('-timestamp')]
+
+        qs = log_entries.order_by('-timestamp')
+        if "limit" in request.GET:
+            try:
+                limit = int(request.GET["limit"])
+                qs = log_entries.order_by('-timestamp')[0:limit]
+            except Exception as e:
+                logger.warning("limit parameter {0} was not valid: {1}".format(request.GET['limit'], str(e)))
+
+        if "full" in request.GET:
+            data = [LogEntrySerializer(entry).data for entry in qs]
+        else:
+            data = [entry.log_line for entry in qs]
         return Response({"logs": data}, status=200)
 
 
@@ -204,6 +216,7 @@ class PlatformLogUpdateView(APIView):
     authentication_classes = (BasicAuthentication, )
     parser_classes = (JSONParser, )
     renderer_classes = (JSONRenderer, )
+    permission_classes = (IsAuthenticated, )
 
     def post(self, request, project_id, asset_id, platform:str):
         """

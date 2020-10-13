@@ -218,6 +218,7 @@ LOGGING = {
 }
 
 AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
     "gnm_deliverables.jwt_auth_backend.JwtAuth",
 )
 
