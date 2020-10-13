@@ -1,6 +1,9 @@
 from .models import DeliverableAsset
 import xml.etree.cElementTree as ET
 import os.path
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def field(parent:ET.Element,name:str,value:str):
@@ -11,7 +14,11 @@ def field(parent:ET.Element,name:str,value:str):
     :param value:
     :return:
     """
-    ET.SubElement(parent,"meta",{"name":name,"value":value})
+    valueToOutput = value
+    if valueToOutput is None:
+        valueToOutput = ""
+
+    ET.SubElement(parent,"meta",{"name":name,"value":valueToOutput})
 
 
 def find_free_filepath(output_dir:str, filebase:str)->str:
@@ -30,14 +37,18 @@ def find_free_filepath(output_dir:str, filebase:str)->str:
         filepath = os.path.join(output_dir, "{0}{1}.xml".format(prefix,filebase))
         if not os.path.exists(filepath):
             return filepath
+        i+=1
 
 
 def write_inmeta(asset:DeliverableAsset, output_dir:str)->str:
     content = make_doc(asset)
 
+    if content is None:
+        logger.error("Could not make content doc?")
+        raise RuntimeError("Could not make content doc")
     filepath = find_free_filepath(output_dir, os.path.basename(asset.filename))
-    with open(filepath, "w") as f:
-        f.write(ET.tostring(content,"UTF-8"))
+    with open(filepath, "wb") as f:
+        f.write(ET.tostring(content, "UTF-8"))
     return filepath
 
 
@@ -71,7 +82,9 @@ def make_doc(asset:DeliverableAsset) -> ET.Element:
         field(groupEl, "gnm_master_website_publication_status", asset.gnm_website_master.publication_status)
 
     if asset.DailyMotion_master:
-        field(groupEl, "gnm_master_dailymotion_keywords", asset.DailyMotion_master.daily_motion_tags)
+        if asset.DailyMotion_master.daily_motion_tags:
+            kw = ",".join(asset.DailyMotion_master.daily_motion_tags)
+            field(groupEl, "gnm_master_dailymotion_keywords", kw)
         field(groupEl, "gnm_master_dailymotion_owner", "The Guardian")
         field(groupEl, "gnm_master_dailymotion_status", asset.DailyMotion_master.upload_status)
         field(groupEl, "gnm_master_dailymotion_dailymotionurl", asset.DailyMotion_master.daily_motion_url)
@@ -85,7 +98,9 @@ def make_doc(asset:DeliverableAsset) -> ET.Element:
 
     if asset.mainstream_master:
         field(groupEl, "gnm_master_mainstreamsyndication_title", asset.mainstream_master.mainstream_title)
-        field(groupEl, "gnm_master_mainstreamsyndication_keywords", asset.mainstream_master.mainstream_tags)
+        if asset.mainstream_master.mainstream_tags:
+            kw = ",".join(asset.mainstream_master.mainstream_tags)
+            field(groupEl, "gnm_master_mainstreamsyndication_keywords", kw)
         field(groupEl, "gnm_master_mainstreamsyndication_description", asset.mainstream_master.mainstream_description)
         field(groupEl, "gnm_master_mainstreamsyndication_author", "The Guardian")
         field(groupEl, "gnm_master_mainstreamsyndication_publish", "")

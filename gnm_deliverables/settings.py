@@ -170,7 +170,7 @@ TRANSCODE_PRESETS = {
 }
 
 # Watchfolder base path to output syndication trigger files
-CDS_WATCHFOLDER_PATH = None
+CDS_WATCHFOLDER_PATH = os.environ.get("CDS_WATCHFOLDER_PATH")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

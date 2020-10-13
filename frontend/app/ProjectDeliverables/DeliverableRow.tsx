@@ -36,6 +36,7 @@ interface DeliverableRowProps {
   vidispineBaseUri: string;
   openJob: (jobId: string) => void;
   project_id: number;
+  onSyndicationStarted: (assetId:bigint)=>void
 }
 
 declare var mediaAtomToolUrl: string;
@@ -235,6 +236,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
             <MasterList
               deliverable={props.deliverable}
               project_id={props.project_id}
+              onSyndicationInitiated={props.onSyndicationStarted}
             />
           </Collapse>
         </TableCell>

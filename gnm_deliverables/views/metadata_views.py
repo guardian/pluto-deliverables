@@ -204,7 +204,7 @@ class PlatformLogsView(APIView):
 class TriggerOutputView(APIView):
     authentication_classes = (JwtRestAuth, )
 
-    def post(self, request, platform:str, asset_id:int):
+    def post(self, request, project_id:int, platform:str, asset_id:int):
         try:
             asset = DeliverableAsset.objects.get(pk=asset_id)
         except DeliverableAsset.DoesNotExist:
@@ -221,12 +221,16 @@ class TriggerOutputView(APIView):
                 return Response({"status":"error","details":"No mainstream syndication data"}, status=400)
             else:
                 filepath = write_inmeta(asset, os.path.join(output_dir, platform_name))
+                asset.mainstream_master.upload_status = 'Ready for Upload'
+                asset.mainstream_master.save()
                 return Response({"status":"ok","filepath":filepath})
         elif platform_name=="dailymotion":
             if not asset.DailyMotion_master:
                 return Response({"status":"error","details":"No daily motion syndication data"}, status=400)
             else:
                 filepath = write_inmeta(asset, os.path.join(output_dir, platform_name))
+                asset.DailyMotion_master.upload_status = 'Ready for Upload'
+                asset.DailyMotion_master.save()
                 return Response({"status":"ok","filepath":filepath})
         elif platform_name=="youtube":
             return Response({"status":"error","detail":"Youtube syndication should go via media atom tool"},status=400)

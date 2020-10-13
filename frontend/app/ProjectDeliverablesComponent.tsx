@@ -137,9 +137,22 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [adoptInProgress, setAdoptInProgress] = useState<boolean>(false);
   const [centralMessage, setCentralMessage] = useState<string>("");
   const [blockRoute, setBlockRoute] = useState(false);
+  const [refreshTimerId, setRefreshTimerId] = useState<number|undefined>(undefined);
 
   // Material-UI
   const classes = useStyles();
+
+  // const startRegularRefresh = () => {
+  //   const timerId = window.setInterval(doRefresh, 3000);
+  //   setRefreshTimerId(timerId);
+  // }
+  //
+  // useEffect(()=>{
+  //   return ()=>{
+  //     console.log("clearing refresh timer ", refreshTimerId);
+  //     if(refreshTimerId) window.clearInterval(refreshTimerId)
+  //   }
+  // }, [refreshTimerId]);
 
   const doRefresh = async () => {
     try {
@@ -373,6 +386,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                       if (w) w.focus();
                     }}
                     project_id={projectid}
+                    onSyndicationStarted={()=> {
+                    }
+                    }
                   />
                 ))}
               </TableBody>
