@@ -221,7 +221,12 @@ class PlatformLogUpdateView(APIView):
     def post(self, request, project_id, asset_id, platform:str):
         """
         receives a log update and saves it.
-        expects a JSON body in the format { "sender": "sender-name", "log": "log-line", "completed":true/false/absent, "failed":true/false/absent }.
+        expects a JSON body in the format { "sender": "sender-name",
+         "log": "log-line",
+         "completed":true/false/absent,
+         "failed":true/false/absent,
+         "uploadedUrl":"url" [optional, ignored unless completed=true and failed=false/absent]
+         }.
         logs are timestamped as they arrive
         :param request:
         :param project_id:
@@ -262,6 +267,9 @@ class PlatformLogUpdateView(APIView):
                     asset.DailyMotion_master.save()
                 elif did_succeed:
                     asset.DailyMotion_master.upload_status='Upload Complete'
+                    asset.DailyMotion_master.publication_date = datetime.now()
+                    if "uploadedUrl" in request.data:
+                        asset.DailyMotion_master.daily_motion_url = request.data["uploadedUrl"]
                     asset.DailyMotion_master.save()
             elif lcplatform=="mainstream":
                 related_id = asset.mainstream_master_id
