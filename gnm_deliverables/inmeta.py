@@ -72,7 +72,7 @@ def make_doc(asset:DeliverableAsset, platform:str) -> ET.Element:
     field(groupEl, "title", os.path.basename(asset.filename))
     field(groupEl, 'size', str(asset.size))
     field(groupEl, "pluto_deliverables_asset_id", str(asset.id))
-    field(groupEl, "pluto_deliverables_bundle_id", str(asset.deliverable.id))
+    field(groupEl, "pluto_deliverables_project_id", str(asset.deliverable.pluto_core_project_id))
     field(groupEl, "pluto_deliverables_platform", platform)
 
     if asset.gnm_website_master:
