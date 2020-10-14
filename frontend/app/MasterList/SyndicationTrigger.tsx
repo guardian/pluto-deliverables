@@ -60,7 +60,7 @@ const SyndicationTriggerIcon: React.FC<SyndicationIconProps> = (props) => {
     case IN_PROGRESS:
       return (
         <Tooltip title="Output is ongoing...">
-          <CircularProgress />
+          <CircularProgress style={{ width: "20px", height: "20px" }} />
         </Tooltip>
       );
     case FAILED:
@@ -72,7 +72,7 @@ const SyndicationTriggerIcon: React.FC<SyndicationIconProps> = (props) => {
     case COMPLETE:
       return (
         <Tooltip title="Output success">
-          <CheckCircleOutline style={{ color: "green" }} />
+          <CheckCircleOutline style={{ color: "green", height: "19px" }} />
         </Tooltip>
       );
     default:
@@ -103,7 +103,7 @@ const SyndicationTrigger: React.FC<SyndicationTriggerProps> = (props) => {
   };
 
   return (
-    <Grid container direction="row" alignItems="center">
+    <Grid container direction="row" alignItems="center" justify="center">
       <Grid item>
         {props.uploadStatus == IN_PROGRESS ||
         props.uploadStatus == WAITING_FOR_START ? null : (

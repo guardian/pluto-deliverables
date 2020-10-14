@@ -33,6 +33,7 @@ import SystemNotification, {
   SystemNotificationKind,
 } from "../SystemNotification";
 import SyndicationTrigger from "./SyndicationTrigger";
+import SyndicationLastLog from "./SyndicationLastLog";
 
 const useStyles = makeStyles({
   tableContainer: {
@@ -377,7 +378,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                     </Tooltip>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ width: "84px" }}>
                   {master.group != MasterEnum.Guardian &&
                   master.group != MasterEnum.Youtube ? (
                     <SyndicationTrigger
@@ -388,6 +389,14 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                       sendInitiated={() => startRegularRefresh()}
                     />
                   ) : null}
+                </TableCell>
+                <TableCell>
+                  <SyndicationLastLog
+                    uploadStatus={master.upload_status}
+                    platform={master.group}
+                    projectId={props.project_id}
+                    assetId={deliverable.id}
+                  />
                 </TableCell>
               </TableRow>
             ))}
