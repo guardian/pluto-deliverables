@@ -35,7 +35,6 @@ const SyndicationLastLog: React.FC<SyndicationLastLogProps> = (props) => {
       ": ",
       props.uploadStatus
     );
-    updateLog();
 
     if (
       props.uploadStatus == "Ready for Upload" ||
