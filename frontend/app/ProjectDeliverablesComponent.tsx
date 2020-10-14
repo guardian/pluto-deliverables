@@ -137,7 +137,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [adoptInProgress, setAdoptInProgress] = useState<boolean>(false);
   const [centralMessage, setCentralMessage] = useState<string>("");
   const [blockRoute, setBlockRoute] = useState(false);
-  const [refreshTimerId, setRefreshTimerId] = useState<number|undefined>(undefined);
+  const [refreshTimerId, setRefreshTimerId] = useState<number | undefined>(
+    undefined
+  );
 
   // Material-UI
   const classes = useStyles();
@@ -386,9 +388,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                       if (w) w.focus();
                     }}
                     project_id={projectid}
-                    onSyndicationStarted={()=> {
-                    }
-                    }
+                    onSyndicationStarted={() => {}}
                   />
                 ))}
               </TableBody>

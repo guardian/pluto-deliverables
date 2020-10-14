@@ -46,7 +46,11 @@ describe("MasterList", () => {
     const mockOnSyndicationInitiated = sinon.spy();
 
     const wrapper = mount(
-      <MasterList deliverable={deliverable} project_id={1} onSyndicationInitiated={mockOnSyndicationInitiated}/>
+      <MasterList
+        deliverable={deliverable}
+        project_id={1}
+        onSyndicationInitiated={mockOnSyndicationInitiated}
+      />
     );
     const masterElements = wrapper
       .find(".MuiTableRow-root")
@@ -79,7 +83,11 @@ describe("MasterList", () => {
     ];
 
     const wrapper = mount(
-      <MasterList deliverable={deliverable} project_id={2} onSyndicationInitiated={mockOnSyndicationInitiated}/>
+      <MasterList
+        deliverable={deliverable}
+        project_id={2}
+        onSyndicationInitiated={mockOnSyndicationInitiated}
+      />
     );
 
     return moxios.wait(async () => {
@@ -191,7 +199,11 @@ describe("MasterList", () => {
       youtube_description: "",
     };
     const wrapper = mount(
-      <MasterList deliverable={deliverable} project_id={3} onSyndicationInitiated={mockOnSyndicationInitiated}/>
+      <MasterList
+        deliverable={deliverable}
+        project_id={3}
+        onSyndicationInitiated={mockOnSyndicationInitiated}
+      />
     );
 
     return moxios.wait(async () => {

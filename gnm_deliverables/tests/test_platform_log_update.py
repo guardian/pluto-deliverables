@@ -24,7 +24,7 @@ class TestPlatformLogUpdate(TestCase):
         pre_existing_records = LogEntry.objects.filter(related_mainstream=asset.mainstream_master)
         self.assertEqual(len(pre_existing_records), 0)
         client = APIClient()
-        client.force_login(user)
+        client.force_authenticate(user)
         testbody = {"sender": "test","log": "test log line"}
 
         response = client.post("/api/bundle/4444/asset/37/mainstream/logupdate", data=testbody, format="json")
@@ -49,7 +49,7 @@ class TestPlatformLogUpdate(TestCase):
         pre_existing_records = LogEntry.objects.filter(related_mainstream=asset.mainstream_master)
         self.assertEqual(len(pre_existing_records), 0)
         client = APIClient()
-        client.force_login(user)
+        client.force_authenticate(user)
         testbody = {"sender": "test","log": "test log line", "completed": True, "failed": False}
 
         response = client.post("/api/bundle/4444/asset/37/mainstream/logupdate", data=testbody, format="json")
@@ -74,7 +74,7 @@ class TestPlatformLogUpdate(TestCase):
         pre_existing_records = LogEntry.objects.filter(related_mainstream=asset.mainstream_master)
         self.assertEqual(len(pre_existing_records), 0)
         client = APIClient()
-        client.force_login(user)
+        client.force_authenticate(user)
         testbody = {"sender": "test","log": "test log line", "completed": True, "failed": True}
 
         response = client.post("/api/bundle/4444/asset/37/mainstream/logupdate", data=testbody, format="json")

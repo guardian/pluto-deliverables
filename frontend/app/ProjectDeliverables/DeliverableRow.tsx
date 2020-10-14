@@ -36,7 +36,7 @@ interface DeliverableRowProps {
   vidispineBaseUri: string;
   openJob: (jobId: string) => void;
   project_id: number;
-  onSyndicationStarted: (assetId:bigint)=>void
+  onSyndicationStarted: (assetId: bigint) => void;
 }
 
 declare var mediaAtomToolUrl: string;

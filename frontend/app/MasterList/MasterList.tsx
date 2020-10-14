@@ -8,7 +8,8 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  Chip, Tooltip,
+  Chip,
+  Tooltip,
 } from "@material-ui/core";
 import moment from "moment";
 import guardianEnabled from "../static/guardian_enabled.png";
@@ -80,7 +81,7 @@ declare var deploymentRootPath: string;
 interface MasterListProps {
   deliverable: Deliverable;
   project_id: number;
-  onSyndicationInitiated: (assetId:bigint)=>void | undefined
+  onSyndicationInitiated: (assetId: bigint) => void | undefined;
 }
 
 const MasterList: React.FC<MasterListProps> = (props) => {
@@ -88,7 +89,9 @@ const MasterList: React.FC<MasterListProps> = (props) => {
   const { deliverable, project_id } = props;
   const projectIdUrl = `${deploymentRootPath}project/${project_id.toString()}/asset/${deliverable.id.toString()}`;
   const [loading, setLoading] = useState<boolean>(true);
-  const [refreshTimerId, setRefreshTimerId] = useState<number|undefined>(undefined);
+  const [refreshTimerId, setRefreshTimerId] = useState<number | undefined>(
+    undefined
+  );
 
   const [masters, setMasters] = useState<Master[]>([
     {
@@ -131,27 +134,27 @@ const MasterList: React.FC<MasterListProps> = (props) => {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     console.debug("registering clear handler for refreshtimer");
-    return ()=> {
+    return () => {
       if (refreshTimerId) {
         console.debug("clearing refresh timer ", refreshTimerId);
-        window.clearInterval(refreshTimerId)
+        window.clearInterval(refreshTimerId);
       }
-    }
+    };
   }, [refreshTimerId]);
 
   const startRegularRefresh = () => {
     const timerId = window.setInterval(loadData, 3000);
     setRefreshTimerId(timerId);
-  }
+  };
 
   const loadData = async () => {
     let gnmMaster: GuardianMaster;
     try {
       gnmMaster = await getDeliverableGNM(
-          project_id.toString(),
-          deliverable.id.toString()
+        project_id.toString(),
+        deliverable.id.toString()
       );
     } catch (error) {
       displayError(error);
@@ -160,8 +163,8 @@ const MasterList: React.FC<MasterListProps> = (props) => {
     let youtubeMaster: YoutubeMaster;
     try {
       youtubeMaster = await getDeliverableYoutube(
-          project_id.toString(),
-          deliverable.id.toString()
+        project_id.toString(),
+        deliverable.id.toString()
       );
     } catch (error) {
       displayError(error);
@@ -170,8 +173,8 @@ const MasterList: React.FC<MasterListProps> = (props) => {
     let dailymotionMaster: DailymotionMaster;
     try {
       dailymotionMaster = await getDeliverableDailymotion(
-          project_id.toString(),
-          deliverable.id.toString()
+        project_id.toString(),
+        deliverable.id.toString()
       );
     } catch (error) {
       displayError(error);
@@ -180,8 +183,8 @@ const MasterList: React.FC<MasterListProps> = (props) => {
     let mainstreamMaster: MainstreamMaster;
     try {
       mainstreamMaster = await getDeliverableMainstream(
-          project_id.toString(),
-          deliverable.id.toString()
+        project_id.toString(),
+        deliverable.id.toString()
       );
     } catch (error) {
       displayError(error);
@@ -233,12 +236,11 @@ const MasterList: React.FC<MasterListProps> = (props) => {
     setLoading(false);
 
     setMasters(updatedMasters);
-  }
+  };
 
   useEffect(() => {
     loadData();
   }, []);
-
 
   const getTypeImageSource = (master: Master) => {
     const { group, title } = master;
@@ -362,29 +364,30 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                 </TableCell>
                 <TableCell>
                   {master.title ? (
-                      <Tooltip title="View/edit syndication information">
-                        <IconButton href={getMasterLink(master)}>
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
+                    <Tooltip title="View/edit syndication information">
+                      <IconButton href={getMasterLink(master)}>
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
                   ) : (
-                      <Tooltip title="Add syndication information">
-                        <IconButton href={getMasterLink(master)}>
-                          <AddIcon />
-                        </IconButton>
-                      </Tooltip>
+                    <Tooltip title="Add syndication information">
+                      <IconButton href={getMasterLink(master)}>
+                        <AddIcon />
+                      </IconButton>
+                    </Tooltip>
                   )}
                 </TableCell>
                 <TableCell>
-                  {
-                    master.group!=MasterEnum.Guardian && master.group!=MasterEnum.Youtube ? <SyndicationTrigger
-                        uploadStatus={master.upload_status}
-                        platform={master.group}
-                        projectId={props.project_id}
-                        assetId={deliverable.id}
-                        sendInitiated={()=>startRegularRefresh()}
-                    /> : null
-                  }
+                  {master.group != MasterEnum.Guardian &&
+                  master.group != MasterEnum.Youtube ? (
+                    <SyndicationTrigger
+                      uploadStatus={master.upload_status}
+                      platform={master.group}
+                      projectId={props.project_id}
+                      assetId={deliverable.id}
+                      sendInitiated={() => startRegularRefresh()}
+                    />
+                  ) : null}
                 </TableCell>
               </TableRow>
             ))}
