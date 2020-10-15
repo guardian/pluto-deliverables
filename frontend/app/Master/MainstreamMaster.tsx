@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Helmet } from "react-helmet";
 import {
   makeStyles,
   Typography,
@@ -218,6 +219,13 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
 
   return (
     <>
+      <Helmet>
+        <title>
+          MainstreamMedia information{" "}
+          {master.mainstream_title == "" ? "" : `– ${master.mainstream_title}`}
+        </title>
+      </Helmet>
+
       <div className={classes.root}>
         <form onSubmit={onProjectSubmit} noValidate autoComplete="off">
           <Typography variant="h4">
