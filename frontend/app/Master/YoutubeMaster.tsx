@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 import {
   makeStyles,
   Typography,
@@ -236,7 +236,10 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
   return (
     <>
       <Helmet>
-        <title>YouTube information {master.youtube_title=="" ? "" : `– ${master.youtube_title}`}</title>
+        <title>
+          YouTube information{" "}
+          {master.youtube_title == "" ? "" : `– ${master.youtube_title}`}
+        </title>
       </Helmet>
 
       <div className={classes.root}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 import {
   makeStyles,
   Typography,
@@ -235,7 +235,12 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
   return (
     <>
       <Helmet>
-        <title>DailyMotion information {master.daily_motion_title=="" ? "" : `– ${master.daily_motion_title}`}</title>
+        <title>
+          DailyMotion information{" "}
+          {master.daily_motion_title == ""
+            ? ""
+            : `– ${master.daily_motion_title}`}
+        </title>
       </Helmet>
 
       <div className={classes.root}>

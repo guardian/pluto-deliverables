@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import LocationLink from "./LocationLink";
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 import {
   Button,
   IconButton,
@@ -281,11 +281,11 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   return (
     <>
-      {
-        parentBundleInfo?.name ? <Helmet>
+      {parentBundleInfo?.name ? (
+        <Helmet>
           <title>[{parentBundleInfo.name}] – Deliverables</title>
-        </Helmet> : null
-      }
+        </Helmet>
+      ) : null}
       <BeforeUnloadComponent
         blockRoute={blockRoute}
         ignoreChildrenLinks={true}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 import {
   makeStyles,
   Typography,
@@ -236,7 +236,10 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
   return (
     <>
       <Helmet>
-        <title>Website information {master.website_title=="" ? "" : `– ${master.website_title}`}</title>
+        <title>
+          Website information{" "}
+          {master.website_title == "" ? "" : `– ${master.website_title}`}
+        </title>
       </Helmet>
 
       <div className={classes.root}>
@@ -258,7 +261,7 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
                   ""
                 )}
 
-                <Divider/>
+                <Divider />
               </div>
 
               <TextField
