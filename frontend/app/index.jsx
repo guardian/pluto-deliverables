@@ -13,6 +13,7 @@ import YoutubeMaster from "./Master/YoutubeMaster";
 import MainstreamMaster from "./Master/MainstreamMaster";
 import DailymotionMaster from "./Master/DailymotionMaster";
 import SystemNotification from "./SystemNotification";
+import {Helmet} from "react-helmet";
 
 require("./app.css");
 
@@ -108,6 +109,9 @@ class App extends React.Component {
 
     return (
       <ThemeProvider theme={theme}>
+        <Helmet>
+          <title>Media Deliverables</title>
+        </Helmet>
         <>
           <Header />
           <AppSwitcher onLoginValid={this.onLoginValid} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import {Helmet} from "react-helmet";
 import {
   makeStyles,
   Typography,
@@ -188,13 +189,13 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
       await deleteGNMDeliverable(projectid, assetid);
       SystemNotification.open(
         SystemNotificationKind.Success,
-        `Successfully Deleted GNM Website!`
+        `Successfully deleted website information`
       );
       navigateBack();
     } catch (error) {
       SystemNotification.open(
         SystemNotificationKind.Error,
-        `Failed to Delete GNM Website.`
+        `Failed to delete website information`
       );
     }
   };
@@ -234,6 +235,10 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
 
   return (
     <>
+      <Helmet>
+        <title>Website information {master.website_title=="" ? "" : `– ${master.website_title}`}</title>
+      </Helmet>
+
       <div className={classes.root}>
         <form onSubmit={onProjectSubmit} noValidate autoComplete="off">
           <Typography variant="h4">
@@ -253,7 +258,7 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
                   ""
                 )}
 
-                <Divider></Divider>
+                <Divider/>
               </div>
 
               <TextField
