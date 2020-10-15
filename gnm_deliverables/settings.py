@@ -30,6 +30,10 @@ if "DEPLOYMENT_HOST" in os.environ:
 if "CALLBACK_HOST" in os.environ:
     ALLOWED_HOSTS.append(os.environ["CALLBACK_HOST"])
 
+ALLOWED_CIDR_NETS = []
+if "ALLOWED_HOSTS_CIDR" in os.environ:
+    ALLOWED_CIDR_NETS = os.environ["ALLOWED_HOSTS_CIDR"].split(",")
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,6 +55,7 @@ NOSE_ARGS = [
     "--cover-package=gnm_deliverables,rabbitmq"
 ]
 MIDDLEWARE = [
+    'allow_cidr.middleware.AllowCIDRMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
