@@ -4,19 +4,20 @@ import logging
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import Now
-# from gnm_misc_utils.csrf_exempt_session_authentication import CsrfExemptSessionAuthentication
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.permissions import IsAuthenticated
+from gnm_deliverables.inmeta import write_inmeta
+from django.conf import settings
+import os
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.models import DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
     LogEntry
-from gnm_deliverables.serializers import GNMWebsiteSerializer, \
-    YoutubeSerializer, MainstreamSerializer, DailyMotionSerializer
+from gnm_deliverables.serializers import *
 
 logger = logging.getLogger(__name__)
 
@@ -195,5 +196,144 @@ class PlatformLogsView(APIView):
             log_entries = LogEntry.objects.filter(related_daily_motion=asset.DailyMotion_master_id)
         else:
             return Response({"status": "error", "details": "not found"}, status=404)
-        data = [entry.log_line for entry in log_entries.order_by('-timestamp')]
+
+        qs = log_entries.order_by('-timestamp')
+        if "limit" in request.GET:
+            try:
+                limit = int(request.GET["limit"])
+                qs = log_entries.order_by('-timestamp')[0:limit]
+            except Exception as e:
+                logger.warning("limit parameter {0} was not valid: {1}".format(request.GET['limit'], str(e)))
+
+        if "full" in request.GET:
+            data = [LogEntrySerializer(entry).data for entry in qs]
+        else:
+            data = [entry.log_line for entry in qs]
         return Response({"logs": data}, status=200)
+
+
+class PlatformLogUpdateView(APIView):
+    authentication_classes = (BasicAuthentication, )
+    parser_classes = (JSONParser, )
+    renderer_classes = (JSONRenderer, )
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, project_id, asset_id, platform:str):
+        """
+        receives a log update and saves it.
+        expects a JSON body in the format { "sender": "sender-name",
+         "log": "log-line",
+         "completed":true/false/absent,
+         "failed":true/false/absent,
+         "uploadedUrl":"url" [optional, ignored unless completed=true and failed=false/absent]
+         }.
+        logs are timestamped as they arrive
+        :param request:
+        :param project_id:
+        :param asset_id:
+        :param platform:
+        :return:
+        """
+        from datetime import datetime
+
+        try:
+            asset = DeliverableAsset.objects.get(pk=asset_id)
+
+            newentry = LogEntry(
+                timestamp=datetime.now(),
+                sender=request.data["sender"],
+                log_line=request.data["log"]
+            )
+
+            did_fail = False
+            did_succeed = False
+            asset_needs_save = False
+            if "completed" in request.data and request.data["completed"]:
+                if "failed" in request.data and request.data["failed"]:
+                    did_fail = True
+                else:
+                    did_succeed = True
+
+            lcplatform = platform.lower()
+            if lcplatform=="dailymotion":
+                related_id = asset.DailyMotion_master_id
+                newentry.related_daily_motion = asset.DailyMotion_master
+                if not did_fail and not did_succeed:
+                    if asset.DailyMotion_master.upload_status!='Uploading':
+                        asset.DailyMotion_master.upload_status = 'Uploading'
+                        asset.DailyMotion_master.save()
+                elif did_fail:
+                    asset.DailyMotion_master.upload_status='Upload Failed'
+                    asset.DailyMotion_master.save()
+                elif did_succeed:
+                    asset.DailyMotion_master.upload_status='Upload Complete'
+                    asset.DailyMotion_master.publication_date = datetime.now()
+                    if "uploadedUrl" in request.data:
+                        asset.DailyMotion_master.daily_motion_url = request.data["uploadedUrl"]
+                    asset.DailyMotion_master.save()
+            elif lcplatform=="mainstream":
+                related_id = asset.mainstream_master_id
+                newentry.related_mainstream = asset.mainstream_master
+                if not did_fail and not did_succeed:
+                    if asset.mainstream_master.upload_status!='Uploading':
+                        asset.mainstream_master.upload_status = 'Uploading'
+                        asset.mainstream_master.save()
+                elif did_fail:
+                    asset.mainstream_master.upload_status='Upload Failed'
+                    asset.mainstream_master.save()
+                elif did_succeed:
+                    asset.mainstream_master.upload_status='Upload Complete'
+                    asset.mainstream_master.save()
+            else:
+                return Response({"status":"bad_request","detail":"platform not recognised or does not support log entries"}, status=400)
+
+            if related_id is None:
+                return Response({"status":"bad_request","detail":"no syndication data for this platform on this id"}, status=400)
+            else:
+                newentry.save()
+                return Response({"status":"ok"},status=200)
+        except KeyError as e:
+            logger.error("Invalid log updated for {0} {1}: missing key {2}".format(platform, asset_id, str(e)))
+            return Response({"status":"bad_request","detail":"{0}: field missing".format(e)},status=400)
+
+        except DeliverableAsset.DoesNotExist:
+            return Response({"status":"notfound","detail":"no deliverable asset matching id"},status=404)
+
+
+class TriggerOutputView(APIView):
+    authentication_classes = (JwtRestAuth, )
+
+    def post(self, request, project_id:int, platform:str, asset_id:int):
+        try:
+            asset = DeliverableAsset.objects.get(pk=asset_id)
+        except DeliverableAsset.DoesNotExist:
+            return Response({"status":"error","details":"Asset not found"}, status=404)
+
+        output_dir = getattr(settings,"CDS_WATCHFOLDER_PATH")
+        if output_dir is None:
+            logger.warning("CDS_WATCHFOLDER_PATH not set, can't output syndication")
+            return Response({"status":"error","details":"CDS_WATCHFOLDER_PATH not set"}, status=500)
+
+        platform_name = platform.lower()
+        if platform_name=="mainstream":
+            if not asset.mainstream_master:
+                return Response({"status":"error","details":"No mainstream syndication data"}, status=400)
+            else:
+                filepath = write_inmeta(asset, platform_name, os.path.join(output_dir, platform_name))
+                asset.mainstream_master.upload_status = 'Ready for Upload'
+                asset.mainstream_master.save()
+                return Response({"status":"ok","filepath":filepath})
+        elif platform_name=="dailymotion":
+            if not asset.DailyMotion_master:
+                return Response({"status":"error","details":"No daily motion syndication data"}, status=400)
+            else:
+                filepath = write_inmeta(asset, platform_name, os.path.join(output_dir, platform_name))
+                asset.DailyMotion_master.upload_status = 'Ready for Upload'
+                asset.DailyMotion_master.save()
+                return Response({"status":"ok","filepath":filepath})
+        elif platform_name=="youtube":
+            return Response({"status":"error","detail":"Youtube syndication should go via media atom tool"},status=400)
+        elif platform_name=="gnmwebsite":
+            return Response({"status":"error","detail":"GNM website should go via the media atom tool"},status=400)
+        else:
+            return Response({"status":"error","detail":"Unrecognised platform name"})

@@ -97,6 +97,7 @@ interface Master {
   title: string | null;
   link: string | null;
   tags: string[] | null;
+  upload_status: string | null;
 }
 
 //can't be more specific than this. each key is the section name and each value is an array of (id, name) pairs

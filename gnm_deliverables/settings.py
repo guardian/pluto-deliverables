@@ -169,6 +169,9 @@ TRANSCODE_PRESETS = {
     r'^application/x-material-exchange-format': "lowres"
 }
 
+# Watchfolder base path to output syndication trigger files
+CDS_WATCHFOLDER_PATH = os.environ.get("CDS_WATCHFOLDER_PATH")
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
@@ -215,6 +218,7 @@ LOGGING = {
 }
 
 AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
     "gnm_deliverables.jwt_auth_backend.JwtAuth",
 )
 

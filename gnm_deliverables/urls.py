@@ -5,7 +5,7 @@ URLS for the Guardian Project plugin
 from django.urls import path, re_path
 from django.views.decorators.csrf import csrf_exempt
 from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIView, DailyMotionAPIView,\
-    MainstreamAPIView, PlatformLogsView
+    MainstreamAPIView, PlatformLogsView, TriggerOutputView, PlatformLogUpdateView
 from django.contrib import admin
 from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, VSNotifyView, \
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
@@ -31,6 +31,8 @@ urlpatterns = [
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/youtube', YoutubeAPIView.as_view(), name='youtube'),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/dailymotion', DailyMotionAPIView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logs', PlatformLogsView.as_view()),
+    path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logupdate', PlatformLogUpdateView.as_view()),
+    path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/send', TriggerOutputView.as_view()),
     path(r'api/bundle/started', DeliverableAPIStarted.as_view()),
     path(r'api/atom/<str:atom_id>', LaunchDetectorUpdateView.as_view(), name='atom_update'),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view()),

@@ -4,6 +4,8 @@ import MasterList from "../app/MasterList/MasterList";
 import moment from "moment";
 import moxios from "moxios";
 import { act } from "react-dom/test-utils";
+import sinon from "sinon";
+import mock = jest.mock;
 
 (global as any).deploymentRootPath = "";
 
@@ -41,8 +43,14 @@ describe("MasterList", () => {
   });
 
   it("should render empty masters", () => {
+    const mockOnSyndicationInitiated = sinon.spy();
+
     const wrapper = mount(
-      <MasterList deliverable={deliverable} project_id={1} />
+      <MasterList
+        deliverable={deliverable}
+        project_id={1}
+        onSyndicationInitiated={mockOnSyndicationInitiated}
+      />
     );
     const masterElements = wrapper
       .find(".MuiTableRow-root")
@@ -59,6 +67,7 @@ describe("MasterList", () => {
   });
 
   it("should render one fetched master data in the masterList", (done) => {
+    const mockOnSyndicationInitiated = sinon.spy();
     const masterList: GuardianMaster[] = [
       {
         publication_date: new Date().toISOString(),
@@ -74,7 +83,11 @@ describe("MasterList", () => {
     ];
 
     const wrapper = mount(
-      <MasterList deliverable={deliverable} project_id={2} />
+      <MasterList
+        deliverable={deliverable}
+        project_id={2}
+        onSyndicationInitiated={mockOnSyndicationInitiated}
+      />
     );
 
     return moxios.wait(async () => {
@@ -166,6 +179,7 @@ describe("MasterList", () => {
   });
 
   it("should render correct length of items in the masterList", (done) => {
+    const mockOnSyndicationInitiated = sinon.spy();
     const guardianMaster: GuardianMaster = {
       publication_date: new Date().toISOString(),
       website_title: "Atom headline",
@@ -185,7 +199,11 @@ describe("MasterList", () => {
       youtube_description: "",
     };
     const wrapper = mount(
-      <MasterList deliverable={deliverable} project_id={3} />
+      <MasterList
+        deliverable={deliverable}
+        project_id={3}
+        onSyndicationInitiated={mockOnSyndicationInitiated}
+      />
     );
 
     return moxios.wait(async () => {

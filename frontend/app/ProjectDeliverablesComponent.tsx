@@ -373,6 +373,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                       if (w) w.focus();
                     }}
                     project_id={projectid}
+                    onSyndicationStarted={() => {}}
                   />
                 ))}
               </TableBody>

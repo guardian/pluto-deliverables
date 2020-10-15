@@ -9,6 +9,7 @@ import {
   TableCell,
   TableBody,
   Chip,
+  Tooltip,
 } from "@material-ui/core";
 import moment from "moment";
 import guardianEnabled from "../static/guardian_enabled.png";
@@ -31,6 +32,8 @@ import {
 import SystemNotification, {
   SystemNotificationKind,
 } from "../SystemNotification";
+import SyndicationTrigger from "./SyndicationTrigger";
+import SyndicationLastLog from "./SyndicationLastLog";
 
 const useStyles = makeStyles({
   tableContainer: {
@@ -79,6 +82,7 @@ declare var deploymentRootPath: string;
 interface MasterListProps {
   deliverable: Deliverable;
   project_id: number;
+  onSyndicationInitiated: (assetId: bigint) => void | undefined;
 }
 
 const MasterList: React.FC<MasterListProps> = (props) => {
@@ -86,6 +90,10 @@ const MasterList: React.FC<MasterListProps> = (props) => {
   const { deliverable, project_id } = props;
   const projectIdUrl = `${deploymentRootPath}project/${project_id.toString()}/asset/${deliverable.id.toString()}`;
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshTimerId, setRefreshTimerId] = useState<number | undefined>(
+    undefined
+  );
+
   const [masters, setMasters] = useState<Master[]>([
     {
       group: MasterEnum.Guardian,
@@ -93,6 +101,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       title: null,
       link: null,
       tags: null,
+      upload_status: null,
     },
     {
       group: MasterEnum.Youtube,
@@ -100,6 +109,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       title: null,
       link: null,
       tags: null,
+      upload_status: null,
     },
     {
       group: MasterEnum.Dailymotion,
@@ -107,6 +117,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       title: null,
       link: null,
       tags: null,
+      upload_status: null,
     },
     {
       group: MasterEnum.Mainstream,
@@ -114,6 +125,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       title: null,
       link: null,
       tags: null,
+      upload_status: null,
     },
   ]);
 
@@ -124,101 +136,111 @@ const MasterList: React.FC<MasterListProps> = (props) => {
   };
 
   useEffect(() => {
-    let isMounted = true;
-
-    const loadData = async () => {
-      let gnmMaster: GuardianMaster;
-      try {
-        gnmMaster = await getDeliverableGNM(
-          project_id.toString(),
-          deliverable.id.toString()
-        );
-      } catch (error) {
-        displayError(error);
+    console.debug("registering clear handler for refreshtimer");
+    return () => {
+      if (refreshTimerId) {
+        console.debug("clearing refresh timer ", refreshTimerId);
+        window.clearInterval(refreshTimerId);
       }
-
-      let youtubeMaster: YoutubeMaster;
-      try {
-        youtubeMaster = await getDeliverableYoutube(
-          project_id.toString(),
-          deliverable.id.toString()
-        );
-      } catch (error) {
-        displayError(error);
-      }
-
-      let dailymotionMaster: DailymotionMaster;
-      try {
-        dailymotionMaster = await getDeliverableDailymotion(
-          project_id.toString(),
-          deliverable.id.toString()
-        );
-      } catch (error) {
-        displayError(error);
-      }
-
-      let mainstreamMaster: MainstreamMaster;
-      try {
-        mainstreamMaster = await getDeliverableMainstream(
-          project_id.toString(),
-          deliverable.id.toString()
-        );
-      } catch (error) {
-        displayError(error);
-      }
-
-      const updatedMasters = masters.map((master) => {
-        if (master.group === MasterEnum.Guardian && gnmMaster) {
-          return {
-            group: MasterEnum.Guardian,
-            publication_date: gnmMaster.publication_date,
-            title: gnmMaster.website_title,
-            link: gnmMaster.media_atom_id || "",
-            tags: gnmMaster.tags,
-          };
-        }
-        if (master.group === MasterEnum.Youtube && youtubeMaster) {
-          return {
-            group: MasterEnum.Youtube,
-            publication_date: youtubeMaster.publication_date,
-            title: youtubeMaster.youtube_title,
-            link: youtubeMaster.youtube_id,
-            tags: youtubeMaster.youtube_tags,
-          };
-        }
-        if (master.group === MasterEnum.Dailymotion && dailymotionMaster) {
-          return {
-            group: MasterEnum.Dailymotion,
-            publication_date: dailymotionMaster.publication_date,
-            title: dailymotionMaster.daily_motion_title,
-            link: dailymotionMaster.daily_motion_url,
-            tags: dailymotionMaster.daily_motion_tags,
-          };
-        }
-        if (master.group === MasterEnum.Mainstream && mainstreamMaster) {
-          return {
-            group: MasterEnum.Mainstream,
-            publication_date: "",
-            title: mainstreamMaster.mainstream_title,
-            link: "",
-            tags: mainstreamMaster.mainstream_tags,
-          };
-        }
-        return master;
-      });
-
-      setLoading(false);
-
-      setMasters(updatedMasters);
     };
+  }, [refreshTimerId]);
 
-    if (isMounted) {
-      loadData();
+  const startRegularRefresh = () => {
+    const timerId = window.setInterval(loadData, 3000);
+    setRefreshTimerId(timerId);
+  };
+
+  const loadData = async () => {
+    let gnmMaster: GuardianMaster;
+    try {
+      gnmMaster = await getDeliverableGNM(
+        project_id.toString(),
+        deliverable.id.toString()
+      );
+    } catch (error) {
+      displayError(error);
     }
 
-    return () => {
-      isMounted = false;
-    };
+    let youtubeMaster: YoutubeMaster;
+    try {
+      youtubeMaster = await getDeliverableYoutube(
+        project_id.toString(),
+        deliverable.id.toString()
+      );
+    } catch (error) {
+      displayError(error);
+    }
+
+    let dailymotionMaster: DailymotionMaster;
+    try {
+      dailymotionMaster = await getDeliverableDailymotion(
+        project_id.toString(),
+        deliverable.id.toString()
+      );
+    } catch (error) {
+      displayError(error);
+    }
+
+    let mainstreamMaster: MainstreamMaster;
+    try {
+      mainstreamMaster = await getDeliverableMainstream(
+        project_id.toString(),
+        deliverable.id.toString()
+      );
+    } catch (error) {
+      displayError(error);
+    }
+
+    const updatedMasters = masters.map((master) => {
+      if (master.group === MasterEnum.Guardian && gnmMaster) {
+        return {
+          group: MasterEnum.Guardian,
+          publication_date: gnmMaster.publication_date,
+          title: gnmMaster.website_title,
+          link: gnmMaster.media_atom_id || "",
+          tags: gnmMaster.tags,
+          upload_status: gnmMaster.upload_status,
+        };
+      }
+      if (master.group === MasterEnum.Youtube && youtubeMaster) {
+        return {
+          group: MasterEnum.Youtube,
+          publication_date: youtubeMaster.publication_date,
+          title: youtubeMaster.youtube_title,
+          link: youtubeMaster.youtube_id,
+          tags: youtubeMaster.youtube_tags,
+          upload_status: null,
+        };
+      }
+      if (master.group === MasterEnum.Dailymotion && dailymotionMaster) {
+        return {
+          group: MasterEnum.Dailymotion,
+          publication_date: dailymotionMaster.publication_date,
+          title: dailymotionMaster.daily_motion_title,
+          link: dailymotionMaster.daily_motion_url,
+          tags: dailymotionMaster.daily_motion_tags,
+          upload_status: dailymotionMaster.upload_status,
+        };
+      }
+      if (master.group === MasterEnum.Mainstream && mainstreamMaster) {
+        return {
+          group: MasterEnum.Mainstream,
+          publication_date: "",
+          title: mainstreamMaster.mainstream_title,
+          link: "",
+          tags: mainstreamMaster.mainstream_tags,
+          upload_status: mainstreamMaster.upload_status,
+        };
+      }
+      return master;
+    });
+    setLoading(false);
+
+    setMasters(updatedMasters);
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const getTypeImageSource = (master: Master) => {
@@ -303,7 +325,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                   <img
                     src={getTypeImageSource(master)}
                     alt={`${master.group} image`}
-                  ></img>
+                  />
                 </TableCell>
                 <TableCell>
                   {`${master.group.charAt(0).toUpperCase()}${master.group.slice(
@@ -338,19 +360,43 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                       variant="outlined"
                       size="small"
                       label={tag}
-                    ></Chip>
+                    />
                   ))}
                 </TableCell>
                 <TableCell>
                   {master.title ? (
-                    <IconButton href={getMasterLink(master)}>
-                      <EditIcon />
-                    </IconButton>
+                    <Tooltip title="View/edit syndication information">
+                      <IconButton href={getMasterLink(master)}>
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
                   ) : (
-                    <IconButton href={getMasterLink(master)}>
-                      <AddIcon />
-                    </IconButton>
+                    <Tooltip title="Add syndication information">
+                      <IconButton href={getMasterLink(master)}>
+                        <AddIcon />
+                      </IconButton>
+                    </Tooltip>
                   )}
+                </TableCell>
+                <TableCell style={{ width: "84px" }}>
+                  {master.group != MasterEnum.Guardian &&
+                  master.group != MasterEnum.Youtube ? (
+                    <SyndicationTrigger
+                      uploadStatus={master.upload_status}
+                      platform={master.group}
+                      projectId={props.project_id}
+                      assetId={deliverable.id}
+                      sendInitiated={() => startRegularRefresh()}
+                    />
+                  ) : null}
+                </TableCell>
+                <TableCell>
+                  <SyndicationLastLog
+                    uploadStatus={master.upload_status}
+                    platform={master.group}
+                    projectId={props.project_id}
+                    assetId={deliverable.id}
+                  />
                 </TableCell>
               </TableRow>
             ))}
