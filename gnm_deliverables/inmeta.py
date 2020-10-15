@@ -83,6 +83,7 @@ def make_doc(asset:DeliverableAsset, platform:str) -> ET.Element:
         #field(groupEl, "", asset.gnm_website_master.tags)
         field(groupEl, "gnm_master_generic_production_office", asset.gnm_website_master.production_office)
         field(groupEl, "gnm_master_website_publication_status", asset.gnm_website_master.publication_status)
+        field(groupEl, "gnm_master_mediaatom_atomid", asset.gnm_website_master.media_atom_id)
 
     if asset.DailyMotion_master:
         if asset.DailyMotion_master.daily_motion_tags:
