@@ -110,7 +110,7 @@ class App extends React.Component {
     return (
       <ThemeProvider theme={theme}>
         <Helmet>
-          <title>Media Deliverables</title>
+          <title>Pluto – Deliverables</title>
         </Helmet>
         <>
           <Header />

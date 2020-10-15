@@ -85,6 +85,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@types/jsonwebtoken": "^8.5.0",
+    "@types/react-helmet": "^6.1.0",
     "axios": "^0.19.2",
     "css-loader": "^1.0.0",
     "identity-obj-proxy": "^3.0.0",
