@@ -76,7 +76,7 @@ class NewDeliverablesAPIList(ListAPIView):
 
     def get_queryset(self):
         ###FIXME: need to implement pagination, total count, etc.
-        return Deliverable.objects.all()
+        return Deliverable.objects.all().order_by('-created')
 
 
 class NewDeliverablesApiGet(RetrieveAPIView):
