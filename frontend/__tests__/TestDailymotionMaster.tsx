@@ -10,6 +10,8 @@ import {
 import { match } from "react-router";
 import moxios from "moxios";
 import { act } from "react-dom/test-utils";
+import {disableFetchMocks, enableFetchMocks} from "jest-fetch-mock";
+import {dark} from "@material-ui/core/styles/createPalette";
 
 describe("DailymotionMaster", () => {
   describe("Create Form", () => {
@@ -121,6 +123,9 @@ describe("DailymotionMaster", () => {
     beforeEach(async () => {
       moxios.install();
       const path = "/project/:projectid/asset/:assetid/dailymotion";
+      enableFetchMocks();
+      const fakeDMData = {"list":[]}
+      fetchMock.mockResponseOnce(JSON.stringify(fakeDMData));
 
       match = {
         isExact: false,
@@ -151,8 +156,10 @@ describe("DailymotionMaster", () => {
       // Needed otherwise enzyme doesn't find the updated elements.
       wrapper.update();
     });
+
     afterEach(() => {
       moxios.uninstall();
+      disableFetchMocks();
       wrapper.unmount();
     });
 

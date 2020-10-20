@@ -89,6 +89,7 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
     mainstream_tags: [],
     mainstream_rules_contains_adult_content: false,
     upload_status: "",
+    publication_date: "",
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isDirty, setIsDirty] = useState<boolean>(false);
