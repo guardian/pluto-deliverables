@@ -142,3 +142,28 @@ a lot of errors cluttering up the logs:
  - RABBITMQ_EXCHANGE - exchange name that we should publish messages to
  - RABBITMQ_USER - user name to access the server with. Must be able to declare exchanges and write data
  - RABBITMQ_PASSWD - password associated with RABBITMQ_USER
+
+## CDS integration
+
+We use a system called the Content Delivery System ([CDS](https://github.com/guardian/content-delivery-system)) for
+performing syndication tasks to 3rd party clients.
+
+In order that the user can receive feedback, and endpoint is provided that can receive log updates 
+(api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logupdate) and a CDS method is implemented that sends updates
+to this endpoint (notify_pluto_deliverables.rb).  In order to keep communication secure, Basic Auth is implemented (it's
+assumed that pluto-deliverables is running behind HTTPS); so the `notify_pluto_deliverables` setup requires a username 
+and password.
+
+These can be provided by connecting to any pluto-deliverables instance (e.g. `kubectl -n namespace get pods | grep deliverables`
+ to get the pod names then `kubectl exec -n namespace -it {pod-name} -- /bin/sh` to connect) and running from within the
+ pod:
+ ```
+$ ./manage.py create_logs_user {username}
+we started up!
+Create user cds with password {some-password}. This password won't be shown again, so make sure you make a note of it!
+$
+```
+where `{username}` is the name of the user you want to create.  Conventionally `cds` is used.
+If this user exists already, the password is reset; if it does not exist then it is created.
+You can't specify the password yourself, a randomised password is generated and shown on the console. Take this and put
+it into your CDS configuration so that the routes can communicate with pluto-deliverables.
