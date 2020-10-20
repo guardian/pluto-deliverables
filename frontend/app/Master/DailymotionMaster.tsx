@@ -11,7 +11,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions, FormControl, InputLabel,
+  DialogActions,
+  FormControl,
+  InputLabel,
 } from "@material-ui/core";
 import { useHistory, RouteComponentProps } from "react-router-dom";
 import CommonMaster from "./CommonMaster";
@@ -122,7 +124,6 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
     setIsLoading(true);
     loadDailymotionMaster();
   }, []);
-
 
   const onProjectSubmit = async (
     event: React.FormEvent<HTMLFormElement>
@@ -286,13 +287,15 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
           />
 
           <InputLabel htmlFor="dm-channel-selector">Channel</InputLabel>
-          <DailyMotionChannelSelector id="dm-channel-selector"
-                                      label="Channel"
-                                    onChanged={(newChan)=>setMaster({ ...master, ["daily_motion_category"]: newChan })}
-                                    value={master.daily_motion_category || ""}
-                                      classes={classes}
+          <DailyMotionChannelSelector
+            id="dm-channel-selector"
+            label="Channel"
+            onChanged={(newChan) =>
+              setMaster({ ...master, ["daily_motion_category"]: newChan })
+            }
+            value={master.daily_motion_category || ""}
+            classes={classes}
           />
-
 
           <FormControlLabel
             control={
