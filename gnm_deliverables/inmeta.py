@@ -2,7 +2,7 @@ from .models import DeliverableAsset
 import xml.etree.cElementTree as ET
 import os.path
 import logging
-
+import re
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +33,7 @@ def find_free_filepath(output_dir:str, filebase:str)->str:
         if i==0:
             prefix = ""
         else:
-            prefix = "{0}".format(i)
+            prefix = "{0}-".format(i)
         filepath = os.path.join(output_dir, "{0}{1}.xml".format(prefix,filebase))
         if not os.path.exists(filepath):
             return filepath
@@ -46,7 +46,21 @@ def write_inmeta(asset:DeliverableAsset, platform:str, output_dir:str)->str:
     if content is None:
         logger.error("Could not make content doc?")
         raise RuntimeError("Could not make content doc")
-    filepath = find_free_filepath(output_dir, os.path.basename(asset.filename))
+
+    if asset.online_item_id:
+        safe_filename = asset.online_item_id
+    elif asset.nearline_item_id:
+        safe_filename = asset.nearline_item_id
+    else:
+        safe_filename = re.sub(r'\s+',"_", asset.filename)
+
+    if safe_filename == "":
+        logger.error("Could not determine a filename for asset {0} - no online id, nearline id or filename available!".format(asset.id))
+        raise ValueError("Could not determine a filename")
+
+    safe_filename = safe_filename.encode("ASCII",errors='ignore').decode("ASCII")
+    filepath = find_free_filepath(output_dir, os.path.basename(safe_filename))
+    logger.debug("Writing inmeta to {0}".format(filepath))
     with open(filepath, "wb") as f:
         f.write(ET.tostring(content, "UTF-8"))
     return filepath

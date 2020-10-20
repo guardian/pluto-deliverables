@@ -1,5 +1,7 @@
 from django.test import TestCase
 import xml.etree.cElementTree as ET
+from os import unlink
+import os.path
 
 
 class TestInmeta(TestCase):
@@ -56,3 +58,46 @@ class TestInmeta(TestCase):
         doc = make_doc(a, 'test')
         doc_string = ET.tostring(doc, "UTF-8").decode("UTF-8")
         self.assertIn("meta name=\"gnm_master_mediaatom_atomid\" value=\"d86340a4-52cf-46c2-92ae-5dde596ce5f6\"", doc_string)
+
+    def test_write_inmeta_assetid(self):
+        """
+        write_inmeta should use the online item id to determine the file id, if it's present
+        :return:
+        """
+        from gnm_deliverables.inmeta import write_inmeta
+        from gnm_deliverables.models import DeliverableAsset,Deliverable
+        a = DeliverableAsset(
+            online_item_id="VX-1234",
+            filename="/path/to/some/file with €§–.mxf",
+            size=12345678,
+            id=99992,
+            deliverable=Deliverable(
+                pluto_core_project_id=332
+            ),
+        )
+
+        filename = write_inmeta(a,"test","/tmp")
+        self.assertTrue(os.path.exists(filename))
+        os.unlink(filename)
+        self.assertIn("VX-1234.xml", filename)
+
+    def test_write_inmeta_utf(self):
+        """
+        write_inmeta should fall back to a sanitised version of the filename if no online nor nearline id
+        :return:
+        """
+        from gnm_deliverables.inmeta import write_inmeta
+        from gnm_deliverables.models import DeliverableAsset,Deliverable
+        a = DeliverableAsset(
+            filename="/path/to/some/file with €§–.mxf",
+            size=12345678,
+            id=99992,
+            deliverable=Deliverable(
+                pluto_core_project_id=332
+            ),
+        )
+
+        filename = write_inmeta(a,"test","/tmp")
+        self.assertTrue(os.path.exists(filename))
+        os.unlink(filename)
+        self.assertIn("file_with_.mxf.xml", filename)
