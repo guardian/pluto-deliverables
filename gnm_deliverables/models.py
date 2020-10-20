@@ -506,6 +506,7 @@ class Mainstream(models.Model):
     mainstream_tags = ArrayField(models.CharField(null=False, max_length=255), null=True, blank=True)
     mainstream_rules_contains_adult_content = models.BooleanField()
     upload_status = models.TextField(null=True, blank=True, choices=UPLOAD_STATUS, db_index=True)
+    publication_date = models.DateTimeField(null=True, blank=True)
     etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
 
