@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions,
+  DialogActions, FormControl, InputLabel,
 } from "@material-ui/core";
 import { useHistory, RouteComponentProps } from "react-router-dom";
 import CommonMaster from "./CommonMaster";
@@ -25,6 +25,7 @@ import SystemNotification, {
   SystemNotificationKind,
 } from "../SystemNotification";
 import DeleteIcon from "@material-ui/icons/Delete";
+import DailyMotionChannelSelector from "./DailymotionChannelSelector";
 
 const useStyles = makeStyles({
   root: {
@@ -92,7 +93,7 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
     upload_status: "",
     daily_motion_no_mobile_access: false,
     daily_motion_contains_adult_content: false,
-    daily_motion_category: 1,
+    daily_motion_category: "news",
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isDirty, setIsDirty] = useState<boolean>(false);
@@ -121,6 +122,7 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
     setIsLoading(true);
     loadDailymotionMaster();
   }, []);
+
 
   const onProjectSubmit = async (
     event: React.FormEvent<HTMLFormElement>
@@ -281,20 +283,16 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
             }}
             onChange={onCommonMasterChanged}
             isDirty={isDirty}
-          ></CommonMaster>
-
-          <TextField
-            label="Dailymotion Category"
-            value={master.daily_motion_category || ""}
-            onChange={(event) => fieldChanged(event, "daily_motion_category")}
-            error={isDirty && !master.daily_motion_category}
-            helperText={
-              isDirty && !master.daily_motion_category
-                ? "Dailymotion Category is required"
-                : ""
-            }
-            required
           />
+
+          <InputLabel htmlFor="dm-channel-selector">Channel</InputLabel>
+          <DailyMotionChannelSelector id="dm-channel-selector"
+                                      label="Channel"
+                                    onChanged={(newChan)=>setMaster({ ...master, ["daily_motion_category"]: newChan })}
+                                    value={master.daily_motion_category || ""}
+                                      classes={classes}
+          />
+
 
           <FormControlLabel
             control={

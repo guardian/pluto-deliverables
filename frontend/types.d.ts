@@ -68,7 +68,7 @@ interface CreateDailymotionMaster {
   daily_motion_tags: string[];
   daily_motion_no_mobile_access: boolean;
   daily_motion_contains_adult_content: boolean;
-  daily_motion_category: number;
+  daily_motion_category: string;
 }
 
 interface DailymotionMaster extends CreateDailymotionMaster {
@@ -82,6 +82,7 @@ interface CreateMainstreamMaster {
   mainstream_description: string;
   mainstream_tags: string[];
   mainstream_rules_contains_adult_content: boolean;
+  publication_date: string;
 }
 
 interface MainstreamMaster extends CreateMainstreamMaster {
@@ -102,6 +103,12 @@ interface Master {
 
 //can't be more specific than this. each key is the section name and each value is an array of (id, name) pairs
 type DeliverableTypes = { [index: string]: [number, string][] };
+
+interface DailyMotionChannel {
+  id: string;
+  name: string;
+  description: string;
+}
 
 declare module "*.png" {
   const content: any;
