@@ -248,6 +248,8 @@ class PlatformLogUpdateView(APIView):
             did_fail = False
             did_succeed = False
             asset_needs_save = False
+            logger.debug("Received CDS update: {0}".format(request.data))
+
             if "completed" in request.data and request.data["completed"]:
                 if "failed" in request.data and request.data["failed"]:
                     did_fail = True
