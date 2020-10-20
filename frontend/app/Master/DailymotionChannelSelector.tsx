@@ -37,7 +37,7 @@ const DailyMotionChannelSelector: React.FC<DMChannelSelectorProps> = (
   return (
     <>
       {lastError ? (
-        <p className="error">{lastError}</p>
+        <p className="error">{lastError.toString()}</p>
       ) : (
         <Select
           value={props.value}
