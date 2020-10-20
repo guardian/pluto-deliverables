@@ -18,7 +18,7 @@ from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.models import DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
     LogEntry
 from gnm_deliverables.serializers import *
-
+from rabbitmq.time_funcs import get_current_time
 logger = logging.getLogger(__name__)
 
 
@@ -234,13 +234,11 @@ class PlatformLogUpdateView(APIView):
         :param platform:
         :return:
         """
-        from datetime import datetime
-
         try:
             asset = DeliverableAsset.objects.get(pk=asset_id)
 
             newentry = LogEntry(
-                timestamp=datetime.now(),
+                timestamp=get_current_time(),
                 sender=request.data["sender"],
                 log_line=request.data["log"]
             )
@@ -269,7 +267,7 @@ class PlatformLogUpdateView(APIView):
                     asset.DailyMotion_master.save()
                 elif did_succeed:
                     asset.DailyMotion_master.upload_status='Upload Complete'
-                    asset.DailyMotion_master.publication_date = datetime.now()
+                    asset.DailyMotion_master.publication_date = get_current_time()
                     if "uploadedUrl" in request.data:
                         asset.DailyMotion_master.daily_motion_url = request.data["uploadedUrl"]
                     asset.DailyMotion_master.save()
@@ -285,6 +283,7 @@ class PlatformLogUpdateView(APIView):
                     asset.mainstream_master.save()
                 elif did_succeed:
                     asset.mainstream_master.upload_status='Upload Complete'
+                    asset.mainstream_master.publication_date = get_current_time()
                     asset.mainstream_master.save()
             else:
                 return Response({"status":"bad_request","detail":"platform not recognised or does not support log entries"}, status=400)

@@ -5,7 +5,6 @@ import logging
 import re
 import urllib.parse
 import urllib.parse
-from datetime import datetime
 import os
 from rabbitmq.time_funcs import get_current_time
 from django.conf import settings
