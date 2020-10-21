@@ -14,6 +14,11 @@ import {
   TableRow,
   TableSortLabel,
   Typography,
+  Tooltip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -23,6 +28,7 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
+import HelpIcon from "@material-ui/icons/Help";
 
 interface HeaderTitles {
   label: string;
@@ -50,7 +56,7 @@ const useStyles = makeStyles({
   table: {
     maxWidth: "100%",
   },
-  createButton: {
+  infoIcon: {
     display: "flex",
     marginLeft: "auto",
     marginBottom: "0.625rem",
@@ -93,6 +99,7 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [lastError, setLastError] = useState<object | null>(null);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
   // Material-UI
   const classes = useStyles();
 
@@ -115,16 +122,26 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
     fetchProjectsOnPage();
   }, []); //empty array => call on component startup not modify
 
+  const closeDialog = () => {
+    setOpenDialog(false);
+  };
+
   return (
     <>
       <h2>Deliverables</h2>
-      <Button
-        className={classes.createButton}
-        variant="outlined"
-        onClick={() => history.push("/project/new")}
+      <Tooltip
+        className={classes.infoIcon}
+        title="How do I create deliverables?"
       >
-        New
-      </Button>
+        <IconButton
+          onClick={(event) => {
+            event.stopPropagation();
+            setOpenDialog(true);
+          }}
+        >
+          <HelpIcon />
+        </IconButton>
+      </Tooltip>
       <Paper elevation={3}>
         <TableContainer>
           <Table className={classes.table}>
@@ -150,6 +167,29 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
           </Table>
         </TableContainer>
       </Paper>
+      <Dialog
+        open={openDialog}
+        onClose={closeDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            All deliverables must be associated with the project that created
+            them. In order to create deliverables, click{" "}
+            <a href="/pluto-core/project/">Projects</a> and find the project you
+            want to create deliverables for. Then, in the lower half of the
+            project screen click the button marked "Create Deliverables" or
+            "View Deliverables". This will create and open a deliverables list
+            which you can add to directly. You do not even need to use this
+            screen to go back to it, it is simpler just to go straight through
+            the project page.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
