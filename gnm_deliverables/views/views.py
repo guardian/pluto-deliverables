@@ -474,3 +474,25 @@ class LaunchDetectorUpdateView(APIView):
         return Response({"status":"ok", "detail":"updated","atom_id":msg.atom_id}, status=200)
 
 
+class SearchForDeliverableAPIView(RetrieveAPIView):
+    """
+    see if we have any deliverable assets with the given file name. This is used for tagging during the backup process.
+    """
+    renderer_classes = (JSONRenderer, )
+    authentication_classes = (IsAuthenticated, )
+    serializer_class = DeliverableAssetSerializer
+
+    def get_object(self, queryset=None):
+        fileName = self.request.GET["filename"]
+        return DeliverableAsset.objects.filter(filename=fileName)[0]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super(SearchForDeliverableAPIView, self).get(request,*args,**kwargs)
+        except KeyError:
+            return Response({"status":"badrequest","detail":"You must include ?filename in the url"},status=400)
+        except IndexError:
+            return Response({"status":"notfound","detail":"No deliverables found with the filename {0}".format(self.request.GET["filename"])}, status=404)
+        except Exception as e:
+            logger.exception("Could not look up deliverables for filename {0}:".format(self.request.GET["filename"]), e)
+            return Response({"status":"error","detail":str(e)}, status=500)
