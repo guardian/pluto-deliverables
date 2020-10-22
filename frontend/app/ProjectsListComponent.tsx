@@ -181,9 +181,7 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
             want to create deliverables for. Then, in the lower half of the
             project screen click the button marked "Create Deliverables" or
             "View Deliverables". This will create and open a deliverables list
-            which you can add to directly. You do not even need to use this
-            screen to go back to it, it is simpler just to go straight through
-            the project page.
+            which you can add to directly.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
