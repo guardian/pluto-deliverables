@@ -68,7 +68,7 @@ class NewDeliverableUI(TemplateView):
 
 
 class NewDeliverablesAPIList(ListAPIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = DeliverableSerializer
@@ -79,7 +79,7 @@ class NewDeliverablesAPIList(ListAPIView):
 
 
 class NewDeliverablesApiGet(RetrieveAPIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     queryset = Deliverable.objects
@@ -89,7 +89,7 @@ class NewDeliverablesApiGet(RetrieveAPIView):
 
 
 class NewDeliverablesAPICreate(CreateAPIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -130,7 +130,7 @@ class NewDeliverablesAPICreate(CreateAPIView):
 
 
 class NewDeliverableAssetAPIList(ListAPIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = DeliverableAssetSerializer
@@ -152,7 +152,7 @@ class NewDeliverableAssetAPIList(ListAPIView):
 
 
 class DeliverableAPIView(APIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -177,7 +177,7 @@ class DeliverableAPIView(APIView):
 
 
 class CountDeliverablesView(APIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -201,7 +201,7 @@ class CountDeliverablesView(APIView):
 
 
 class NewDeliverableAPIScan(APIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -225,7 +225,7 @@ class DeliverablesTypeListAPI(APIView):
     "section": [ [id,name], [id,name], ... ],
     }
     """
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -239,7 +239,7 @@ class AdoptExistingVidispineItemView(APIView):
     """
     tries to adopt the given vidispine item into the bundle list.
     """
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -287,7 +287,7 @@ class SetTypeView(APIView):
     """
     set the deliverable type of the item and  possibly trigger ingest
     """
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -428,7 +428,7 @@ class VSNotifyView(APIView):
 
 
 class DeliverableAPIStarted(APIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
