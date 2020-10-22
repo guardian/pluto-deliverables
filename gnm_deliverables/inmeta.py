@@ -3,6 +3,7 @@ import xml.etree.cElementTree as ET
 import os.path
 import logging
 import re
+from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
@@ -85,6 +86,16 @@ def make_doc(asset:DeliverableAsset, platform:str) -> ET.Element:
     field(groupEl, "itemId", asset.online_item_id)
     field(groupEl, "title", os.path.basename(asset.filename))
     field(groupEl, 'size', str(asset.size))
+    if asset.changed_dt:
+        timeString = asset.changed_dt.isoformat('T')
+    else:
+        timeString = datetime.now().isoformat("T")
+
+    field(groupEl, "created", timeString)
+    if asset.duration_seconds is not None:
+        field(groupEl, "durationSeconds", str(asset.duration_seconds))
+    if asset.version is not None:
+        field(groupEl, "version", str(asset.version))
     field(groupEl, "pluto_deliverables_asset_id", str(asset.id))
     field(groupEl, "pluto_deliverables_project_id", str(asset.deliverable.pluto_core_project_id))
     field(groupEl, "pluto_deliverables_platform", platform)

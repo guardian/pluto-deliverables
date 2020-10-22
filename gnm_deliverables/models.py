@@ -214,9 +214,12 @@ class DeliverableAsset(models.Model):
     ingest_complete_dt = models.DateTimeField(null=True, blank=True)
     file_removed_dt = models.DateTimeField(null=True, blank=True)
 
+    duration_seconds = models.FloatField(null=True, blank=True)
+    version = models.IntegerField(null=True, blank=True)
     # Fields set by atom responder
     atom_id = models.UUIDField(null=True)
 
+    # Lifecycle
     status = models.IntegerField(null=False,
                                  choices=DELIVERABLE_ASSET_STATUSES,
                                  default=DELIVERABLE_ASSET_STATUS_NOT_INGESTED)
@@ -225,6 +228,7 @@ class DeliverableAsset(models.Model):
 
     deliverable = models.ForeignKey(Deliverable, related_name='assets', on_delete=models.PROTECT)
 
+    # Syndication metadata
     gnm_website_master = models.ForeignKey('GNMWebsite', on_delete=models.SET_NULL, null=True)
     youtube_master = models.ForeignKey('Youtube', on_delete=models.SET_NULL, null=True)
     DailyMotion_master = models.ForeignKey('DailyMotion', on_delete=models.SET_NULL, null=True)
