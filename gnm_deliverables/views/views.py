@@ -22,7 +22,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 import gnm_deliverables.launch_detector
 from jsonschema import ValidationError
-
+from gnm_deliverables.models import *
 from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, \
     DELIVERABLE_ASSET_STATUS_NOT_INGESTED, \
     DELIVERABLE_ASSET_STATUS_INGESTED, \
@@ -34,7 +34,7 @@ from gnm_deliverables.files import create_folder_for_deliverable
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.hmac_auth_backend import HmacRestAuth
 from gnm_deliverables.models import Deliverable, DeliverableAsset
-from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer
+from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DenormalisedAssetSerializer
 from gnm_deliverables.vs_notification import VSNotification
 
 logger = logging.getLogger(__name__)
@@ -474,3 +474,26 @@ class LaunchDetectorUpdateView(APIView):
         return Response({"status":"ok", "detail":"updated","atom_id":msg.atom_id}, status=200)
 
 
+class SearchForDeliverableAPIView(RetrieveAPIView):
+    """
+    see if we have any deliverable assets with the given file name. This is used for tagging during the backup process.
+    """
+    renderer_classes = (JSONRenderer, )
+    authentication_classes = (JwtRestAuth, HmacRestAuth, BasicAuthentication)
+    permission_classes = (IsAuthenticated, )
+    serializer_class = DenormalisedAssetSerializer
+
+    def get_object(self, queryset=None):
+        fileName = self.request.GET["filename"]
+        return DeliverableAsset.objects.filter(filename=fileName)[0]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super(SearchForDeliverableAPIView, self).get(request,*args,**kwargs)
+        except KeyError:
+            return Response({"status":"badrequest","detail":"You must include ?filename in the url"},status=400)
+        except IndexError:
+            return Response({"status":"notfound","detail":"No deliverables found with the filename {0}".format(self.request.GET["filename"])}, status=404)
+        except Exception as e:
+            logger.exception("Could not look up deliverables for filename {0}:".format(self.request.GET["filename"]), e)
+            return Response({"status":"error","detail":str(e)}, status=500)

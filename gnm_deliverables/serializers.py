@@ -36,6 +36,11 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
                             'changed_dt', 'job_id item_id', 'deliverable']
 
 
+class DenormalisedAssetSerializer(DeliverableAssetSerializer):
+    class Meta(DeliverableAssetSerializer.Meta):
+        depth = 1
+
+
 class DeliverableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deliverable

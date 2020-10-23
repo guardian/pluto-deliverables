@@ -6,14 +6,13 @@ from django.urls import path, re_path
 from django.views.decorators.csrf import csrf_exempt
 from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIView, DailyMotionAPIView,\
     MainstreamAPIView, PlatformLogsView, TriggerOutputView, PlatformLogUpdateView
-from django.contrib import admin
 from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, VSNotifyView, \
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet, \
-    DeliverableAPIStarted, LaunchDetectorUpdateView
+    DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView
 
 urlpatterns = [
-    path(r'admin/', admin.site.urls),
+    path(r'api/asset/byFileName', SearchForDeliverableAPIView.as_view()),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/setType', SetTypeView.as_view()),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/createProxy', TestCreateProxyView.as_view()),
     path(r'api/bundle/<int:bundleId>', NewDeliverablesApiGet.as_view()),
