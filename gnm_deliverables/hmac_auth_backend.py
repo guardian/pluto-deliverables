@@ -66,7 +66,11 @@ class HmacRestAuth(BaseAuthentication):
 
         if len(base_url_parts.path) > 0:
             basepath = base_url_parts.path.rstrip("/")
-            signing_path = basepath + request.path
+            if len(base_url_parts.query)>0:
+                querypart = "?" + base_url_parts.query
+            else:
+                querypart = ""
+            signing_path = basepath + request.path + querypart
         else:
             signing_path = request.path
 

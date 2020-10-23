@@ -16,6 +16,8 @@
     file_removed_dt: null
     status: 5
     created_from_existing_item: false
+    duration_seconds: 1234.0
+    version: 3
     deliverable: 3
     gnm_website_master: null
     youtube_master: null

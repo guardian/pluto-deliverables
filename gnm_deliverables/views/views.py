@@ -68,7 +68,7 @@ class NewDeliverableUI(TemplateView):
 
 
 class NewDeliverablesAPIList(ListAPIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = DeliverableSerializer
@@ -79,7 +79,7 @@ class NewDeliverablesAPIList(ListAPIView):
 
 
 class NewDeliverablesApiGet(RetrieveAPIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     queryset = Deliverable.objects
@@ -89,7 +89,7 @@ class NewDeliverablesApiGet(RetrieveAPIView):
 
 
 class NewDeliverablesAPICreate(CreateAPIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -130,7 +130,7 @@ class NewDeliverablesAPICreate(CreateAPIView):
 
 
 class NewDeliverableAssetAPIList(ListAPIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = DeliverableAssetSerializer
@@ -152,7 +152,7 @@ class NewDeliverableAssetAPIList(ListAPIView):
 
 
 class DeliverableAPIView(APIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -177,7 +177,7 @@ class DeliverableAPIView(APIView):
 
 
 class CountDeliverablesView(APIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -201,7 +201,7 @@ class CountDeliverablesView(APIView):
 
 
 class NewDeliverableAPIScan(APIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -225,7 +225,7 @@ class DeliverablesTypeListAPI(APIView):
     "section": [ [id,name], [id,name], ... ],
     }
     """
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -239,7 +239,7 @@ class AdoptExistingVidispineItemView(APIView):
     """
     tries to adopt the given vidispine item into the bundle list.
     """
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
 
@@ -287,7 +287,7 @@ class SetTypeView(APIView):
     """
     set the deliverable type of the item and  possibly trigger ingest
     """
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -349,6 +349,7 @@ class VSNotifyView(APIView):
     permission_classes = (AllowAny,)  # we don't have authentication on the VS endpoint
 
     def post(self, request):
+        from gnmvidispine.vs_item import VSItem
         logger.debug("Received content from Vidispine: {0}".format(request.body))
         try:
             content = VSNotification.from_bytes(request.body)
@@ -357,6 +358,23 @@ class VSNotifyView(APIView):
             return Response({"status": "error", "detail": str(e)}, status=400)
 
         (itemId, jobId, fileId) = content.vsIDs
+
+        duration_seconds = None
+        version = None
+        try:
+            vs_item = VSItem(url=settings.VIDISPINE_URL,
+                             user=settings.VIDISPINE_USER,
+                             passwd=settings.VIDISPINE_PASSWORD)
+            vs_item.populate(itemId,specificFields=["durationSeconds","__version"])
+            version = vs_item.get("__version",allowArray=True)
+            if isinstance(version, list):
+                logger.warning("{0} has multiple versions: {1}, using the first".format(itemId, version))
+                version = version[0]
+            duration_seconds = float(vs_item.get("durationSeconds"))
+        except ValueError:
+            logger.warning("{0}: duration_seconds value '{1}' could not be converted to float".format(itemId, vs_item.get("durationSeconds")))
+        except VSException as e:
+            logger.warning("Could not get extra metadata for {0} from Vidispine: {1}".format(itemId, str(e)))
 
         try:
             ## Search only on the job id, that way we will pick up ones that were initiated by atomresponder too!
@@ -382,6 +400,11 @@ class VSNotifyView(APIView):
         elif content.status == "FINISHED":
             if content.type == "TRANSCODE":
                 asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
+                try:
+                    asset.version = int(version)
+                except ValueError as e:
+                    logger.warning("{0}: asset version '{1}' could not be converted into number".format(itemId, version))
+                asset.duration_seconds = duration_seconds
                 # don't delete local files here. We pick those up via receiving the rabbitmq notification of this event
                 asset.ingest_complete_dt = get_current_time()
             else:
@@ -405,7 +428,7 @@ class VSNotifyView(APIView):
 
 
 class DeliverableAPIStarted(APIView):
-    authentication_classes = (JwtRestAuth,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)

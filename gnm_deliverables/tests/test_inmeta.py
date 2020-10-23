@@ -24,6 +24,10 @@ class TestInmeta(TestCase):
         self.assertEqual(tnode.attrib["value"], "1018_20130203231700.mp4")
         idnode = content.find("meta-group/meta[@name='itemId']")
         self.assertEqual(idnode.attrib["value"], "VX-36")
+        dnode = content.find("meta-group/meta[@name='durationSeconds']")
+        self.assertEqual(dnode.attrib["value"], "1234.0")
+        vnode = content.find("meta-group/meta[@name='version']")
+        self.assertEqual(vnode.attrib["value"], "3")
 
     def test_uuid_field(self):
         """
@@ -79,7 +83,7 @@ class TestInmeta(TestCase):
         filename = write_inmeta(a,"test","/tmp")
         self.assertTrue(os.path.exists(filename))
         os.unlink(filename)
-        self.assertIn("VX-1234.xml", filename)
+        self.assertIn("VX-1234.inmeta", filename)
 
     def test_write_inmeta_utf(self):
         """
@@ -100,4 +104,4 @@ class TestInmeta(TestCase):
         filename = write_inmeta(a,"test","/tmp")
         self.assertTrue(os.path.exists(filename))
         os.unlink(filename)
-        self.assertIn("file_with_.mxf.xml", filename)
+        self.assertIn("file_with_.mxf.inmeta", filename)
