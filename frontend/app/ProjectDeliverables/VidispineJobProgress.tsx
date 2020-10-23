@@ -46,11 +46,13 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
    * load in data for the job
    */
   const loadJobData = async (initialMount = false) => {
+    let responseStatus = 0;
     try {
       const response = await axios.get(
         `${props.vidispineBaseUrl}/API/job/${props.jobId}`
       );
       const jobInfo = new VidispineJob(response.data);
+      responseStatus = response.status;
 
       setIndeterminate(jobInfo.data.totalSteps <= 0);
 
@@ -98,6 +100,9 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
         setLastError("Did not understand response");
         window.clearInterval(updateTimer);
         setUpdateTimer(undefined);
+      } else if (responseStatus == 404) {
+        console.error("Job not found: ", err);
+        setLastError("Job not found");
       } else {
         console.error("Could not load data from Vidispine: ", err);
         setLastError("Vidispine not responding");
