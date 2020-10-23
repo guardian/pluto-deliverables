@@ -92,6 +92,7 @@ class Command(BaseCommand):
     queryset = DeliverableAsset.objects.exclude(archive_item_id__isnull=True, archive_item_id__exact="")
 
     def handle(self, *args, **options):
+        pprint(options)
         output_file_path = options["output"]
 
         if not options["server"]:
@@ -113,7 +114,7 @@ class Command(BaseCommand):
                 try:
                     url = os.path.join(options["server"],"api/entry",asset.archive_item_id)
                     logger.debug("url is {0}".format(url))
-                    authenticated_request(url, options["secret"], options["insecure-no-verify"])
+                    authenticated_request(url, options["secret"])
                     logger.info("Found archived entry for {}".format(asset.filename))
                 except NotFoundResponse:
                     logger.info("No archived entry found for {}".format(asset.filename))
