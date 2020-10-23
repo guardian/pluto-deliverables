@@ -39,6 +39,7 @@ describe("VidispineJobProgress", () => {
         vidispineBaseUrl="https://vidispine.test"
         openJob={openJobCb}
         onRecordNeedsUpdate={needsUpdateCb}
+        modifiedDateTime="2020-09-03T10:41:26.798961Z"
       />
     );
 

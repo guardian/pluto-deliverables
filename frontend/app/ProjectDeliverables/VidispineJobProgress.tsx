@@ -13,12 +13,14 @@ import InfoIcon from "@material-ui/icons/Info";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import LaunchIcon from "@material-ui/icons/Launch";
 import { makeStyles } from "@material-ui/core/styles";
+import moment from "moment";
 
 interface VidispineJobProgressProps {
   jobId: string;
   vidispineBaseUrl: string;
   openJob: (jobID: string) => void;
   onRecordNeedsUpdate: () => void;
+  modifiedDateTime: string;
 }
 
 const useStyles = makeStyles({});
@@ -47,6 +49,8 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
    */
   const loadJobData = async (initialMount = false) => {
     let responseStatus = 0;
+    const aWeekAgo = moment(Date.now() - 604800000);
+    const modDateTime = moment(props.modifiedDateTime);
     try {
       const response = await axios.get(
         `${props.vidispineBaseUrl}/API/job/${props.jobId}`
@@ -101,8 +105,12 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
         window.clearInterval(updateTimer);
         setUpdateTimer(undefined);
       } else if (responseStatus == 404) {
-        console.error("Job not found: ", err);
-        setLastError("Job not found");
+        if (aWeekAgo < modDateTime) {
+          console.error("Job not found: ", err);
+          setLastError("Job not found");
+        } else {
+          console.error("Job older than a week: ", err);
+        }
       } else {
         console.error("Could not load data from Vidispine: ", err);
         setLastError("Vidispine not responding");
