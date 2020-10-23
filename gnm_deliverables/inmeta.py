@@ -35,7 +35,7 @@ def find_free_filepath(output_dir:str, filebase:str)->str:
             prefix = ""
         else:
             prefix = "{0}-".format(i)
-        filepath = os.path.join(output_dir, "{0}{1}.xml".format(prefix,filebase))
+        filepath = os.path.join(output_dir, "{0}{1}.inmeta".format(prefix,filebase))
         if not os.path.exists(filepath):
             return filepath
         i+=1
