@@ -84,10 +84,11 @@ class Command(BaseCommand):
     help = 'Verify that the registered archive ID for deliverables is accurate'
 
     def add_arguments(self, parser):
-        parser.add_argument("--output", name="output", type=str, default="report.csv", help="location to output a CSV report")
-        parser.add_argument("--server", name="server", type=str, help="base URL to Archive Hunter")
-        parser.add_argument("--secret", name="secret", type=str, help="shared secret for authentication")
-        parser.add_argument("--insecure-no-verify", name="noverify", type=bool, default=False, help="don't verify SSL certs. Not recommended.")
+        parser.add_argument("--output", type=str, default="report.csv", help="location to output a CSV report")
+        parser.add_argument("--server", type=str, help="base URL to Archive Hunter")
+        parser.add_argument("--secret", type=str, help="shared secret for authentication")
+        parser.add_argument("--insecure-no-verify", type=bool, default=False, help="don't verify SSL certs. Not recommended.")
+
     queryset = DeliverableAsset.objects.exclude(archive_item_id__isnull=True, archive_item_id__exact="")
 
     def handle(self, *args, **options):
@@ -112,7 +113,7 @@ class Command(BaseCommand):
                 try:
                     url = os.path.join(options["server"],"api/entry",asset.archive_item_id)
                     logger.debug("url is {0}".format(url))
-                    authenticated_request(url, options["secret"], options["noverify"])
+                    authenticated_request(url, options["secret"], options["insecure-no-verify"])
                     logger.info("Found archived entry for {}".format(asset.filename))
                 except NotFoundResponse:
                     logger.info("No archived entry found for {}".format(asset.filename))
