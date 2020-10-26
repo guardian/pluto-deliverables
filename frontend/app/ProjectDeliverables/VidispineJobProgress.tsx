@@ -102,7 +102,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
         setLastError("Did not understand response");
         window.clearInterval(updateTimer);
         setUpdateTimer(undefined);
-      } else if (err.slice(-3) == "404") {
+      } else if (err["Error"].slice(-3) == "404") {
         if (aWeekAgo < modDateTime) {
           console.error("Job not found: ", err);
           setLastError("Job not found");
