@@ -48,7 +48,6 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
    * load in data for the job
    */
   const loadJobData = async (initialMount = false) => {
-    let responseStatus = 0;
     const aWeekAgo = moment(Date.now() - 604800000);
     const modDateTime = moment(props.modifiedDateTime);
     try {
@@ -56,7 +55,6 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
         `${props.vidispineBaseUrl}/API/job/${props.jobId}`
       );
       const jobInfo = new VidispineJob(response.data);
-      responseStatus = response.status;
 
       setIndeterminate(jobInfo.data.totalSteps <= 0);
 
@@ -104,7 +102,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
         setLastError("Did not understand response");
         window.clearInterval(updateTimer);
         setUpdateTimer(undefined);
-      } else if (responseStatus == 404) {
+      } else if (err.slice(-3) == "404") {
         if (aWeekAgo < modDateTime) {
           console.error("Job not found: ", err);
           setLastError("Job not found");
