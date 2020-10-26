@@ -16,6 +16,10 @@ import os.path
 import requests
 import sys
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 def get_token(uri:str, secret:str, time:datetime) -> (str, str):
     """
@@ -58,6 +62,7 @@ def authenticated_request(uri:str, secret:str, verify=True, override_time:dateti
         'X-Gu-Tools-HMAC-Token': authtoken,
     }
 
+    pprint(headers)
     response = requests.get(uri, headers=headers, verify=verify)
 
     if response.status_code==200:
@@ -89,7 +94,7 @@ class Command(BaseCommand):
         parser.add_argument("--secret", type=str, help="shared secret for authentication")
         parser.add_argument("--insecure-no-verify", type=bool, default=False, help="don't verify SSL certs. Not recommended.")
 
-    queryset = DeliverableAsset.objects.exclude(archive_item_id__isnull=True, archive_item_id__exact="")
+    queryset = DeliverableAsset.objects.exclude(archive_item_id__isnull=True).exclude(archive_item_id__exact="")
 
     def handle(self, *args, **options):
         pprint(options)
@@ -105,12 +110,19 @@ class Command(BaseCommand):
         total_count = DeliverableAsset.objects.all().count()
         archived_count = self.queryset.count()
 
+        try:
+            authenticated_request(os.path.join(options["server"],"api/entry","not-exist"), options["secret"])
+        except NotFoundResponse:
+            pass
+
         with open(output_file_path, "w") as f:
             writer = csv.writer(f, dialect=csv.excel)
             writer.writerow(["Asset ID","Bundle ID", "Filename","Bundle name","Archive Id","Found"])
 
             logger.info("Out of {} items registered, {} are in the archive".format(total_count, archived_count))
             for asset in self.queryset:
+                if asset.archive_item_id is None:
+                    logger.warning("Item {} has no archive id - should not have been included in search??".format(asset.filename))
                 try:
                     url = os.path.join(options["server"],"api/entry",asset.archive_item_id)
                     logger.debug("url is {0}".format(url))
