@@ -146,12 +146,17 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   return (
     <Grid container direction="column" spacing={3} id={`vs-job-${props.jobId}`}>
       <Grid item>
-        <LinearProgress
-          classes={classes}
-          variant="buffer"
-          value={totalProgressWithinStep}
-          valueBuffer={totalStepProgress}
-        />
+        {jobData?.wasSuccess() ||
+        (jobData?.data.currentStep?.description && !jobData?.didFinish()) ||
+        jobData?.getMetadata("errorMessage") ||
+        lastError ? (
+          <LinearProgress
+            classes={classes}
+            variant="buffer"
+            value={totalProgressWithinStep}
+            valueBuffer={totalStepProgress}
+          />
+        ) : null}
       </Grid>
       <Grid item className="job-progress-caption">
         <Grid
@@ -215,15 +220,20 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
             </>
           ) : null}
           <Grid item>
-            <IconButton
-              aria-label="expand row"
-              size="small"
-              onClick={() => {
-                props.openJob(props.jobId);
-              }}
-            >
-              <LaunchIcon />
-            </IconButton>
+            {jobData?.wasSuccess() ||
+            (jobData?.data.currentStep?.description && !jobData?.didFinish()) ||
+            jobData?.getMetadata("errorMessage") ||
+            lastError ? (
+              <IconButton
+                aria-label="expand row"
+                size="small"
+                onClick={() => {
+                  props.openJob(props.jobId);
+                }}
+              >
+                <LaunchIcon />
+              </IconButton>
+            ) : null}
           </Grid>
         </Grid>
       </Grid>
