@@ -212,6 +212,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
               onRecordNeedsUpdate={() =>
                 props.onNeedsUpdate(props.deliverable.id)
               }
+              modifiedDateTime={props.deliverable.modified_dt}
             />
           ) : null}
         </TableCell>

@@ -39,6 +39,52 @@ describe("VidispineJobProgress", () => {
         vidispineBaseUrl="https://vidispine.test"
         openJob={openJobCb}
         onRecordNeedsUpdate={needsUpdateCb}
+        modifiedDateTime="2020-09-03T10:41:26.798961Z"
+      />
+    );
+
+    await moxios.wait(jest.fn);
+    await act(async () => {
+      const rq = moxios.requests.mostRecent();
+
+      expect(rq.url).toEqual("https://vidispine.test/API/job/VX-1234");
+      expect(setInterval).toHaveBeenCalledTimes(1);
+      expect(setInterval).toHaveBeenCalledWith(expect.any(Function), 5000);
+
+      jest.useRealTimers(); //respondWith needs a proper timer
+      console.log("respondWith");
+
+      await rq.respondWith({
+        status: 200,
+        response: mockJobText,
+      });
+
+      const rerendered = rendered.update();
+
+      const container = rerendered.find("div#vs-job-VX-1234");
+      expect(container.length).toEqual(1);
+      const completedText = container.find("span#vs-job-VX-1234-completed");
+      expect(completedText.length).toEqual(1);
+
+      expect(needsUpdateCb.callCount).toEqual(0);
+    });
+  });
+
+  it("should be able to cope with an invalid timestamp", async () => {
+    const openJobCb = sinon.spy();
+    const needsUpdateCb = sinon.spy();
+
+    const mockJobText = await readFilePromise(
+      __dirname + "/../sample-job.json"
+    );
+
+    const rendered = mount(
+      <VidispineJobProgress
+        jobId="VX-1234"
+        vidispineBaseUrl="https://vidispine.test"
+        openJob={openJobCb}
+        onRecordNeedsUpdate={needsUpdateCb}
+        modifiedDateTime="239842987923479279827392739872sdfjsifhsdjfhsjdfhsdjfh8378237"
       />
     );
 

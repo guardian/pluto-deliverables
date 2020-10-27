@@ -13,12 +13,14 @@ import InfoIcon from "@material-ui/icons/Info";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import LaunchIcon from "@material-ui/icons/Launch";
 import { makeStyles } from "@material-ui/core/styles";
+import moment from "moment";
 
 interface VidispineJobProgressProps {
   jobId: string;
   vidispineBaseUrl: string;
   openJob: (jobID: string) => void;
   onRecordNeedsUpdate: () => void;
+  modifiedDateTime: string;
 }
 
 const useStyles = makeStyles({});
@@ -46,6 +48,8 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
    * load in data for the job
    */
   const loadJobData = async (initialMount = false) => {
+    const aWeekAgo = moment(Date.now() - 604800000);
+    const modDateTime = moment(props.modifiedDateTime);
     try {
       const response = await axios.get(
         `${props.vidispineBaseUrl}/API/job/${props.jobId}`
@@ -98,6 +102,13 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
         setLastError("Did not understand response");
         window.clearInterval(updateTimer);
         setUpdateTimer(undefined);
+      } else if (err.response?.status == 404) {
+        if (aWeekAgo < modDateTime) {
+          console.error("Job not found: ", err);
+          setLastError("Job not found");
+        } else {
+          console.error("Job older than a week: ", err);
+        }
       } else {
         console.error("Could not load data from Vidispine: ", err);
         setLastError("Vidispine not responding");
@@ -135,12 +146,17 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   return (
     <Grid container direction="column" spacing={3} id={`vs-job-${props.jobId}`}>
       <Grid item>
-        <LinearProgress
-          classes={classes}
-          variant="buffer"
-          value={totalProgressWithinStep}
-          valueBuffer={totalStepProgress}
-        />
+        {jobData?.wasSuccess() ||
+        (jobData?.data.currentStep?.description && !jobData?.didFinish()) ||
+        jobData?.getMetadata("errorMessage") ||
+        lastError ? (
+          <LinearProgress
+            classes={classes}
+            variant="buffer"
+            value={totalProgressWithinStep}
+            valueBuffer={totalStepProgress}
+          />
+        ) : null}
       </Grid>
       <Grid item className="job-progress-caption">
         <Grid
@@ -204,15 +220,20 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
             </>
           ) : null}
           <Grid item>
-            <IconButton
-              aria-label="expand row"
-              size="small"
-              onClick={() => {
-                props.openJob(props.jobId);
-              }}
-            >
-              <LaunchIcon />
-            </IconButton>
+            {jobData?.wasSuccess() ||
+            (jobData?.data.currentStep?.description && !jobData?.didFinish()) ||
+            jobData?.getMetadata("errorMessage") ||
+            lastError ? (
+              <IconButton
+                aria-label="expand row"
+                size="small"
+                onClick={() => {
+                  props.openJob(props.jobId);
+                }}
+              >
+                <LaunchIcon />
+              </IconButton>
+            ) : null}
           </Grid>
         </Grid>
       </Grid>
