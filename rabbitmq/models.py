@@ -15,7 +15,6 @@ class AtomResponderMessage(Model):
     type = TextField(max_length=128)
     projectId = TextField(max_length=128)
     atomId = UUIDField()
-    user = TextField(max_length=32768)
     jobId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
     itemId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
     commissionId = IntegerField()
