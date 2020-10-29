@@ -3,6 +3,8 @@ import yaml
 import logging
 from pprint import pprint
 from gnm_deliverables.models import *
+import re
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,6 +34,30 @@ class Command(BaseCommand):
                 raise TypeError("File content should be an object, not a {}".format(loaded_content.__class__.__name__))
             return loaded_content
 
+    def get_parent_bundle(self, parent_project_id:int, commissions_table:dict) -> (Deliverable, bool):
+        try:
+            return Deliverable.objects.get_or_create(pluto_core_project_id=parent_project_id, defaults={
+                "commission_id": commissions_table.get(parent_project_id),
+                "pluto_core_project_id": parent_project_id,
+                "name": "Legacy masters for {}".format(parent_project_id),
+            })
+        except Deliverable.MultipleObjectsReturned:
+            results = Deliverable.objects.filter(pluto_core_project_id=parent_project_id)
+            return results[0], False
+
+    numbers_regex = re.compile(r'^\d+$')
+    @staticmethod
+    def numbers_only(value:str) -> str:
+        if Command.numbers_regex.match(value):
+            return value
+        else:
+            return ""
+
+    @staticmethod
+    def numbers_only_list(entries:list):
+        mapped_entries = [Command.numbers_only(x) for x in entries]
+        return list(filter(lambda entry: len(entry)>0,mapped_entries))
+
     def handle(self, *args, **options):
         commissions_table = self.load_commissions_table(options["commissions"])
         logger.info("Loaded {} project->commission relations from {}".format(len(commissions_table), options["commissions"]))
@@ -46,7 +72,7 @@ class Command(BaseCommand):
             #remove blank entries from some fields - e.g. date-time and uuids, things that need parsing.
             #go returns a blank when we actually want a null
             for name in ["access_dt", "modified_dt", "changed_dt", "job_id", "ingest_complete_dt", "atom_id"]:
-                if name in entry and entry[name]=="":
+                if name in entry and (entry[name]=="" or entry[name]=="None"):
                     del entry[name]
 
             # project_id = models.CharField(null=True, blank=True, max_length=61)
@@ -54,12 +80,7 @@ class Command(BaseCommand):
             # pluto_core_project_id = models.BigIntegerField(null=False, blank=False, db_index=True, unique=True)
             # name = models.CharField(null=False, blank=False, unique=True, max_length=255)
             # created = models.DateTimeField(null=False, blank=False, auto_now_add=True)
-            parent_deliverable_bundle, parent_bundle_created = Deliverable.objects.get_or_create(pluto_core_project_id=parent_project_id, defaults={
-                "commission_id": commissions_table.get(parent_project_id),
-                "pluto_core_project_id": parent_project_id,
-                "name": "Legacy masters for {}".format(parent_project_id),
-            })
-
+            parent_deliverable_bundle, parent_bundle_created = self.get_parent_bundle(parent_project_id, commissions_table)
             if parent_bundle_created:
                 logger.info("created new parent bundle for project id {}".format(parent_project_id))
                 parent_deliverable_bundle.save()
@@ -67,7 +88,7 @@ class Command(BaseCommand):
                 logger.info("using existing bundle {}".format(parent_deliverable_bundle.id))
 
             if "gnm_website_master" in entry and entry["gnm_website_master"] is not None:
-                if entry["gnm_website_master"].get("media_atom_id")=="":
+                if entry["gnm_website_master"].get("media_atom_id")=="" or entry["gnm_website_master"].get("media_atom_id")=="None":
                     del entry["gnm_website_master"]["media_atom_id"]
                 for name in ["publication_date", "etag"]:
                     if entry["gnm_website_master"].get(name) == "":
@@ -81,6 +102,9 @@ class Command(BaseCommand):
                 for name in ["publication_date", "etag"]:
                     if entry["youtube_master"].get(name) == "":
                         del entry["youtube_master"][name]
+
+                if "youtube_categories" in entry["youtube_master"]:
+                    entry["youtube_master"]["youtube_categories"] = Command.numbers_only_list(entry["youtube_master"]["youtube_categories"])
                 entry["youtube_master"] = Youtube(**entry["youtube_master"])
                 entry["youtube_master"].save()
             else:
