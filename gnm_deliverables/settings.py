@@ -183,7 +183,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'normal': {
             'format': "{asctime} {name}|{funcName} [{levelname}] {message}",
@@ -198,24 +198,20 @@ LOGGING = {
     },
     'loggers': {
         'pika': {
-            'handlers': ['console'],
             'level': 'ERROR',
         },
         'rabbitmq': {
-            'handlers': ['console'],
             'level': 'INFO',
         },
         'gnm_deliverables.jwt_auth_backend': {
-            'handlers': ['console'],
             'level': 'WARNING',
         },
         'gnm_deliverables': {
-            'handlers': ['console'],
             'level': 'DEBUG',
         }
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['console'], #the above loggers all take this
         'level': 'INFO',
     },
 }
