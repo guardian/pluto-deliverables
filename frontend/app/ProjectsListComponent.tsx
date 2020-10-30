@@ -29,6 +29,7 @@ import {
   useParams,
 } from "react-router-dom";
 import HelpIcon from "@material-ui/icons/Help";
+import BundleInfoComponent from "./BundleList/BundleInfoComponent";
 
 interface HeaderTitles {
   label: string;
@@ -155,7 +156,7 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
             <TableBody>
               {projects.map((entry, idx) => (
                 <TableRow key={idx}>
-                  <TableCell>{entry.name}</TableCell>
+                  <TableCell><BundleInfoComponent bundleName={entry.name} projectId={entry.pluto_core_project_id} commissionId={entry.commission_id}/></TableCell>
                   <TableCell>{entry.pluto_core_project_id}</TableCell>
                   <TableCell>{entry.created}</TableCell>
                   <TableCell>
