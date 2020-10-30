@@ -24,6 +24,8 @@ class Command(BaseCommand):
         """
         affected_bundles = list(Deliverable.objects.filter(pluto_core_project_id=pluto_project_id)) #convert generator to list immediately
 
+        start_asset_count = DeliverableAsset.objects.filter(deliverable__in=affected_bundles).count()
+        logger.info("There are {} assets affected by this move".format(start_asset_count))
         merge_target:Deliverable = affected_bundles[0]
         merge_sources:list= affected_bundles[1:]
 
@@ -44,6 +46,9 @@ class Command(BaseCommand):
             merge_source.delete()
 
         final_asset_count = DeliverableAsset.objects.filter(deliverable=merge_target).count()
+        if final_asset_count != start_asset_count:
+            logger.error("We had {} assets to start with and {} at the end! something went wrong.".format(start_asset_count, final_asset_count))
+            raise RuntimeError("asset count mismatch")
         logger.info("Finished processing {0}. New deliverable count is {1}".format(merge_target.name, final_asset_count))
 
     def handle(self, *args, **opts):
