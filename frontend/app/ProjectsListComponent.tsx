@@ -156,7 +156,13 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
             <TableBody>
               {projects.map((entry, idx) => (
                 <TableRow key={idx}>
-                  <TableCell><BundleInfoComponent bundleName={entry.name} projectId={entry.pluto_core_project_id} commissionId={entry.commission_id}/></TableCell>
+                  <TableCell style={{ maxWidth: "33%" }}>
+                    <BundleInfoComponent
+                      bundleName={entry.name}
+                      projectId={entry.pluto_core_project_id}
+                      commissionId={entry.commission_id}
+                    />
+                  </TableCell>
                   <TableCell>{entry.pluto_core_project_id}</TableCell>
                   <TableCell>{entry.created}</TableCell>
                   <TableCell>

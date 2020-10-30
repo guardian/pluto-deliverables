@@ -10,8 +10,8 @@ import {
 import { match } from "react-router";
 import moxios from "moxios";
 import { act } from "react-dom/test-utils";
-import {disableFetchMocks, enableFetchMocks} from "jest-fetch-mock";
-import {dark} from "@material-ui/core/styles/createPalette";
+import { disableFetchMocks, enableFetchMocks } from "jest-fetch-mock";
+import { dark } from "@material-ui/core/styles/createPalette";
 
 describe("DailymotionMaster", () => {
   describe("Create Form", () => {
@@ -124,7 +124,7 @@ describe("DailymotionMaster", () => {
       moxios.install();
       const path = "/project/:projectid/asset/:assetid/dailymotion";
       enableFetchMocks();
-      const fakeDMData = {"list":[]}
+      const fakeDMData = { list: [] };
       fetchMock.mockResponseOnce(JSON.stringify(fakeDMData));
 
       match = {
