@@ -106,3 +106,97 @@ class TestLaunchDetectorUpdate(TestCase):
         self.assertIsNotNone(updated_item.gnm_website_master)
         self.assertIsNotNone(updated_item.DailyMotion_master)
         self.assertIsNotNone(updated_item.mainstream_master)
+
+
+class TestUpdateMainstream(TestCase):
+    fixtures = [
+        "assets",
+        "bundles",
+        "users"
+    ]
+
+    def test_mainstream_keys_length(self):
+        """
+        update_mainstream should update the 'tags' field based on the 'keywords' field in the incoming data
+        :return:
+        """
+        from gnm_deliverables.launch_detector import update_mainstream
+
+        content = {
+            'title': 'yet more testing deliverables integration',
+            'category': 'News',
+            'atomId': 'ed94ddcb-1a9a-4081-89c2-432c7db123d9',
+            'duration': 75,
+            'source': None,
+            'description': None,
+            'posterImage': None,
+            'trailText': None,
+            'byline': [],
+            'keywords': ["key1","key2"],
+            'trailImage': None,
+            'commissionId': '10',
+            'projectId': '60',
+            'masterId': None,
+            'published': {
+                'user': 'andy.gallagher@guardian.co.uk',
+                'at': '2020-09-30T17:39:17Z[Etc/UTC]'
+            },
+            'lastModified': {
+                'user': 'andy.gallagher@guardian.co.uk',
+                'at': '2020-09-30T17:39:17Z[Etc/UTC]'
+            }
+        }
+
+        update = LaunchDetectorUpdate(content)
+        test_record = DeliverableAsset.objects.get(pk=37)
+        self.assertEqual([], test_record.mainstream_master.mainstream_tags)
+        update_mainstream(update, test_record)
+
+        self.assertEqual(["key1","key2"], test_record.mainstream_master.mainstream_tags)
+
+
+class TestUpdateDailyMotion(TestCase):
+    fixtures = [
+        "assets",
+        "bundles",
+        "users"
+    ]
+
+    def test_dailymotion_keys_length(self):
+        """
+        update_dailymotion should create a new record if something does not exist
+        :return:
+        """
+        from gnm_deliverables.launch_detector import update_dailymotion
+
+        content = {
+            'title': 'yet more testing deliverables integration',
+            'category': 'News',
+            'atomId': 'ed94ddcb-1a9a-4081-89c2-432c7db123d9',
+            'duration': 75,
+            'source': None,
+            'description': None,
+            'posterImage': None,
+            'trailText': None,
+            'byline': [],
+            'keywords': ["key1","key2"],
+            'trailImage': None,
+            'commissionId': '10',
+            'projectId': '60',
+            'masterId': None,
+            'published': {
+                'user': 'andy.gallagher@guardian.co.uk',
+                'at': '2020-09-30T17:39:17Z[Etc/UTC]'
+            },
+            'lastModified': {
+                'user': 'andy.gallagher@guardian.co.uk',
+                'at': '2020-09-30T17:39:17Z[Etc/UTC]'
+            }
+        }
+
+        update = LaunchDetectorUpdate(content)
+        test_record = DeliverableAsset.objects.get(pk=37)
+
+        update_dailymotion(update, test_record)
+
+        self.assertEqual(["key1","key2"], test_record.DailyMotion_master.daily_motion_tags)
