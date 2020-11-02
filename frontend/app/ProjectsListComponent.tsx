@@ -20,6 +20,7 @@ import {
   DialogContent,
   DialogContentText,
   Grid,
+  CircularProgress,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -110,24 +111,26 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
   const classes = useStyles();
 
   const handleChangePage = (
-      _event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
-      newPage: number
+    _event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
+    newPage: number
   ) => {
     setPage(newPage);
-  }
+  };
 
   const handleChangeRowsPerPage = async (
-      event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
-  }
+  };
 
   const fetchProjectsOnPage = async () => {
     await setLoading(true);
 
     try {
-      const server_response = await axios.get(`/api/bundle?p=${page}&pageSize=${rowsPerPage}`);
+      const server_response = await axios.get(
+        `/api/bundle?p=${page}&pageSize=${rowsPerPage}`
+      );
       return Promise.all([
         setProjects(server_response.data),
         setLoading(false),
@@ -142,10 +145,10 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
     fetchProjectsOnPage();
   }, []); //empty array => call on component startup not modify
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log("filter or search changed, updating...");
     fetchProjectsOnPage();
-  }, [page, rowsPerPage, order])
+  }, [page, rowsPerPage, order]);
 
   const closeDialog = () => {
     setOpenDialog(false);
@@ -158,6 +161,7 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
           <h2>Deliverables</h2>
         </Grid>
         <Grid item>
+          {loading ? <CircularProgress /> : null}
           <Tooltip
             className={classes.infoIcon}
             title="How do I create deliverables?"
@@ -212,8 +216,8 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
           page={page}
           onChangePage={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
-          labelDisplayedRows={({from, to}) => `${from}-${to}`}
-          />
+          labelDisplayedRows={({ from, to }) => `${from}-${to}`}
+        />
       </Paper>
       <Dialog
         open={openDialog}
