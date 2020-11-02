@@ -57,6 +57,7 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
         : setLastError("Commission data was not valid");
     } catch (err) {
       console.error("Could not load commission data: ", err);
+      setCommissionInfo(undefined);
       setLastError("Could not load commission data");
     }
   };
@@ -73,6 +74,7 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
         : setLastError("Project data was not valid");
     } catch (err) {
       console.error("Could not load project data: ", err);
+      setProjectInfo(undefined);
       setLastError("Could not load project data");
     }
   };
@@ -93,6 +95,18 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
     loadCommissionInfo();
     loadProjectInfo();
   }, []);
+
+  /**
+   * load in data on update
+   */
+  useEffect(() => {
+    loadProjectInfo();
+  }, [props.projectId]);
+
+  useEffect(() => {
+    loadCommissionInfo();
+  }, [props.commissionId]);
+
 
   return (
     <Grid
