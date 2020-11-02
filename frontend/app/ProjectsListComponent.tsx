@@ -19,6 +19,7 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
+  Grid,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -129,20 +130,26 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
 
   return (
     <>
-      <h2>Deliverables</h2>
-      <Tooltip
-        className={classes.infoIcon}
-        title="How do I create deliverables?"
-      >
-        <IconButton
-          onClick={(event) => {
-            event.stopPropagation();
-            setOpenDialog(true);
-          }}
-        >
-          <HelpIcon />
-        </IconButton>
-      </Tooltip>
+      <Grid container justify="space-between" alignItems="flex-end">
+        <Grid item>
+          <h2>Deliverables</h2>
+        </Grid>
+        <Grid item>
+          <Tooltip
+            className={classes.infoIcon}
+            title="How do I create deliverables?"
+          >
+            <IconButton
+              onClick={(event) => {
+                event.stopPropagation();
+                setOpenDialog(true);
+              }}
+            >
+              <HelpIcon />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+      </Grid>
       <Paper elevation={3}>
         <TableContainer>
           <Table className={classes.table}>
