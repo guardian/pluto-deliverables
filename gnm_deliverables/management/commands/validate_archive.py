@@ -62,7 +62,6 @@ def authenticated_request(uri:str, secret:str, verify=True, override_time:dateti
         'X-Gu-Tools-HMAC-Token': authtoken,
     }
 
-    pprint(headers)
     response = requests.get(uri, headers=headers, verify=verify)
 
     if response.status_code==200:
