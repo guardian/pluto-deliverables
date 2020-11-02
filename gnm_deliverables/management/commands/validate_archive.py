@@ -9,7 +9,7 @@ from datetime import datetime
 import base64
 from email.utils import formatdate
 import requests
-from time import mktime
+from time import mktime, sleep
 from urllib.parse import urlparse
 from pprint import pprint
 import os.path
@@ -62,7 +62,6 @@ def authenticated_request(uri:str, secret:str, verify=True, override_time:dateti
         'X-Gu-Tools-HMAC-Token': authtoken,
     }
 
-    pprint(headers)
     response = requests.get(uri, headers=headers, verify=verify)
 
     if response.status_code==200:
@@ -75,6 +74,10 @@ def authenticated_request(uri:str, secret:str, verify=True, override_time:dateti
     elif response.status_code==500:
         logger.error("Server error looking up. Server said: {}".format(response.text))
         raise ServerErrorResponse
+    elif response.status_code==503 or response.status_code==504:
+        logger.warning("Server not available, retrying in 3s")
+        sleep(3)
+        return authenticated_request(uri, secret, verify=verify, override_time=override_time)
     else:
         raise Exception("Unexpected server response: {} {}".format(response.status_code, response.text))
 
