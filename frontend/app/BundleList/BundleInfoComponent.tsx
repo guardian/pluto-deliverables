@@ -107,7 +107,6 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
     loadCommissionInfo();
   }, [props.commissionId]);
 
-
   return (
     <Grid
       container
