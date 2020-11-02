@@ -100,7 +100,7 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
       spacing={props.spacing ?? 3}
       style={{ maxWidth: props.maxWidth }}
     >
-      <Grid item xs={6}>
+      <Grid item xs={6} style={{ paddingBottom: 0 }}>
         {loading ? (
           <CircularProgress style={{ width: "14px", height: "14px" }} />
         ) : null}
@@ -119,7 +119,7 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
           </>
         ) : null}
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={6} style={{ paddingBottom: 0 }}>
         {projectInfo ? (
           <>
             <img
@@ -135,12 +135,12 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
           </>
         ) : null}
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={6} style={{ paddingBottom: 0 }}>
         <p style={{ fontStyle: "italic", padding: 0, margin: 0 }}>
           {props.bundleName}
         </p>
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={6} style={{ paddingBottom: 0 }}>
         {projectInfo?.user ? (
           <>
             <People style={{ marginRight: "0.2em", verticalAlign: "middle" }} />
