@@ -74,8 +74,23 @@ class NewDeliverablesAPIList(ListAPIView):
     serializer_class = DeliverableSerializer
 
     def get_queryset(self):
-        ###FIXME: need to implement pagination, total count, etc.
-        return Deliverable.objects.all().order_by('-created')
+        try:
+            if "pageSize" in self.request.GET:
+                page_size = int(self.request.GET["pageSize"])
+            else:
+                page_size = 50
+
+            if "p" in self.request.GET:
+                start_at = int(self.request.GET["p"]) * page_size   #page 1 is at index 0
+            else:
+                start_at = 0
+
+            return Deliverable.objects.all().order_by('-created')[start_at:start_at+page_size]
+        except ValueError:
+            return Response({"status":"error","detail":"either pageSize or page was incorrectly formatted"}, status=400)
+        except Exception as e:
+            logger.exception("could not load bundle data: ", e)
+            return Response({"status":"error","detail":str(e)},status=500)
 
 
 class NewDeliverablesApiGet(RetrieveAPIView):

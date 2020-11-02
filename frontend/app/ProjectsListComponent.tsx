@@ -75,7 +75,7 @@ const useStyles = makeStyles({
     width: 1,
   },
 });
-const pageSizeOptions = [25, 50, 100];
+const pageSizeOptions = [2, 25, 50, 100];
 
 /*
 
@@ -102,14 +102,32 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [lastError, setLastError] = useState<object | null>(null);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+
+  const [rowsPerPage, setRowsPerPage] = useState<number>(50);
+  const [page, setPage] = useState<number>(0);
+
   // Material-UI
   const classes = useStyles();
+
+  const handleChangePage = (
+      _event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
+      newPage: number
+  ) => {
+    setPage(newPage);
+  }
+
+  const handleChangeRowsPerPage = async (
+      event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  }
 
   const fetchProjectsOnPage = async () => {
     await setLoading(true);
 
     try {
-      const server_response = await axios.get("/api/bundle");
+      const server_response = await axios.get(`/api/bundle?p=${page}&pageSize=${rowsPerPage}`);
       return Promise.all([
         setProjects(server_response.data),
         setLoading(false),
@@ -123,6 +141,11 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
   useEffect(() => {
     fetchProjectsOnPage();
   }, []); //empty array => call on component startup not modify
+
+  useEffect(()=>{
+    console.log("filter or search changed, updating...");
+    fetchProjectsOnPage();
+  }, [page, rowsPerPage, order])
 
   const closeDialog = () => {
     setOpenDialog(false);
@@ -180,6 +203,17 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
             </TableBody>
           </Table>
         </TableContainer>
+
+        <TablePagination
+          rowsPerPageOptions={pageSizeOptions}
+          component="div"
+          count={-1}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onChangePage={handleChangePage}
+          onChangeRowsPerPage={handleChangeRowsPerPage}
+          labelDisplayedRows={({from, to}) => `${from}-${to}`}
+          />
       </Paper>
       <Dialog
         open={openDialog}
