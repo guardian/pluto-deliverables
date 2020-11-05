@@ -17,8 +17,12 @@ import {
 import { Add, CloudUploadOutlined } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import { FileEntry } from "./FileEntry";
+import {InitiateUpload, UploadFromEntry} from "./UploadService";
 
-interface UploaderMainProps {}
+interface UploaderMainProps {
+  projectId: number;
+  dropFolder: string;
+}
 
 interface UploaderMainState {
   loading: boolean;
@@ -40,6 +44,7 @@ class UploaderMain extends React.Component<
       files: [],
     };
     this.newFileAdded = this.newFileAdded.bind(this);
+    this.uploadButtonClicked = this.uploadButtonClicked.bind(this);
   }
 
   static getDerivedStateFromError(err: Error) {
@@ -75,6 +80,28 @@ class UploaderMain extends React.Component<
     }));
   }
 
+  async uploadButtonClicked() {
+    this.setState({uploadInProgress: true},async ()=> {
+      try {
+        const uploadId = await InitiateUpload(this.props.projectId, this.props.dropFolder);
+        console.debug("upload id is ", uploadId);
+        for (let i = 0; i < this.state.files.length; ++i) {
+          await UploadFromEntry(this.state.files[i], i, uploadId, (updatedEntry, index) => {
+            this.setState(prevState => {
+              let updatedFileState: FileEntry[] = Object.assign([], prevState.files);
+              updatedFileState[index] = updatedEntry;
+              return {files: updatedFileState}
+            })
+          })
+          console.log(`Upload for ${i} / ${this.state.files.length} completed or failed`)
+        }
+        console.log("All done!")
+      } catch(err) {
+
+      }
+    });
+  }
+
   render() {
     return (
       <Grid container spacing={3}>
@@ -107,13 +134,14 @@ class UploaderMain extends React.Component<
             component="span"
             aria-label="add"
             variant="extended"
+            onClick={this.uploadButtonClicked}
             disabled={this.state.uploadInProgress}
           >
             <CloudUploadOutlined />
             &nbsp;&nbsp;
             {this.state.uploadInProgress ? "Uploading..." : "Start upload"}
           </Fab>
-          {this.state.loading ? <CircularProgress /> : null}
+          {this.state.uploadInProgress ? <CircularProgress /> : null}
         </Grid>
         <Grid item xs={12}>
           {this.state.dialogError ? (
