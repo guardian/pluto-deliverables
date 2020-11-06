@@ -437,7 +437,10 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         >
           <DialogTitle>Upload deliverables to project bundle</DialogTitle>
           <DialogContent>
-            <UploaderMain />
+            <UploaderMain
+              projectId={projectid}
+              dropFolder={parentBundleInfo ? parentBundleInfo.local_path : ""}
+            />
           </DialogContent>
         </Dialog>
       </BeforeUnloadComponent>

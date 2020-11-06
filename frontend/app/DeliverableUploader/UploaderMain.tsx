@@ -17,10 +17,10 @@ import {
 import { Add, CloudUploadOutlined } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import { FileEntry } from "./FileEntry";
-import {InitiateUpload, UploadFromEntry} from "./UploadService";
+import { InitiateUpload, UploadFromEntry } from "./UploadService";
 
 interface UploaderMainProps {
-  projectId: number;
+  projectId: string;
   dropFolder: string;
 }
 
@@ -81,23 +81,41 @@ class UploaderMain extends React.Component<
   }
 
   async uploadButtonClicked() {
-    this.setState({uploadInProgress: true},async ()=> {
+    this.setState({ uploadInProgress: true }, async () => {
       try {
-        const uploadId = await InitiateUpload(this.props.projectId, this.props.dropFolder);
+        const projectIdInt = parseInt(this.props.projectId);
+        const uploadId = await InitiateUpload(
+          projectIdInt,
+          this.props.dropFolder
+        );
         console.debug("upload id is ", uploadId);
         for (let i = 0; i < this.state.files.length; ++i) {
-          await UploadFromEntry(this.state.files[i], i, uploadId, (updatedEntry, index) => {
-            this.setState(prevState => {
-              let updatedFileState: FileEntry[] = Object.assign([], prevState.files);
-              updatedFileState[index] = updatedEntry;
-              return {files: updatedFileState}
-            })
-          })
-          console.log(`Upload for ${i} / ${this.state.files.length} completed or failed`)
+          await UploadFromEntry(
+            this.state.files[i],
+            i,
+            uploadId,
+            (updatedEntry, index) => {
+              this.setState((prevState) => {
+                let updatedFileState: FileEntry[] = Object.assign(
+                  [],
+                  prevState.files
+                );
+                updatedFileState[index] = updatedEntry;
+                return { files: updatedFileState };
+              });
+            }
+          );
+          console.log(
+            `Upload for ${i + 1} / ${
+              this.state.files.length
+            } completed or failed`
+          );
         }
-        console.log("All done!")
-      } catch(err) {
-
+        this.setState({ uploadInProgress: false });
+        console.log("All done!");
+      } catch (err) {
+        console.error(err);
+        this.setState({ uploadInProgress: false });
       }
     });
   }
