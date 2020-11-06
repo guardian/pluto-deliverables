@@ -3,7 +3,7 @@ import {
   CircularProgress,
   Fab,
   Grid,
-  IconButton,
+  IconButton, LinearProgress,
   Paper,
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
 import { Add, CloudUploadOutlined } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import { FileEntry } from "./FileEntry";
-import {ChunkedUploadFromEntry, GetSHA, InitiateUpload, RequestValidation, UploadAndValidate} from "./UploadService";
+import { InitiateUpload, UploadAndValidate} from "./UploadService";
 
 interface UploaderMainProps {
   projectId: string;
@@ -185,7 +185,7 @@ class UploaderMain extends React.Component<
           ) : (
             <Paper elevation={3}>
               <TableContainer>
-                <Table style={{ width: "100%", height: "75vh" }}>
+                <Table style={{ width: "100%"}}>
                   <TableHead style={{ height: "2em" }}>
                     <TableRow>
                       <TableCell>File</TableCell>
@@ -197,7 +197,7 @@ class UploaderMain extends React.Component<
                     {this.state.files.map((entry, idx) => (
                       <TableRow key={idx}>
                         <TableCell>{entry.filename}</TableCell>
-                        <TableCell>{entry.progress}</TableCell>
+                        <TableCell><LinearProgress variant="determinate" value={entry.progress>100 ? 100 : entry.progress}/></TableCell>
                         <TableCell>{entry.lastError}</TableCell>
                       </TableRow>
                     ))}

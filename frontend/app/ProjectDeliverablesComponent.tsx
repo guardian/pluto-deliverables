@@ -298,15 +298,10 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         <div>
           <h2 className={classes.sectionHeader}>Files</h2>
           {parentBundleInfo ? (
-            <LocationLink bundleInfo={parentBundleInfo} />
+            <LocationLink bundleInfo={parentBundleInfo} networkUploadSelected={()=>setShowingUploader(true)}/>
           ) : (
             ""
           )}
-          <Tooltip title="Upload files over the network, for when you have no SAN connection">
-            <IconButton onClick={() => setShowingUploader(true)}>
-              <CloudUpload />
-            </IconButton>
-          </Tooltip>
         </div>
         <span className={classes.buttonContainer}>
           <Button
