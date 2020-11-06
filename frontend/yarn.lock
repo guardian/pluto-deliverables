@@ -7004,6 +7004,11 @@ sha.js@^2.4.0, sha.js@^2.4.8:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
+sha1-stream@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/sha1-stream/-/sha1-stream-1.0.1.tgz#e89cece127d352daad63b0924f7b6c5c14b56e09"
+  integrity sha512-xfe+0/Y+VpY7ofYdepFTLSNtb6n/Zg3wo3v3DOYbUUmx2K9zyPIXsk6AJifktS8Rg4sp3JZB3p2mFD44Ml6Bvw==
+
 shallow-clone@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/shallow-clone/-/shallow-clone-3.0.1.tgz#8f2981ad92531f55035b01fb230769a40e02efa3"

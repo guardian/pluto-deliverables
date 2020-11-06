@@ -17,7 +17,7 @@ import {
 import { Add, CloudUploadOutlined } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import { FileEntry } from "./FileEntry";
-import { InitiateUpload, UploadFromEntry } from "./UploadService";
+import {ChunkedUploadFromEntry, GetSHA, InitiateUpload, RequestValidation, UploadAndValidate} from "./UploadService";
 
 interface UploaderMainProps {
   projectId: string;
@@ -90,10 +90,11 @@ class UploaderMain extends React.Component<
         );
         console.debug("upload id is ", uploadId);
         for (let i = 0; i < this.state.files.length; ++i) {
-          await UploadFromEntry(
+          const didValidate = await UploadAndValidate(
             this.state.files[i],
             i,
             uploadId,
+              5242880,  //5Mb chunk size
             (updatedEntry, index) => {
               this.setState((prevState) => {
                 let updatedFileState: FileEntry[] = Object.assign(
@@ -105,6 +106,18 @@ class UploaderMain extends React.Component<
               });
             }
           );
+
+          this.setState((prevState)=>{
+            let updatedFileState: FileEntry[] = Object.assign(
+                [],
+                prevState.files
+            );
+            const updatedEntry = Object.assign({}, this.state.files[i]);
+            updatedEntry.lastError = didValidate ? "Completed OK" : "Upload was corrupted";
+            updatedFileState[i] = updatedEntry;
+            return { files: updatedFileState }
+          });
+
           console.log(
             `Upload for ${i + 1} / ${
               this.state.files.length

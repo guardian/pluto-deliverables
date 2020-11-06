@@ -101,6 +101,7 @@
     "react-helmet": "^6.1.0",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
+    "sha1-stream": "^1.0.1",
     "style-loader": "^0.23.1",
     "ts-interface-checker": "^0.1.11",
     "url-loader": "^4.1.0",
