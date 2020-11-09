@@ -15,7 +15,7 @@ const LocationLink: React.FC<LocationLinkProps> = (props) => {
       </Grid>
       <Grid item xs={3}>
         <Tooltip title={`Open ${props.bundleInfo.local_path}`}>
-          <Link href={props.bundleInfo.local_path}>
+          <Link href={props.bundleInfo.local_open_uri}>
             <IconButton>
               <FolderOpen />
             </IconButton>
