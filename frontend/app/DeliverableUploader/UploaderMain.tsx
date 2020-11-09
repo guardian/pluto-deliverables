@@ -3,7 +3,8 @@ import {
   CircularProgress,
   Fab,
   Grid,
-  IconButton, LinearProgress,
+  IconButton,
+  LinearProgress,
   Paper,
   Table,
   TableBody,
@@ -17,7 +18,7 @@ import {
 import { Add, CloudUploadOutlined } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import { FileEntry } from "./FileEntry";
-import { InitiateUpload, UploadAndValidate} from "./UploadService";
+import { InitiateUpload, UploadAndValidate } from "./UploadService";
 
 interface UploaderMainProps {
   projectId: string;
@@ -94,7 +95,7 @@ class UploaderMain extends React.Component<
             this.state.files[i],
             i,
             uploadId,
-              5242880,  //5Mb chunk size
+            5242880, //5Mb chunk size
             (updatedEntry, index) => {
               this.setState((prevState) => {
                 let updatedFileState: FileEntry[] = Object.assign(
@@ -107,15 +108,17 @@ class UploaderMain extends React.Component<
             }
           );
 
-          this.setState((prevState)=>{
+          this.setState((prevState) => {
             let updatedFileState: FileEntry[] = Object.assign(
-                [],
-                prevState.files
+              [],
+              prevState.files
             );
             const updatedEntry = Object.assign({}, this.state.files[i]);
-            updatedEntry.lastError = didValidate ? "Completed OK" : "Upload was corrupted";
+            updatedEntry.lastError = didValidate
+              ? "Completed OK"
+              : "Upload was corrupted";
             updatedFileState[i] = updatedEntry;
-            return { files: updatedFileState }
+            return { files: updatedFileState };
           });
 
           console.log(
@@ -185,7 +188,7 @@ class UploaderMain extends React.Component<
           ) : (
             <Paper elevation={3}>
               <TableContainer>
-                <Table style={{ width: "100%"}}>
+                <Table style={{ width: "100%" }}>
                   <TableHead style={{ height: "2em" }}>
                     <TableRow>
                       <TableCell>File</TableCell>
@@ -197,7 +200,12 @@ class UploaderMain extends React.Component<
                     {this.state.files.map((entry, idx) => (
                       <TableRow key={idx}>
                         <TableCell>{entry.filename}</TableCell>
-                        <TableCell><LinearProgress variant="determinate" value={entry.progress>100 ? 100 : entry.progress}/></TableCell>
+                        <TableCell>
+                          <LinearProgress
+                            variant="determinate"
+                            value={entry.progress > 100 ? 100 : entry.progress}
+                          />
+                        </TableCell>
                         <TableCell>{entry.lastError}</TableCell>
                       </TableRow>
                     ))}

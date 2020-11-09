@@ -298,7 +298,10 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         <div>
           <h2 className={classes.sectionHeader}>Files</h2>
           {parentBundleInfo ? (
-            <LocationLink bundleInfo={parentBundleInfo} networkUploadSelected={()=>setShowingUploader(true)}/>
+            <LocationLink
+              bundleInfo={parentBundleInfo}
+              networkUploadSelected={() => setShowingUploader(true)}
+            />
           ) : (
             ""
           )}

@@ -56,15 +56,18 @@ async function InitiateUpload(
 }
 
 async function ChunkedUploadFromEntry(
-    entry: FileEntry,
-    index: number,
-    uploadSlotId: string,
-    chunkSize: number,
-    updateCb: (updated: FileEntry, index: number)=>void
+  entry: FileEntry,
+  index: number,
+  uploadSlotId: string,
+  chunkSize: number,
+  updateCb: (updated: FileEntry, index: number) => void
 ) {
   const uploadChunk = async (chunkIndex: number) => {
-    const lastByte = (chunkIndex+1)*chunkSize > entry.rawFile.size ? entry.rawFile.size : (chunkIndex+1)*chunkSize;
-    const blob = entry.rawFile.slice(chunkIndex*chunkSize, lastByte);
+    const lastByte =
+      (chunkIndex + 1) * chunkSize > entry.rawFile.size
+        ? entry.rawFile.size
+        : (chunkIndex + 1) * chunkSize;
+    const blob = entry.rawFile.slice(chunkIndex * chunkSize, lastByte);
     let localEntry = Object.assign([], entry);
     let response: Response;
     const targetUrl = `/deliverable-receiver/upload?uploadId=${uploadSlotId}&fileName=${entry.filename}`;
@@ -76,7 +79,9 @@ async function ChunkedUploadFromEntry(
         headers: {
           "Content-Type": "application/octet-stream",
           Authorization: `Bearer ${token}`,
-          Range: `bytes=${chunkIndex*chunkSize}-${lastByte}/${entry.rawFile.size}`
+          Range: `bytes=${chunkIndex * chunkSize}-${lastByte}/${
+            entry.rawFile.size
+          }`,
         },
         body: blob,
       });
@@ -111,11 +116,11 @@ async function ChunkedUploadFromEntry(
         localEntry.lastError = "server not responding, retrying...";
         updateCb(localEntry, index);
         return new Promise((resolve, reject) =>
-            window.setTimeout(() => {
-              uploadChunk(chunkIndex)
-                  .then(resolve)
-                  .catch((err) => reject(err));
-            }, 2000)
+          window.setTimeout(() => {
+            uploadChunk(chunkIndex)
+              .then(resolve)
+              .catch((err) => reject(err));
+          }, 2000)
         );
       case 403:
         localEntry.lastError = "permission denied";
@@ -124,40 +129,56 @@ async function ChunkedUploadFromEntry(
       case 200:
         const responseBody = await response.json();
         console.log(responseBody);
-        const fractionComplete = ((chunkIndex+1) * chunkSize) / entry.rawFile.size;
-        localEntry.progress = Math.round(fractionComplete*100.0);
+        const fractionComplete =
+          ((chunkIndex + 1) * chunkSize) / entry.rawFile.size;
+        localEntry.progress = Math.round(fractionComplete * 100.0);
         updateCb(localEntry, index);
     }
-  }
+  };
 
-  const chunksCount = Math.ceil(entry.rawFile.size/chunkSize)
-  console.log("chunked upload: there are ", chunksCount, " chunks for file of size ", entry.rawFile.size);
-  for(let i=0;i<chunksCount;i++) {
-    console.log("uploading chunk ", i)
-    await uploadChunk(i)
+  const chunksCount = Math.ceil(entry.rawFile.size / chunkSize);
+  console.log(
+    "chunked upload: there are ",
+    chunksCount,
+    " chunks for file of size ",
+    entry.rawFile.size
+  );
+  for (let i = 0; i < chunksCount; i++) {
+    console.log("uploading chunk ", i);
+    await uploadChunk(i);
   }
 }
 
-async function GetSHA(entry:FileEntry):Promise<string> {
-  return new Promise((resolve, reject)=> {
-    const hash = crypto.createHash("sha1")
+async function GetSHA(entry: FileEntry): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash("sha1");
 
     const reader = entry.rawFile.stream().getReader();
 
-    reader.read().then(function processContent({done, value}):Promise<void>{
-      if(done) {
+    reader.read().then(function processContent({ done, value }): Promise<void> {
+      if (done) {
         resolve(hash.digest().toString("base64"));
-        return new Promise<void>((resolve, reject)=>resolve());
+        return new Promise<void>((resolve, reject) => resolve());
       }
 
       hash.update(value);
-      return reader.read().then(processContent).catch(err=>reject(err));
-    })
+      return reader
+        .read()
+        .then(processContent)
+        .catch((err) => reject(err));
+    });
   });
 }
 
-async function RequestValidation(entry:FileEntry, uploadSlotId:string, sha1sum: string, attempt:number=0):Promise<boolean> {
-  const targetUrl = `/deliverable-receiver/validate?uploadId=${uploadSlotId}&fileName=${entry.filename}&sum=${encodeURIComponent(sha1sum)}`;
+async function RequestValidation(
+  entry: FileEntry,
+  uploadSlotId: string,
+  sha1sum: string,
+  attempt: number = 0
+): Promise<boolean> {
+  const targetUrl = `/deliverable-receiver/validate?uploadId=${uploadSlotId}&fileName=${
+    entry.filename
+  }&sum=${encodeURIComponent(sha1sum)}`;
   const token = localStorage.getItem("pluto:access-token");
   const response = await fetch(targetUrl, {
     method: "GET",
@@ -167,44 +188,69 @@ async function RequestValidation(entry:FileEntry, uploadSlotId:string, sha1sum: 
     },
   });
   const content = await response.text();
-  switch(response.status) {
+  switch (response.status) {
     case 200:
       console.log("Server reported successful validation for ", entry.filename);
       return true;
     case 409:
-      console.log("Server reported that checksums don't match for ", entry.filename, ": ", content);
+      console.log(
+        "Server reported that checksums don't match for ",
+        entry.filename,
+        ": ",
+        content
+      );
       return false;
     case 403:
-      console.error("Server reported forbidden. Assuming expired credential and trying again in 3s...");
-      return new Promise<boolean>((resolve,reject)=>window.setTimeout(()=>{
-        RequestValidation(entry, uploadSlotId, sha1sum, attempt).then(resolve).catch(reject)
-      }, 3000));
+      console.error(
+        "Server reported forbidden. Assuming expired credential and trying again in 3s..."
+      );
+      return new Promise<boolean>((resolve, reject) =>
+        window.setTimeout(() => {
+          RequestValidation(entry, uploadSlotId, sha1sum, attempt)
+            .then(resolve)
+            .catch(reject);
+        }, 3000)
+      );
     default:
       console.log("Unexpected error: ", content);
       let msg = content;
       try {
         const json = JSON.parse(content);
         msg = json.detail;
-      } catch(err) {
+      } catch (err) {
         console.warn("could not parse error report as json: ", err);
       }
       throw msg;
   }
 }
 
-
-async function UploadAndValidate(entry:FileEntry, index: number, uploadSlotId: string, chunkSize: number, updateCb: (updated: FileEntry, index: number)=>void) {
-  const [uploadResult, sha] = await Promise.all([ChunkedUploadFromEntry(entry, index, uploadSlotId, chunkSize, updateCb), GetSHA(entry)]);
+async function UploadAndValidate(
+  entry: FileEntry,
+  index: number,
+  uploadSlotId: string,
+  chunkSize: number,
+  updateCb: (updated: FileEntry, index: number) => void
+) {
+  const [uploadResult, sha] = await Promise.all([
+    ChunkedUploadFromEntry(entry, index, uploadSlotId, chunkSize, updateCb),
+    GetSHA(entry),
+  ]);
 
   console.log("Upload and local checksum completed: ", sha);
 
   const validationResult = await RequestValidation(entry, uploadSlotId, sha);
-  if(validationResult) {
+  if (validationResult) {
     console.log("Upload validated successfully");
   } else {
-    console.log("Validation failed")
+    console.log("Validation failed");
   }
   return validationResult;
 }
 
-export { ChunkedUploadFromEntry, GetSHA, InitiateUpload, RequestValidation, UploadAndValidate };
+export {
+  ChunkedUploadFromEntry,
+  GetSHA,
+  InitiateUpload,
+  RequestValidation,
+  UploadAndValidate,
+};
