@@ -25,6 +25,7 @@ import {
   Input,
   TextField,
   Collapse,
+  Tooltip,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -45,6 +46,8 @@ import {
 import MasterList from "./MasterList/MasterList";
 import DeliverableRow from "./ProjectDeliverables/DeliverableRow";
 import BeforeUnloadComponent from "react-beforeunload-component";
+import { CloudUpload } from "@material-ui/icons";
+import UploaderMain from "./DeliverableUploader/UploaderMain";
 
 interface HeaderTitles {
   label: string;
@@ -138,9 +141,10 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [centralMessage, setCentralMessage] = useState<string>("");
   const [blockRoute, setBlockRoute] = useState(false);
 
+  const [showingUploader, setShowingUploader] = useState(false);
+
   // Material-UI
   const classes = useStyles();
-
   const doRefresh = async () => {
     try {
       const rescanResult = await axios({
@@ -294,7 +298,10 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         <div>
           <h2 className={classes.sectionHeader}>Files</h2>
           {parentBundleInfo ? (
-            <LocationLink bundleInfo={parentBundleInfo} />
+            <LocationLink
+              bundleInfo={parentBundleInfo}
+              networkUploadSelected={() => setShowingUploader(true)}
+            />
           ) : (
             ""
           )}
@@ -418,6 +425,21 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
               Delete
             </Button>
           </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={showingUploader}
+          onClose={() => setShowingUploader(false)}
+          aria-labelled-by="uploader-title"
+          aria-describedby="uploader-desc"
+        >
+          <DialogTitle>Upload deliverables to project bundle</DialogTitle>
+          <DialogContent>
+            <UploaderMain
+              projectId={projectid}
+              dropFolder={parentBundleInfo ? parentBundleInfo.local_path : ""}
+            />
+          </DialogContent>
         </Dialog>
       </BeforeUnloadComponent>
     </>

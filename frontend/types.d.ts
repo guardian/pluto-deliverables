@@ -140,3 +140,4 @@ type PrimaryTone =
 type PublicationStatus = "Unpublished" | "Published" | "Superceded";
 
 declare module 'react-beforeunload-component';
+declare module "sha1-stream";
