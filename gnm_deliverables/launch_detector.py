@@ -234,7 +234,7 @@ def update_dailymotion(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
     #rec.daily_motion_category
     if rec.daily_motion_description is None or rec.daily_motion_description=="":
         rec.daily_motion_description = msg.description
-    if rec.daily_motion_tags is None or rec.daily_motion_tags.size==0:
+    if rec.daily_motion_tags is None or len(rec.daily_motion_tags)==0:
         #would be good to map these to names
         rec.daily_motion_tags = msg.keywords
     if rec.daily_motion_title is None or rec.daily_motion_title=="":
@@ -265,7 +265,7 @@ def update_mainstream(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.mainstream_description = msg.description
     if rec.mainstream_title is None or rec.mainstream_title=="":
         rec.mainstream_title = msg.title
-    if rec.mainstream_tags is None or rec.mainstream_tags.size==0:
+    if rec.mainstream_tags is None or len(rec.mainstream_tags)==0:
         rec.mainstream_tags = msg.keywords
     if rec.mainstream_rules_contains_adult_content is None:
         rec.mainstream_rules_contains_adult_content = False
