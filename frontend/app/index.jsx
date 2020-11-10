@@ -148,7 +148,7 @@ class App extends React.Component {
               path="/project/:projectid"
               component={ProjectDeliverablesComponent}
             />
-            <Route path="/search" component={AssetSearchComponent}/>
+            <Route path="/search" component={AssetSearchComponent} />
             <Route exact path="/" component={ProjectsListComponent} />
           </Switch>
         </div>
