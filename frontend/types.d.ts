@@ -110,6 +110,13 @@ interface DailyMotionChannel {
   description: string;
 }
 
+//see SearchRequestSerializer in serializers.py
+interface AssetSearchFilter {
+  title?: string;
+  atom_id?: string;
+  commission_id?: number;
+}
+
 declare module "*.png" {
   const content: any;
   export default content;
