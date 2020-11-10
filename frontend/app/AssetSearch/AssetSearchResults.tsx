@@ -8,7 +8,9 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow, TableSortLabel,
+  TableRow,
+  TableSortLabel,
+  Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
@@ -27,33 +29,41 @@ interface AssetSearchResultsState {
   startAt: number;
   pageSize: number;
   sortBy: string;
-  sortOrder?:"desc"|"asc";
+  sortOrder?: "desc" | "asc";
 }
 
 const useStyles = makeStyles({
   table: {
     width: "100%",
   },
+  informative: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    colour: "darkorange",
+  },
 });
 
 interface SearchTableProps {
   results: Deliverable[];
   sortBy: string;
-  sortOrder?:"desc"|"asc";
-  onSortChanged: (newSortBy:string, newSortOrder:"desc"|"asc"|undefined)=>void
+  sortOrder?: "desc" | "asc";
+  onSortChanged: (
+    newSortBy: string,
+    newSortOrder: "desc" | "asc" | undefined
+  ) => void;
 }
 
 const AssetSearchTable: React.FC<SearchTableProps> = (props) => {
   const classes = useStyles();
 
-  const updateSort = (forField:string) => {
-    if(props.sortBy==forField) {
+  const updateSort = (forField: string) => {
+    if (props.sortBy == forField) {
       const newSortOrder = props.sortOrder == "desc" ? "asc" : "desc";
-      props.onSortChanged(forField, newSortOrder)
+      props.onSortChanged(forField, newSortOrder);
     } else {
-      props.onSortChanged(forField, props.sortOrder)
+      props.onSortChanged(forField, props.sortOrder);
     }
-  }
+  };
 
   return (
     <>
@@ -61,19 +71,35 @@ const AssetSearchTable: React.FC<SearchTableProps> = (props) => {
         <Table className={classes.table}>
           <TableHead>
             <TableRow>
-              <TableCell sortDirection={props.sortBy==="filename" ? props.sortOrder : false}>
-                <TableSortLabel active={props.sortBy==="filename"}
-                                direction={props.sortBy==="filename" ? props.sortOrder : undefined}
-                                onClick={(evt)=>updateSort("filename")}>
+              <TableCell
+                sortDirection={
+                  props.sortBy === "filename" ? props.sortOrder : false
+                }
+              >
+                <TableSortLabel
+                  active={props.sortBy === "filename"}
+                  direction={
+                    props.sortBy === "filename" ? props.sortOrder : undefined
+                  }
+                  onClick={(evt) => updateSort("filename")}
+                >
                   Filename
                 </TableSortLabel>
               </TableCell>
               <TableCell>Type</TableCell>
-              <TableCell sortDirection={props.sortBy==="modified_dt" ? props.sortOrder : false}>
-                <TableSortLabel active={props.sortBy==="modified_dt"}
-                                direction={props.sortBy==="modified_dt" ? props.sortOrder : undefined}
-                                onClick={(evt)=>updateSort("modified_dt")}>
-                Last Modified
+              <TableCell
+                sortDirection={
+                  props.sortBy === "modified_dt" ? props.sortOrder : false
+                }
+              >
+                <TableSortLabel
+                  active={props.sortBy === "modified_dt"}
+                  direction={
+                    props.sortBy === "modified_dt" ? props.sortOrder : undefined
+                  }
+                  onClick={(evt) => updateSort("modified_dt")}
+                >
+                  Last Modified
                 </TableSortLabel>
               </TableCell>
               <TableCell>Status</TableCell>
@@ -96,6 +122,15 @@ const AssetSearchTable: React.FC<SearchTableProps> = (props) => {
             ))}
           </TableBody>
         </Table>
+        {props.results.length === 0 ? (
+          <Typography
+            align="center"
+            variant="caption"
+            className={classes.informative}
+          >
+            No assets matched this search
+          </Typography>
+        ) : undefined}
       </TableContainer>
     </>
   );
@@ -114,7 +149,7 @@ class AssetSearchResults extends React.Component<
       startAt: 0,
       pageSize: 25,
       sortBy: "modified_dt",
-      sortOrder: "desc"
+      sortOrder: "desc",
     };
   }
 
@@ -159,8 +194,8 @@ class AssetSearchResults extends React.Component<
   }
 
   djangoOrderParam() {
-    let orderSym:string;
-    switch(this.state.sortOrder) {
+    let orderSym: string;
+    switch (this.state.sortOrder) {
       case "asc":
         orderSym = "";
         break;
@@ -172,7 +207,7 @@ class AssetSearchResults extends React.Component<
         break;
     }
 
-    return `${orderSym}${this.state.sortBy}`
+    return `${orderSym}${this.state.sortBy}`;
   }
 
   async loadNextPage(): Promise<void> {
@@ -186,7 +221,9 @@ class AssetSearchResults extends React.Component<
         });
       }
 
-      const searchDoc = Object.assign({}, initialSearchDoc, {"order_by": this.djangoOrderParam()})
+      const searchDoc = Object.assign({}, initialSearchDoc, {
+        order_by: this.djangoOrderParam(),
+      });
       const response = await axios.post<Deliverable[]>(
         `/api/asset/search?startAt=${this.state.startAt}&limit=${this.state.pageSize}`,
         searchDoc
@@ -235,12 +272,16 @@ class AssetSearchResults extends React.Component<
           {this.state.lastError ? this.state.lastError : ""}
         </span>
         <Paper elevation={3}>
-          <AssetSearchTable results={this.state.results}
-                            sortBy={this.state.sortBy}
-                            sortOrder={this.state.sortOrder}
-                            onSortChanged={((newSortBy, newSortOrder) => {
-                              this.setState({sortBy: newSortBy, sortOrder: newSortOrder}, ()=>this.reset().then(()=>this.loadNextPage()))
-                            })}
+          <AssetSearchTable
+            results={this.state.results}
+            sortBy={this.state.sortBy}
+            sortOrder={this.state.sortOrder}
+            onSortChanged={(newSortBy, newSortOrder) => {
+              this.setState(
+                { sortBy: newSortBy, sortOrder: newSortOrder },
+                () => this.reset().then(() => this.loadNextPage())
+              );
+            }}
           />
         </Paper>
       </>
