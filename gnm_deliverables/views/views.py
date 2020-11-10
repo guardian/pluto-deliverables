@@ -34,7 +34,7 @@ from gnm_deliverables.files import create_folder_for_deliverable
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.hmac_auth_backend import HmacRestAuth
 from gnm_deliverables.models import Deliverable, DeliverableAsset
-from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DenormalisedAssetSerializer
+from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DenormalisedAssetSerializer, SearchRequestSerializer
 from gnm_deliverables.vs_notification import VSNotification
 
 logger = logging.getLogger(__name__)
@@ -535,3 +535,51 @@ class SearchForDeliverableAPIView(RetrieveAPIView):
         except Exception as e:
             logger.exception("Could not look up deliverables for filename {0}:".format(self.request.GET["filename"]), e)
             return Response({"status":"error","detail":str(e)}, status=500)
+
+
+class GenericAssetSearchAPI(ListAPIView):
+    renderer_classes = (JSONRenderer, )
+    parser_classes = (JSONParser, )
+    authentication_classes = (JwtRestAuth, HmacRestAuth, BasicAuthentication)
+    permission_classes = (IsAuthenticated, )
+    serializer_class = DeliverableAssetSerializer
+
+    def __init__(self, *args, **kwargs):
+        super(GenericAssetSearchAPI, self).__init__(*args, **kwargs)
+        self._search_request:SearchRequestSerializer = None
+
+    def get_queryset(self):
+        from django.db.models import Q
+        if self._search_request is None:
+            raise Exception("no search request saved")
+        queryset = DeliverableAsset.objects.all()
+
+        print(self._search_request.validated_data)
+        if self._search_request.validated_data["title"]:
+            queryset = queryset.filter(Q(filename__contains=self._search_request.validated_data["title"]) | \
+                                           Q(gnm_website_master__website_title__contains=self._search_request.validated_data["title"]) | \
+                                           Q(mainstream_master__mainstream_title__contains=self._search_request.validated_data["title"]) | \
+                                           Q(DailyMotion_master__daily_motion_title__contains=self._search_request.validated_data["title"]) | \
+                                           Q(youtube_master__youtube_title__contains=self._search_request.validated_data["title"]))
+
+        if self._search_request.validated_data["atom_id"]:
+            queryset = queryset.filter(atom_id=self._search_request.validated_data["atom_id"])
+
+        if self._search_request.validated_data["commission_id"]:
+            queryset = queryset.filter(deliverable__commission_id=self._search_request.validated_data["commission_id"])
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        return Response({"status":"error","detail":"GET not supported on this endpoint"}, status=405)
+
+    def post(self, request, *args, **kwargs):
+        rq = SearchRequestSerializer(data=request.data)
+        if not rq.is_valid(raise_exception=False):
+            return Response({"status":"bad_request", "missing_fields": [str(x) for x in rq.errors]}, status=400)
+
+        self._search_request = rq
+        try:
+            return self.list(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception("could not perform asset search: ", e)
+            return Response({"status":"error", "detail": str(e)}, status=500)

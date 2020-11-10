@@ -87,3 +87,9 @@ class LogEntrySerializer(serializers.ModelSerializer):
         fields = ["timestamp", "related_gnm_website", "related_youtube", "related_daily_motion",
                   "related_mainstream", "sender",
                   "log_line"]
+
+
+class SearchRequestSerializer(serializers.Serializer):
+    title = serializers.CharField(allow_null=True, default=None)
+    atom_id = serializers.UUIDField(allow_null=True, default=None)
+    commission_id = serializers.IntegerField(allow_null=True, default=None)
