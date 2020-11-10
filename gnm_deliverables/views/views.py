@@ -549,12 +549,12 @@ class GenericAssetSearchAPI(ListAPIView):
         self._search_request:SearchRequestSerializer = None
 
     def get_queryset(self):
+        from pprint import pformat
         from django.db.models import Q
         if self._search_request is None:
             raise Exception("no search request saved")
         queryset = DeliverableAsset.objects.all()
 
-        print(self._search_request.validated_data)
         if self._search_request.validated_data["title"]:
             queryset = queryset.filter(Q(filename__contains=self._search_request.validated_data["title"]) | \
                                            Q(gnm_website_master__website_title__contains=self._search_request.validated_data["title"]) | \
@@ -567,7 +567,23 @@ class GenericAssetSearchAPI(ListAPIView):
 
         if self._search_request.validated_data["commission_id"]:
             queryset = queryset.filter(deliverable__commission_id=self._search_request.validated_data["commission_id"])
-        return queryset
+        logger.info(pformat(self.request.GET))
+        start_at = 0
+        if "startAt" in self.request.GET:
+            try:
+                start_at = int(self.request.GET["startAt"])
+            except ValueError:
+                pass
+        limit = 25
+        if "limit" in self.request.GET:
+            try:
+                limit = int(self.request.GET["limit"])
+            except ValueError:
+                pass
+        logger.info("start_at is {}".format(start_at))
+        logger.info("limit is {}".format(limit))
+
+        return queryset[start_at:start_at+limit]
 
     def get(self, request, *args, **kwargs):
         return Response({"status":"error","detail":"GET not supported on this endpoint"}, status=405)

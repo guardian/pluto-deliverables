@@ -1,7 +1,10 @@
 import React from "react";
 import axios from "axios";
 import { validator } from "./UuidValidator";
-import { Paper, TableBody, TableContainer, TableHead } from "@material-ui/core";
+import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+import {makeStyles} from "@material-ui/core/styles";
+import {Link} from "react-router-dom";
+import DeliverableSummaryCell from "../ProjectDeliverables/DeliverableSummaryCell";
 
 interface AssetSearchResultsProps {
   resultsLimit: number;
@@ -14,6 +17,39 @@ interface AssetSearchResultsState {
   results: Deliverable[];
   startAt: number;
   pageSize: number;
+}
+
+const useStyles = makeStyles({
+  table: {
+    width: "100%"
+  }
+})
+
+interface SearchTableProps {
+  results: Deliverable[];
+}
+
+const AssetSearchTable:React.FC<SearchTableProps> = (props) => {
+  const classes = useStyles();
+
+  return <>
+  <TableContainer>
+    <Table className={classes.table}>
+    <TableHead>
+
+    </TableHead>
+    <TableBody>{
+      props.results.map((entry, idx)=><TableRow key={idx}>
+        <TableCell>
+          <Link to={`/project/${entry.deliverable}`}>
+            <DeliverableSummaryCell deliverable={entry}/>
+          </Link>
+        </TableCell>
+      </TableRow>)
+    }</TableBody>
+    </Table>
+  </TableContainer>
+      </>
 }
 
 class AssetSearchResults extends React.Component<
@@ -82,7 +118,7 @@ class AssetSearchResults extends React.Component<
         });
       }
       const response = await axios.post<Deliverable[]>(
-        "/api/asset/search",
+        `/api/asset/search?startAt=${this.state.startAt}&limit=${this.state.pageSize}`,
         searchDoc
       );
       if (response.data.length == 0) {
@@ -105,6 +141,7 @@ class AssetSearchResults extends React.Component<
   }
 
   componentDidMount() {
+    console.log("AssetSearchResults loaded");
     this.loadNextPage();
   }
 
@@ -126,10 +163,7 @@ class AssetSearchResults extends React.Component<
           {this.state.lastError ? this.state.lastError : ""}
         </span>
         <Paper elevation={3}>
-          <TableContainer>
-            <TableHead></TableHead>
-            <TableBody></TableBody>
-          </TableContainer>
+          <AssetSearchTable results={this.state.results}/>
         </Paper>
       </>
     );

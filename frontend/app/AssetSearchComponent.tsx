@@ -3,11 +3,13 @@ import { RouteComponentProps } from "react-router";
 import { makeStyles } from "@material-ui/core/styles";
 import { Helmet } from "react-helmet";
 import AssetSearchControls from "./AssetSearch/AssetSearchControls";
+import AssetSearchResults from "./AssetSearch/AssetSearchResults";
 
 const useStyles = makeStyles({});
 
 const AssetSearchComponent: React.FC<RouteComponentProps> = (props) => {
   const [searchParams, setSearchParams] = useState<AssetSearchFilter>({});
+  const [resultsLimit, setResultsLimit] = useState(100);
 
   return (
     <>
@@ -21,6 +23,9 @@ const AssetSearchComponent: React.FC<RouteComponentProps> = (props) => {
           onChange={(newValues) => setSearchParams(newValues)}
         />
       </div>
+        <div id="results-area">
+            <AssetSearchResults resultsLimit={resultsLimit} filter={searchParams}/>
+        </div>
     </>
   );
 };
