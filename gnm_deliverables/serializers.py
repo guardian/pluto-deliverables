@@ -93,3 +93,4 @@ class SearchRequestSerializer(serializers.Serializer):
     title = serializers.CharField(allow_null=True, default=None)
     atom_id = serializers.UUIDField(allow_null=True, default=None)
     commission_id = serializers.IntegerField(allow_null=True, default=None)
+    order_by = serializers.CharField(allow_null=True, default=None)

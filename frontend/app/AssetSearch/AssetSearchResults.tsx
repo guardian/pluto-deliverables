@@ -8,7 +8,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
+  TableRow, TableSortLabel,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
@@ -26,6 +26,8 @@ interface AssetSearchResultsState {
   results: Deliverable[];
   startAt: number;
   pageSize: number;
+  sortBy: string;
+  sortOrder?:"desc"|"asc";
 }
 
 const useStyles = makeStyles({
@@ -36,10 +38,22 @@ const useStyles = makeStyles({
 
 interface SearchTableProps {
   results: Deliverable[];
+  sortBy: string;
+  sortOrder?:"desc"|"asc";
+  onSortChanged: (newSortBy:string, newSortOrder:"desc"|"asc"|undefined)=>void
 }
 
 const AssetSearchTable: React.FC<SearchTableProps> = (props) => {
   const classes = useStyles();
+
+  const updateSort = (forField:string) => {
+    if(props.sortBy==forField) {
+      const newSortOrder = props.sortOrder == "desc" ? "asc" : "desc";
+      props.onSortChanged(forField, newSortOrder)
+    } else {
+      props.onSortChanged(forField, props.sortOrder)
+    }
+  }
 
   return (
     <>
@@ -47,9 +61,21 @@ const AssetSearchTable: React.FC<SearchTableProps> = (props) => {
         <Table className={classes.table}>
           <TableHead>
             <TableRow>
-              <TableCell>Filename</TableCell>
+              <TableCell sortDirection={props.sortBy==="filename" ? props.sortOrder : false}>
+                <TableSortLabel active={props.sortBy==="filename"}
+                                direction={props.sortBy==="filename" ? props.sortOrder : undefined}
+                                onClick={(evt)=>updateSort("filename")}>
+                  Filename
+                </TableSortLabel>
+              </TableCell>
               <TableCell>Type</TableCell>
-              <TableCell>Last Modified</TableCell>
+              <TableCell sortDirection={props.sortBy==="modified_dt" ? props.sortOrder : false}>
+                <TableSortLabel active={props.sortBy==="modified_dt"}
+                                direction={props.sortBy==="modified_dt" ? props.sortOrder : undefined}
+                                onClick={(evt)=>updateSort("modified_dt")}>
+                Last Modified
+                </TableSortLabel>
+              </TableCell>
               <TableCell>Status</TableCell>
             </TableRow>
           </TableHead>
@@ -87,6 +113,8 @@ class AssetSearchResults extends React.Component<
       results: [],
       startAt: 0,
       pageSize: 25,
+      sortBy: "modified_dt",
+      sortOrder: "desc"
     };
   }
 
@@ -130,16 +158,35 @@ class AssetSearchResults extends React.Component<
     }
   }
 
+  djangoOrderParam() {
+    let orderSym:string;
+    switch(this.state.sortOrder) {
+      case "asc":
+        orderSym = "";
+        break;
+      case "desc":
+        orderSym = "-";
+        break;
+      default:
+        orderSym = "";
+        break;
+    }
+
+    return `${orderSym}${this.state.sortBy}`
+  }
+
   async loadNextPage(): Promise<void> {
     try {
-      const searchDoc = this.validatedSearchRequest();
-      if (!searchDoc) {
+      const initialSearchDoc = this.validatedSearchRequest();
+      if (!initialSearchDoc) {
         console.error("There was no search document set, this is a code bug");
         return this.setStatePromise({
           loading: false,
           lastError: "internal error, see browser log",
         });
       }
+
+      const searchDoc = Object.assign({}, initialSearchDoc, {"order_by": this.djangoOrderParam()})
       const response = await axios.post<Deliverable[]>(
         `/api/asset/search?startAt=${this.state.startAt}&limit=${this.state.pageSize}`,
         searchDoc
@@ -188,7 +235,13 @@ class AssetSearchResults extends React.Component<
           {this.state.lastError ? this.state.lastError : ""}
         </span>
         <Paper elevation={3}>
-          <AssetSearchTable results={this.state.results} />
+          <AssetSearchTable results={this.state.results}
+                            sortBy={this.state.sortBy}
+                            sortOrder={this.state.sortOrder}
+                            onSortChanged={((newSortBy, newSortOrder) => {
+                              this.setState({sortBy: newSortBy, sortOrder: newSortOrder}, ()=>this.reset().then(()=>this.loadNextPage()))
+                            })}
+          />
         </Paper>
       </>
     );

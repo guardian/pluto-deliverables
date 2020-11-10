@@ -549,7 +549,6 @@ class GenericAssetSearchAPI(ListAPIView):
         self._search_request:SearchRequestSerializer = None
 
     def get_queryset(self):
-        from pprint import pformat
         from django.db.models import Q
         if self._search_request is None:
             raise Exception("no search request saved")
@@ -567,7 +566,12 @@ class GenericAssetSearchAPI(ListAPIView):
 
         if self._search_request.validated_data["commission_id"]:
             queryset = queryset.filter(deliverable__commission_id=self._search_request.validated_data["commission_id"])
-        logger.info(pformat(self.request.GET))
+
+        if self._search_request.validated_data["order_by"]:
+            queryset = queryset.order_by(self._search_request.validated_data["order_by"])
+        else:
+            queryset = queryset.order_by("-modified_dt")
+
         start_at = 0
         if "startAt" in self.request.GET:
             try:
@@ -580,8 +584,6 @@ class GenericAssetSearchAPI(ListAPIView):
                 limit = int(self.request.GET["limit"])
             except ValueError:
                 pass
-        logger.info("start_at is {}".format(start_at))
-        logger.info("limit is {}".format(limit))
 
         return queryset[start_at:start_at+limit]
 
