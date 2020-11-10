@@ -5,11 +5,17 @@ import { Helmet } from "react-helmet";
 import AssetSearchControls from "./AssetSearch/AssetSearchControls";
 import AssetSearchResults from "./AssetSearch/AssetSearchResults";
 
-const useStyles = makeStyles({});
+const useStyles = makeStyles({
+  controlsArea: {
+    marginBottom: "0.6em",
+  },
+});
 
 const AssetSearchComponent: React.FC<RouteComponentProps> = (props) => {
   const [searchParams, setSearchParams] = useState<AssetSearchFilter>({});
   const [resultsLimit, setResultsLimit] = useState(100);
+
+  const classes = useStyles();
 
   return (
     <>
@@ -17,15 +23,15 @@ const AssetSearchComponent: React.FC<RouteComponentProps> = (props) => {
         <title>Search for deliverables</title>
       </Helmet>
       <h2>Search for deliverables</h2>
-      <div id="controls-area">
+      <div id="controls-area" className={classes.controlsArea}>
         <AssetSearchControls
           values={searchParams}
           onChange={(newValues) => setSearchParams(newValues)}
         />
       </div>
-        <div id="results-area">
-            <AssetSearchResults resultsLimit={resultsLimit} filter={searchParams}/>
-        </div>
+      <div id="results-area">
+        <AssetSearchResults resultsLimit={resultsLimit} filter={searchParams} />
+      </div>
     </>
   );
 };

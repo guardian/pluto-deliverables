@@ -24,6 +24,7 @@ import LaunchIcon from "@material-ui/icons/Launch";
 import atomIcon from "../static/atom_icon.svg";
 import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
 import DeliverableSummaryCell from "./DeliverableSummaryCell";
+import DateTimeFormatter from "../Form/DateTimeFormatter";
 
 interface DeliverableRowProps {
   deliverable: Deliverable;
@@ -121,7 +122,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           />
         </TableCell>
         <TableCell>
-          <DeliverableSummaryCell deliverable={props.deliverable}/>
+          <DeliverableSummaryCell deliverable={props.deliverable} />
         </TableCell>
         <TableCell>{version ?? "-"}</TableCell>
         <TableCell>{props.deliverable.size_string ?? "-"}</TableCell>
@@ -138,7 +139,9 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
             }
           />
         </TableCell>
-        <TableCell>{props.deliverable.modified_dt}</TableCell>
+        <TableCell>
+          <DateTimeFormatter value={props.deliverable.modified_dt} />
+        </TableCell>
         <TableCell>
           {props.deliverable.job_id ? (
             <VidispineJobProgress

@@ -1,10 +1,19 @@
 import React from "react";
 import axios from "axios";
 import { validator } from "./UuidValidator";
-import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
-import {Link} from "react-router-dom";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { Link } from "react-router-dom";
 import DeliverableSummaryCell from "../ProjectDeliverables/DeliverableSummaryCell";
+import DateTimeFormatter from "../Form/DateTimeFormatter";
 
 interface AssetSearchResultsProps {
   resultsLimit: number;
@@ -21,36 +30,50 @@ interface AssetSearchResultsState {
 
 const useStyles = makeStyles({
   table: {
-    width: "100%"
-  }
-})
+    width: "100%",
+  },
+});
 
 interface SearchTableProps {
   results: Deliverable[];
 }
 
-const AssetSearchTable:React.FC<SearchTableProps> = (props) => {
+const AssetSearchTable: React.FC<SearchTableProps> = (props) => {
   const classes = useStyles();
 
-  return <>
-  <TableContainer>
-    <Table className={classes.table}>
-    <TableHead>
-
-    </TableHead>
-    <TableBody>{
-      props.results.map((entry, idx)=><TableRow key={idx}>
-        <TableCell>
-          <Link to={`/project/${entry.deliverable}`}>
-            <DeliverableSummaryCell deliverable={entry}/>
-          </Link>
-        </TableCell>
-      </TableRow>)
-    }</TableBody>
-    </Table>
-  </TableContainer>
-      </>
-}
+  return (
+    <>
+      <TableContainer>
+        <Table className={classes.table}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Filename</TableCell>
+              <TableCell>Type</TableCell>
+              <TableCell>Last Modified</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {props.results.map((entry, idx) => (
+              <TableRow key={idx}>
+                <TableCell>
+                  <Link to={`/project/${entry.deliverable}`}>
+                    <DeliverableSummaryCell deliverable={entry} />
+                  </Link>
+                </TableCell>
+                <TableCell>{entry.type_string}</TableCell>
+                <TableCell>
+                  <DateTimeFormatter value={entry.modified_dt} />
+                </TableCell>
+                <TableCell>{entry.status_string}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
+  );
+};
 
 class AssetSearchResults extends React.Component<
   AssetSearchResultsProps,
@@ -131,7 +154,9 @@ class AssetSearchResults extends React.Component<
         startAt: prevState.startAt + response.data.length,
       }));
 
-      return this.loadNextPage();
+      return this.state.startAt >= this.props.resultsLimit
+        ? new Promise((resolve, reject) => resolve())
+        : this.loadNextPage();
     } catch (err) {
       return this.setStatePromise({
         loading: false,
@@ -163,7 +188,7 @@ class AssetSearchResults extends React.Component<
           {this.state.lastError ? this.state.lastError : ""}
         </span>
         <Paper elevation={3}>
-          <AssetSearchTable results={this.state.results}/>
+          <AssetSearchTable results={this.state.results} />
         </Paper>
       </>
     );

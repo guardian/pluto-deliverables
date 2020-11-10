@@ -8,7 +8,11 @@ interface AssetSearchControlsProps {
   onChange: (newValues: AssetSearchFilter) => void;
 }
 
-const useStyles = makeStyles({});
+const useStyles = makeStyles({
+  fullWidthControl: {
+    width: "100%",
+  },
+});
 
 const AssetSearchControls: React.FC<AssetSearchControlsProps> = (props) => {
   const classes = useStyles();
@@ -21,11 +25,12 @@ const AssetSearchControls: React.FC<AssetSearchControlsProps> = (props) => {
   }, [props.values]);
 
   return (
-    <Grid container>
+    <Grid container spacing={3}>
       <Grid item xs={4}>
         <TextField
           id="asset-search-filename"
           label="Filename or title"
+          className={classes.fullWidthControl}
           value={props.values.title}
           onChange={(evt) => {
             const newValues = Object.assign({}, props.values, {
@@ -39,6 +44,7 @@ const AssetSearchControls: React.FC<AssetSearchControlsProps> = (props) => {
         <TextField
           id="asset-search-atomid"
           label="Atom ID"
+          className={classes.fullWidthControl}
           value={props.values.atom_id}
           error={atomIdError}
           onChange={(evt) => {
