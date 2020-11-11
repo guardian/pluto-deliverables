@@ -23,6 +23,8 @@ import LaunchIcon from "@material-ui/icons/Launch";
 // @ts-ignore
 import atomIcon from "../static/atom_icon.svg";
 import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
+import DeliverableSummaryCell from "./DeliverableSummaryCell";
+import DateTimeFormatter from "../Form/DateTimeFormatter";
 
 interface DeliverableRowProps {
   deliverable: Deliverable;
@@ -38,9 +40,6 @@ interface DeliverableRowProps {
   project_id: number;
   onSyndicationStarted: (assetId: bigint) => void;
 }
-
-declare var mediaAtomToolUrl: string;
-declare var archiverHunterURL: string;
 
 const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   const [open, setOpen] = useState<boolean>(false);
@@ -123,69 +122,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           />
         </TableCell>
         <TableCell>
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justify="space-between"
-          >
-            <Grid item>
-              <Typography>{props.deliverable.filename}</Typography>
-            </Grid>
-            <Grid item>
-              {props.deliverable.atom_id ? (
-                <Tooltip title="Imported from media atom">
-                  <IconButton
-                    aria-label="Go to"
-                    style={{
-                      paddingTop: 0,
-                      paddingBottom: 0,
-                      paddingRight: "3px",
-                      paddingLeft: "3px",
-                    }}
-                    onClick={() =>
-                      window.open(
-                        `${mediaAtomToolUrl}/${props.deliverable.atom_id}`,
-                        "_blank"
-                      )
-                    }
-                  >
-                    <img
-                      src={atomIcon}
-                      alt="atom"
-                      style={{ width: "26px", height: "26px" }}
-                    />
-                  </IconButton>
-                </Tooltip>
-              ) : null}
-              {props.deliverable.online_item_id ||
-              props.deliverable.archive_item_id ? (
-                <Tooltip title="View media">
-                  <IconButton
-                    aria-label="Go to"
-                    style={{
-                      paddingTop: 0,
-                      paddingBottom: 0,
-                      paddingRight: "3px",
-                      paddingLeft: "3px",
-                    }}
-                    onClick={() => {
-                      const targetUrl = props.deliverable.online_item_id
-                        ? `/vs/item/${props.deliverable.online_item_id}`
-                        : `${archiverHunterURL}${props.deliverable.archive_item_id}`;
-                      window.open(targetUrl, "_blank");
-                    }}
-                  >
-                    <LaunchIcon style={{ width: "26px", height: "26px" }} />
-                  </IconButton>
-                </Tooltip>
-              ) : (
-                <Tooltip title="No media could be found!">
-                  <PriorityHighIcon style={{ width: "26px", height: "26px" }} />
-                </Tooltip>
-              )}
-            </Grid>
-          </Grid>
+          <DeliverableSummaryCell deliverable={props.deliverable} />
         </TableCell>
         <TableCell>{version ?? "-"}</TableCell>
         <TableCell>{props.deliverable.size_string ?? "-"}</TableCell>
@@ -202,7 +139,9 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
             }
           />
         </TableCell>
-        <TableCell>{props.deliverable.modified_dt}</TableCell>
+        <TableCell>
+          <DateTimeFormatter value={props.deliverable.modified_dt} />
+        </TableCell>
         <TableCell>
           {props.deliverable.job_id ? (
             <VidispineJobProgress

@@ -14,6 +14,7 @@ import MainstreamMaster from "./Master/MainstreamMaster";
 import DailymotionMaster from "./Master/DailymotionMaster";
 import SystemNotification from "./SystemNotification";
 import { Helmet } from "react-helmet";
+import AssetSearchComponent from "./AssetSearchComponent";
 
 require("./app.css");
 
@@ -147,6 +148,7 @@ class App extends React.Component {
               path="/project/:projectid"
               component={ProjectDeliverablesComponent}
             />
+            <Route path="/search" component={AssetSearchComponent} />
             <Route exact path="/" component={ProjectsListComponent} />
           </Switch>
         </div>
