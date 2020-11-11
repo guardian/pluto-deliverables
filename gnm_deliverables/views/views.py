@@ -555,11 +555,11 @@ class GenericAssetSearchAPI(ListAPIView):
         queryset = DeliverableAsset.objects.all()
 
         if self._search_request.validated_data["title"] and self._search_request.validated_data["title"]!="":
-            queryset = queryset.filter(Q(filename__contains=self._search_request.validated_data["title"]) | \
-                                           Q(gnm_website_master__website_title__contains=self._search_request.validated_data["title"]) | \
-                                           Q(mainstream_master__mainstream_title__contains=self._search_request.validated_data["title"]) | \
-                                           Q(DailyMotion_master__daily_motion_title__contains=self._search_request.validated_data["title"]) | \
-                                           Q(youtube_master__youtube_title__contains=self._search_request.validated_data["title"]))
+            queryset = queryset.filter(Q(filename__icontains=self._search_request.validated_data["title"]) | \
+                                           Q(gnm_website_master__website_title__icontains=self._search_request.validated_data["title"]) | \
+                                           Q(mainstream_master__mainstream_title__icontains=self._search_request.validated_data["title"]) | \
+                                           Q(DailyMotion_master__daily_motion_title__icontains=self._search_request.validated_data["title"]) | \
+                                           Q(youtube_master__youtube_title__icontains=self._search_request.validated_data["title"]))
 
         if self._search_request.validated_data["atom_id"] and self._search_request.validated_data["atom_id"]!="":
             queryset = queryset.filter(atom_id=self._search_request.validated_data["atom_id"])
