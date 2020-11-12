@@ -150,7 +150,6 @@ class UploaderMain extends React.Component<
               onChange={this.newFileAdded}
             />
             <Fab
-              color="secondary"
               size="small"
               component="span"
               aria-label="add"
@@ -163,7 +162,6 @@ class UploaderMain extends React.Component<
         </Grid>
         <Grid item xs={6}>
           <Fab
-            color="secondary"
             size="small"
             component="span"
             aria-label="add"
@@ -175,7 +173,9 @@ class UploaderMain extends React.Component<
             &nbsp;&nbsp;
             {this.state.uploadInProgress ? "Uploading..." : "Start upload"}
           </Fab>
-          {this.state.uploadInProgress ? <CircularProgress size={25} /> : null}
+          {this.state.uploadInProgress ? (
+            <CircularProgress size={25} style={{ marginLeft: "10px" }} />
+          ) : null}
         </Grid>
         <Grid item xs={12}>
           {this.state.dialogError ? (
