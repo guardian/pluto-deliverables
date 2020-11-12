@@ -15,6 +15,7 @@ import DailymotionMaster from "./Master/DailymotionMaster";
 import SystemNotification from "./SystemNotification";
 import { Helmet } from "react-helmet";
 import AssetSearchComponent from "./AssetSearchComponent";
+import BundleRedirect from "./BundleRedirect";
 
 require("./app.css");
 
@@ -148,6 +149,7 @@ class App extends React.Component {
               path="/project/:projectid"
               component={ProjectDeliverablesComponent}
             />
+            <Route path="/bundle/:bundleId" component={BundleRedirect} />
             <Route path="/search" component={AssetSearchComponent} />
             <Route exact path="/" component={ProjectsListComponent} />
           </Switch>
