@@ -37,7 +37,7 @@ class Command(BaseCommand):
     def get_parent_bundle(self, parent_project_id:int, commissions_table:dict) -> (Deliverable, bool):
         try:
             return Deliverable.objects.get_or_create(pluto_core_project_id=parent_project_id, defaults={
-                "commission_id": commissions_table.get(parent_project_id),
+                "commission_id": commissions_table.get(parent_project_id, 3657),
                 "pluto_core_project_id": parent_project_id,
                 "name": "Legacy masters for {}".format(parent_project_id),
             })
