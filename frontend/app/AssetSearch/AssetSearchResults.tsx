@@ -109,7 +109,7 @@ const AssetSearchTable: React.FC<SearchTableProps> = (props) => {
             {props.results.map((entry, idx) => (
               <TableRow key={idx}>
                 <TableCell>
-                  <Link to={`/project/${entry.deliverable}`}>
+                  <Link to={`/bundle/${entry.deliverable}`}>
                     <DeliverableSummaryCell deliverable={entry} />
                   </Link>
                 </TableCell>

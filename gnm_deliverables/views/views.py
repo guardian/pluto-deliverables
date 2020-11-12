@@ -93,13 +93,21 @@ class NewDeliverablesAPIList(ListAPIView):
             return Response({"status":"error","detail":str(e)},status=500)
 
 
-class NewDeliverablesApiGet(RetrieveAPIView):
+class NewDeliverabesApiBundleGet(RetrieveAPIView):
     authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     queryset = Deliverable.objects
     serializer_class = DeliverableSerializer
     lookup_url_kwarg = "bundleId"
+
+class NewDeliverablesApiGet(RetrieveAPIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    queryset = Deliverable.objects
+    serializer_class = DeliverableSerializer
+    lookup_url_kwarg = "projectId"
     lookup_field = "pluto_core_project_id"
 
 

@@ -9,14 +9,15 @@ from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIV
 from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, VSNotifyView, \
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet, \
-    DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView, GenericAssetSearchAPI
+    DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView, GenericAssetSearchAPI, NewDeliverabesApiBundleGet
 
 urlpatterns = [
     path(r'api/asset/byFileName', SearchForDeliverableAPIView.as_view()),
     path(r'api/asset/search', GenericAssetSearchAPI.as_view(), name='asset-search'),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/setType', SetTypeView.as_view()),
     path(r'api/bundle/<int:bundleId>/asset/<int:assetId>/createProxy', TestCreateProxyView.as_view()),
-    path(r'api/bundle/<int:bundleId>', NewDeliverablesApiGet.as_view()),
+    path(r'api/bundle/byproject/<int:projectId>', NewDeliverablesApiGet.as_view()),
+    path(r'api/bundle/bybundleid/<int:bundleId>', NewDeliverabesApiBundleGet.as_view()),
     path(r'api/bundle/new', NewDeliverablesAPICreate.as_view(), name='bundle-create'),
     path(r'api/bundle/scan', NewDeliverableAPIScan.as_view()),
     path(r'api/bundle/adopt', AdoptExistingVidispineItemView.as_view(), name="adopt-asset"),

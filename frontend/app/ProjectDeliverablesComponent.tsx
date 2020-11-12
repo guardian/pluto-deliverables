@@ -205,7 +205,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const loadParentBundle = async () => {
     try {
-      const response = await axios.get(`/api/bundle/${projectid}`);
+      const response = await axios.get(`/api/bundle/byproject/${projectid}`);
       return setParentBundleInfo(response.data);
     } catch (err) {
       console.error("Could not load in parent bundle data: ", err);

@@ -14,18 +14,35 @@ const BundleRedirect: React.FC<RouteComponentProps> = (props) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [lastError, setLastError] = useState<string | null>(null);
 
+  const history = useHistory();
   const { bundleId } = useParams();
 
   useEffect(() => {
     axios
-      .get(`/api/bundle/${bundleId}`)
+      .get(`/api/bundle/bybundleid/${bundleId}`)
       .then((response) => {
         setLoading(false);
         setBundle(response.data);
       })
       .catch((err) => {
         setLoading(false);
-        setLastError(err.toString());
+        if (err.response) {
+          switch (err.response.status) {
+            case 404:
+              setLastError("This ID does not exist");
+              break;
+            case 500 | 502 | 503 | 504:
+              setLastError(
+                "Server is not responding correctly. Please wait a few seconds and then click Refresh"
+              );
+              break;
+            default:
+              setLastError(err.toString());
+              break;
+          }
+        } else {
+          setLastError(err.toString());
+        }
       });
   }, []);
 
@@ -37,7 +54,33 @@ const BundleRedirect: React.FC<RouteComponentProps> = (props) => {
         <Grid item xs={4}>
           {loading ? <CircularProgress /> : null}
           {lastError ? (
-            <Typography style={{ marginLeft: "0.6em" }}>{lastError}</Typography>
+            <>
+              <Typography style={{ marginLeft: "0.6em" }}>
+                {lastError}
+              </Typography>
+              <br />
+              <span style={{ marginLeft: "auto", marginRight: "auto" }}>
+                <a
+                  href="#"
+                  style={{ marginLeft: "0.6em", marginRight: "0.6em" }}
+                  onClick={(evt) => {
+                    evt.preventDefault();
+                    history.goBack();
+                  }}
+                >
+                  Go back
+                </a>
+                <a
+                  href="#"
+                  onClick={(evt) => {
+                    evt.preventDefault();
+                    document.location.reload();
+                  }}
+                >
+                  Refresh
+                </a>
+              </span>
+            </>
           ) : null}
         </Grid>
       </Grid>
