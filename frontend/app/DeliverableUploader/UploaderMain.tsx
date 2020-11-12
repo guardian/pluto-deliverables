@@ -174,7 +174,10 @@ class UploaderMain extends React.Component<
             {this.state.uploadInProgress ? "Uploading..." : "Start upload"}
           </Fab>
           {this.state.uploadInProgress ? (
-            <CircularProgress size={25} style={{ marginLeft: "10px" }} />
+            <CircularProgress
+              size={25}
+              style={{ marginLeft: "20px", marginTop: "4px" }}
+            />
           ) : null}
         </Grid>
         <Grid item xs={12}>
