@@ -160,7 +160,7 @@ class UploaderMain extends React.Component<
             </Fab>
           </label>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           <Fab
             size="small"
             component="span"
@@ -173,12 +173,9 @@ class UploaderMain extends React.Component<
             &nbsp;&nbsp;
             {this.state.uploadInProgress ? "Uploading..." : "Start upload"}
           </Fab>
-          {this.state.uploadInProgress ? (
-            <CircularProgress
-              size={32}
-              style={{ marginLeft: "20px", position: "relative", top: "12px" }}
-            />
-          ) : null}
+        </Grid>
+        <Grid item xs={2}>
+          {this.state.uploadInProgress ? <CircularProgress size={32} /> : null}
         </Grid>
         <Grid item xs={12}>
           {this.state.dialogError ? (
