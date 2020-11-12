@@ -161,23 +161,24 @@ class UploaderMain extends React.Component<
           </label>
         </Grid>
         <Grid item xs={6}>
-          <div>
-            <Fab
-              size="small"
-              component="span"
-              aria-label="add"
-              variant="extended"
-              onClick={this.uploadButtonClicked}
-              disabled={this.state.uploadInProgress}
-            >
-              <CloudUploadOutlined />
-              &nbsp;&nbsp;
-              {this.state.uploadInProgress ? "Uploading..." : "Start upload"}
-            </Fab>
-            {this.state.uploadInProgress ? (
-              <CircularProgress size={32} style={{ marginLeft: "20px" }} />
-            ) : null}
-          </div>
+          <Fab
+            size="small"
+            component="span"
+            aria-label="add"
+            variant="extended"
+            onClick={this.uploadButtonClicked}
+            disabled={this.state.uploadInProgress}
+          >
+            <CloudUploadOutlined />
+            &nbsp;&nbsp;
+            {this.state.uploadInProgress ? "Uploading..." : "Start upload"}
+          </Fab>
+          {this.state.uploadInProgress ? (
+            <CircularProgress
+              size={32}
+              style={{ marginLeft: "20px", position: "relative", top: "12px" }}
+            />
+          ) : null}
         </Grid>
         <Grid item xs={12}>
           {this.state.dialogError ? (
