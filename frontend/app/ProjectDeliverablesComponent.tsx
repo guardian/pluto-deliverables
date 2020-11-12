@@ -48,6 +48,14 @@ import DeliverableRow from "./ProjectDeliverables/DeliverableRow";
 import BeforeUnloadComponent from "react-beforeunload-component";
 import { CloudUpload } from "@material-ui/icons";
 import UploaderMain from "./DeliverableUploader/UploaderMain";
+import MuiDialogTitle from "@material-ui/core/DialogTitle";
+import CloseIcon from "@material-ui/icons/Close";
+import {
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles,
+} from "@material-ui/core/styles";
 
 interface HeaderTitles {
   label: string;
@@ -119,6 +127,44 @@ const useStyles = makeStyles({
       borderBottom: "unset",
     },
   },
+});
+
+const styles = (theme: Theme) =>
+  createStyles({
+    root: {
+      margin: 0,
+      padding: theme.spacing(2),
+    },
+    closeButton: {
+      position: "absolute",
+      right: theme.spacing(1),
+      top: theme.spacing(1),
+      color: theme.palette.grey[500],
+    },
+  });
+
+export interface DialogTitleProps extends WithStyles<typeof styles> {
+  id: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}
+
+const CustomDialogTitle = withStyles(styles)((props: DialogTitleProps) => {
+  const { children, classes, onClose, ...other } = props;
+  return (
+    <MuiDialogTitle disableTypography className={classes.root} {...other}>
+      <Typography variant="h6">{children}</Typography>
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          className={classes.closeButton}
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </MuiDialogTitle>
+  );
 });
 
 const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
@@ -283,6 +329,10 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     }
   };
 
+  const handleClose = () => {
+    setShowingUploader(false);
+  };
+
   return (
     <>
       {parentBundleInfo?.name ? (
@@ -433,7 +483,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           aria-labelled-by="uploader-title"
           aria-describedby="uploader-desc"
         >
-          <DialogTitle>Upload deliverables to project bundle</DialogTitle>
+          <CustomDialogTitle id="customized-dialog-title" onClose={handleClose}>
+            Upload deliverables to project bundle
+          </CustomDialogTitle>
           <DialogContent>
             <UploaderMain
               projectId={projectid}

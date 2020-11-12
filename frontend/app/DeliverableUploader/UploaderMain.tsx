@@ -175,7 +175,7 @@ class UploaderMain extends React.Component<
             &nbsp;&nbsp;
             {this.state.uploadInProgress ? "Uploading..." : "Start upload"}
           </Fab>
-          {this.state.uploadInProgress ? <CircularProgress /> : null}
+          {this.state.uploadInProgress ? <CircularProgress size={25} /> : null}
         </Grid>
         <Grid item xs={12}>
           {this.state.dialogError ? (
@@ -193,6 +193,7 @@ class UploaderMain extends React.Component<
                     <TableRow>
                       <TableCell>File</TableCell>
                       <TableCell>Progress</TableCell>
+                      <TableCell>Status</TableCell>
                       <TableCell>Problems</TableCell>
                     </TableRow>
                   </TableHead>
@@ -205,6 +206,19 @@ class UploaderMain extends React.Component<
                             variant="determinate"
                             value={entry.progress > 100 ? 100 : entry.progress}
                           />
+                        </TableCell>
+                        <TableCell>
+                          {entry.progress == 0 ? (
+                            <div>Not uploaded</div>
+                          ) : (
+                            [
+                              entry.progress < 100 ? (
+                                <div>Uploading</div>
+                              ) : (
+                                <div>Uploaded</div>
+                              ),
+                            ]
+                          )}
                         </TableCell>
                         <TableCell>{entry.lastError}</TableCell>
                       </TableRow>
