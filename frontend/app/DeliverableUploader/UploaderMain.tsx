@@ -150,32 +150,34 @@ class UploaderMain extends React.Component<
               onChange={this.newFileAdded}
             />
             <Fab
-              color="secondary"
               size="small"
               component="span"
               aria-label="add"
               variant="extended"
               disabled={this.state.uploadInProgress}
+              color="primary"
             >
               <Add /> Add more files
             </Fab>
           </label>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           <Fab
-            color="secondary"
             size="small"
             component="span"
             aria-label="add"
             variant="extended"
             onClick={this.uploadButtonClicked}
             disabled={this.state.uploadInProgress}
+            color="primary"
           >
             <CloudUploadOutlined />
             &nbsp;&nbsp;
             {this.state.uploadInProgress ? "Uploading..." : "Start upload"}
           </Fab>
-          {this.state.uploadInProgress ? <CircularProgress /> : null}
+        </Grid>
+        <Grid item xs={2}>
+          {this.state.uploadInProgress ? <CircularProgress size={32} /> : null}
         </Grid>
         <Grid item xs={12}>
           {this.state.dialogError ? (
@@ -193,6 +195,7 @@ class UploaderMain extends React.Component<
                     <TableRow>
                       <TableCell>File</TableCell>
                       <TableCell>Progress</TableCell>
+                      <TableCell>Status</TableCell>
                       <TableCell>Problems</TableCell>
                     </TableRow>
                   </TableHead>
@@ -205,6 +208,19 @@ class UploaderMain extends React.Component<
                             variant="determinate"
                             value={entry.progress > 100 ? 100 : entry.progress}
                           />
+                        </TableCell>
+                        <TableCell>
+                          {entry.progress == 0 ? (
+                            <div>Not uploaded</div>
+                          ) : (
+                            [
+                              entry.progress < 100 ? (
+                                <div>Uploading</div>
+                              ) : (
+                                <div>Uploaded</div>
+                              ),
+                            ]
+                          )}
                         </TableCell>
                         <TableCell>{entry.lastError}</TableCell>
                       </TableRow>
