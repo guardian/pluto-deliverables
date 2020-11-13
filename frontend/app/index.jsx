@@ -29,6 +29,14 @@ const theme = createMuiTheme({
     ].join(","),
     fontWeight: 400,
   },
+  palette: {
+    primary: {
+      main: "#052963",
+    },
+    secondary: {
+      main: "#777777",
+    },
+  },
 });
 
 //this is set in the html template file and gives us the value of deployment-root from the server config

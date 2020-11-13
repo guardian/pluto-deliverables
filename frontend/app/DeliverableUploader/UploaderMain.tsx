@@ -155,6 +155,7 @@ class UploaderMain extends React.Component<
               aria-label="add"
               variant="extended"
               disabled={this.state.uploadInProgress}
+              color="primary"
             >
               <Add /> Add more files
             </Fab>
@@ -168,6 +169,7 @@ class UploaderMain extends React.Component<
             variant="extended"
             onClick={this.uploadButtonClicked}
             disabled={this.state.uploadInProgress}
+            color="primary"
           >
             <CloudUploadOutlined />
             &nbsp;&nbsp;
