@@ -9,7 +9,8 @@ from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIV
 from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, VSNotifyView, \
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet, \
-    DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView, GenericAssetSearchAPI, NewDeliverabesApiBundleGet
+    DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView, GenericAssetSearchAPI, NewDeliverabesApiBundleGet, \
+    BundlesForCommission
 
 urlpatterns = [
     path(r'api/asset/byFileName', SearchForDeliverableAPIView.as_view()),
@@ -36,5 +37,6 @@ urlpatterns = [
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/send', TriggerOutputView.as_view()),
     path(r'api/bundle/started', DeliverableAPIStarted.as_view()),
     path(r'api/atom/<str:atom_id>', LaunchDetectorUpdateView.as_view(), name='atom_update'),
+    path(r'api/bundle/commission/<int:commissionId>', BundlesForCommission.as_view()),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view()),
 ]

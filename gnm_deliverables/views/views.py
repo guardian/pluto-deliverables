@@ -609,3 +609,13 @@ class GenericAssetSearchAPI(ListAPIView):
         except Exception as e:
             logger.exception("could not perform asset search: ", exc_info=e)
             return Response({"status":"error", "detail": str(e)}, status=500)
+
+
+class BundlesForCommission(ListAPIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    serializer_class = DeliverableSerializer
+
+    def get_queryset(self):
+        return Deliverable.objects.filter(commission_id=self.kwargs['commissionId'])
