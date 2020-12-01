@@ -33,6 +33,10 @@ import {
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import CloseIcon from "@material-ui/icons/Close";
 import moment from "moment";
+import {
+  getDeliverableDailymotion,
+  getDeliverableMainstream,
+} from "../utils/master-api-service";
 
 interface SyndicationTriggerProps {
   uploadStatus: string | null;
@@ -156,6 +160,9 @@ const ProgressIcon: React.FC<ProgressIconProps> = (props) => {
 const SyndicationDialog: React.FC<SyndicationDialogProps> = (props) => {
   const [openDialog, setOpenDialog] = useState<boolean>(props.openDialog);
   const [logMessages, setLogMessages] = useState<LogObject[]>([]);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(
+    props.uploadStatus
+  );
 
   const getLogData = async (): Promise<LogObject[]> => {
     try {
@@ -182,6 +189,42 @@ const SyndicationDialog: React.FC<SyndicationDialogProps> = (props) => {
     }
   };
 
+  const getUploadStatus = async () => {
+    if (props.platform == "dailymotion") {
+      let master: DailymotionMaster;
+      try {
+        master = await getDeliverableDailymotion(
+          props.projectId.toString(),
+          props.assetId.toString()
+        );
+        return master.upload_status;
+      } catch (error) {
+        console.error(error);
+      }
+    } else if (props.platform == "mainstream") {
+      let master: MainstreamMaster;
+      try {
+        master = await getDeliverableMainstream(
+          props.projectId.toString(),
+          props.assetId.toString()
+        );
+        return master.upload_status;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    return "Unknown";
+  };
+
+  const doRefreshUploadStatus = async () => {
+    try {
+      const uploadStatus = await getUploadStatus();
+      setUploadStatus(uploadStatus);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     setOpenDialog(props.openDialog);
   }, [props.openDialog]);
@@ -189,6 +232,7 @@ const SyndicationDialog: React.FC<SyndicationDialogProps> = (props) => {
   useEffect(() => {
     doRefresh();
     setInterval(doRefresh, 10000);
+    setInterval(doRefreshUploadStatus, 10000);
   }, []);
 
   const DialogTitle = withStyles(styles)((props: DialogTitleProps) => {
@@ -220,7 +264,7 @@ const SyndicationDialog: React.FC<SyndicationDialogProps> = (props) => {
         {props.title} /{" "}
         {`${props.platform.charAt(0).toUpperCase()}${props.platform.slice(1)}`}
         <div style={{ float: "right", marginRight: "60px", marginTop: "4px" }}>
-          <ProgressIcon uploadStatus={props.uploadStatus} />
+          <ProgressIcon uploadStatus={uploadStatus} />
         </div>
       </DialogTitle>
       <DialogContent>
