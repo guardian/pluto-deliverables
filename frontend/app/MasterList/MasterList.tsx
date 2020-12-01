@@ -378,7 +378,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                     </Tooltip>
                   )}
                 </TableCell>
-                <TableCell style={{ width: "84px" }}>
+                <TableCell style={{ width: "96px" }}>
                   {master.group != MasterEnum.Guardian &&
                   master.group != MasterEnum.Youtube ? (
                     <SyndicationTrigger
@@ -387,6 +387,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                       projectId={props.project_id}
                       assetId={deliverable.id}
                       sendInitiated={() => startRegularRefresh()}
+                      title={master.title}
                     />
                   ) : null}
                 </TableCell>
