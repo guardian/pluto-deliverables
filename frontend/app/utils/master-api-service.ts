@@ -1,4 +1,5 @@
 import axios from "axios";
+import { etEE } from "@material-ui/core/locale";
 
 const API = "/api";
 const API_DELIVERABLE = `${API}/bundle`;
@@ -109,9 +110,16 @@ export const resyncToPublished = async (
   assetId: String
 ): Promise<void> => {
   try {
-    await axios.post(
+    const result = await axios.post(
       `${API_DELIVERABLE}/${bundleId}/asset/${assetId}/atomresync`
     );
+    if (result.data.hasOwnProperty("status") && result.data.status == "error") {
+      if (result.data.hasOwnProperty("detail")) {
+        return Promise.reject(result.data.detail);
+      } else {
+        return Promise.reject("Launchdetector reported an error");
+      }
+    }
   } catch (err) {
     console.error(err);
     try {
