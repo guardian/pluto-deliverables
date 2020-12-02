@@ -19,6 +19,7 @@ from gnm_deliverables.models import DeliverableAsset, GNMWebsite, Mainstream, Yo
     LogEntry
 from gnm_deliverables.serializers import *
 from rabbitmq.time_funcs import get_current_time
+import requests
 logger = logging.getLogger(__name__)
 
 
@@ -338,3 +339,35 @@ class TriggerOutputView(APIView):
             return Response({"status":"error","detail":"GNM website should go via the media atom tool"},status=400)
         else:
             return Response({"status":"error","detail":"Unrecognised platform name"})
+
+
+class ResyncToPublished(APIView):
+    authentication_classes = (JwtRestAuth, BasicAuthentication, )
+    renderer_classes = (JSONRenderer, )
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, project_id:int, asset_id:int):
+        try:
+            asset = DeliverableAsset.objects.get(pk=asset_id)
+        except DeliverableAsset.DoesNotExist:
+            return Response({"status":"error","details":"Asset not found"}, status=404)
+
+        if asset.atom_id is None:
+            return Response({"status":"error","details":"Asset is not from an atom","asset_id":asset_id}, status=400)
+
+        try:
+            url = settings.GNM_ATOM_RESPONDER_LAUNCHDETECTOR_URL + "/update/" + asset.atom_id
+            logger.info("Update URL for asset {aid} on project {pid} is {url}".format(aid=asset_id,pid=project_id,url=url))
+            response = requests.put(url)
+
+            logger.info("Updating {pid}/{aid}: Launch detector said {status} {msg}".format(aid=asset_id,pid=project_id,
+                                                                                           status=response.status_code,
+                                                                                           msg=response.content))
+            #simply echo the Launch Detector's response back to the client
+            return Response(response.json(), status=response.status_code)
+        except requests.ConnectTimeout:
+            return Response({"status": "error", "error": "Timeout connecting to LaunchDetector, please try again and notify multimediatech@theguardian.com"},status=500)
+        except requests.ConnectionError:
+            return Response({"status": "error", "error": "Unable to connect to LaunchDetector, please notify multimediatech@theguardian.com"},status=500)
+        except Exception as e:
+            return Response({"status": "error", "error": str(e)},status=500)
