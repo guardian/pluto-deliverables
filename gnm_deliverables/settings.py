@@ -163,6 +163,8 @@ GNM_DELIVERABLES_SAN_ROOT_LOCAL = os.environ.get("DELIVERABLES_CLIENT_PATH", "/V
 
 ### Launch detector integration
 LAUNCH_DETECTOR_SHARED_KEY = os.environ.get("LAUNCH_DETECTOR_SHARED_KEY","something_here")
+LAUNCH_DETECTOR_URL = os.environ.get("LAUNCH_DETECTOR_URL","launch-detector-not-set")
+
 # Transcode presets to use.  The first value is a regex to match against the MIME type, the second is the name of the VS preset
 TRANSCODE_PRESETS = {
     r'^video/': "lowres",
