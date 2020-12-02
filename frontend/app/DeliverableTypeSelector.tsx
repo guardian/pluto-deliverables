@@ -2,7 +2,7 @@ import React, { ReactComponentElement, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { useHistory, useLocation } from "react-router-dom";
 import Select from "@material-ui/core/Select";
-import { MenuItem } from "@material-ui/core";
+import { MenuItem, ListSubheader } from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl";
 import FormHelperText from "@material-ui/core/FormHelperText";
 
@@ -20,6 +20,15 @@ const DeliverableTypeSelector: React.FC<DeliverableTypeSelectorProps> = (
     props.value
   );
 
+  const renderMenuGroups = (section: string) => {
+    const items = props.content[section].map((entry) => (
+      <MenuItem key={entry[0]} value={entry[0]} style={{ marginLeft: "20px" }}>
+        {entry[1]}
+      </MenuItem>
+    ));
+    return [<ListSubheader>{section}</ListSubheader>, items];
+  };
+
   return (
     <FormControl>
       <Select
@@ -33,11 +42,7 @@ const DeliverableTypeSelector: React.FC<DeliverableTypeSelectorProps> = (
         }}
       >
         {Object.keys(props.content).map((section_name) =>
-          props.content[section_name].map((entry) => (
-            <MenuItem key={entry[0]} value={entry[0]}>
-              {entry[1]}
-            </MenuItem>
-          ))
+          renderMenuGroups(section_name)
         )}
       </Select>
       {props.showTip ? (
