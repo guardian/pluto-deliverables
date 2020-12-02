@@ -107,7 +107,7 @@ export const deleteGNMDeliverable = async (
 
 export const resyncToPublished = async (
   bundleId: string,
-  assetId: String
+  assetId: string
 ): Promise<void> => {
   try {
     const result = await axios.post(
