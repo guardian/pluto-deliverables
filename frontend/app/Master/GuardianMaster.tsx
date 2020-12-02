@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {Helmet} from "react-helmet";
+import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import {
   Button,
   Dialog,
@@ -13,8 +13,8 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core";
-import {RouteComponentProps, useHistory} from "react-router-dom";
-import {validPrimaryTones, validProductionOffices} from "../utils/constants";
+import { RouteComponentProps, useHistory } from "react-router-dom";
+import { validPrimaryTones, validProductionOffices } from "../utils/constants";
 import FormSelect from "../Form/FormSelect";
 import CommonMaster from "./CommonMaster";
 import {
@@ -24,7 +24,9 @@ import {
   resyncToPublished,
   updateGNMDeliverable,
 } from "../utils/master-api-service";
-import SystemNotification, {SystemNotificationKind,} from "../SystemNotification";
+import SystemNotification, {
+  SystemNotificationKind,
+} from "../SystemNotification";
 import DeleteIcon from "@material-ui/icons/Delete";
 
 const useStyles = makeStyles({
@@ -78,7 +80,7 @@ const useStyles = makeStyles({
     },
     "& .resync": {
       marginLeft: "auto",
-    }
+    },
   },
   dialog: {
     "& .MuiDialogActions-root.MuiDialogActions-spacing": {
@@ -230,18 +232,21 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
 
   const requestResync = async () => {
     try {
-      await resyncToPublished(props.match.params.projectid, props.match.params.assetid);
+      await resyncToPublished(
+        props.match.params.projectid,
+        props.match.params.assetid
+      );
       SystemNotification.open(
-          SystemNotificationKind.Success,
-          "Requested resync, data should arrive within a couple of minutes."
-      )
-    } catch(err) {
+        SystemNotificationKind.Success,
+        "Requested resync, data should arrive within a couple of minutes."
+      );
+    } catch (err) {
       SystemNotification.open(
-          SystemNotificationKind.Error,
-          `Could not request resync, ${err}`
-      )
+        SystemNotificationKind.Error,
+        `Could not request resync, ${err}`
+      );
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -365,8 +370,8 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
               <Button
                 className="resync"
                 variant="outlined"
-                onClick={() => requestResync() }
-                >
+                onClick={() => requestResync()}
+              >
                 Resync
               </Button>
             </Tooltip>

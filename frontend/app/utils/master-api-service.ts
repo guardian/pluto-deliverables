@@ -104,22 +104,31 @@ export const deleteGNMDeliverable = async (
   }
 };
 
-export const resyncToPublished = async (bundleId:string, assetId:String):Promise<void> => {
+export const resyncToPublished = async (
+  bundleId: string,
+  assetId: String
+): Promise<void> => {
   try {
-    await axios.post(`${API_DELIVERABLE}/${bundleId}/asset/${assetId}/atomresync`);
+    await axios.post(
+      `${API_DELIVERABLE}/${bundleId}/asset/${assetId}/atomresync`
+    );
   } catch (err) {
     console.error(err);
     try {
-      if (err.response && err.response.hasOwnProperty("data") && err.response.data.hasOwnProperty("details")) {
-          return Promise.reject(err.response.data.details)
+      if (
+        err.response &&
+        err.response.hasOwnProperty("data") &&
+        err.response.data.hasOwnProperty("details")
+      ) {
+        return Promise.reject(err.response.data.details);
       }
-      return Promise.reject("see browser console for details")
+      return Promise.reject("see browser console for details");
     } catch (responseErr) {
       console.error("Caught error when handling response: ", responseErr);
     }
-    return Promise.reject(`see browser console for details`)
+    return Promise.reject(`see browser console for details`);
   }
-}
+};
 
 export const getDeliverableYoutube = async (
   deliverableId: string,
