@@ -190,28 +190,22 @@ const SyndicationDialog: React.FC<SyndicationDialogProps> = (props) => {
   };
 
   const getUploadStatus = async () => {
-    if (props.platform == "dailymotion") {
-      let master: DailymotionMaster;
-      try {
-        master = await getDeliverableDailymotion(
+    try {
+      if (props.platform == "dailymotion") {
+        const master: DailymotionMaster = await getDeliverableDailymotion(
           props.projectId.toString(),
           props.assetId.toString()
         );
         return master.upload_status;
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (props.platform == "mainstream") {
-      let master: MainstreamMaster;
-      try {
-        master = await getDeliverableMainstream(
+      } else if (props.platform == "mainstream") {
+        const master: MainstreamMaster = await getDeliverableMainstream(
           props.projectId.toString(),
           props.assetId.toString()
         );
         return master.upload_status;
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
     return "Unknown";
   };
