@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import Now
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -342,6 +342,7 @@ class TriggerOutputView(APIView):
 
 
 class ResyncToPublished(APIView):
+    authentication_classes = (JwtRestAuth, BasicAuthentication, SessionAuthentication, )    #SessionAuthentication is needed for tests to work
     renderer_classes = (JSONRenderer, )
     permission_classes = (IsAuthenticated, )
 
