@@ -342,7 +342,6 @@ class TriggerOutputView(APIView):
 
 
 class ResyncToPublished(APIView):
-    authentication_classes = (JwtRestAuth, BasicAuthentication, )
     renderer_classes = (JSONRenderer, )
     permission_classes = (IsAuthenticated, )
 
@@ -356,7 +355,7 @@ class ResyncToPublished(APIView):
             return Response({"status":"error","details":"Asset is not from an atom","asset_id":asset_id}, status=400)
 
         try:
-            url = settings.LAUNCH_DETECTOR_URL + "/update/" + asset.atom_id
+            url = settings.LAUNCH_DETECTOR_URL + "/update/" + str(asset.atom_id)
             logger.info("Update URL for asset {aid} on project {pid} is {url}".format(aid=asset_id,pid=project_id,url=url))
             response = requests.put(url)
 

@@ -3,10 +3,10 @@ import json
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
-
+from mock import patch,MagicMock
 from gnm_deliverables.models import DeliverableAsset, GNMWebsite, Deliverable
 from gnm_deliverables.serializers import GNMWebsiteSerializer
-
+import uuid
 
 class TestGetInMetadataView(TestCase):
     def setUp(self) -> None:
@@ -157,3 +157,31 @@ class TestDeleteInMetadataAPIView(TestCase):
                                     kwargs={'project_id': self.deliverable.pluto_core_project_id,
                                             'asset_id': 12}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TestResyncMetadataView(TestCase):
+    fixtures = [
+        "users"
+    ]
+
+    def setUp(self) -> None:
+        self.uid = uuid.uuid4()
+        self.deliverable = Deliverable.objects.create(pluto_core_project_id=1, commission_id=1)
+        self.gnmwebsite = GNMWebsite.objects.create(website_title='test.com')
+        self.asset = DeliverableAsset.objects.create(deliverable=self.deliverable, pk=1, atom_id=self.uid,
+                                                     gnm_website_master=self.gnmwebsite)
+
+    def test_resync_meta(self):
+        from django.contrib.auth.models import User
+        import requests
+        ld_response = MagicMock(requests.Response)
+        ld_response.status_code = 200
+        ld_response.json = MagicMock(return_value="""{"status": "ok"}""")
+
+        with patch("requests.put", return_value=ld_response) as mock_put:
+            self.client.force_login(User.objects.get(pk=2))
+            response = self.client.post(reverse('resync',
+                                                kwargs={'project_id': self.deliverable.pluto_core_project_id,
+                                                        'asset_id': 1}))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            mock_put.assert_called_once_with('launch-detector-not-set/update/{0}'.format(str(self.uid)))
