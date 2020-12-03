@@ -1,26 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import {
-  makeStyles,
-  Typography,
   Button,
-  Divider,
-  TextField,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  DialogActions,
+  DialogTitle,
+  Divider,
+  makeStyles,
+  TextField,
+  Tooltip,
+  Typography,
 } from "@material-ui/core";
-import { useHistory, RouteComponentProps } from "react-router-dom";
-import { validProductionOffices, validPrimaryTones } from "../utils/constants";
+import { RouteComponentProps, useHistory } from "react-router-dom";
+import { validPrimaryTones, validProductionOffices } from "../utils/constants";
 import FormSelect from "../Form/FormSelect";
 import CommonMaster from "./CommonMaster";
 import {
-  getDeliverableGNM,
   createGNMDeliverable,
-  updateGNMDeliverable,
   deleteGNMDeliverable,
+  getDeliverableGNM,
+  resyncToPublished,
+  updateGNMDeliverable,
 } from "../utils/master-api-service";
 import SystemNotification, {
   SystemNotificationKind,
@@ -74,6 +76,9 @@ const useStyles = makeStyles({
       marginLeft: "1rem",
     },
     "& .delete": {
+      marginLeft: "auto",
+    },
+    "& .resync": {
       marginLeft: "auto",
     },
   },
@@ -225,6 +230,24 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
     fieldChanged(event, property as keyof GuardianMaster);
   };
 
+  const requestResync = async () => {
+    try {
+      await resyncToPublished(
+        props.match.params.projectid,
+        props.match.params.assetid
+      );
+      SystemNotification.open(
+        SystemNotificationKind.Success,
+        "Requested resync, data should arrive within a couple of minutes."
+      );
+    } catch (err) {
+      SystemNotification.open(
+        SystemNotificationKind.Error,
+        `Could not request resync, ${err}`
+      );
+    }
+  };
+
   if (isLoading) {
     return (
       <div className={classes.loading}>
@@ -294,7 +317,7 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
             required={!isReadOnly}
             error={!isReadOnly && isDirty && !master.production_office}
             disabled={isReadOnly}
-          ></FormSelect>
+          />
 
           <CommonMaster
             prefix="Website"
@@ -306,7 +329,7 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
             onChange={onCommonMasterChanged}
             isDirty={isDirty}
             disabled={isReadOnly}
-          ></CommonMaster>
+          />
 
           <FormSelect
             label="Primary Tone"
@@ -314,7 +337,7 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
             onChange={(event: any) => fieldChanged(event, "primary_tone")}
             options={validPrimaryTones}
             disabled={isReadOnly}
-          ></FormSelect>
+          />
 
           <div className={classes.formButtons}>
             <Button
@@ -343,6 +366,15 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
                 Delete
               </Button>
             )}
+            <Tooltip title="Update the GNM website data from the published atom">
+              <Button
+                className="resync"
+                variant="outlined"
+                onClick={() => requestResync()}
+              >
+                Resync
+              </Button>
+            </Tooltip>
           </div>
         </form>
         {isEditing ? (

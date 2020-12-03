@@ -1,4 +1,5 @@
 import axios from "axios";
+import { etEE } from "@material-ui/core/locale";
 
 const API = "/api";
 const API_DELIVERABLE = `${API}/bundle`;
@@ -101,6 +102,39 @@ export const deleteGNMDeliverable = async (
   } catch (error) {
     console.error(error);
     return Promise.reject(`Could not delete Asset GNM Website`);
+  }
+};
+
+export const resyncToPublished = async (
+  bundleId: string,
+  assetId: string
+): Promise<void> => {
+  try {
+    const result = await axios.post(
+      `${API_DELIVERABLE}/${bundleId}/asset/${assetId}/atomresync`
+    );
+    if (result.data.hasOwnProperty("status") && result.data.status == "error") {
+      if (result.data.hasOwnProperty("detail")) {
+        return Promise.reject(result.data.detail);
+      } else {
+        return Promise.reject("Launchdetector reported an error");
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    try {
+      if (
+        err.response &&
+        err.response.hasOwnProperty("data") &&
+        err.response.data.hasOwnProperty("details")
+      ) {
+        return Promise.reject(err.response.data.details);
+      }
+      return Promise.reject("see browser console for details");
+    } catch (responseErr) {
+      console.error("Caught error when handling response: ", responseErr);
+    }
+    return Promise.reject(`see browser console for details`);
   }
 };
 
