@@ -25,6 +25,7 @@ import atomIcon from "../static/atom_icon.svg";
 import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
 import DeliverableSummaryCell from "./DeliverableSummaryCell";
 import DateTimeFormatter from "../Form/DateTimeFormatter";
+import ReplayIcon from "@material-ui/icons/Replay";
 
 interface DeliverableRowProps {
   deliverable: Deliverable;
@@ -110,6 +111,20 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
     }
   };
 
+  const doRetry = async () => {
+    const url = `api/job/retry/${props.deliverable.job_id}`;
+
+    try {
+      await axios.put(url, null, {
+        headers: {
+          "X-CSRFToken": Cookies.get("csrftoken"),
+        },
+      });
+    } catch (error) {
+      console.error("Failed to retry job: ", error);
+    }
+  };
+
   return (
     <React.Fragment>
       <TableRow className={props.classes.root}>
@@ -155,7 +170,20 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
             />
           ) : null}
         </TableCell>
-        <TableCell>{props.deliverable.status_string}</TableCell>
+        <TableCell>
+          {props.deliverable.status_string}
+          {props.deliverable.status_string == "Ingest failed" ? (
+            <IconButton
+              size="small"
+              onClick={() => {
+                doRetry();
+              }}
+              style={{ marginLeft: "6px" }}
+            >
+              <ReplayIcon />
+            </IconButton>
+          ) : null}
+        </TableCell>
         <TableCell>
           <Tooltip title="Show syndication">
             <IconButton

@@ -9,7 +9,7 @@ import os
 from rabbitmq.time_funcs import get_current_time
 from django.conf import settings
 from django.views.generic import TemplateView
-from gnmvidispine.vidispine_api import VSNotFound, VSException
+from gnmvidispine.vidispine_api import VSNotFound, VSException, VSApi
 from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import RetrieveAPIView, \
@@ -619,3 +619,20 @@ class BundlesForCommission(ListAPIView):
 
     def get_queryset(self):
         return Deliverable.objects.filter(commission_id=self.kwargs['commissionId'])
+
+
+class RetryJob(APIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth, BasicAuthentication,)
+    permission_classes = (AllowAny,)
+
+    def put(self, request, job_id):
+        logger.info("Running Retry Job code.")
+        try:
+            vs_api = VSApi(url=settings.VIDISPINE_URL,
+                           user=settings.VIDISPINE_USER,
+                           passwd=settings.VIDISPINE_PASSWORD)
+            vs_job = vs_api.request("/job/{0}/re-run".format(job_id), method="POST")
+            return Response({"status": "ok", "detail": "Job ran again"}, status=200)
+        except Exception as e:
+            logger.error("An error occurred when attempting to retry a job: {0}".format(str(e)))
+            return Response({"status": "error", "detail": str(e)}, status=500)
