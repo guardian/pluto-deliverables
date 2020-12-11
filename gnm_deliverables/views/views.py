@@ -621,18 +621,21 @@ class BundlesForCommission(ListAPIView):
         return Deliverable.objects.filter(commission_id=self.kwargs['commissionId'])
 
 
-class RetryJob(APIView):
-    authentication_classes = (JwtRestAuth, HmacRestAuth, BasicAuthentication,)
-    permission_classes = (AllowAny,)
+class RetryJobForAsset(APIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
 
-    def put(self, request, job_id):
-        logger.info("Running Retry Job code.")
+    def put(self, request, job_id, asset_id):
         try:
             vs_api = VSApi(url=settings.VIDISPINE_URL,
                            user=settings.VIDISPINE_USER,
                            passwd=settings.VIDISPINE_PASSWORD)
-            vs_job = vs_api.request("/job/{0}/re-run".format(job_id), method="POST")
-            return Response({"status": "ok", "detail": "Job ran again"}, status=200)
+            vs_job_data = vs_api.request("/job/{0}/re-run".format(job_id), method="POST")
+            asset = DeliverableAsset.objects.get(id=asset_id)
+            asset.job_id = vs_job_data.find("{http://xml.vidispine.com/schema/vidispine}jobId").text
+            asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
+            asset.save()
+            return Response({"status": "ok", "detail": "New job created with id.: {0}".format(vs_job_data.find("{http://xml.vidispine.com/schema/vidispine}jobId").text)}, status=200)
         except Exception as e:
-            logger.error("An error occurred when attempting to retry a job: {0}".format(str(e)))
+            logger.error("An error occurred when attempting to retry job {0} for asset {1}: {2}".format(job_id , asset_id, str(e)))
             return Response({"status": "error", "detail": str(e)}, status=500)

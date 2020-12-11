@@ -112,7 +112,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   };
 
   const doRetry = async () => {
-    const url = `api/job/retry/${props.deliverable.job_id}`;
+    const url = `api/asset/${props.deliverable.id}/jobretry/${props.deliverable.job_id}`;
 
     try {
       await axios.put(url, null, {
@@ -120,6 +120,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           "X-CSRFToken": Cookies.get("csrftoken"),
         },
       });
+      props.onNeedsUpdate(props.deliverable.id);
     } catch (error) {
       console.error("Failed to retry job: ", error);
     }
