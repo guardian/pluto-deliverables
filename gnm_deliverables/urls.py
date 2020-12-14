@@ -10,7 +10,7 @@ from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingV
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet, \
     DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView, GenericAssetSearchAPI, NewDeliverabesApiBundleGet, \
-    BundlesForCommission
+    BundlesForCommission, RetryJobForAsset
 
 urlpatterns = [
     path(r'api/asset/byFileName', SearchForDeliverableAPIView.as_view()),
@@ -39,5 +39,6 @@ urlpatterns = [
     path(r'api/bundle/started', DeliverableAPIStarted.as_view()),
     path(r'api/atom/<str:atom_id>', LaunchDetectorUpdateView.as_view(), name='atom_update'),
     path(r'api/bundle/commission/<int:commissionId>', BundlesForCommission.as_view()),
+    path(r'api/asset/<int:asset_id>/jobretry/<str:job_id>', RetryJobForAsset.as_view()),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view()),
 ]

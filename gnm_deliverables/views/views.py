@@ -9,7 +9,7 @@ import os
 from rabbitmq.time_funcs import get_current_time
 from django.conf import settings
 from django.views.generic import TemplateView
-from gnmvidispine.vidispine_api import VSNotFound, VSException
+from gnmvidispine.vidispine_api import VSNotFound, VSException, VSApi
 from rest_framework import mixins, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import RetrieveAPIView, \
@@ -619,3 +619,26 @@ class BundlesForCommission(ListAPIView):
 
     def get_queryset(self):
         return Deliverable.objects.filter(commission_id=self.kwargs['commissionId'])
+
+
+class RetryJobForAsset(APIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request, job_id, asset_id):
+        try:
+            vs_api = VSApi(url=settings.VIDISPINE_URL,
+                           user=settings.VIDISPINE_USER,
+                           passwd=settings.VIDISPINE_PASSWORD)
+            vs_job_data = vs_api.request("/job/{0}/re-run".format(job_id), method="POST")
+            asset = DeliverableAsset.objects.get(id=asset_id)
+            asset.job_id = vs_job_data.find("{http://xml.vidispine.com/schema/vidispine}jobId").text
+            asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
+            asset.save()
+            return Response({"status": "ok", "detail": "New job created with id.: {0}".format(asset.job_id)}, status=200)
+        except VSNotFound:
+            logger.error("The job did not exist when attempting to retry job {0} for asset {1}: {2}".format(job_id , asset_id, str(e)))
+            return Response({"status": "notfound", "detail": "That job does not exist in Vidispine"}, status=404)
+        except Exception as e:
+            logger.error("An error occurred when attempting to retry job {0} for asset {1}: {2}".format(job_id , asset_id, str(e)))
+            return Response({"status": "error", "detail": str(e)}, status=500)
