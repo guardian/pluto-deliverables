@@ -121,8 +121,10 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
         },
       });
       props.onNeedsUpdate(props.deliverable.id);
+      props.setCentralMessage("Ingest process started");
     } catch (error) {
       console.error("Failed to retry job: ", error);
+      props.setCentralMessage("Failed to start ingest process");
     }
   };
 
@@ -174,15 +176,17 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
         <TableCell>
           {props.deliverable.status_string}
           {props.deliverable.status_string == "Ingest failed" ? (
-            <IconButton
-              size="small"
-              onClick={() => {
-                doRetry();
-              }}
-              style={{ marginLeft: "6px" }}
-            >
-              <ReplayIcon />
-            </IconButton>
+            <Tooltip title="Run the failed ingest process again">
+              <IconButton
+                size="small"
+                onClick={() => {
+                  doRetry();
+                }}
+                style={{ marginLeft: "6px" }}
+              >
+                <ReplayIcon />
+              </IconButton>
+            </Tooltip>
           ) : null}
         </TableCell>
         <TableCell>

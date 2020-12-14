@@ -635,7 +635,10 @@ class RetryJobForAsset(APIView):
             asset.job_id = vs_job_data.find("{http://xml.vidispine.com/schema/vidispine}jobId").text
             asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
             asset.save()
-            return Response({"status": "ok", "detail": "New job created with id.: {0}".format(vs_job_data.find("{http://xml.vidispine.com/schema/vidispine}jobId").text)}, status=200)
+            return Response({"status": "ok", "detail": "New job created with id.: {0}".format(asset.job_id)}, status=200)
+        except VSNotFound:
+            logger.error("The job did not exist when attempting to retry job {0} for asset {1}: {2}".format(job_id , asset_id, str(e)))
+            return Response({"status": "notfound", "detail": "That job does not exist in Vidispine"}, status=404)
         except Exception as e:
             logger.error("An error occurred when attempting to retry job {0} for asset {1}: {2}".format(job_id , asset_id, str(e)))
             return Response({"status": "error", "detail": str(e)}, status=500)
