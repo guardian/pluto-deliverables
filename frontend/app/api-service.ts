@@ -42,21 +42,17 @@ export const deleteProjectDeliverable = async (
   }
 };
 
-export const getInvalidDeliverables = async (
+export const getInvalidDeliverables = async (): Promise<Deliverable[]> => {
+  try {
+    const { status, data } = await axios.get<Deliverable[]>(`${API_INVLAID}`);
 
-): Promise<Deliverable[]> => {
-    try {
-        const { status, data } = await axios.get<Deliverable[]>(
-            `${API_INVLAID}`
-        );
-
-        if (status === 200) {
-            return data;
-        }
-
-        throw new Error(`Could not fetch invalid deliverables. ${status}`);
-    } catch (error) {
-        console.error(error);
-        throw error;
+    if (status === 200) {
+      return data;
     }
+
+    throw new Error(`Could not fetch invalid deliverables. ${status}`);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };

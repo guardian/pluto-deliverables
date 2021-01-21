@@ -34,7 +34,9 @@ interface PlutoCoreCommission {
   productionOffice: string;
 }
 
-const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (props) => {
+const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
+  props
+) => {
   const [projectInfo, setProjectInfo] = useState<PlutoCoreProject | undefined>(
     undefined
   );

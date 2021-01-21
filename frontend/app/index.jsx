@@ -158,10 +158,7 @@ class App extends React.Component {
               path="/project/:projectid"
               component={ProjectDeliverablesComponent}
             />
-            <Route
-              path="/invalid"
-              component={InvalidDeliverablesComponent}
-            />
+            <Route path="/invalid" component={InvalidDeliverablesComponent} />
             <Route path="/bundle/:bundleId" component={BundleRedirect} />
             <Route path="/search" component={AssetSearchComponent} />
             <Route exact path="/" component={ProjectsListComponent} />

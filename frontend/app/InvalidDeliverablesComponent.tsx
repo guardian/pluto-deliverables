@@ -10,13 +10,8 @@ import {
   TableHead,
   TableRow,
 } from "@material-ui/core";
-import {
-  RouteComponentProps,
-  useHistory,
-} from "react-router-dom";
-import {
-    getInvalidDeliverables,
-} from "./api-service";
+import { RouteComponentProps, useHistory } from "react-router-dom";
+import { getInvalidDeliverables } from "./api-service";
 
 import InvalidRow from "./InvalidRow";
 import DayGraph from "./DayGraph";
@@ -60,33 +55,24 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   // React state
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [selectedIDs, setSelectedIDs] = useState<bigint[]>([]);
-  const [typeOptions, setTypeOptions] = useState<DeliverableTypes>({});
-  const [parentBundleInfo, setParentBundleInfo] = useState<Project | undefined>(
-    undefined
-  );
 
   // Material-UI
   const classes = useStyles();
 
   const loadRecord = async () => {
-    setLoading(true);
-
     try {
-       const projectDeliverables = await getInvalidDeliverables();
-       setDeliverables(projectDeliverables);
+      const projectDeliverables = await getInvalidDeliverables();
+      setDeliverables(projectDeliverables);
     } catch (err) {
-       if (err.response) {
-          //server returned a bad status code
-          if (err.response.data.detail)
-            console.error(err.response.data.detail);
-          else return console.error(`Error code ${err.response.status}`);
-        } else if (err.request) {
-           console.error(`Could not contact server: ${err.message}`);
-        } else {
-          console.error(err.message);
-       }
+      if (err.response) {
+        //server returned a bad status code
+        if (err.response.data.detail) console.error(err.response.data.detail);
+        else return console.error(`Error code ${err.response.status}`);
+      } else if (err.request) {
+        console.error(`Could not contact server: ${err.message}`);
+      } else {
+        console.error(err.message);
+      }
     }
   };
 
@@ -96,37 +82,36 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   return (
     <>
-        <Helmet>
-          <title>Invalid Deliverables</title>
-        </Helmet>
-        <div>
-          <h3 className={classes.sectionHeader}>Invalid Deliverables</h3>
-        </div>
-        <DayGraph />
-        <Paper elevation={3}>
-          <TableContainer>
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  {tableHeaderTitles.map((entry, idx) => (
-                    <TableCell key={`r${idx}`}>{entry.label}</TableCell>
-                  ))}
-                  <TableCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {deliverables.map((del, idx) => (
-                  <InvalidRow
-                    key={del.id.toString()}
-                    deliverable={del}
-                    classes={classes}
-                  />
+      <Helmet>
+        <title>Invalid Deliverables</title>
+      </Helmet>
+      <div>
+        <h3 className={classes.sectionHeader}>Invalid Deliverables</h3>
+      </div>
+      <DayGraph />
+      <Paper elevation={3}>
+        <TableContainer>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow>
+                {tableHeaderTitles.map((entry, idx) => (
+                  <TableCell key={`r${idx}`}>{entry.label}</TableCell>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-
+                <TableCell />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {deliverables.map((del, idx) => (
+                <InvalidRow
+                  key={del.id.toString()}
+                  deliverable={del}
+                  classes={classes}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
     </>
   );
 };
