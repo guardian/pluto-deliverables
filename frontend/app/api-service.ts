@@ -3,6 +3,7 @@ import axios from "axios";
 const API = "/api";
 const API_DELIVERABLE = `${API}/deliverable`;
 const API_DELIVERABLES = `${API}/deliverables`;
+const API_INVLAID = `${API}/invalid`;
 
 export const getProjectDeliverables = async (
   projectId: number
@@ -39,4 +40,23 @@ export const deleteProjectDeliverable = async (
     console.error(error);
     throw error;
   }
+};
+
+export const getInvalidDeliverables = async (
+
+): Promise<Deliverable[]> => {
+    try {
+        const { status, data } = await axios.get<Deliverable[]>(
+            `${API_INVLAID}`
+        );
+
+        if (status === 200) {
+            return data;
+        }
+
+        throw new Error(`Could not fetch invalid deliverables. ${status}`);
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 };

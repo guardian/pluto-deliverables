@@ -94,3 +94,33 @@ class SearchRequestSerializer(serializers.Serializer):
     atom_id = serializers.UUIDField(allow_null=True, default=None)
     commission_id = serializers.IntegerField(allow_null=True, default=None)
     order_by = serializers.CharField(allow_null=True, default=None)
+
+
+class InvalidDeliverableAssetSerializer(serializers.ModelSerializer):
+    type_string = serializers.CharField(read_only=True)
+    size_string = serializers.CharField(read_only=True)
+    status_string = serializers.SerializerMethodField('get_status_string')
+    changed_string = serializers.CharField(read_only=True)
+
+    @cached_property
+    def user(self):
+        try:
+            return self.context['request'].user.username
+        except AttributeError:
+            return "admin"
+        except KeyError:
+            return "admin"
+
+    def get_status_string(self, obj):
+        return DELIVERABLE_ASSET_STATUSES_DICT.get(obj.status, "(not set)")
+
+    class Meta:
+        model = DeliverableAsset
+        fields = ['id', 'type', 'filename', 'size', 'access_dt', 'modified_dt', 'changed_dt',
+                  'job_id', 'online_item_id', 'nearline_item_id', 'archive_item_id',
+                  'deliverable', 'status', 'type_string', 'atom_id',
+                  'size_string', 'status_string', 'changed_string',
+                  'gnm_website_master', 'youtube_master', 'DailyMotion_master',
+                  'mainstream_master', 'absolute_path']
+        read_only_fields = ['id', 'filename', 'size', 'access_dt', 'modified_dt',
+                            'changed_dt', 'job_id item_id', 'deliverable']

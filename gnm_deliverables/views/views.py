@@ -34,8 +34,9 @@ from gnm_deliverables.files import create_folder_for_deliverable
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.hmac_auth_backend import HmacRestAuth
 from gnm_deliverables.models import Deliverable, DeliverableAsset
-from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DenormalisedAssetSerializer, SearchRequestSerializer
+from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DenormalisedAssetSerializer, SearchRequestSerializer, InvalidDeliverableAssetSerializer
 from gnm_deliverables.vs_notification import VSNotification
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -642,3 +643,53 @@ class RetryJobForAsset(APIView):
         except Exception as e:
             logger.error("An error occurred when attempting to retry job {0} for asset {1}: {2}".format(job_id , asset_id, str(e)))
             return Response({"status": "error", "detail": str(e)}, status=500)
+
+
+class InvalidAPIList(ListAPIView):
+    #authentication_classes = (JwtRestAuth, HmacRestAuth)
+    #permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    serializer_class = InvalidDeliverableAssetSerializer
+
+    def get_queryset(self):
+        #bundle_id = self.request.GET["project_id"]
+        #parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
+        return DeliverableAsset.objects.exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
+
+    def get(self, *args, **kwargs):
+        try:
+            return super(InvalidAPIList, self).get(*args, **kwargs)
+        except Deliverable.DoesNotExist:
+            return Response({"status": "error", "detail": "Project not known"}, status=404)
+        except KeyError:
+            return Response(
+                {"status": "error", "detail": "you must specify a project_id= query param"},
+                status=400)
+
+
+class CountInvalid(APIView):
+    #authentication_classes = (JwtRestAuth, HmacRestAuth)
+    #permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, *args, **kwargs):
+        try:
+            day_one = DeliverableAsset.objects.filter(access_dt__icontains=datetime.today().strftime('%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_two = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(1)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_three = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(2)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_four = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(3)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_five = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(4)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_six = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(5)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_seven = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(6)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_eight = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(7)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_nine = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(8)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_ten = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(9)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_eleven = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(10)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+            day_twelve = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(11)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
+
+            result = [day_twelve, day_eleven, day_ten, day_nine, day_eight, day_seven, day_six, day_five, day_four, day_three, day_two, day_one]
+
+            return Response(result, status=200)
+        except Exception:
+            return Response({"status":"error","detail":"Could not process invalid count."}, status=500)

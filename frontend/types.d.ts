@@ -29,6 +29,7 @@ interface Deliverable {
   size_string: string;
   status_string: string;
   atom_id: string | null;
+  absolute_path: string | null;
 }
 
 interface CreateGuardianMaster {
