@@ -1,35 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Collapse,
-  Grid,
-  IconButton,
-  TableCell,
-  TableRow,
-  Tooltip,
-  Typography,
-  Button,
-} from "@material-ui/core";
-import DeliverableTypeSelector from "./DeliverableTypeSelector";
-import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
-import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
-import MasterList from "./MasterList/MasterList";
-import { ClassNameMap } from "@material-ui/core/styles/withStyles";
 import axios from "axios";
-import Cookies from "js-cookie";
-import { VidispineItem } from "./vidispine/item/VidispineItem";
-import { VError } from "ts-interface-checker";
-import DurationFormatter from "./ProjectDeliverables/DurationFormatter";
-import VidispineJobProgress from "./ProjectDeliverables/VidispineJobProgress";
-import LaunchIcon from "@material-ui/icons/Launch";
-// @ts-ignore
-import atomIcon from "./static/atom_icon.svg";
-import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
-import DeliverableSummaryCell from "./ProjectDeliverables/DeliverableSummaryCell";
-import DateTimeFormatter from "./Form/DateTimeFormatter";
-import ReplayIcon from "@material-ui/icons/Replay";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAtom} from '@fortawesome/free-solid-svg-icons'
-import BundleInfoComponentForInvalid from "./BundleInfoComponentForInvalid";
 import { Bar } from 'react-chartjs-2';
 
 interface GraphProps {
