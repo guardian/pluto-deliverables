@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Bar } from "react-chartjs-2";
+import { useHistory } from "react-router-dom";
 
 interface GraphProps {}
 
@@ -48,6 +49,44 @@ const DayGraph: React.FC<GraphProps> = (props) => {
     ],
   };
 
+  let dateTwo = new Date();
+  dateTwo.setDate(dateTwo.getDate() - 1);
+  let dateThree = new Date();
+  dateThree.setDate(dateThree.getDate() - 2);
+  let dateFour = new Date();
+  dateFour.setDate(dateFour.getDate() - 3);
+  let dateFive = new Date();
+  dateFive.setDate(dateFive.getDate() - 4);
+  let dateSix = new Date();
+  dateSix.setDate(dateSix.getDate() - 5);
+  let dateSeven = new Date();
+  dateSeven.setDate(dateSeven.getDate() - 6);
+  let dateEight = new Date();
+  dateEight.setDate(dateEight.getDate() - 7);
+  let dateNine = new Date();
+  dateNine.setDate(dateNine.getDate() - 8);
+  let dateTen = new Date();
+  dateTen.setDate(dateTen.getDate() - 9);
+  let dateEleven = new Date();
+  dateEleven.setDate(dateEleven.getDate() - 10);
+  let dateTwelve = new Date();
+  dateTwelve.setDate(dateTwelve.getDate() - 11);
+
+  const dates = [
+    dateTwelve.toISOString().split("T")[0],
+    dateEleven.toISOString().split("T")[0],
+    dateTen.toISOString().split("T")[0],
+    dateNine.toISOString().split("T")[0],
+    dateEight.toISOString().split("T")[0],
+    dateSeven.toISOString().split("T")[0],
+    dateSix.toISOString().split("T")[0],
+    dateFive.toISOString().split("T")[0],
+    dateFour.toISOString().split("T")[0],
+    dateThree.toISOString().split("T")[0],
+    dateTwo.toISOString().split("T")[0],
+    now.toISOString().split("T")[0],
+  ];
+
   const loadInvalidCount = async () => {
     try {
       const response = await axios.get(`/api/invalid/count`);
@@ -57,13 +96,22 @@ const DayGraph: React.FC<GraphProps> = (props) => {
     }
   };
 
+  let history = useHistory();
+
   useEffect(() => {
     loadInvalidCount();
   }, []);
 
   return (
     <React.Fragment>
-      <Bar data={data} width={600} />
+      <Bar
+        data={data}
+        width={600}
+        onElementsClick={(elems) => {
+          console.log("Date clicked: " + dates[elems[0]._index]);
+          history.push(`/invalid/date/${dates[elems[0]._index]}`);
+        }}
+      />
     </React.Fragment>
   );
 };

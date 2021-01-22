@@ -10,9 +10,11 @@ import {
   TableHead,
   TableRow,
 } from "@material-ui/core";
-import { RouteComponentProps, useHistory } from "react-router-dom";
-import { getInvalidDeliverables } from "./api-service";
-
+import { RouteComponentProps, useHistory, useParams } from "react-router-dom";
+import {
+  getInvalidDeliverables,
+  getInvalidDeliverablesByDate,
+} from "./api-service";
 import InvalidRow from "./InvalidRow";
 import DayGraph from "./DayGraph";
 
@@ -52,6 +54,7 @@ const useStyles = makeStyles({
 const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
   const history = useHistory();
+  const { date } = useParams();
 
   // React state
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
@@ -61,8 +64,14 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const loadRecord = async () => {
     try {
-      const projectDeliverables = await getInvalidDeliverables();
-      setDeliverables(projectDeliverables);
+      if (date) {
+        const projectDeliverables = await getInvalidDeliverablesByDate(date);
+        setDeliverables(projectDeliverables);
+      } else {
+        const projectDeliverables = await getInvalidDeliverables();
+        setDeliverables(projectDeliverables);
+      }
+      console.log("date: " + date);
     } catch (err) {
       if (err.response) {
         //server returned a bad status code

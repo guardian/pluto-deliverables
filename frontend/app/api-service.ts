@@ -56,3 +56,24 @@ export const getInvalidDeliverables = async (): Promise<Deliverable[]> => {
     throw error;
   }
 };
+
+export const getInvalidDeliverablesByDate = async (
+  date: string
+): Promise<Deliverable[]> => {
+  try {
+    const { status, data } = await axios.get<Deliverable[]>(
+      `${API_INVLAID}?date=${date}`
+    );
+
+    if (status === 200) {
+      return data;
+    }
+
+    throw new Error(
+      `Could not fetch invalid deliverables for the given date. ${status}`
+    );
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

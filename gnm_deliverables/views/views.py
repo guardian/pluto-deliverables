@@ -654,7 +654,12 @@ class InvalidAPIList(ListAPIView):
     def get_queryset(self):
         #bundle_id = self.request.GET["project_id"]
         #parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
-        return DeliverableAsset.objects.exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
+        #return DeliverableAsset.objects.exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
+
+        if 'date' in self.request.GET:
+            return DeliverableAsset.objects.filter(access_dt__icontains=self.request.GET["date"]).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
+        else:
+            return DeliverableAsset.objects.exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
 
     def get(self, *args, **kwargs):
         try:
