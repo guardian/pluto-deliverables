@@ -15,10 +15,12 @@ import {
   getInvalidDeliverables,
   getInvalidDeliverablesByDate,
   getInvalidDeliverablesByType,
+  getInvalidDeliverablesByStatus,
 } from "./api-service";
 import InvalidRow from "./InvalidRow";
 import DayGraph from "./DayGraph";
 import TypeGraph from "./TypeGraph";
+import StatusGraph from "./StatusGraph";
 
 interface HeaderTitles {
   label: string;
@@ -56,7 +58,7 @@ const useStyles = makeStyles({
 const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
   const history = useHistory();
-  const { date, type } = useParams();
+  const { date, type, status } = useParams();
 
   // React state
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
@@ -67,11 +69,16 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const loadRecord = async () => {
     try {
       if (date) {
-          const projectDeliverables = await getInvalidDeliverablesByDate(date);
-          setDeliverables(projectDeliverables);
+        const projectDeliverables = await getInvalidDeliverablesByDate(date);
+        setDeliverables(projectDeliverables);
       } else if (type) {
-          const projectDeliverables = await getInvalidDeliverablesByType(type);
-          setDeliverables(projectDeliverables);
+        const projectDeliverables = await getInvalidDeliverablesByType(type);
+        setDeliverables(projectDeliverables);
+      } else if (status) {
+        const projectDeliverables = await getInvalidDeliverablesByStatus(
+          status
+        );
+        setDeliverables(projectDeliverables);
       } else {
         const projectDeliverables = await getInvalidDeliverables();
         setDeliverables(projectDeliverables);
@@ -104,7 +111,7 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       </div>
       <DayGraph />
       <TypeGraph />
-      <div>
+      <StatusGraph />
       <Paper elevation={3}>
         <TableContainer>
           <Table className={classes.table}>
@@ -128,7 +135,6 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           </Table>
         </TableContainer>
       </Paper>
-      </div>
     </>
   );
 };

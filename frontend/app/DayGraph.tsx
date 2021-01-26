@@ -7,7 +7,21 @@ interface GraphProps {}
 
 const DayGraph: React.FC<GraphProps> = (props) => {
   const [invalidCount, setInvalidCount] = useState<
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | undefined
+    | [
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number
+      ]
+    | undefined
   >([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 
   const days = ["Sun", "Mon", "Tues", "Weds", "Thur", "Fri", "Sat"];
@@ -104,14 +118,14 @@ const DayGraph: React.FC<GraphProps> = (props) => {
 
   return (
     <React.Fragment>
-      <div style={{width: "800px", height: "400px", float: "left"}}>
-      <Bar
-        data={data}
-        onElementsClick={(elems) => {
-          console.log("Date clicked: " + dates[elems[0]._index]);
-          history.push(`/invalid/date/${dates[elems[0]._index]}`);
-        }}
-      />
+      <div style={{ width: "800px", height: "400px", float: "left" }}>
+        <Bar
+          data={data}
+          onElementsClick={(elems) => {
+            console.log("Date clicked: " + dates[elems[0]._index]);
+            history.push(`/invalid/date/${dates[elems[0]._index]}`);
+          }}
+        />
       </div>
     </React.Fragment>
   );

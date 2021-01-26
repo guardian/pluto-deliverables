@@ -660,6 +660,8 @@ class InvalidAPIList(ListAPIView):
             return DeliverableAsset.objects.filter(access_dt__icontains=self.request.GET["date"]).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
         elif 'type' in self.request.GET:
             return DeliverableAsset.objects.filter(type=self.request.GET["type"]).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
+        elif 'status' in self.request.GET:
+            return DeliverableAsset.objects.filter(status=self.request.GET["status"])
         else:
             return DeliverableAsset.objects.exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
 
@@ -727,6 +729,25 @@ class CountInvalidByType(APIView):
             type_fifteen = DeliverableAsset.objects.filter(type=15).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
 
             result = [type_one, type_two, type_three, type_four, type_five, type_six, type_seven, type_eight, type_nine, type_ten, type_eleven, type_twelve, type_thirteen, type_fourteen, type_fifteen]
+
+            return Response(result, status=200)
+        except Exception:
+            return Response({"status":"error","detail":"Could not process invalid count."}, status=500)
+
+
+class CountInvalidByStatus(APIView):
+    #authentication_classes = (JwtRestAuth, HmacRestAuth)
+    #permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, *args, **kwargs):
+        try:
+            status_not_ingested = DeliverableAsset.objects.filter(status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED).count()
+            status_transcode_failed = DeliverableAsset.objects.filter(status=DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED).count()
+            status_ingest_failed = DeliverableAsset.objects.filter(status=DELIVERABLE_ASSET_STATUS_INGEST_FAILED).count()
+
+            result = [status_not_ingested, status_transcode_failed, status_ingest_failed]
 
             return Response(result, status=200)
         except Exception:
