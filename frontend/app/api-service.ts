@@ -77,3 +77,24 @@ export const getInvalidDeliverablesByDate = async (
     throw error;
   }
 };
+
+export const getInvalidDeliverablesByType = async (
+    type: string
+): Promise<Deliverable[]> => {
+    try {
+        const { status, data } = await axios.get<Deliverable[]>(
+            `${API_INVLAID}?type=${type}`
+        );
+
+        if (status === 200) {
+            return data;
+        }
+
+        throw new Error(
+            `Could not fetch invalid deliverables for the given type. ${status}`
+        );
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};

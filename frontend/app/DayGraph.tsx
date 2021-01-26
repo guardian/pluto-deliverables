@@ -104,14 +104,15 @@ const DayGraph: React.FC<GraphProps> = (props) => {
 
   return (
     <React.Fragment>
+      <div style={{width: "800px", height: "400px", float: "left"}}>
       <Bar
         data={data}
-        width={600}
         onElementsClick={(elems) => {
           console.log("Date clicked: " + dates[elems[0]._index]);
           history.push(`/invalid/date/${dates[elems[0]._index]}`);
         }}
       />
+      </div>
     </React.Fragment>
   );
 };

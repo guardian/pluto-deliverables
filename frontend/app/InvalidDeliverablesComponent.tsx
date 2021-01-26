@@ -14,9 +14,11 @@ import { RouteComponentProps, useHistory, useParams } from "react-router-dom";
 import {
   getInvalidDeliverables,
   getInvalidDeliverablesByDate,
+  getInvalidDeliverablesByType,
 } from "./api-service";
 import InvalidRow from "./InvalidRow";
 import DayGraph from "./DayGraph";
+import TypeGraph from "./TypeGraph";
 
 interface HeaderTitles {
   label: string;
@@ -54,7 +56,7 @@ const useStyles = makeStyles({
 const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
   const history = useHistory();
-  const { date } = useParams();
+  const { date, type } = useParams();
 
   // React state
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
@@ -65,8 +67,11 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const loadRecord = async () => {
     try {
       if (date) {
-        const projectDeliverables = await getInvalidDeliverablesByDate(date);
-        setDeliverables(projectDeliverables);
+          const projectDeliverables = await getInvalidDeliverablesByDate(date);
+          setDeliverables(projectDeliverables);
+      } else if (type) {
+          const projectDeliverables = await getInvalidDeliverablesByType(type);
+          setDeliverables(projectDeliverables);
       } else {
         const projectDeliverables = await getInvalidDeliverables();
         setDeliverables(projectDeliverables);
@@ -98,6 +103,8 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         <h3 className={classes.sectionHeader}>Invalid Deliverables</h3>
       </div>
       <DayGraph />
+      <TypeGraph />
+      <div>
       <Paper elevation={3}>
         <TableContainer>
           <Table className={classes.table}>
@@ -121,6 +128,7 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           </Table>
         </TableContainer>
       </Paper>
+      </div>
     </>
   );
 };
