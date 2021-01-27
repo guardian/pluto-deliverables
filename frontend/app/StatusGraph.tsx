@@ -54,10 +54,11 @@ const StatusGraph: React.FC<GraphProps> = (props) => {
       <div
         style={{
           width: "400px",
-          height: "150px",
+          height: "180px",
           clear: "right",
           float: "right",
-          marginTop: "50px",
+          marginTop: "30px",
+          marginRight: "50px",
         }}
       >
         <Doughnut
@@ -75,6 +76,7 @@ const StatusGraph: React.FC<GraphProps> = (props) => {
               },
             },
             cutoutPercentage: 80,
+            maintainAspectRatio: false,
           }}
         />
       </div>

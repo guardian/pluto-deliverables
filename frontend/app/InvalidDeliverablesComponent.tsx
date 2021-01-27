@@ -66,7 +66,7 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // Material-UI
   const classes = useStyles();
 
-  const loadRecord = async () => {
+  const loadDeliverables = async () => {
     try {
       if (date) {
         const projectDeliverables = await getInvalidDeliverablesByDate(date);
@@ -98,7 +98,7 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   };
 
   useEffect(() => {
-    loadRecord();
+    loadDeliverables();
   }, []);
 
   return (
@@ -106,12 +106,18 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       <Helmet>
         <title>Invalid Deliverables</title>
       </Helmet>
-      <div>
-        <h3 className={classes.sectionHeader}>Invalid Deliverables</h3>
-      </div>
-      <DayGraph />
-      <TypeGraph />
-      <StatusGraph />
+      <div style={{ fontSize: "25px" }}>Invalid Deliverables</div>
+      <Table>
+        <TableBody>
+          <TableRow>
+            <TableCell>
+              <DayGraph />
+              <TypeGraph />
+              <StatusGraph />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
       <Paper elevation={3}>
         <TableContainer>
           <Table className={classes.table}>

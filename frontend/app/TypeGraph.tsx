@@ -97,7 +97,14 @@ const TypeGraph: React.FC<GraphProps> = (props) => {
 
   return (
     <React.Fragment>
-      <div style={{ width: "400px", height: "150px", float: "right" }}>
+      <div
+        style={{
+          width: "400px",
+          height: "180px",
+          float: "right",
+          marginRight: "50px",
+        }}
+      >
         <Doughnut
           data={data}
           onElementsClick={(elems) => {
@@ -113,6 +120,7 @@ const TypeGraph: React.FC<GraphProps> = (props) => {
               },
             },
             cutoutPercentage: 80,
+            maintainAspectRatio: false,
           }}
         />
       </div>

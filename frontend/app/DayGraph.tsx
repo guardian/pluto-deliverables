@@ -53,11 +53,7 @@ const DayGraph: React.FC<GraphProps> = (props) => {
     ],
     datasets: [
       {
-        backgroundColor: "rgba(255,99,132,0.2)",
-        borderColor: "rgba(255,99,132,1)",
-        borderWidth: 1,
-        hoverBackgroundColor: "rgba(255,99,132,0.4)",
-        hoverBorderColor: "rgba(255,99,132,1)",
+        backgroundColor: "#0052eb",
         data: invalidCount,
       },
     ],
@@ -118,12 +114,38 @@ const DayGraph: React.FC<GraphProps> = (props) => {
 
   return (
     <React.Fragment>
-      <div style={{ width: "800px", height: "400px", float: "left" }}>
+      <div
+        style={{
+          width: "800px",
+          height: "400px",
+          float: "left",
+          marginLeft: "50px",
+        }}
+      >
         <Bar
           data={data}
           onElementsClick={(elems) => {
             console.log("Date clicked: " + dates[elems[0]._index]);
             history.push(`/invalid/date/${dates[elems[0]._index]}`);
+          }}
+          options={{
+            maintainAspectRatio: false,
+            legend: { display: false },
+            scales: {
+              yAxes: [
+                {
+                  ticks: {
+                    beginAtZero: true,
+                    callback: function (value: number) {
+                      if (Number.isInteger(value)) {
+                        return value;
+                      }
+                    },
+                    stepSize: 1,
+                  },
+                },
+              ],
+            },
           }}
         />
       </div>
