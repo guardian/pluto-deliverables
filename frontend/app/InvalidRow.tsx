@@ -24,7 +24,7 @@ const InvalidRow: React.FC<DeliverableRowProps> = (props) => {
   const loadParentBundle = async () => {
     try {
       const response = await axios.get(
-        `/api/bundle/byproject/${props.deliverable.deliverable}`
+        `/api/bundle/bybundleid/${props.deliverable.deliverable}`
       );
       return setParentBundleInfo(response.data);
     } catch (err) {
