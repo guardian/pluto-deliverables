@@ -53,12 +53,12 @@ const StatusGraph: React.FC<GraphProps> = (props) => {
     <React.Fragment>
       <div
         style={{
-          width: "400px",
+          width: "540px",
           height: "180px",
           clear: "right",
           float: "right",
           marginTop: "30px",
-          marginRight: "50px",
+          marginRight: "20px",
         }}
       >
         <Doughnut

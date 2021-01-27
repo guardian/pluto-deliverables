@@ -99,10 +99,10 @@ const TypeGraph: React.FC<GraphProps> = (props) => {
     <React.Fragment>
       <div
         style={{
-          width: "400px",
+          width: "540px",
           height: "180px",
           float: "right",
-          marginRight: "50px",
+          marginRight: "20px",
         }}
       >
         <Doughnut
