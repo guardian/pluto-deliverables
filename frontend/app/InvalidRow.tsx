@@ -80,7 +80,7 @@ const InvalidRow: React.FC<DeliverableRowProps> = (props) => {
                   variant="contained"
                   color="secondary"
                   target="_blank"
-                  href={`/deliverables/project/${props.deliverable.deliverable}`}
+                  href={`/deliverables/bundle/${props.deliverable.deliverable}`}
                 >
                   BUNDLE
                 </Button>
