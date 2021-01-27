@@ -657,13 +657,13 @@ class InvalidAPIList(ListAPIView):
         #return DeliverableAsset.objects.exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
 
         if 'date' in self.request.GET:
-            return DeliverableAsset.objects.filter(access_dt__icontains=self.request.GET["date"]).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
+            return DeliverableAsset.objects.filter(access_dt__icontains=self.request.GET["date"]).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)[0:128]
         elif 'type' in self.request.GET:
-            return DeliverableAsset.objects.filter(type=self.request.GET["type"]).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
+            return DeliverableAsset.objects.filter(type=self.request.GET["type"]).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)[0:128]
         elif 'status' in self.request.GET:
-            return DeliverableAsset.objects.filter(status=self.request.GET["status"])
+            return DeliverableAsset.objects.filter(status=self.request.GET["status"])[0:128]
         else:
-            return DeliverableAsset.objects.exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)
+            return DeliverableAsset.objects.exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)[0:128]
 
     def get(self, *args, **kwargs):
         try:
