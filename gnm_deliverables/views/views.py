@@ -646,15 +646,12 @@ class RetryJobForAsset(APIView):
 
 
 class InvalidAPIList(ListAPIView):
-    #authentication_classes = (JwtRestAuth, HmacRestAuth)
-    #permission_classes = (IsAuthenticated,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     serializer_class = InvalidDeliverableAssetSerializer
 
     def get_queryset(self):
-        #bundle_id = self.request.GET["project_id"]
-        #parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
-
         data_limit = 128
 
         if 'limit' in self.request.GET:
@@ -672,17 +669,13 @@ class InvalidAPIList(ListAPIView):
     def get(self, *args, **kwargs):
         try:
             return super(InvalidAPIList, self).get(*args, **kwargs)
-        except Deliverable.DoesNotExist:
-            return Response({"status": "error", "detail": "Project not known"}, status=404)
-        except KeyError:
-            return Response(
-                {"status": "error", "detail": "you must specify a project_id= query param"},
-                status=400)
+        except Exception:
+            return Response({"status":"error","detail":"Could not load invalid deliverable assets."}, status=500)
 
 
 class CountInvalid(APIView):
-    #authentication_classes = (JwtRestAuth, HmacRestAuth)
-    #permission_classes = (IsAuthenticated,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
@@ -709,8 +702,8 @@ class CountInvalid(APIView):
 
 
 class CountInvalidByType(APIView):
-    #authentication_classes = (JwtRestAuth, HmacRestAuth)
-    #permission_classes = (IsAuthenticated,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 
@@ -740,8 +733,8 @@ class CountInvalidByType(APIView):
 
 
 class CountInvalidByStatus(APIView):
-    #authentication_classes = (JwtRestAuth, HmacRestAuth)
-    #permission_classes = (IsAuthenticated,)
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
 

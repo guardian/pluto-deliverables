@@ -82,7 +82,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
   };
 
   /**
-   * set loading to false if both commission and project info have loaded, or if there is an error
+   * Set loading to false if both commission and project info have loaded, or if there is an error.
    */
   useEffect(() => {
     if ((projectInfo && commissionInfo) || lastError) {
@@ -91,7 +91,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
   }, [projectInfo, commissionInfo, lastError]);
 
   /**
-   * load in data on mount
+   * Load in data on mount.
    */
   useEffect(() => {
     loadCommissionInfo();
@@ -99,7 +99,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
   }, []);
 
   /**
-   * load in data on update
+   * Load in data on update.
    */
   useEffect(() => {
     loadProjectInfo();

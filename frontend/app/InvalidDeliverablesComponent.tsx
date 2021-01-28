@@ -10,7 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@material-ui/core";
-import { RouteComponentProps, useHistory, useParams } from "react-router-dom";
+import { RouteComponentProps, useParams } from "react-router-dom";
 import {
   getInvalidDeliverables,
   getInvalidDeliverablesByDate,
@@ -40,24 +40,10 @@ const useStyles = makeStyles({
   table: {
     maxWidth: "100%",
   },
-  buttonContainer: {
-    display: "grid",
-    gridTemplateColumns: "repeat(10,10%)",
-  },
-  buttons: {
-    marginRight: "0.4rem",
-    marginBottom: "1.2rem",
-    marginTop: "0.625rem",
-  },
-  sectionHeader: {
-    display: "inline",
-    marginRight: "1em",
-  },
 });
 
 const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
-  const history = useHistory();
   const { date, type, status } = useParams();
 
   // React state
@@ -86,7 +72,6 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       console.log("date: " + date);
     } catch (err) {
       if (err.response) {
-        //server returned a bad status code
         if (err.response.data.detail) console.error(err.response.data.detail);
         else return console.error(`Error code ${err.response.status}`);
       } else if (err.request) {
