@@ -111,9 +111,17 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         <TableBody>
           <TableRow>
             <TableCell>
-              <DayGraph />
-              <TypeGraph />
-              <StatusGraph />
+              <div className="graphs">
+                <div className="daygraph">
+                  <DayGraph />
+                </div>
+                <div className="typegraph">
+                  <TypeGraph />
+                </div>
+                <div className="statusgraph">
+                  <StatusGraph />
+                </div>
+              </div>
             </TableCell>
           </TableRow>
         </TableBody>

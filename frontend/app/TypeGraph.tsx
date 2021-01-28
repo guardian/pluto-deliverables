@@ -101,8 +101,6 @@ const TypeGraph: React.FC<GraphProps> = (props) => {
         style={{
           width: "540px",
           height: "180px",
-          float: "right",
-          marginRight: "20px",
         }}
       >
         <Doughnut

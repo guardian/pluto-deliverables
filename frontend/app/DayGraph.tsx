@@ -118,8 +118,6 @@ const DayGraph: React.FC<GraphProps> = (props) => {
         style={{
           width: "800px",
           height: "400px",
-          float: "left",
-          marginLeft: "50px",
         }}
       >
         <Bar

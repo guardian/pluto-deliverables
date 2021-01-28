@@ -55,10 +55,6 @@ const StatusGraph: React.FC<GraphProps> = (props) => {
         style={{
           width: "540px",
           height: "180px",
-          clear: "right",
-          float: "right",
-          marginTop: "30px",
-          marginRight: "20px",
         }}
       >
         <Doughnut
