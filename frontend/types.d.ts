@@ -149,3 +149,33 @@ type PublicationStatus = "Unpublished" | "Published" | "Superceded";
 
 declare module 'react-beforeunload-component';
 declare module "sha1-stream";
+
+interface PlutoCoreResponse<T> {
+    result: T;
+    status: string;
+}
+
+interface PlutoCoreCommission {
+    id: number;
+    title: string;
+    status: string;
+    owner: string;
+    productionOffice: string;
+}
+
+type PlutoCoreCommissionResponse = PlutoCoreResponse<PlutoCoreCommission>;
+
+interface PlutoCoreProject {
+    id: number;
+    projectTypeId: number;
+    title: string;
+    created: string;
+    updated: string;
+    user: string;
+    workingGroupId: number;
+    commissionId: number;
+    status: string;
+    productionOffice: string;
+}
+
+type PlutoCoreProjectResponse = PlutoCoreResponse<PlutoCoreProject>;

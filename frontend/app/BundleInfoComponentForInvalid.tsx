@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { CircularProgress, Grid } from "@material-ui/core";
+import { CircularProgress, Grid, makeStyles } from "@material-ui/core";
 import { People } from "@material-ui/icons";
 import iconCommission from "./static/icon_commission.png";
 import iconProject from "./static/icon_project.png";
@@ -13,30 +13,18 @@ interface BundleInfoComponentProps {
   maxWidth?: string;
 }
 
-interface PlutoCoreProject {
-  id: number;
-  projectTypeId: number;
-  title: string;
-  created: string;
-  updated: string;
-  user: string;
-  workingGroupId: number;
-  commissionId: number;
-  status: string;
-  productionOffice: string;
-}
-
-interface PlutoCoreCommission {
-  id: number;
-  title: string;
-  status: string;
-  owner: string;
-  productionOffice: string;
-}
+const useStyles = makeStyles((theme) => ({
+  inlineIcon: {
+    height: "16px",
+    marginRight: "0.2em",
+    verticalAlign: "middle",
+  },
+}));
 
 const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
   props
 ) => {
+  const classes = useStyles();
   const [projectInfo, setProjectInfo] = useState<PlutoCoreProject | undefined>(
     undefined
   );
@@ -49,11 +37,9 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
 
   const loadCommissionInfo = async () => {
     try {
-      const response = await axios({
-        method: "get",
-        url: `/pluto-core/api/pluto/commission/${props.commissionId}`,
-        baseURL: `/`,
-      });
+      const response = await axios.get<PlutoCoreCommissionResponse>(
+        `../pluto-core/api/pluto/commission/${props.commissionId}`
+      );
       response.data.hasOwnProperty("result")
         ? setCommissionInfo(response.data.result as PlutoCoreCommission)
         : setLastError("Commission data was not valid");
@@ -66,11 +52,9 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
 
   const loadProjectInfo = async () => {
     try {
-      const response = await axios({
-        method: "get",
-        url: `/pluto-core/api/project/${props.projectId}`,
-        baseURL: `/`,
-      });
+      const response = await axios.get<PlutoCoreProjectResponse>(
+        `../pluto-core/api/project/${props.projectId}`
+      );
       response.data.hasOwnProperty("result")
         ? setProjectInfo(response.data.result as PlutoCoreProject)
         : setLastError("Project data was not valid");
@@ -123,11 +107,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
           <>
             <img
               src={iconCommission}
-              style={{
-                height: "16px",
-                marginRight: "0.2em",
-                verticalAlign: "middle",
-              }}
+              className={classes.inlineIcon}
               alt="Commission"
             />
             {commissionInfo.title} ({commissionInfo.productionOffice})
@@ -139,11 +119,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
           <>
             <img
               src={iconProject}
-              style={{
-                height: "16px",
-                marginRight: "0.2em",
-                verticalAlign: "middle",
-              }}
+              className={classes.inlineIcon}
               alt="Project"
             />
             {projectInfo.title} ({projectInfo.productionOffice})
@@ -153,7 +129,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
       <Grid item xs={12} style={{ paddingBottom: 0 }}>
         {projectInfo?.user ? (
           <>
-            <People style={{ marginRight: "0.2em", verticalAlign: "middle" }} />
+            <People className={classes.inlineIcon} />
             {projectInfo.user}
           </>
         ) : null}

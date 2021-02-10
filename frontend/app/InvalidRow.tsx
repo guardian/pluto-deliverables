@@ -57,15 +57,17 @@ const InvalidRow: React.FC<DeliverableRowProps> = (props) => {
   return (
     <TableRow className={props.classes.root}>
       <TableCell>
-        <Typography>{props.deliverable.filename}</Typography>
-        {parentBundleInfo ? (
-          <BundleInfoComponentForInvalid
-            bundleName={parentBundleInfo.project_id}
-            projectId={parentBundleInfo.pluto_core_project_id}
-            commissionId={parentBundleInfo.commission_id}
-            spacing={0}
-          />
-        ) : null}
+        <Typography>
+          {props.deliverable.filename}
+          {parentBundleInfo ? (
+            <BundleInfoComponentForInvalid
+              bundleName={parentBundleInfo.project_id}
+              projectId={parentBundleInfo.pluto_core_project_id}
+              commissionId={parentBundleInfo.commission_id}
+              spacing={0}
+            />
+          ) : null}
+        </Typography>
       </TableCell>
       <TableCell>
         {props.deliverable.atom_id ? (
