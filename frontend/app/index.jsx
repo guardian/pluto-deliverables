@@ -168,7 +168,7 @@ class App extends React.Component {
               )}
             />
             <Route
-              path="/invalid/type/:type"
+              path="/invalid/type/:kind"
               component={(props) => (
                 <InvalidDeliverablesComponent
                   {...props}

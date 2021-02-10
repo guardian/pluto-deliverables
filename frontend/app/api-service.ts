@@ -3,7 +3,7 @@ import axios from "axios";
 const API = "/api";
 const API_DELIVERABLE = `${API}/deliverable`;
 const API_DELIVERABLES = `${API}/deliverables`;
-const API_INVLAID = `${API}/invalid`;
+const API_INVALID = `${API}/invalid`;
 
 export const getProjectDeliverables = async (
   projectId: number
@@ -44,7 +44,7 @@ export const deleteProjectDeliverable = async (
 
 export const getInvalidDeliverables = async (): Promise<Deliverable[]> => {
   try {
-    const { status, data } = await axios.get<Deliverable[]>(`${API_INVLAID}`);
+    const { status, data } = await axios.get<Deliverable[]>(`${API_INVALID}`);
 
     if (status === 200) {
       return data;
@@ -62,7 +62,7 @@ export const getInvalidDeliverablesByDate = async (
 ): Promise<Deliverable[]> => {
   try {
     const { status, data } = await axios.get<Deliverable[]>(
-      `${API_INVLAID}?date=${date}`
+      `${API_INVALID}?date=${date}`
     );
 
     if (status === 200) {
@@ -79,11 +79,11 @@ export const getInvalidDeliverablesByDate = async (
 };
 
 export const getInvalidDeliverablesByType = async (
-  type: string
+  kind: string
 ): Promise<Deliverable[]> => {
   try {
     const { status, data } = await axios.get<Deliverable[]>(
-      `${API_INVLAID}?type=${type}`
+      `${API_INVALID}?type=${kind}`
     );
 
     if (status === 200) {
@@ -104,7 +104,7 @@ export const getInvalidDeliverablesByStatus = async (
 ): Promise<Deliverable[]> => {
   try {
     const { status, data } = await axios.get<Deliverable[]>(
-      `${API_INVLAID}?status=${status_input}`
+      `${API_INVALID}?status=${status_input}`
     );
 
     if (status === 200) {

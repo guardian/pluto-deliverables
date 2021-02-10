@@ -6,25 +6,23 @@ import { useHistory } from "react-router-dom";
 interface GraphProps {}
 
 const TypeGraph: React.FC<GraphProps> = (props) => {
-  const [invalidCount, setInvalidCount] = useState<
-    [
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number
-    ]
-  >([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const [invalidCount, setInvalidCount] = useState<number[]>([
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  ]);
 
   const legendlables = [
     "Full Master",
@@ -43,7 +41,7 @@ const TypeGraph: React.FC<GraphProps> = (props) => {
     "Migrated Master",
     "Podcast Master",
   ];
-  let total = invalidCount.reduce(
+  const total = invalidCount.reduce(
     (accumulator, currentValue) => accumulator + currentValue
   );
   const labelsvalues = invalidCount.map(function (value, i) {
@@ -96,33 +94,31 @@ const TypeGraph: React.FC<GraphProps> = (props) => {
   }, []);
 
   return (
-    <React.Fragment>
-      <div
-        style={{
-          width: "540px",
-          height: "180px",
+    <div
+      style={{
+        width: "540px",
+        height: "180px",
+      }}
+    >
+      <Doughnut
+        data={data}
+        onElementsClick={(elems) => {
+          console.log("Type clicked: " + types[elems[0]._index]);
+          history.push(`/invalid/type/${types[elems[0]._index]}`);
         }}
-      >
-        <Doughnut
-          data={data}
-          onElementsClick={(elems) => {
-            console.log("Type clicked: " + types[elems[0]._index]);
-            history.push(`/invalid/type/${types[elems[0]._index]}`);
-          }}
-          options={{
-            legend: {
-              position: "right",
-              labels: {
-                filter: (legendItem: any, data: any) =>
-                  data.datasets[0].data[legendItem.index] != 0,
-              },
+        options={{
+          legend: {
+            position: "right",
+            labels: {
+              filter: (legendItem: any, data: any) =>
+                data.datasets[0].data[legendItem.index] != 0,
             },
-            cutoutPercentage: 80,
-            maintainAspectRatio: false,
-          }}
-        />
-      </div>
-    </React.Fragment>
+          },
+          cutoutPercentage: 80,
+          maintainAspectRatio: false,
+        }}
+      />
+    </div>
   );
 };
 

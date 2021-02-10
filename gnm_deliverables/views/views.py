@@ -37,6 +37,7 @@ from gnm_deliverables.models import Deliverable, DeliverableAsset
 from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DenormalisedAssetSerializer, SearchRequestSerializer, InvalidDeliverableAssetSerializer
 from gnm_deliverables.vs_notification import VSNotification
 from datetime import datetime, timedelta
+from django.db.models import Count
 
 logger = logging.getLogger(__name__)
 
@@ -669,8 +670,9 @@ class InvalidAPIList(ListAPIView):
     def get(self, *args, **kwargs):
         try:
             return super(InvalidAPIList, self).get(*args, **kwargs)
-        except Exception:
-            return Response({"status":"error","detail":"Could not load invalid deliverable assets."}, status=500)
+        except Exception as e:
+            logger.exception("Could not load invalid deliverable assets: {0}".format(str(e)))
+            return Response({"status":"error","detail":"Could not load invalid deliverable assets: {0}".format(str(e))}, status=500)
 
 
 class CountInvalid(APIView):
@@ -681,20 +683,7 @@ class CountInvalid(APIView):
 
     def get(self, *args, **kwargs):
         try:
-            day_one = DeliverableAsset.objects.filter(access_dt__icontains=datetime.today().strftime('%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_two = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(1)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_three = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(2)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_four = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(3)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_five = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(4)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_six = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(5)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_seven = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(6)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_eight = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(7)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_nine = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(8)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_ten = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(9)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_eleven = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(10)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            day_twelve = DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(11)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-
-            result = [day_twelve, day_eleven, day_ten, day_nine, day_eight, day_seven, day_six, day_five, day_four, day_three, day_two, day_one]
+            result = [ DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(i)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count() for i in range(11, -1, -1)]
 
             return Response(result, status=200)
         except Exception:
@@ -709,23 +698,7 @@ class CountInvalidByType(APIView):
 
     def get(self, *args, **kwargs):
         try:
-            type_one = DeliverableAsset.objects.filter(type=1).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_two = DeliverableAsset.objects.filter(type=2).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_three = DeliverableAsset.objects.filter(type=3).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_four = DeliverableAsset.objects.filter(type=4).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_five = DeliverableAsset.objects.filter(type=5).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_six = DeliverableAsset.objects.filter(type=6).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_seven = DeliverableAsset.objects.filter(type=7).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_eight = DeliverableAsset.objects.filter(type=8).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_nine = DeliverableAsset.objects.filter(type=9).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_ten = DeliverableAsset.objects.filter(type=10).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_eleven = DeliverableAsset.objects.filter(type=11).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_twelve = DeliverableAsset.objects.filter(type=12).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_thirteen = DeliverableAsset.objects.filter(type=13).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_fourteen = DeliverableAsset.objects.filter(type=14).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-            type_fifteen = DeliverableAsset.objects.filter(type=15).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count()
-
-            result = [type_one, type_two, type_three, type_four, type_five, type_six, type_seven, type_eight, type_nine, type_ten, type_eleven, type_twelve, type_thirteen, type_fourteen, type_fifteen]
+            result = [ DeliverableAsset.objects.filter(type=i).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count() for i in range(1, 16, 1)]
 
             return Response(result, status=200)
         except Exception:
@@ -740,12 +713,9 @@ class CountInvalidByStatus(APIView):
 
     def get(self, *args, **kwargs):
         try:
-            status_not_ingested = DeliverableAsset.objects.filter(status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED).count()
-            status_transcode_failed = DeliverableAsset.objects.filter(status=DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED).count()
-            status_ingest_failed = DeliverableAsset.objects.filter(status=DELIVERABLE_ASSET_STATUS_INGEST_FAILED).count()
-
-            result = [status_not_ingested, status_transcode_failed, status_ingest_failed]
+            result = DeliverableAsset.objects.values("status").annotate(Count("id"))
 
             return Response(result, status=200)
-        except Exception:
-            return Response({"status":"error","detail":"Could not process invalid count."}, status=500)
+        except Exception as e:
+            logger.exception("Could not process invalid count: {0}".format(str(e)))
+            return Response({"status":"error","detail":"Could not process invalid count: {0}".format(str(e))}, status=500)

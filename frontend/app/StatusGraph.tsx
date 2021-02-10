@@ -6,11 +6,7 @@ import { useHistory } from "react-router-dom";
 interface GraphProps {}
 
 const StatusGraph: React.FC<GraphProps> = (props) => {
-  const [invalidCount, setInvalidCount] = useState<[number, number, number]>([
-    0,
-    0,
-    0,
-  ]);
+  const [invalidCount, setInvalidCount] = useState<number[]>([0, 0, 0]);
 
   const legendlables = ["Not Ingested", "Transcode Failed", "Ingest Failed"];
   let total = invalidCount.reduce(
@@ -37,7 +33,20 @@ const StatusGraph: React.FC<GraphProps> = (props) => {
   const loadInvalidCount = async () => {
     try {
       const response = await axios.get(`/api/invalid/countbystatus`);
-      return setInvalidCount(response.data);
+      let i;
+      let data_to_return = [0, 0, 0];
+      for (i = 0; i < response.data.length; i++) {
+        if (response.data[i].status == 0) {
+          data_to_return[0] = response.data[i].id__count;
+        }
+        if (response.data[i].status == 6) {
+          data_to_return[1] = response.data[i].id__count;
+        }
+        if (response.data[i].status == 3) {
+          data_to_return[2] = response.data[i].id__count;
+        }
+      }
+      return setInvalidCount(data_to_return);
     } catch (err) {
       console.error("Could not load in invalid count data: ", err);
     }

@@ -40,11 +40,64 @@ const useStyles = makeStyles({
   table: {
     maxWidth: "100%",
   },
+  page_title: {
+    fontSize: "25px",
+  },
+
+  graphs: {
+    display: "grid",
+    gridTemplateColumns: "55% 45%",
+    gridTemplateRows: "200px 200px",
+    "@media only screen and (max-width: 1490px)": {
+      display: "grid",
+      gridTemplateColumns: "50% 50%",
+      gridTemplateRows: "400px 200px",
+    },
+  },
+  daygraph: {
+    gridColumnStart: 1,
+    gridColumnEnd: 1,
+    gridRowStart: 1,
+    gridRowEnd: 2,
+    "@media only screen and (max-width: 1490px)": {
+      gridColumnStart: 1,
+      gridColumnEnd: 2,
+      gridRowStart: 1,
+      gridRowEnd: 1,
+    },
+  },
+  typegraph: {
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    gridRowStart: 1,
+    gridRowEnd: 1,
+    "@media only screen and (max-width: 1490px)": {
+      gridColumnStart: 1,
+      gridColumnEnd: 1,
+      gridRowStart: 2,
+      gridRowEnd: 2,
+      marginTop: "20px",
+    },
+  },
+  statusgraph: {
+    gridColumnStart: 2,
+    gridColumnEnd: 2,
+    gridRowStart: 2,
+    gridRowEnd: 2,
+    marginTop: "16px",
+    "@media only screen and (max-width: 1490px)": {
+      gridColumnStart: 2,
+      gridColumnEnd: 2,
+      gridRowStart: 2,
+      gridRowEnd: 2,
+      marginTop: "20px",
+    },
+  },
 });
 
 const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
-  const { date, type, status } = useParams();
+  const { date, kind, status } = useParams();
 
   // React state
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
@@ -57,8 +110,8 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       if (date) {
         const projectDeliverables = await getInvalidDeliverablesByDate(date);
         setDeliverables(projectDeliverables);
-      } else if (type) {
-        const projectDeliverables = await getInvalidDeliverablesByType(type);
+      } else if (kind) {
+        const projectDeliverables = await getInvalidDeliverablesByType(kind);
         setDeliverables(projectDeliverables);
       } else if (status) {
         const projectDeliverables = await getInvalidDeliverablesByStatus(
@@ -69,7 +122,6 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         const projectDeliverables = await getInvalidDeliverables();
         setDeliverables(projectDeliverables);
       }
-      console.log("date: " + date);
     } catch (err) {
       if (err.response) {
         if (err.response.data.detail) console.error(err.response.data.detail);
@@ -91,19 +143,19 @@ const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       <Helmet>
         <title>Invalid Deliverables</title>
       </Helmet>
-      <div style={{ fontSize: "25px" }}>Invalid Deliverables</div>
+      <div className={classes.page_title}>Invalid Deliverables</div>
       <Table>
         <TableBody>
           <TableRow>
             <TableCell>
-              <div className="graphs">
-                <div className="daygraph">
+              <div className={classes.graphs}>
+                <div className={classes.daygraph}>
                   <DayGraph />
                 </div>
-                <div className="typegraph">
+                <div className={classes.typegraph}>
                   <TypeGraph />
                 </div>
-                <div className="statusgraph">
+                <div className={classes.statusgraph}>
                   <StatusGraph />
                 </div>
               </div>

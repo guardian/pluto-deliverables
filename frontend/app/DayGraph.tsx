@@ -6,23 +6,20 @@ import { useHistory } from "react-router-dom";
 interface GraphProps {}
 
 const DayGraph: React.FC<GraphProps> = (props) => {
-  const [invalidCount, setInvalidCount] = useState<
-    | [
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number
-      ]
-    | undefined
-  >([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const [invalidCount, setInvalidCount] = useState<number[]>([
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  ]);
 
   const days = ["Sun", "Mon", "Tues", "Weds", "Thur", "Fri", "Sat"];
 
@@ -113,7 +110,7 @@ const DayGraph: React.FC<GraphProps> = (props) => {
   }, []);
 
   return (
-    <React.Fragment>
+    <>
       <div
         style={{
           width: "800px",
@@ -147,7 +144,7 @@ const DayGraph: React.FC<GraphProps> = (props) => {
           }}
         />
       </div>
-    </React.Fragment>
+    </>
   );
 };
 
