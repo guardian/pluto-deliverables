@@ -16,6 +16,7 @@ import SystemNotification from "./SystemNotification";
 import { Helmet } from "react-helmet";
 import AssetSearchComponent from "./AssetSearchComponent";
 import BundleRedirect from "./BundleRedirect";
+import InvalidDeliverablesComponent from "./InvalidDeliverablesComponent";
 
 require("./app.css");
 
@@ -156,6 +157,42 @@ class App extends React.Component {
             <Route
               path="/project/:projectid"
               component={ProjectDeliverablesComponent}
+            />
+            <Route
+              path="/invalid/date/:date"
+              component={(props) => (
+                <InvalidDeliverablesComponent
+                  {...props}
+                  key={window.location.pathname}
+                />
+              )}
+            />
+            <Route
+              path="/invalid/type/:kind"
+              component={(props) => (
+                <InvalidDeliverablesComponent
+                  {...props}
+                  key={window.location.pathname}
+                />
+              )}
+            />
+            <Route
+              path="/invalid/status/:status"
+              component={(props) => (
+                <InvalidDeliverablesComponent
+                  {...props}
+                  key={window.location.pathname}
+                />
+              )}
+            />
+            <Route
+              path="/invalid"
+              component={(props) => (
+                <InvalidDeliverablesComponent
+                  {...props}
+                  key={window.location.pathname}
+                />
+              )}
             />
             <Route path="/bundle/:bundleId" component={BundleRedirect} />
             <Route path="/search" component={AssetSearchComponent} />

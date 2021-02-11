@@ -36,6 +36,8 @@ from gnm_deliverables.hmac_auth_backend import HmacRestAuth
 from gnm_deliverables.models import Deliverable, DeliverableAsset
 from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DenormalisedAssetSerializer, SearchRequestSerializer
 from gnm_deliverables.vs_notification import VSNotification
+from datetime import datetime, timedelta
+from django.db.models import Count
 
 logger = logging.getLogger(__name__)
 
@@ -642,3 +644,78 @@ class RetryJobForAsset(APIView):
         except Exception as e:
             logger.error("An error occurred when attempting to retry job {0} for asset {1}: {2}".format(job_id , asset_id, str(e)))
             return Response({"status": "error", "detail": str(e)}, status=500)
+
+
+class InvalidAPIList(ListAPIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    serializer_class = DeliverableAssetSerializer
+
+    def get_queryset(self):
+        data_limit = 128
+
+        if 'limit' in self.request.GET:
+            data_limit = int(self.request.GET["limit"])
+
+        if 'date' in self.request.GET:
+            return DeliverableAsset.objects.filter(access_dt__icontains=self.request.GET["date"]).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)[0:data_limit]
+        elif 'type' in self.request.GET:
+            return DeliverableAsset.objects.filter(type=self.request.GET["type"]).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)[0:data_limit]
+        elif 'status' in self.request.GET:
+            return DeliverableAsset.objects.filter(status=self.request.GET["status"])[0:data_limit]
+        else:
+            return DeliverableAsset.objects.exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING)[0:data_limit]
+
+    def get(self, *args, **kwargs):
+        try:
+            return super(InvalidAPIList, self).get(*args, **kwargs)
+        except Exception as e:
+            logger.exception("Could not load invalid deliverable assets: {0}".format(str(e)))
+            return Response({"status":"error","detail":"Could not load invalid deliverable assets: {0}".format(str(e))}, status=500)
+
+
+class CountInvalid(APIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, *args, **kwargs):
+        try:
+            result = [ DeliverableAsset.objects.filter(access_dt__icontains=datetime.strftime((datetime.now() - timedelta(i)), '%Y-%m-%d')).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count() for i in range(11, -1, -1)]
+
+            return Response(result, status=200)
+        except Exception:
+            return Response({"status":"error","detail":"Could not process invalid count."}, status=500)
+
+
+class CountInvalidByType(APIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, *args, **kwargs):
+        try:
+            result = [ DeliverableAsset.objects.filter(type=i).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTING).exclude(status=DELIVERABLE_ASSET_STATUS_INGESTED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODED).exclude(status=DELIVERABLE_ASSET_STATUS_TRANSCODING).count() for i in range(1, 16, 1)]
+
+            return Response(result, status=200)
+        except Exception:
+            return Response({"status":"error","detail":"Could not process invalid count."}, status=500)
+
+
+class CountInvalidByStatus(APIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+
+    def get(self, *args, **kwargs):
+        try:
+            result = DeliverableAsset.objects.values("status").annotate(Count("id"))
+
+            return Response(result, status=200)
+        except Exception as e:
+            logger.exception("Could not process invalid count: {0}".format(str(e)))
+            return Response({"status":"error","detail":"Could not process invalid count: {0}".format(str(e))}, status=500)

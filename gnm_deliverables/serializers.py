@@ -31,7 +31,7 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
                   'deliverable', 'status', 'type_string', 'atom_id',
                   'size_string', 'status_string', 'changed_string',
                   'gnm_website_master', 'youtube_master', 'DailyMotion_master',
-                  'mainstream_master']
+                  'mainstream_master', 'absolute_path']
         read_only_fields = ['id', 'filename', 'size', 'access_dt', 'modified_dt',
                             'changed_dt', 'job_id item_id', 'deliverable']
 
