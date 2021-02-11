@@ -16,12 +16,13 @@ import {
   InputLabel,
 } from "@material-ui/core";
 import { useHistory, RouteComponentProps } from "react-router-dom";
-import CommonMaster from "./CommonMaster";
+import CopyingMaster from "./CopyingMaster";
 import {
   getDeliverableDailymotion,
   createDailymotionDeliverable,
   updateDailymotionDeliverable,
   deleteDailymotionDeliverable,
+  getDeliverableYoutube,
 } from "../utils/master-api-service";
 import SystemNotification, {
   SystemNotificationKind,
@@ -102,8 +103,28 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { projectid, assetid } = props.match.params;
+  const [youtubeMaster, setYoutubeMaster] = useState<YoutubeMaster>({
+    youtube_id: "",
+    youtube_title: "",
+    youtube_description: "",
+    youtube_tags: [],
+    publication_date: "",
+  });
 
   useEffect(() => {
+    const loadYoutubeMaster = async () => {
+      try {
+        const youtubeDeliverable = await getDeliverableYoutube(
+          projectid,
+          assetid
+        );
+        setYoutubeMaster(youtubeDeliverable);
+      } catch (error) {
+        if (error) {
+          console.error("Failed to load Asset Youtube Master", error);
+        }
+      }
+    };
     const loadDailymotionMaster = async () => {
       try {
         const dailymotionDeliverable = await getDeliverableDailymotion(
@@ -121,6 +142,7 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
       setIsLoading(false);
     };
 
+    loadYoutubeMaster();
     setIsLoading(true);
     loadDailymotionMaster();
   }, []);
@@ -235,6 +257,24 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
     );
   }
 
+  const onCopyButton = (property: string) => {
+    if (property === "title") {
+      setMaster({ ...master, daily_motion_title: youtubeMaster.youtube_title });
+      return;
+    }
+    if (property === "description") {
+      setMaster({
+        ...master,
+        daily_motion_description: youtubeMaster.youtube_description,
+      });
+      return;
+    }
+    if (property === "tags") {
+      setMaster({ ...master, daily_motion_tags: youtubeMaster.youtube_tags });
+      return;
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -275,7 +315,7 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
             ""
           )}
 
-          <CommonMaster
+          <CopyingMaster
             prefix="Dailymotion"
             fields={{
               title: master.daily_motion_title,
@@ -284,6 +324,7 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
             }}
             onChange={onCommonMasterChanged}
             isDirty={isDirty}
+            onButton={onCopyButton}
           />
 
           <InputLabel htmlFor="dm-channel-selector">Channel</InputLabel>
