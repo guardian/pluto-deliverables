@@ -64,7 +64,6 @@ class Deliverable(models.Model):
                 deliverable=self,
                 size=f.size,
                 modified_dt=f.modified_dt,
-                status=DELIVERABLE_ASSET_STATUS_NOT_INGESTED,
                 defaults=dict(
                     access_dt=f.access_dt,
                     changed_dt=f.changed_dt,
