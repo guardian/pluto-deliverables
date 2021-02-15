@@ -1,6 +1,7 @@
 import React from "react";
-import { Button, makeStyles, TextField } from "@material-ui/core";
+import { makeStyles, TextField, Tooltip, IconButton } from "@material-ui/core";
 import ChipInput from "../Form/ChipInput";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
 
 interface CopyingMasterFields {
   title: string;
@@ -20,7 +21,7 @@ interface CopyingMasterProps {
 const useStyles = makeStyles({
   grid_holder: {
     display: "grid",
-    gridTemplateColumns: "535px 265px",
+    gridTemplateColumns: "740px 40px",
   },
   grid_1: {
     gridColumnStart: 1,
@@ -65,13 +66,11 @@ const CopyingMaster: React.FC<CopyingMasterProps> = (props) => {
           ></TextField>
         </div>
         <div className={classes.grid_2}>
-          <Button
-            onClick={() => props.onButton("title")}
-            variant="contained"
-            color="primary"
-          >
-            Copy from YouTube Master
-          </Button>
+          <Tooltip title="Copy from Youtube master">
+            <IconButton onClick={() => props.onButton("title")}>
+              <FileCopyIcon />
+            </IconButton>
+          </Tooltip>
         </div>
         <div className={classes.grid_1}>
           <TextField
@@ -87,13 +86,11 @@ const CopyingMaster: React.FC<CopyingMasterProps> = (props) => {
           ></TextField>
         </div>
         <div className={classes.description_button}>
-          <Button
-            onClick={() => props.onButton("description")}
-            variant="contained"
-            color="primary"
-          >
-            Copy from YouTube Master
-          </Button>
+          <Tooltip title="Copy from Youtube master">
+            <IconButton onClick={() => props.onButton("description")}>
+              <FileCopyIcon />
+            </IconButton>
+          </Tooltip>
         </div>
         <div className={classes.grid_1}>
           <ChipInput
@@ -104,13 +101,11 @@ const CopyingMaster: React.FC<CopyingMasterProps> = (props) => {
           ></ChipInput>
         </div>
         <div className={classes.grid_2}>
-          <Button
-            onClick={() => props.onButton("tags")}
-            variant="contained"
-            color="primary"
-          >
-            Copy from YouTube Master
-          </Button>
+          <Tooltip title="Copy from Youtube master">
+            <IconButton onClick={() => props.onButton("tags")}>
+              <FileCopyIcon />
+            </IconButton>
+          </Tooltip>
         </div>
       </div>
     </>
