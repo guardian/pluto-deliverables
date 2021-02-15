@@ -14,12 +14,13 @@ import {
   DialogActions,
 } from "@material-ui/core";
 import { useHistory, RouteComponentProps } from "react-router-dom";
-import CommonMaster from "./CommonMaster";
+import CopyingMaster from "./CopyingMaster";
 import {
   getDeliverableMainstream,
   createMainstreamDeliverable,
   updateMainstreamDeliverable,
   deleteMainstreamDeliverable,
+  getDeliverableYoutube,
 } from "../utils/master-api-service";
 import SystemNotification, {
   SystemNotificationKind,
@@ -96,8 +97,28 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { projectid, assetid } = props.match.params;
+  const [youtubeMaster, setYoutubeMaster] = useState<YoutubeMaster>({
+    youtube_id: "",
+    youtube_title: "",
+    youtube_description: "",
+    youtube_tags: [],
+    publication_date: "",
+  });
 
   useEffect(() => {
+    const loadYoutubeMaster = async () => {
+      try {
+        const youtubeDeliverable = await getDeliverableYoutube(
+          projectid,
+          assetid
+        );
+        setYoutubeMaster(youtubeDeliverable);
+      } catch (error) {
+        if (error) {
+          console.error("Failed to load Asset Youtube Master", error);
+        }
+      }
+    };
     const loadMainstreamMaster = async () => {
       try {
         const mainstreamDeliverable = await getDeliverableMainstream(
@@ -115,6 +136,7 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
       setIsLoading(false);
     };
 
+    loadYoutubeMaster();
     setIsLoading(true);
     loadMainstreamMaster();
   }, []);
@@ -218,6 +240,24 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
     );
   }
 
+  const onCopyButton = (property: string) => {
+    if (property === "title") {
+      setMaster({ ...master, mainstream_title: youtubeMaster.youtube_title });
+      return;
+    }
+    if (property === "description") {
+      setMaster({
+        ...master,
+        mainstream_description: youtubeMaster.youtube_description,
+      });
+      return;
+    }
+    if (property === "tags") {
+      setMaster({ ...master, mainstream_tags: youtubeMaster.youtube_tags });
+      return;
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -245,7 +285,7 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
             ""
           )}
 
-          <CommonMaster
+          <CopyingMaster
             prefix="Mainstream"
             fields={{
               title: master.mainstream_title,
@@ -254,7 +294,8 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
             }}
             onChange={onCommonMasterChanged}
             isDirty={isDirty}
-          ></CommonMaster>
+            onButton={onCopyButton}
+          ></CopyingMaster>
 
           <FormControlLabel
             control={
