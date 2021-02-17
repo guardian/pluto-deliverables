@@ -52,7 +52,7 @@ class Command(BaseCommand):
                             asset[5] = asset[5] - 5
                     # Add 40 to the score of items with an online item id.
                     for asset in assets_with_issue_weighted:
-                        if asset[3] != '':
+                        if asset[3] is not None:
                             asset[5] = asset[5] + 40
                     # Sort the list by score
                     assets_with_issue_weighted.sort(key=lambda x: x[5], reverse=True)
