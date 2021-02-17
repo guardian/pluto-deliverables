@@ -31,7 +31,7 @@ class Command(BaseCommand):
                     print("Size: {0}".format(asset.size))
                     print("Version: {0}".format(asset.version))
                     assets_with_issue_weighted.append([asset.id, asset.size, asset.version, asset.online_item_id, DELIVERABLE_ASSET_STATUSES_DICT.get(asset.status), 0])
-                if path['absolute_path'] != '':
+                if path['absolute_path'] is not None:
                     # Set score depending on status
                     for asset in assets_with_issue_weighted:
                         if asset[4] == "Ingested":
