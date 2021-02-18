@@ -321,8 +321,7 @@ class DeliverableAsset(models.Model):
                            passwd=settings.VIDISPINE_PASSWORD)
             #vs_job_data = vs_api.request("/job/{0}/re-run".format(job_id), method="POST")
             vs_job_data = vs_api.request("/item/{0}/shape/essence?uri=file://{1}&priority=MEDIUM&tag=original&thumbnails=false&no-transcode=true&no-mediacheck=false&jobMetadata={{import_source=pluto-deliverables,project_id={2},asset_id={3}}}".format(current_item.name, self.absolute_path.replace(" ","%2520"), str(self.deliverable.pluto_core_project_id), str(self.id)), method="POST")
-            print(vs_job_data)
-
+            logger.info('Data from Vidispine API request: {0}'.format(vs_job_data))
         else:
             import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
                                                       priority="MEDIUM",
@@ -333,9 +332,9 @@ class DeliverableAsset(models.Model):
                                                           "project_id": str(self.deliverable.pluto_core_project_id),
                                                           "asset_id": str(self.id)
                                                       })
-        self.job_id = import_job.name
-        if commit:
-            self.save()
+            self.job_id = import_job.name
+            if commit:
+                self.save()
 
     def create_proxy(self, priority='MEDIUM'):
         """
