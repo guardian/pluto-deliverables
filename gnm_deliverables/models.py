@@ -28,6 +28,7 @@ from .files import get_path_for_deliverable, find_files_for_deliverable, create_
     get_local_path_for_deliverable, create_folder_for_deliverable
 from .templatetags.deliverable_tags import sizeof_fmt
 from .transcodepreset import TranscodePresetFinder
+from gnmvidispine.vidispine_api import VSApi
 logger = logging.getLogger(__name__)
 
 
@@ -311,10 +312,17 @@ class DeliverableAsset(models.Model):
 
         #run_as should be taken care of by the VSItem base class, initated from self.item
         if self.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or self.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
-            key_words = {"priority": "MEDIUM", "essence": True, "thumbnails": False, "jobMetadata": {"import_source": "pluto-deliverables", "project_id": str(self.deliverable.pluto_core_project_id), "asset_id": str(self.id)},  "no-transcode": True, "no-mediacheck": True}
-            import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
-                                                      **key_words
-                                                      )
+            #key_words = {"priority": "MEDIUM", "essence": True, "thumbnails": False, "jobMetadata": {"import_source": "pluto-deliverables", "project_id": str(self.deliverable.pluto_core_project_id), "asset_id": str(self.id)},  "no-transcode": True, "no-mediacheck": True}
+            #import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
+            #                                          **key_words
+            #                                          )
+            vs_api = VSApi(url=settings.VIDISPINE_URL,
+                           user=settings.VIDISPINE_USER,
+                           passwd=settings.VIDISPINE_PASSWORD)
+            #vs_job_data = vs_api.request("/job/{0}/re-run".format(job_id), method="POST")
+            vs_job_data = vs_api.request("/item/{0}/shape/essence?uri={1}&priority=MEDIUM&tag=original&thumbnails=false&no-transcod=true&no-mediacheck=false&jobMetadata={import_source=pluto-deliverables,project_id={2},asset_id={3}}".format(current_item.name, self.absolute_path.replace(" ","%20"), str(self.deliverable.pluto_core_project_id), str(self.id)), method="POST")
+            print(vs_job_data)
+
         else:
             import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
                                                       priority="MEDIUM",
