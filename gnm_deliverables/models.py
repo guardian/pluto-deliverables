@@ -320,7 +320,7 @@ class DeliverableAsset(models.Model):
                            user=settings.VIDISPINE_USER,
                            passwd=settings.VIDISPINE_PASSWORD)
             #vs_job_data = vs_api.request("/job/{0}/re-run".format(job_id), method="POST")
-            vs_job_data = vs_api.request("/item/{0}/shape/essence?uri={1}&priority=MEDIUM&tag=original&thumbnails=false&no-transcod=true&no-mediacheck=false&jobMetadata={import_source=pluto-deliverables,project_id={2},asset_id={3}}".format(current_item.name, self.absolute_path.replace(" ","%20"), str(self.deliverable.pluto_core_project_id), str(self.id)), method="POST")
+            vs_job_data = vs_api.request("/item/{0}/shape/essence?uri={1}&priority=MEDIUM&tag=original&thumbnails=false&no-transcod=true&no-mediacheck=false&jobMetadata={{import_source=pluto-deliverables,project_id={2},asset_id={3}}}".format(current_item.name, self.absolute_path.replace(" ","%20"), str(self.deliverable.pluto_core_project_id), str(self.id)), method="POST")
             print(vs_job_data)
 
         else:
