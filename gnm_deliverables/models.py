@@ -312,16 +312,12 @@ class DeliverableAsset(models.Model):
 
         #run_as should be taken care of by the VSItem base class, initated from self.item
         if self.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or self.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
-            #key_words = {"priority": "MEDIUM", "essence": True, "thumbnails": False, "jobMetadata": {"import_source": "pluto-deliverables", "project_id": str(self.deliverable.pluto_core_project_id), "asset_id": str(self.id)},  "no-transcode": True, "no-mediacheck": True}
-            #import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
-            #                                          **key_words
-            #                                          )
             vs_api = VSApi(url=settings.VIDISPINE_URL,
                            user=settings.VIDISPINE_USER,
                            passwd=settings.VIDISPINE_PASSWORD)
-            #vs_job_data = vs_api.request("/job/{0}/re-run".format(job_id), method="POST")
             vs_job_data = vs_api.request("/item/{0}/shape/essence?uri=file://{1}&priority=MEDIUM&tag=original&thumbnails=false&no-transcode=true&no-mediacheck=false&jobMetadata={{import_source=pluto-deliverables,project_id={2},asset_id={3}}}".format(current_item.name, self.absolute_path.replace(" ","%2520"), str(self.deliverable.pluto_core_project_id), str(self.id)), method="POST")
             logger.info('Data from Vidispine API request: {0}'.format(vs_job_data))
+            self.job_id = vs_job_data.find("{http://xml.vidispine.com/schema/vidispine}jobId").text
         else:
             import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
                                                       priority="MEDIUM",
@@ -333,8 +329,8 @@ class DeliverableAsset(models.Model):
                                                           "asset_id": str(self.id)
                                                       })
             self.job_id = import_job.name
-            if commit:
-                self.save()
+        if commit:
+            self.save()
 
     def create_proxy(self, priority='MEDIUM'):
         """
