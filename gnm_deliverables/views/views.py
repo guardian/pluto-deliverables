@@ -400,6 +400,8 @@ class VSNotifyView(APIView):
             logger.warning("{0}: duration_seconds value '{1}' could not be converted to float".format(itemId, vs_item.get("durationSeconds")))
         except VSException as e:
             logger.warning("Could not get extra metadata for {0} from Vidispine: {1}".format(itemId, str(e)))
+        except Exception as e:
+            logger.warning("Could not get extra metadata for {0} from Vidispine: {1}".format(itemId, str(e)))
 
         try:
             ## Search only on the job id, that way we will pick up ones that were initiated by atomresponder too!
@@ -423,7 +425,7 @@ class VSNotifyView(APIView):
                 asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
             asset.save()
         elif content.status == "FINISHED":
-            logger.debug("We got to the point when it should have been proccessed as finished.")
+            logger.debug("We got to the point when it should have been processed as finished.")
             if content.type == "TRANSCODE":
                 asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
                 try:
