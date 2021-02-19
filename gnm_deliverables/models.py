@@ -315,7 +315,7 @@ class DeliverableAsset(models.Model):
             vs_api = VSApi(url=settings.VIDISPINE_URL,
                            user=settings.VIDISPINE_USER,
                            passwd=settings.VIDISPINE_PASSWORD)
-            vs_job_data = vs_api.request("/item/{0}/shape/essence?uri=file://{1}&priority=MEDIUM&tag=original&thumbnails=false&no-transcode=true&no-mediacheck=false&jobmetadata=import_source%3dpluto-deliverables&jobmetadata=project_id%3d{2}&jobmetadata=asset_id%3d{3}".format(current_item.name, self.absolute_path.replace(" ","%2520"), str(self.deliverable.pluto_core_project_id), str(self.id)), method="POST")
+            vs_job_data = vs_api.request("/item/{0}/shape/essence?uri=file://{1}&priority=MEDIUM&tag=original&createThumbnails=false&no-transcode=true&jobmetadata=import_source%3dpluto-deliverables&jobmetadata=project_id%3d{2}&jobmetadata=asset_id%3d{3}".format(current_item.name, self.absolute_path.replace(" ","%2520"), str(self.deliverable.pluto_core_project_id), str(self.id)), method="POST")
             logger.info('Data from Vidispine API request: {0}'.format(vs_job_data))
             self.job_id = vs_job_data.find("{http://xml.vidispine.com/schema/vidispine}jobId").text
         else:
