@@ -425,7 +425,6 @@ class VSNotifyView(APIView):
                 asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
             asset.save()
         elif content.status == "FINISHED":
-            logger.debug("We got to the point when it should have been processed as finished.")
             if content.type == "TRANSCODE":
                 asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
                 try:
@@ -438,7 +437,6 @@ class VSNotifyView(APIView):
             else:
                 asset.online_item_id = itemId
                 asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
-                logger.debug("We got to the point when it should have set the item id.")
                 try:
                     asset.create_proxy()
                 except Exception as e:
@@ -448,7 +446,6 @@ class VSNotifyView(APIView):
                             asset.id,
                             asset.deliverable.id),
                         exc_info=e)
-            logger.debug("We got to the point when it should have saved the item id.")
             asset.save()
         else:
             logger.warning(
