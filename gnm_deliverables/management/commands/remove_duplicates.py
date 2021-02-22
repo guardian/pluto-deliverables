@@ -15,6 +15,9 @@ class Command(BaseCommand):
     """
     help = 'Remove duplicate deliverable assets'
 
+    def add_arguments(self, parser):
+        parser.add_argument("--path", type=str, default="/srv/Multimedia2/Media Production/Deliverables/", help="Path to allow")
+
     def handle(self, *args, **options):
         pprint(options)
 
@@ -32,38 +35,42 @@ class Command(BaseCommand):
                     print("Version: {0}".format(asset.version))
                     assets_with_issue_weighted.append([asset.id, asset.size, asset.version, asset.online_item_id, DELIVERABLE_ASSET_STATUSES_DICT.get(asset.status), 0])
                 if path['absolute_path'] is not None:
-                    # Set score depending on status
-                    for asset in assets_with_issue_weighted:
-                        if asset[4] == "Ingested":
-                            asset[5] = 50
-                        if asset[4] == "Ingest failed":
-                            asset[5] = -20
-                        if asset[4] == "Transcode Failed":
-                            asset[5] = -20
-                    # Add 2 to the score of the item with the first id.
-                    id_numbers = []
-                    for asset in assets_with_issue_weighted:
-                        id_numbers.append(asset[0])
-                    index_of_first_id = id_numbers.index(min(id_numbers))
-                    assets_with_issue_weighted[index_of_first_id][5] = assets_with_issue_weighted[index_of_first_id][5] + 2
-                    # Remove 5 from the score of items with no file size
-                    for asset in assets_with_issue_weighted:
-                        if asset[1] == 0:
-                            asset[5] = asset[5] - 5
-                    # Add 40 to the score of items with an online item id.
-                    for asset in assets_with_issue_weighted:
-                        if asset[3] is not None:
-                            asset[5] = asset[5] + 40
-                    # Sort the list by score
-                    assets_with_issue_weighted.sort(key=lambda x: x[5], reverse=True)
-                    pprint(assets_with_issue_weighted)
-                    first_item = True
-                    for asset in assets_with_issue_weighted:
-                        if first_item:
-                            first_item = False
-                            continue
-                        print("Attempting to delete item: {0}".format(asset[0]))
-                        DeliverableAsset.objects.filter(id=asset[0]).delete()
+                    if options["path"] in path['absolute_path']:
+                        # Set score depending on status
+                        for asset in assets_with_issue_weighted:
+                            if asset[4] == "Ingested":
+                                asset[5] = 50
+                            if asset[4] == "Ingest failed":
+                                asset[5] = -20
+                            if asset[4] == "Transcode Failed":
+                                asset[5] = -20
+                        # Add 2 to the score of the item with the first id.
+                        id_numbers = []
+                        for asset in assets_with_issue_weighted:
+                            id_numbers.append(asset[0])
+                        index_of_first_id = id_numbers.index(min(id_numbers))
+                        assets_with_issue_weighted[index_of_first_id][5] = assets_with_issue_weighted[index_of_first_id][5] + 2
+                        # Remove 5 from the score of items with no file size
+                        for asset in assets_with_issue_weighted:
+                            if asset[1] == 0 or asset[1] == -1:
+                                asset[5] = asset[5] - 5
+                        # Add 40 to the score of items with an online item id.
+                        for asset in assets_with_issue_weighted:
+                            if asset[3] is not None:
+                                asset[5] = asset[5] + 40
+                        # Sort the list by score
+                        assets_with_issue_weighted.sort(key=lambda x: x[5], reverse=True)
+                        pprint(assets_with_issue_weighted)
+                        first_item = True
+                        for asset in assets_with_issue_weighted:
+                            if first_item:
+                                first_item = False
+                                continue
+                            print("Would have deleted item: {0}".format(asset[0]))
+                            #print("Attempting to delete item: {0}".format(asset[0]))
+                            #DeliverableAsset.objects.filter(id=asset[0]).delete()
+                    else:
+                        print("Skipping removal as path not valid.")
                 else:
                     print("Blank path so skipping removal.")
         else:
