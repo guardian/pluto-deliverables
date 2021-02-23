@@ -28,7 +28,6 @@ from .files import get_path_for_deliverable, find_files_for_deliverable, create_
     get_local_path_for_deliverable, create_folder_for_deliverable
 from .templatetags.deliverable_tags import sizeof_fmt
 from .transcodepreset import TranscodePresetFinder
-from gnmvidispine.vidispine_api import VSApi
 logger = logging.getLogger(__name__)
 
 
