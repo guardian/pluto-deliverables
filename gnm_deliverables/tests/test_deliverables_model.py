@@ -77,6 +77,7 @@ class TestDeliverablesAsset(TestCase):
                                                             jobMetadata={'import_source': 'pluto-deliverables',
                                                                          'project_id': 'None',
                                                                          'asset_id': 'None'},
+                                                            noTranscode=False,
                                                             priority='MEDIUM',
                                                             thumbnails=False,
                                                             uri='file://file:///path/to/some/file.mp4')
