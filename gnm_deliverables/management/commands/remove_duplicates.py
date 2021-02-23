@@ -17,6 +17,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--path", type=str, default="/srv/Multimedia2/Media Production/Deliverables/", help="Path to allow")
+        parser.add_argument('--delete', action='store_true', dest='delete', default=False, help='Enable delete mode')
 
     def handle(self, *args, **options):
         pprint(options)
@@ -66,9 +67,11 @@ class Command(BaseCommand):
                             if first_item:
                                 first_item = False
                                 continue
-                            print("Would have deleted item: {0}".format(asset[0]))
-                            #print("Attempting to delete item: {0}".format(asset[0]))
-                            #DeliverableAsset.objects.filter(id=asset[0]).delete()
+                            if options['delete']:
+                                print("Attempting to delete item: {0}".format(asset[0]))
+                                DeliverableAsset.objects.filter(id=asset[0]).delete()
+                            else:
+                                print("Would have deleted item: {0}".format(asset[0]))
                     else:
                         print("Skipping removal as path not valid.")
                 else:
