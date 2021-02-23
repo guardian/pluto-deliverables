@@ -401,7 +401,7 @@ class VSNotifyView(APIView):
         except VSException as e:
             logger.warning("Could not get extra metadata for {0} from Vidispine: {1}".format(itemId, str(e)))
         except Exception as e:
-            logger.warning("Could not get extra metadata for {0} from Vidispine: {1}".format(itemId, str(e)))
+            logger.exception("Could not get extra metadata for {0} from Vidispine: {1}".format(itemId, str(e)))
 
         try:
             ## Search only on the job id, that way we will pick up ones that were initiated by atomresponder too!

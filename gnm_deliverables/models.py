@@ -310,24 +310,21 @@ class DeliverableAsset(models.Model):
         else:
             current_item = self.item(user=user)
 
-        #run_as should be taken care of by the VSItem base class, initated from self.item
+        should_we_not_attempt_a_transcode = False
         if self.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or self.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
-            vs_api = VSApi(url=settings.VIDISPINE_URL,
-                           user=settings.VIDISPINE_USER,
-                           passwd=settings.VIDISPINE_PASSWORD)
-            vs_job_data = vs_api.request("/item/{0}/shape/essence?uri=file://{1}&priority=MEDIUM&tag=original&createThumbnails=false&no-transcode=true&jobmetadata=import_source%3dpluto-deliverables&jobmetadata=project_id%3d{2}&jobmetadata=asset_id%3d{3}".format(current_item.name, self.absolute_path.replace(" ","%2520"), str(self.deliverable.pluto_core_project_id), str(self.id)), method="POST")
-            self.job_id = vs_job_data.find("{http://xml.vidispine.com/schema/vidispine}jobId").text
-        else:
-            import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
-                                                      priority="MEDIUM",
-                                                      essence=True,
-                                                      thumbnails=False,
-                                                      jobMetadata={
-                                                          "import_source": "pluto-deliverables",
-                                                          "project_id": str(self.deliverable.pluto_core_project_id),
-                                                          "asset_id": str(self.id)
-                                                      })
-            self.job_id = import_job.name
+            should_we_not_attempt_a_transcode = True
+        #run_as should be taken care of by the VSItem base class, initated from self.item
+        import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
+                                                  priority="MEDIUM",
+                                                  essence=True,
+                                                  thumbnails=False,
+                                                  noTranscode=should_we_not_attempt_a_transcode,
+                                                  jobMetadata={
+                                                      "import_source": "pluto-deliverables",
+                                                      "project_id": str(self.deliverable.pluto_core_project_id),
+                                                      "asset_id": str(self.id)
+                                                  })
+        self.job_id = import_job.name
         if commit:
             self.save()
 
