@@ -395,13 +395,13 @@ class VSNotifyView(APIView):
             if isinstance(version, list):
                 logger.warning("{0} has multiple versions: {1}, using the first".format(itemId, version))
                 version = version[0]
-            duration_seconds = float(vs_item.get("durationSeconds"))
+            possibly_seconds = vs_item.get("durationSeconds")
+            if possibly_seconds is not None:
+                duration_seconds = float(possibly_seconds)
         except ValueError:
             logger.warning("{0}: duration_seconds value '{1}' could not be converted to float".format(itemId, vs_item.get("durationSeconds")))
         except VSException as e:
             logger.warning("Could not get extra metadata for {0} from Vidispine: {1}".format(itemId, str(e)))
-        except Exception as e:
-            logger.exception("Could not get extra metadata for {0} from Vidispine: {1}".format(itemId, str(e)))
 
         try:
             ## Search only on the job id, that way we will pick up ones that were initiated by atomresponder too!

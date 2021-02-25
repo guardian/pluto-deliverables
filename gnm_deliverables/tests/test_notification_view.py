@@ -203,3 +203,43 @@ class TestNotificationView(TestCase):
                 self.assertEqual(final_state.status, DELIVERABLE_ASSET_STATUS_INGESTING)
                 self.assertIsNone(final_state.ingest_complete_dt)
                 mock_create_proxy.assert_not_called()
+
+    def TestNotificationViewUpdateNoDuration(self):
+        """
+        NotificationView should update an existing item with completion data if the item has no duration
+        :return:
+        """
+        ##check our initial state is what we expect
+        initial_state = DeliverableAsset.objects.get(pk=1)
+        self.assertEqual(initial_state.online_item_id, None)
+        self.assertEqual(initial_state.status, DELIVERABLE_ASSET_STATUS_NOT_INGESTED)
+
+        ##make the request
+        notification_content = {
+            "field": [
+                {"key":"asset_id","value":"1"},
+                {"key":"import_source","value":"pluto-deliverables"},
+                {"key":"project_id","value":"12"},
+                {"key":"itemId","value":"VX-1234"},
+                {"key":"jobId","value":"VX-99998"},
+                {"key":"status","value":"FINISHED"},
+                {"key":"type","value":"ESSENCE_VERSION"}
+            ]
+        }
+        fake_notification = json.dumps(notification_content).encode("UTF-8")
+        mock_vsitem = MagicMock(target=VSItem)
+
+        def fake_item_get(key:str, allowArray=False):
+            if key=="durationSeconds":
+                return None
+
+        mock_vsitem.get = MagicMock(side_effect=fake_item_get)
+        with patch("gnmvidispine.vs_item.VSItem", return_value=mock_vsitem):
+            with patch("gnm_deliverables.models.DeliverableAsset.create_proxy") as mock_create_proxy:
+                response = self.client.post(reverse("vs-notifications"), fake_notification, content_type="application/json")
+
+                self.assertEqual(response.status_code, 200)
+
+                final_state = DeliverableAsset.objects.get(pk=1)
+                self.assertEqual(final_state.status, DELIVERABLE_ASSET_STATUS_INGESTED)
+                self.assertEqual(final_state.duration_seconds, None)
