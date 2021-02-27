@@ -85,7 +85,31 @@ class TestLaunchDetectorUpdate(TestCase):
             'lastModified': {
                'user': 'andy.gallagher@guardian.co.uk',
                'at': '2020-09-30T17:39:17Z[Etc/UTC]'
-            }
+            },
+            'ytMeta': {
+                'categoryId': '73',
+                'channelId': 'abcdefg',
+                'expiryDate': None,
+                'keywords': ["a","b","c"],
+                'privacyStatus': 'Public',
+                'license': None,
+                'title': "Some youtube title",
+                'description': "Some youtube description"
+            },
+            'assets': [
+                {
+                    'assetType': 'Video',
+                    'platform': 'youtube',
+                    'platformId': '123abc',
+                    'version': 1,
+                },
+                {
+                    'assetType': 'Video',
+                    'platform': 'youtube',
+                    'platformId': '999xyz',
+                    'version': 2,
+                }
+            ]
         }
 
         client = APIClient()
@@ -106,7 +130,9 @@ class TestLaunchDetectorUpdate(TestCase):
         self.assertIsNotNone(updated_item.gnm_website_master)
         self.assertIsNotNone(updated_item.DailyMotion_master)
         self.assertIsNotNone(updated_item.mainstream_master)
-
+        self.assertIsNotNone(updated_item.youtube_master)
+        self.assertEqual(updated_item.youtube_master.youtube_id, "999xyz")
+        self.assertEqual(updated_item.youtube_master.youtube_tags, ["a","b","c"])
 
 class TestUpdateMainstream(TestCase):
     fixtures = [
