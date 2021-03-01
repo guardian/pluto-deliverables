@@ -58,8 +58,8 @@ interface CreateYoutubeMaster {
 interface YoutubeMaster extends CreateYoutubeMaster {
   etag?: string;
   publication_date: string;
-  youtube_categories?: string[];
-  youtube_channels?: string[];
+  youtube_category?: string;
+  youtube_channel?: string;
 }
 
 interface CreateDailymotionMaster {
