@@ -372,9 +372,9 @@ def update_dailymotion(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
 
     #would be good to build a mapping table for this
     #rec.daily_motion_category
-    if rec.daily_motion_description is None or rec.daily_motion_description=="":
+    if rec.daily_motion_description is None or rec.daily_motion_description == "":
         rec.daily_motion_description = msg.description
-    if rec.daily_motion_tags is None or len(rec.daily_motion_tags)==0:
+    if rec.daily_motion_tags is None or len(rec.daily_motion_tags) == 0:
         #would be good to map these to names
         rec.daily_motion_tags = msg.keywords
     if rec.daily_motion_title is None or rec.daily_motion_title=="":
