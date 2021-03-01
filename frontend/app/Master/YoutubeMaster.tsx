@@ -12,6 +12,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Grid,
+  IconButton,
+  Toolbar,
 } from "@material-ui/core";
 import { useHistory, RouteComponentProps } from "react-router-dom";
 import CommonMaster from "./CommonMaster";
@@ -25,6 +28,7 @@ import SystemNotification, {
   SystemNotificationKind,
 } from "../SystemNotification";
 import DeleteIcon from "@material-ui/icons/Delete";
+import { Launch } from "@material-ui/icons";
 
 const useStyles = makeStyles({
   root: {
@@ -256,73 +260,52 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
                 disabled
               />
               <div className="metadata-info">
-                <Typography variant="subtitle1">
-                  Youtube categories{" "}
-                  <Tooltip
-                    title={
-                      master.youtube_categories
-                        ? master.youtube_categories
-                            .map((category) => category)
-                            .join(", ")
-                        : ""
-                    }
-                    placement="right"
-                  >
-                    <Badge
-                      badgeContent={master.youtube_categories?.length || "0"}
-                      color="primary"
-                    ></Badge>
-                  </Tooltip>
-                </Typography>
+                <Typography variant="subtitle1">Youtube category</Typography>
                 <p className="subtitle-small">
-                  {master.youtube_categories
-                    ?.map((category) => category)
-                    .join(", ")}
+                  {master.youtube_category ?? ""}
                 </p>
               </div>
               <div className="metadata-info">
-                <Typography variant="subtitle1">
-                  Youtube channels
-                  <Tooltip
-                    title={
-                      master.youtube_channels
-                        ? master.youtube_channels
-                            .map((channel) => channel)
-                            .join(", ")
-                        : ""
-                    }
-                    placement="right"
-                  >
-                    <Badge
-                      badgeContent={master.youtube_channels?.length || "0"}
-                      color="primary"
-                    ></Badge>
-                  </Tooltip>
-                </Typography>
+                <Typography variant="subtitle1">Youtube channel</Typography>
 
-                <p className="subtitle-small">
-                  {master.youtube_channels
-                    ?.map((channel) => channel)
-                    .join(", ")}
-                </p>
+                <p className="subtitle-small">{master.youtube_channel ?? ""}</p>
               </div>
             </>
           )}
 
-          <TextField
-            label="Youtube ID"
-            value={master.youtube_id || ""}
-            onChange={(event) => fieldChanged(event, "youtube_id")}
-            error={!isReadOnly && isDirty && !master.youtube_id}
-            helperText={
-              !isReadOnly && isDirty && !master.youtube_id
-                ? "Youtube ID is required"
-                : ""
-            }
-            required={!isReadOnly}
-            disabled={isReadOnly}
-          ></TextField>
-
+          <Grid direction="row" container>
+            <Grid item>
+              <TextField
+                label="Youtube ID"
+                value={master.youtube_id || ""}
+                onChange={(event) => fieldChanged(event, "youtube_id")}
+                error={!isReadOnly && isDirty && !master.youtube_id}
+                helperText={
+                  !isReadOnly && isDirty && !master.youtube_id
+                    ? "Youtube ID is required"
+                    : ""
+                }
+                required={!isReadOnly}
+                disabled={isReadOnly}
+              />
+            </Grid>
+            <Grid item style={{ flex: "0 0 48px" }}>
+              <Tooltip
+                title={`https://youtube.com/watch?v=${master.youtube_id}`}
+              >
+                <IconButton
+                  onClick={() => {
+                    window.open(
+                      `https://youtube.com/watch?v=${master.youtube_id}`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  <Launch />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          </Grid>
           <CommonMaster
             prefix={"Youtube"}
             fields={{

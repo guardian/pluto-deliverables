@@ -522,8 +522,8 @@ class Youtube(models.Model):
     youtube_title = models.TextField(null=False, blank=False)
     youtube_description = models.TextField(null=True, blank=True)
     youtube_tags = ArrayField(models.CharField(null=True, max_length=255), null=True, blank=True)
-    youtube_categories = ArrayField(models.BigIntegerField(null=False), null=True, blank=True)
-    youtube_channels = ArrayField(models.CharField(null=True, max_length=255), null=True, blank=True)
+    youtube_category = models.CharField(null=False, max_length=255)
+    youtube_channel = models.CharField(null=False, max_length=255)
     publication_date = models.DateTimeField(null=True, blank=True)
     etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 

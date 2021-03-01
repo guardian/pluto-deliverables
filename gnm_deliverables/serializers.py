@@ -68,7 +68,7 @@ class YoutubeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Youtube
         fields = ["youtube_id", "youtube_title", "youtube_description", "youtube_tags",
-                  "youtube_categories", "youtube_channels",
+                  "youtube_category", "youtube_channel",
                   "publication_date", "etag"]
 
 

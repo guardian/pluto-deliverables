@@ -522,6 +522,7 @@ class LaunchDetectorUpdateView(APIView):
         gnm_deliverables.launch_detector.update_gnmwebsite(msg, asset)
         gnm_deliverables.launch_detector.update_dailymotion(msg, asset)
         gnm_deliverables.launch_detector.update_mainstream(msg, asset)
+        gnm_deliverables.launch_detector.update_youtube(msg, asset)
         asset.save()
         return Response({"status":"ok", "detail":"updated","atom_id":msg.atom_id}, status=200)
 

@@ -146,6 +146,12 @@ class MainstreamAPIView(MetadataAPIView):
                                              pk=asset_id)
         return asset.mainstream_master is not None
 
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super(MainstreamAPIView, self).dispatch(request, *args, **kwargs)
+        except Exception as e:
+            logger.error("Could not get youtube deliverable metadata: {0}".format(str(e)), e)
+            return Response({"status":"error","detail":str(e)}, status=500)
 
 class YoutubeAPIView(MetadataAPIView):
     renderer_classes = (JSONRenderer,)
@@ -161,6 +167,13 @@ class YoutubeAPIView(MetadataAPIView):
                                              pk=asset_id)
         return asset.youtube_master is not None
 
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super(YoutubeAPIView, self).dispatch(request, *args, **kwargs)
+        except Exception as e:
+            logger.error("Could not get youtube deliverable metadata: {0}".format(str(e)), e)
+            return Response({"status":"error","detail":str(e)}, status=500)
+
 
 class DailyMotionAPIView(MetadataAPIView):
     renderer_classes = (JSONRenderer,)
@@ -175,6 +188,13 @@ class DailyMotionAPIView(MetadataAPIView):
         asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id,
                                              pk=asset_id)
         return asset.DailyMotion_master is not None
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super(DailyMotionAPIView, self).dispatch(request, *args, **kwargs)
+        except Exception as e:
+            logger.error("Could not get youtube deliverable metadata: {0}".format(str(e)), e)
+            return Response({"status":"error","detail":str(e)}, status=500)
 
 
 class PlatformLogsView(APIView):
