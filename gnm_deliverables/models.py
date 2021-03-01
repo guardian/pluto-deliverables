@@ -22,7 +22,7 @@ from .choices import DELIVERABLE_ASSET_STATUS_NOT_INGESTED, DELIVERABLE_ASSET_ST
 from .choices import DELIVERABLE_ASSET_TYPE_CHOICES, DELIVERABLE_STATUS_ALL_FILES_INGESTED, \
     DELIVERABLE_STATUS_FILES_TO_INGEST, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE, \
     DELIVERABLE_ASSET_TYPE_OTHER_TRAILER, \
-    DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS
+    DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS, DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS, DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT
 from .exceptions import ImportFailedError, NoShapeError
 from .files import get_path_for_deliverable, find_files_for_deliverable, create_folder, \
     get_local_path_for_deliverable, create_folder_for_deliverable
@@ -309,11 +309,15 @@ class DeliverableAsset(models.Model):
         else:
             current_item = self.item(user=user)
 
+        should_we_not_attempt_a_transcode = False
+        if self.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or self.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
+            should_we_not_attempt_a_transcode = True
         #run_as should be taken care of by the VSItem base class, initated from self.item
         import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
                                                   priority="MEDIUM",
                                                   essence=True,
                                                   thumbnails=False,
+                                                  noTranscode=should_we_not_attempt_a_transcode,
                                                   jobMetadata={
                                                       "import_source": "pluto-deliverables",
                                                       "project_id": str(self.deliverable.pluto_core_project_id),

@@ -395,7 +395,9 @@ class VSNotifyView(APIView):
             if isinstance(version, list):
                 logger.warning("{0} has multiple versions: {1}, using the first".format(itemId, version))
                 version = version[0]
-            duration_seconds = float(vs_item.get("durationSeconds"))
+            possibly_seconds = vs_item.get("durationSeconds")
+            if possibly_seconds is not None:
+                duration_seconds = float(possibly_seconds)
         except ValueError:
             logger.warning("{0}: duration_seconds value '{1}' could not be converted to float".format(itemId, vs_item.get("durationSeconds")))
         except VSException as e:
@@ -434,17 +436,19 @@ class VSNotifyView(APIView):
                 asset.ingest_complete_dt = get_current_time()
             else:
                 asset.online_item_id = itemId
-                asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
-                try:
-                    asset.create_proxy()
-                except Exception as e:
-                    logger.exception(
-                        "{0} for asset {1} in bundle {2}: could not create proxy due to:".format(
-                            asset.online_item_id,
-                            asset.id,
-                            asset.deliverable.id),
-                        exc_info=e)
-
+                if asset.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
+                    asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
+                else:
+                    asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
+                    try:
+                        asset.create_proxy()
+                    except Exception as e:
+                        logger.exception(
+                            "{0} for asset {1} in bundle {2}: could not create proxy due to:".format(
+                                asset.online_item_id,
+                                asset.id,
+                                asset.deliverable.id),
+                            exc_info=e)
             asset.save()
         else:
             logger.warning(
