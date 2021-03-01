@@ -442,8 +442,8 @@ def update_youtube(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.youtube_id = youtube_assets_sorted[-1].asset_id
 
     if msg.yt_meta:
-        rec.youtube_categories = [msg.yt_meta.category_id]
-        rec.youtube_channels = [msg.yt_meta.channel_id]
+        rec.youtube_category = msg.yt_meta.category_id
+        rec.youtube_channel = msg.yt_meta.channel_id
         rec.youtube_tags = msg.yt_meta.keywords
         if msg.yt_meta.title != "":
             rec.youtube_title = msg.yt_meta.title
