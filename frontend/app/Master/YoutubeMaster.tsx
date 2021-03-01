@@ -260,13 +260,13 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
                 disabled
               />
               <div className="metadata-info">
-                <Typography variant="subtitle1">Youtube categories </Typography>
+                <Typography variant="subtitle1">Youtube category</Typography>
                 <p className="subtitle-small">
                   {master.youtube_category ?? ""}
                 </p>
               </div>
               <div className="metadata-info">
-                <Typography variant="subtitle1">Youtube channels</Typography>
+                <Typography variant="subtitle1">Youtube channel</Typography>
 
                 <p className="subtitle-small">{master.youtube_channel ?? ""}</p>
               </div>
