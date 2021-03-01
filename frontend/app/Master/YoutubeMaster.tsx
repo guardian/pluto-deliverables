@@ -11,7 +11,10 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions, Grid, IconButton, Toolbar,
+  DialogActions,
+  Grid,
+  IconButton,
+  Toolbar,
 } from "@material-ui/core";
 import { useHistory, RouteComponentProps } from "react-router-dom";
 import CommonMaster from "./CommonMaster";
@@ -25,7 +28,7 @@ import SystemNotification, {
   SystemNotificationKind,
 } from "../SystemNotification";
 import DeleteIcon from "@material-ui/icons/Delete";
-import {Launch} from "@material-ui/icons";
+import { Launch } from "@material-ui/icons";
 
 const useStyles = makeStyles({
   root: {
@@ -257,45 +260,47 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
                 disabled
               />
               <div className="metadata-info">
-                <Typography variant="subtitle1">
-                  Youtube categories{" "}
-                </Typography>
+                <Typography variant="subtitle1">Youtube categories </Typography>
                 <p className="subtitle-small">
                   {master.youtube_category ?? ""}
                 </p>
               </div>
               <div className="metadata-info">
-                <Typography variant="subtitle1">
-                  Youtube channels
-                </Typography>
+                <Typography variant="subtitle1">Youtube channels</Typography>
 
-                <p className="subtitle-small">
-                  {master.youtube_channel ?? ""}
-                </p>
+                <p className="subtitle-small">{master.youtube_channel ?? ""}</p>
               </div>
             </>
           )}
 
           <Grid direction="row" container>
-             <Grid item>
-                <TextField
-                  label="Youtube ID"
-                  value={master.youtube_id || ""}
-                  onChange={(event) => fieldChanged(event, "youtube_id")}
-                  error={!isReadOnly && isDirty && !master.youtube_id}
-                  helperText={
-                    !isReadOnly && isDirty && !master.youtube_id
-                      ? "Youtube ID is required"
-                      : ""
+            <Grid item>
+              <TextField
+                label="Youtube ID"
+                value={master.youtube_id || ""}
+                onChange={(event) => fieldChanged(event, "youtube_id")}
+                error={!isReadOnly && isDirty && !master.youtube_id}
+                helperText={
+                  !isReadOnly && isDirty && !master.youtube_id
+                    ? "Youtube ID is required"
+                    : ""
+                }
+                required={!isReadOnly}
+                disabled={isReadOnly}
+              />
+            </Grid>
+            <Grid item style={{ flex: "0 0 48px" }}>
+              <Tooltip
+                title={`https://youtube.com/watch?v=${master.youtube_id}`}
+              >
+                <IconButton
+                  onClick={() =>
+                    history.push(
+                      `https://youtube.com/watch?v=${master.youtube_id}`
+                    )
                   }
-                  required={!isReadOnly}
-                  disabled={isReadOnly}
-                />
-             </Grid>
-            <Grid item style={{flex: "0 0 48px"}}>
-              <Tooltip title={`https://youtube.com/watch?v=${master.youtube_id}`}>
-                <IconButton onClick={()=>history.push(`https://youtube.com/watch?v=${master.youtube_id}`)}>
-                  <Launch/>
+                >
+                  <Launch />
                 </IconButton>
               </Tooltip>
             </Grid>
