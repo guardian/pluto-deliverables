@@ -294,11 +294,12 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
                 title={`https://youtube.com/watch?v=${master.youtube_id}`}
               >
                 <IconButton
-                  onClick={() =>
-                    history.push(
-                      `https://youtube.com/watch?v=${master.youtube_id}`
-                    )
-                  }
+                  onClick={() => {
+                    window.open(
+                      `https://youtube.com/watch?v=${master.youtube_id}`,
+                      "_blank"
+                    );
+                  }}
                 >
                   <Launch />
                 </IconButton>
