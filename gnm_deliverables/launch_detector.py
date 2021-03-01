@@ -77,13 +77,7 @@ class YTMeta(object):
     def description(self):
         return self._content.get("description", "")
 
-# case class AssetRef(
-#     maybeMimeType: Option[String],
-#     assetType: String,
-#     platform: String,
-#     platformId: String
-#     version: Long
-# )
+
 class MediaAsset(object):
     """
     Represents the individual media assets present within an atom/
@@ -190,14 +184,6 @@ class LaunchDetectorUpdate(object):
                     }
                 }
             },
-# case class YTMeta(
-#     categoryId: Option[String],
-#     channelId: Option[String],
-#     expiryDate: Option[String],
-#     keywords: Option[Seq[String]],
-#     privacyStatus: Option[String],
-#     license: Option[String]
-#     )
             "ytMeta": {
                 "type": ["object","null"],
                 "properties": {
