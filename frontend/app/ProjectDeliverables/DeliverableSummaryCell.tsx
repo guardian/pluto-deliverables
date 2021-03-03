@@ -69,7 +69,9 @@ const DeliverableSummaryCell: React.FC<DeliverableSummaryCellProps> = (
                 evt.preventDefault();
                 const targetUrl = props.deliverable.online_item_id
                   ? `/vs/item/${props.deliverable.online_item_id}`
-                  : `${archiverHunterURL}${encodeURIComponent(props.deliverable.archive_item_id as string)}`;
+                  : `${archiverHunterURL}${encodeURIComponent(
+                      props.deliverable.archive_item_id as string
+                    )}`;
                 window.open(targetUrl, "_blank");
               }}
             >
