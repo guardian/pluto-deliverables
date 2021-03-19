@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class VidispineMessageProcessor(MessageProcessor):
-    routing_key = "vidispine.job.*"
+    routing_key = "vidispine.job.*.*"
     # see https://json-schema.org/learn/miscellaneous-examples.html for more details
     schema = {
         "type": "object",
