@@ -1,5 +1,5 @@
 from .MessageProcessor import MessageProcessor
-from .job_notification import JobNotification
+#from .job_notification import JobNotification
 import logging
 #from atomresponder.models import ImportJob
 #from kinesisresponder.sentry import inform_sentry_exception
