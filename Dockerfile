@@ -3,7 +3,7 @@ FROM python:3.8-alpine
 COPY requirements.txt /opt/pluto-deliverables/requirements.txt
 ADD gnmvidispine /tmp/gnmvidispine
 WORKDIR /opt/pluto-deliverables
-RUN apk add --no-cache alpine-sdk linux-headers openssl-dev libffi-dev mailcap postgresql-dev postgresql-libs && \
+RUN apk add --no-cache alpine-sdk linux-headers openssl-dev libffi-dev mailcap postgresql-dev postgresql-libs libxml2-dev libxml2 libxslt-dev libxslt && \
     pip install -r /tmp/gnmvidispine/requirements.txt && \
     cd /tmp/gnmvidispine && python /tmp/gnmvidispine/setup.py install && cd /opt/pluto-deliverables && \
     pip install -r requirements.txt uwsgi && \
