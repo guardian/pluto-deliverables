@@ -13,7 +13,7 @@ class AtomResponderMessage(Model):
     """
     title = TextField(max_length=32768)
     type = TextField(max_length=128)
-    projectId = TextField(max_length=128)
+    projectId = TextField(max_length=128, null=True, blank=True)
     atomId = UUIDField()
     jobId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
     itemId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
