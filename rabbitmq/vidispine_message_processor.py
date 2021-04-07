@@ -107,7 +107,7 @@ class VidispineMessageProcessor(MessageProcessor):
                 asset = DeliverableAsset.objects.get(job_id=job_id)
             except DeliverableAsset.DoesNotExist:
                 if asset_id is not None:
-                    logger.warning("Received a notification for asset {0} that does not exist".format(asset_id))
+                    logger.warning("Received a message for asset {0} that does not exist".format(asset_id))
                     return
 
         if job_status is not None:
@@ -139,13 +139,25 @@ class VidispineMessageProcessor(MessageProcessor):
                         asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
                     else:
                         asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
-                        try:
-                            asset.create_proxy()
-                        except Exception as e:
-                            logger.exception(
-                                "{0} for asset {1} in bundle {2}: could not create proxy due to:".format(
-                                    asset.online_item_id,
-                                    asset.id,
-                                    asset.deliverable.id),
-                                exc_info=e)
                 asset.save()
+
+                if job_type != 'TRANSCODE':
+                    if asset.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
+                        logger.debug("Nothing to do.")
+                    else:
+                        try:
+                            asset_two = DeliverableAsset.objects.get(job_id=job_id)
+                        except DeliverableAsset.DoesNotExist:
+                            if asset_id is not None:
+                                logger.warning("Received a message for asset {0} that does not exist".format(asset_id))
+                                return
+                        if asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODING and asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODED:
+                            try:
+                                asset.create_proxy()
+                            except Exception as e:
+                                logger.exception(
+                                    "{0} for asset {1} in bundle {2}: could not create proxy due to:".format(
+                                        asset.online_item_id,
+                                        asset.id,
+                                        asset.deliverable.id),
+                                    exc_info=e)
