@@ -7,16 +7,13 @@ EXCHANGE_MAPPINGS = [
     {
         "exchange": 'pluto-atomresponder',
         "handler":  AtomResponderProcessor(),
-        "exclusive": False
     },
     {
         "exchange": 'pluto-deliverables',
         "handler": AssetUpdatedProcessor(),
-        "exclusive": False
     },
     {
         "exchange": 'vidispine-events',
         "handler": VidispineMessageProcessor(),
-        "exclusive": True
     }
 ]

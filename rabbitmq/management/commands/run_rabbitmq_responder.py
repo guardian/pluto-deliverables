@@ -19,7 +19,7 @@ class Command(BaseCommand):
         self.runloop = None
 
     @staticmethod
-    def connect_channel(exclusive, exchange_name, handler, channel):
+    def connect_channel(exchange_name, handler, channel):
         """
         async callback that is used to connect a channel once it has been declared
         :param channel: channel to set up
@@ -43,7 +43,7 @@ class Command(BaseCommand):
         channel.basic_consume(queuename,
                               handler.raw_message_receive,
                               auto_ack=False,
-                              exclusive=exclusive,
+                              exclusive=False,
                               callback=lambda consumer: logger.info("Consumer started for {0} from {1}".format(queuename, exchange_name)),
                               )
 
@@ -60,7 +60,6 @@ class Command(BaseCommand):
             # partial adjusts the argument list, adding the args here onto the _start_ of the list
             # so the args are (exchange, handler, channel) not (channel, exchange, handler)
             chl = connection.channel(on_open_callback=partial(Command.connect_channel,
-                                                              EXCHANGE_MAPPINGS[i]["exclusive"],
                                                               EXCHANGE_MAPPINGS[i]["exchange"],
                                                               EXCHANGE_MAPPINGS[i]["handler"]),
                                      )

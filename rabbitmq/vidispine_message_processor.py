@@ -12,6 +12,8 @@ from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, \
     DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED, DELIVERABLE_ASSET_STATUS_TRANSCODING
 from rabbitmq.time_funcs import get_current_time
 from gnm_deliverables.models import *
+from time import sleep
+from random import randint
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +142,8 @@ class VidispineMessageProcessor(MessageProcessor):
                     else:
                         asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
                 asset.save()
+
+                sleep(randint(2,16))
 
                 if job_type != 'TRANSCODE':
                     if asset.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
