@@ -51,7 +51,7 @@ class VidispineMessageProcessor(MessageProcessor):
         :param body:
         :return:
         """
-        logger.info("Got incoming message: " + str(body))
+        logger.debug("Got incoming message: " + str(body))
         notification = JobNotification(body)
 
         job_id = None
