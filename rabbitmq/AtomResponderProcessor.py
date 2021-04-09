@@ -87,7 +87,7 @@ class AtomResponderProcessor(MessageProcessor):
         return asset, True
 
     def reassign_project(self, asset:DeliverableAsset, projectId:str, commissionId:int):
-        logger.info("Reassigning project of {} to id {}", str(asset), projectId)
+        logger.info("Reassigning project of {} to id {}".format(str(asset), projectId))
         new_bundle = self.get_or_create_bundle(projectId, commissionId)
         asset.deliverable = new_bundle
         asset.save()
