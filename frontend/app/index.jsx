@@ -1,7 +1,7 @@
 import React from "react";
 import { render } from "react-dom";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { ThemeProvider, createMuiTheme } from "@material-ui/core";
+import { ThemeProvider, createMuiTheme, CssBaseline } from "@material-ui/core";
 import ProjectsListComponent from "./ProjectsListComponent";
 import axios from "axios";
 import ProjectDeliverablesComponent from "./ProjectDeliverablesComponent";

@@ -97,6 +97,7 @@ const useStyles = makeStyles({
 
 const InvalidDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
+  // @ts-ignore
   const { date, kind, status } = useParams();
 
   // React state

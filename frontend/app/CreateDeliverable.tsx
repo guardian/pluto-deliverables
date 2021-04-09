@@ -66,6 +66,7 @@ const CreateDeliverable: React.FC<RouteComponentProps> = () => {
   const [lastError, setLastError] = useState({});
   const [saveCompleted, setSaveCompleted] = useState(false);
 
+  // @ts-ignore
   const { projectId } = useParams();
 
   const classes = useStyles();

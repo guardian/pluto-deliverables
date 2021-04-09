@@ -170,7 +170,9 @@ const CustomDialogTitle = withStyles(styles)((props: DialogTitleProps) => {
 const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
   const history = useHistory();
+  // @ts-ignore
   const { search } = useLocation();
+  // @ts-ignore
   const { projectid } = useParams();
 
   // React state
