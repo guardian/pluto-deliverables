@@ -14,6 +14,13 @@ var config = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
+    fallback: {
+      stream: require.resolve("stream-browserify"),
+      util: require.resolve("util/"),
+      crypto: require.resolve("crypto-browserify"),
+      vm: require.resolve("vm-browserify"),
+      buffer: require.resolve("buffer")
+    },
   },
   optimization: {
     minimizer: [new TerserPlugin()],
@@ -21,19 +28,26 @@ var config = {
   module: {
     rules: [
       {
-        test: /\.[tj]sx?/,
-        include: APP_DIR,
-        loader: "ts-loader",
-      },
-      {
         enforce: "pre",
         test: /\.js$/,
         exclude: /node_modules/,
         loader: "source-map-loader",
       },
       {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false,
+        },
+        type: "javascript/auto", //see https://github.com/webpack/webpack/issues/11467
+      },
+      {
+        test: /\.[tj]sx?/,
+        include: APP_DIR,
+        loader: "ts-loader",
+      },
+      {
         test: /\.(css|s[ac]ss)$/,
-        use: ["style-loader", "css-loader", "sass-loader"],
+        use: ["style-loader", "css-loader"],
       },
       {
         test: /\.(png|jpe?g|gif)$/i,
@@ -58,6 +72,12 @@ var config = {
     ],
   },
   devtool: "source-map",
+  plugins: [
+    new webpack.ProvidePlugin({
+      process: "process/browser",
+    }),
+  ],
+
 };
 
 module.exports = config;
