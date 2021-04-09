@@ -17,7 +17,7 @@ class AtomResponderMessage(Model):
     atomId = UUIDField()
     jobId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
     itemId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
-    commissionId = IntegerField()
+    commissionId = IntegerField(null=True)
     size = IntegerField(null=True, blank=True)
     mtime = FloatField(null=True, blank=True)
     ctime = FloatField(null=True, blank=True)
