@@ -77,7 +77,11 @@ class VidispineMessageProcessor(MessageProcessor):
         :param body:
         :return:
         """
-        logger.debug("Got incoming message: " + str(body))
+        logger.info("Got incoming message: " + str(body))
+        logger.info("Exchange name: {0}".format(exchange_name))
+        logger.info("Routing key: {0}".format(routing_key))
+        logger.info("Delivery tag: {0}".format(delivery_tag))
+
         try:
             notification = JobNotification(body)
         except Exception as e:
