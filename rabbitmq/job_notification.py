@@ -1,6 +1,7 @@
-import lxml.etree as ET
-from xml.sax.saxutils import unescape
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 pair_splitter = re.compile(r'^(\w{2}-\d+)=(.*)$')
 
@@ -12,6 +13,8 @@ class JobNotification(object):
 
     def __init__(self, jsondict: dict):
         self._content = jsondict
+        if not self.validate():
+            raise Exception
 
     def __getattr__(self, item):
         for entry in self._content["field"]:
@@ -21,6 +24,19 @@ class JobNotification(object):
 
     def __str__(self):
         return "{type} job for {filename} by {user}".format(type=self.type,filename=self.originalFilename,user=self.username)
+
+    REQUIRED_FIELDS = ["jobId", "itemId", "status"]
+    def validate(self):
+        try:
+            for f in self.REQUIRED_FIELDS:
+               for entry in self._content["field"]:
+                  if entry["key"] == f:
+                      return True
+               logger.warning("Invalid message, missing field {0}".format(f))
+            return False
+        except KeyError:
+            logger.warning("Invalid message {0}, missing required data structure".format(self._content))
+            return False
 
     def file_paths(self):
         """

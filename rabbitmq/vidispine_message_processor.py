@@ -44,39 +44,7 @@ class VidispineMessageProcessor(MessageProcessor):
         }
     }
 
-    def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body: dict):
-        """
-        receives the validated vidispine json message.
-        :param exchange_name:
-        :param routing_key:
-        :param delivery_tag:
-        :param body:
-        :return:
-        """
-        logger.debug("Got incoming message: " + str(body))
-        notification = JobNotification(body)
-
-        job_id = None
-        item_id = None
-        job_status = None
-        job_type = None
-
-        if notification.jobId is not None:
-            logger.debug("Got job id.: " + notification.jobId)
-            job_id = notification.jobId
-        if notification.itemId is not None:
-            logger.debug("Got item id.: " + notification.itemId)
-            item_id = notification.itemId
-        if notification.status is not None:
-            logger.debug("Got job status: " + notification.status)
-            job_status = notification.status
-        if notification.type is not None:
-            logger.debug("Got job type: " + notification.type)
-            job_type = notification.type
-
-        duration_seconds = None
-        version = None
-
+    def get_item_metadata(self, item_id):
         if item_id is not None:
             try:
                 vs_item = VSItem(url=settings.VIDISPINE_URL,
@@ -94,74 +62,83 @@ class VidispineMessageProcessor(MessageProcessor):
                 logger.warning("{0}: duration_seconds value '{1}' could not be converted to float".format(item_id, vs_item.get("durationSeconds")))
             except VSException as e:
                 logger.warning("Could not get extra metadata for {0} from Vidispine: {1}".format(item_id, str(e)))
-
         if duration_seconds is not None:
             logger.debug("Got duration as " + str(duration_seconds) + " seconds")
         if version is not None:
             logger.debug("Got version: " + version)
+        return duration_seconds, version
 
-        if job_id is not None:
-            asset_id = None
-            if notification.asset_id is not None:
-                logger.debug("Got asset id.: " + notification.asset_id)
-                asset_id = notification.asset_id
-            try:
-                asset = DeliverableAsset.objects.get(job_id=job_id)
-            except DeliverableAsset.DoesNotExist:
-                if asset_id is not None:
-                    logger.warning("Received a message for asset {0} that does not exist".format(asset_id))
-                    return
+    def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body: dict):
+        """
+        receives the validated vidispine json message.
+        :param exchange_name:
+        :param routing_key:
+        :param delivery_tag:
+        :param body:
+        :return:
+        """
+        logger.debug("Got incoming message: " + str(body))
+        try:
+            notification = JobNotification(body)
+        except Exception as e:
+            logger.warning("Incoming message lacked one or more required fields. {0}".format(e))
+            return
 
-        if job_status is not None:
-            if job_status == 'FAILED_TOTAL' or job_status == 'ABORTED_PENDING' or job_status == "ABORTED":
-                if job_type == 'TRANSCODE':
-                    asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED
-                else:
-                    asset.status = DELIVERABLE_ASSET_STATUS_INGEST_FAILED
+        try:
+            asset = DeliverableAsset.objects.get(job_id=notification.jobId)
+        except DeliverableAsset.DoesNotExist:
+            logger.warning("Received a message for job {0}. Cannot find a matching asset.".format(notification.jobId))
+            return
+
+        if notification.status in ['FAILED_TOTAL', 'ABORTED_PENDING', 'ABORTED']:
+            if notification.type == 'TRANSCODE':
+                asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED
+            else:
+                asset.status = DELIVERABLE_ASSET_STATUS_INGEST_FAILED
+            asset.ingest_complete_dt = get_current_time()
+            asset.save()
+        elif notification.status == 'READY' or notification.status == 'STARTED' or notification.status == 'VIDINET_JOB':
+            if notification.type == 'TRANSCODE':
+                asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODING
+            else:
+                asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
+            asset.save()
+        elif notification.status == 'FINISHED':
+            if notification.type == 'TRANSCODE':
+                asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
+                duration_seconds, version = self.get_item_metadata(notification.itemId)
+                try:
+                    asset.version = int(version)
+                except ValueError as e:
+                    logger.warning("{0}: asset version '{1}' could not be converted into number".format(notification.itemId, version))
+                asset.duration_seconds = duration_seconds
                 asset.ingest_complete_dt = get_current_time()
-                asset.save()
-            elif job_status == 'READY' or job_status == 'STARTED' or job_status == 'VIDINET_JOB':
-                if job_type == 'TRANSCODE':
-                    asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODING
-                else:
-                    asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
-                asset.save()
-            elif job_status == 'FINISHED':
-                if job_type == 'TRANSCODE':
+            else:
+                asset.online_item_id = notification.itemId
+                if asset.type in [DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS, DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS, DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE]:
                     asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
-                    try:
-                        asset.version = int(version)
-                    except ValueError as e:
-                        logger.warning("{0}: asset version '{1}' could not be converted into number".format(item_id, version))
-                    asset.duration_seconds = duration_seconds
-                    asset.ingest_complete_dt = get_current_time()
                 else:
-                    asset.online_item_id = item_id
-                    if asset.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
-                        asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
-                    else:
-                        asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
-                asset.save()
+                    asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
+            asset.save()
 
-                sleep(randint(2,16))
+            sleep(randint(2,16))
 
-                if job_type != 'TRANSCODE':
-                    if asset.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or asset.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
-                        logger.debug("Nothing to do.")
-                    else:
+            if notification.type != 'TRANSCODE':
+                if asset.type in [DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS, DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS, DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE]:
+                    logger.debug("Nothing to do.")
+                else:
+                    try:
+                        asset_two = DeliverableAsset.objects.get(job_id=notification.jobId)
+                    except DeliverableAsset.DoesNotExist:
+                        logger.warning("Received a message for job {0}. Cannot find a matching asset.".format(notification.jobId))
+                        return
+                    if asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODING and asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODED:
                         try:
-                            asset_two = DeliverableAsset.objects.get(job_id=job_id)
-                        except DeliverableAsset.DoesNotExist:
-                            if asset_id is not None:
-                                logger.warning("Received a message for asset {0} that does not exist".format(asset_id))
-                                return
-                        if asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODING and asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODED:
-                            try:
-                                asset.create_proxy()
-                            except Exception as e:
-                                logger.exception(
-                                    "{0} for asset {1} in bundle {2}: could not create proxy due to:".format(
-                                        asset.online_item_id,
-                                        asset.id,
-                                        asset.deliverable.id),
-                                    exc_info=e)
+                            asset.create_proxy()
+                        except Exception as e:
+                            logger.exception(
+                                "{0} for asset {1} in bundle {2}: could not create proxy due to:".format(
+                                    asset.online_item_id,
+                                    asset.id,
+                                    asset.deliverable.id),
+                                exc_info=e)
