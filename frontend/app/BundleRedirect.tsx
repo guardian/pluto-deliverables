@@ -15,6 +15,7 @@ const BundleRedirect: React.FC<RouteComponentProps> = (props) => {
   const [lastError, setLastError] = useState<string | null>(null);
 
   const history = useHistory();
+  // @ts-ignore
   const { bundleId } = useParams();
 
   useEffect(() => {
