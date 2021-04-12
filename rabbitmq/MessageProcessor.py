@@ -1,6 +1,8 @@
 import jsonschema
 import json
 import logging
+
+import pika.spec
 from rest_framework.parsers import JSONParser
 import io
 
@@ -48,16 +50,17 @@ class MessageProcessor(object):
         else:
             raise ValueError(str(serializer_inst.errors))
 
-    def raw_message_receive(self, channel, method, properties, body):
+    def raw_message_receive(self, channel, method:pika.spec.Basic.Deliver, properties:pika.spec.BasicProperties, body:bytes):
         """
-        called from the pika library when data is received on our channel.
+        called from the pika library when data is received on our channel -
+        see https://pika.readthedocs.io/en/stable/modules/channel.html#pika.channel.Channel.basic_consume
         the implementation will attempt to decode the body as JSON and validate it using jsonschema against
         the schema provided by the `schema` member before passing it on to valid_message_receive
         normally you DON'T want to over-ride this, you want valid_message_receive
-        :param channel:
-        :param method:
-        :param properties:
-        :param body:
+        :param channel: pika.channel.Channel object
+        :param method: pika.spec.Basic.Deliver object - basic metadata about the deliver
+        :param properties: pika.spec.BasicProperties object
+        :param body: byte array of the message content
         :return:
         """
         tag = method.delivery_tag
@@ -74,8 +77,11 @@ class MessageProcessor(object):
                 channel.basic_nack(delivery_tag=tag, requeue=True)
 
         except Exception as e:
-            logger.exception("Message did not validate: ", exc_info=e)
-            logger.error("Offending message content was {0}".format(body.decode('UTF-8')))
+            logger.exception("Message from {0} via {1} with delivery tag {2} did not validate: {3}"
+                             .format(method.routing_key, method.exchange, method.delivery_tag, str(e)), exc_info=e)
+            logger.error("Offending message content from {0} via {1} with delivery tag {2} was {3}"
+                         .format(method.routing_key, method.exchange, method.delivery_tag, body.decode('UTF-8')))
+
             channel.basic_nack(delivery_tag=tag, requeue=False)
             return
 
