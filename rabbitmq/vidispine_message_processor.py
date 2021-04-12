@@ -128,9 +128,9 @@ class VidispineMessageProcessor(MessageProcessor):
                     logger.debug("Nothing to do.")
                 else:
                     try:
-                        asset_two = DeliverableAsset.objects.get(job_id=notification.jobId)
+                        asset_two = DeliverableAsset.objects.get(online_item_id=notification.itemId)
                     except DeliverableAsset.DoesNotExist:
-                        logger.warning("Received a message for job {0}. Cannot find a matching asset.".format(notification.jobId))
+                        logger.warning("Received a message for item {0}. Cannot find a matching asset.".format(notification.itemId))
                         return
                     if asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODING and asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODED:
                         try:
