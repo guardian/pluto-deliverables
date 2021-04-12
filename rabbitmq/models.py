@@ -13,11 +13,11 @@ class AtomResponderMessage(Model):
     """
     title = TextField(max_length=32768)
     type = TextField(max_length=128)
-    projectId = TextField(max_length=128)
+    projectId = TextField(max_length=128, null=True, blank=True)
     atomId = UUIDField()
-    jobId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
-    itemId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')])
-    commissionId = IntegerField()
+    jobId = TextField(max_length=128, validators=[RegexValidator(r'^\w{2}-\d+')], null=True, blank=True)    #these must be blankable to handle "project reassignment" messages
+    itemId = TextField(max_length=128)  #sometimes this is set to the atom uuid
+    commissionId = IntegerField(null=True, blank=True)
     size = IntegerField(null=True, blank=True)
     mtime = FloatField(null=True, blank=True)
     ctime = FloatField(null=True, blank=True)

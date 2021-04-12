@@ -16,6 +16,13 @@ class AtomResponderProcessor(MessageProcessor):
     serializer = AtomMessageSerializer
 
     def get_or_create_bundle(self, projectid: str, commissionId:int) -> Deliverable:
+        """
+        Looks up a deliverable bundle for the given (pluto-core) projectID. If none is found
+        then a new one is created for the given project and commission IDs
+        :param projectid: project ID to create a bundle for
+        :param commissionId: commission relating to that project. Only used when creating a new bundle.
+        :return: a Deliverable model instance
+        """
         try:
             bundle = Deliverable.objects.get(pluto_core_project_id=int(projectid))
         except ValueError:
@@ -26,6 +33,22 @@ class AtomResponderProcessor(MessageProcessor):
                 commission_id=commissionId,
                 pluto_core_project_id=projectid,
                 name="Deliverables for {}".format(projectid)
+            )
+            bundle.save()
+        return bundle
+
+    def get_or_create_unattached_bundle(self) -> Deliverable:
+        """
+        Gets the special bundle for unattached projects, or creates it if it does not exist
+        :return: a Deliverable model instance
+        """
+        try:
+            bundle = Deliverable.objects.get(pluto_core_project_id=-1)
+        except Deliverable.DoesNotExist:
+            bundle = Deliverable(
+                commission_id=-1,
+                pluto_core_project_id=-1,
+                name="Unattached media atom masters"
             )
             bundle.save()
         return bundle
@@ -51,7 +74,10 @@ class AtomResponderProcessor(MessageProcessor):
         ##if we get here, there is no DeliverableAsset attached to the given id
         logger.info("No pre-existing asset for atom id {}, creating one".format(atomid))
 
-        bundle = self.get_or_create_bundle(projectid, commissionId)
+        if projectid is None:
+            bundle = self.get_or_create_unattached_bundle()
+        else:
+            bundle = self.get_or_create_bundle(projectid, commissionId)
 
         asset = DeliverableAsset(
             type=AssetChoices.DELIVERABLE_ASSET_TYPE_VIDEO_FULL_MASTER,
@@ -61,7 +87,7 @@ class AtomResponderProcessor(MessageProcessor):
         return asset, True
 
     def reassign_project(self, asset:DeliverableAsset, projectId:str, commissionId:int):
-        logger.info("Reassigning project of {} to id {}", str(asset), projectId)
+        logger.info("Reassigning project of {} to id {}".format(str(asset), projectId))
         new_bundle = self.get_or_create_bundle(projectId, commissionId)
         asset.deliverable = new_bundle
         asset.save()
@@ -94,7 +120,7 @@ class AtomResponderProcessor(MessageProcessor):
         msg = AtomResponderMessage(**body)
 
         if msg.type == const.MESSAGE_TYPE_MEDIA or msg.type == const.MESSAGE_TYPE_RESYNC_MEDIA:
-            logger.info("Received notification of a new master {0} at item {1}".format(msg.title, msg.itemId))
+            logger.info("Received notification of a master {0} at item {1}".format(msg.title, msg.itemId))
             (asset, created) = self.get_or_create_record(msg.atomId, msg.projectId, msg.commissionId)
             asset.online_item_id = msg.itemId
             asset.job_id = msg.jobId    ##once we save this value, we can process the notifications when the job completes
