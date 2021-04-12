@@ -121,7 +121,7 @@ class VidispineMessageProcessor(MessageProcessor):
                     asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
             asset.save()
 
-            sleep(randint(2,16))
+            #sleep(randint(2,16))
 
             if notification.type != 'TRANSCODE':
                 if asset.type in [DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS, DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS, DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE]:
