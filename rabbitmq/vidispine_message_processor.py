@@ -77,10 +77,10 @@ class VidispineMessageProcessor(MessageProcessor):
         :param body:
         :return:
         """
-        logger.info("Got incoming message: " + str(body))
-        logger.info("Exchange name: {0}".format(exchange_name))
-        logger.info("Routing key: {0}".format(routing_key))
-        logger.info("Delivery tag: {0}".format(delivery_tag))
+        logger.debug("Got incoming message: " + str(body))
+        logger.debug("Exchange name: {0}".format(exchange_name))
+        logger.debug("Routing key: {0}".format(routing_key))
+        logger.debug("Delivery tag: {0}".format(delivery_tag))
 
         try:
             notification = JobNotification(body)
@@ -123,20 +123,7 @@ class VidispineMessageProcessor(MessageProcessor):
                     asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
                 else:
                     asset.status = DELIVERABLE_ASSET_STATUS_INGESTED
-            asset.save()
-
-            #sleep(randint(2,16))
-
-            if notification.type != 'TRANSCODE' and routing_key == 'vidispine.job.essence_version.stop':
-                if asset.type in [DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS, DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS, DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE]:
-                    logger.debug("Nothing to do.")
-                else:
-                    try:
-                        asset_two = DeliverableAsset.objects.get(online_item_id=notification.itemId)
-                    except DeliverableAsset.DoesNotExist:
-                        logger.warning("Received a message for item {0}. Cannot find a matching asset.".format(notification.itemId))
-                        return
-                    if asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODING and asset_two.status != DELIVERABLE_ASSET_STATUS_TRANSCODED:
+                    if routing_key == 'vidispine.job.essence_version.stop':
                         try:
                             asset.create_proxy()
                         except Exception as e:
@@ -146,3 +133,4 @@ class VidispineMessageProcessor(MessageProcessor):
                                     asset.id,
                                     asset.deliverable.id),
                                 exc_info=e)
+            asset.save()
