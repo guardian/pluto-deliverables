@@ -127,7 +127,7 @@ class VidispineMessageProcessor(MessageProcessor):
 
             #sleep(randint(2,16))
 
-            if notification.type != 'TRANSCODE':
+            if notification.type != 'TRANSCODE' and routing_key == 'vidispine.job.essence_version.stop':
                 if asset.type in [DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS, DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS, DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE]:
                     logger.debug("Nothing to do.")
                 else:
