@@ -12,8 +12,6 @@ from gnm_deliverables.choices import DELIVERABLE_ASSET_TYPES, \
     DELIVERABLE_ASSET_STATUS_TRANSCODE_FAILED, DELIVERABLE_ASSET_STATUS_TRANSCODING
 from rabbitmq.time_funcs import get_current_time
 from gnm_deliverables.models import *
-from time import sleep
-from random import randint
 
 logger = logging.getLogger(__name__)
 
