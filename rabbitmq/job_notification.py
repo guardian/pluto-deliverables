@@ -27,6 +27,10 @@ class JobNotification(object):
 
     REQUIRED_FIELDS = ["jobId", "itemId", "status"]
     def validate(self):
+        """
+        Checks that the contained message contains the fields we are expecting, as defined by the static list JobNotification.REQUIRED_FIELDS.
+        :return: a boolean indicating True for valid or False for invalid
+        """
         try:
             for f in self.REQUIRED_FIELDS:
                for entry in self._content["field"]:
