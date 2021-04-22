@@ -1,5 +1,6 @@
 from .AtomResponderProcessor import AtomResponderProcessor
 from .AssetUpdatedProcessor import AssetUpdatedProcessor
+from .vidispine_message_processor import VidispineMessageProcessor
 
 ##This structure is imported by name in the run_rabbitmq_responder
 EXCHANGE_MAPPINGS = [
@@ -9,6 +10,10 @@ EXCHANGE_MAPPINGS = [
     },
     {
         "exchange": 'pluto-deliverables',
-        "handler": AssetUpdatedProcessor()
+        "handler": AssetUpdatedProcessor(),
+    },
+    {
+        "exchange": 'vidispine-events',
+        "handler": VidispineMessageProcessor(),
     }
 ]
