@@ -20,6 +20,7 @@ django:
     - pip install -r requirements.txt
     - pip install -r gnmvidispine/requirements.txt
     - cd gnmvidispine && CIRCLE_BUILD_NUM=$CI_PIPELINE_IID python ./setup.py install && cd ..
+    - sleep 10
     - python ./manage.py test gnm_deliverables.tests
 
 frontend:
