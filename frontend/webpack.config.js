@@ -55,11 +55,6 @@ var config = {
         type: "javascript/auto", //see https://github.com/webpack/webpack/issues/11467
       },
       {
-        test: /\.[tj]sx?/,
-        include: APP_DIR,
-        loader: "ts-loader",
-      },
-      {
         test: /\.(css|s[ac]ss)$/,
         use: ["style-loader", "css-loader"],
       },
