@@ -178,7 +178,7 @@ TRANSCODE_PRESETS = {
 # No validation of the route name is made here, if the route does not exist then CDS will throw an error
 CDS_ROUTE_MAP = {
     "mainstream": "MainstreamMedia.xml",
-    "dailymotion": "Dailymotion.xml"
+    "dailymotion": "DailyMotion.xml"
 }
 
 # Static files (CSS, JavaScript, Images)
