@@ -8,6 +8,7 @@ import pika.exceptions
 from django.conf import settings
 from time import sleep
 from rabbitmq.declaration import declare_rabbitmq_setup
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -33,59 +34,54 @@ class MessageRelay(object):
         declare_rabbitmq_setup(channel)
         return channel
 
+    def send_content(self, routing_key:str, payload:bytes, connect_attempt=0):
+        max_attempts = getattr(settings,"RABBITMQ_MAX_SEND_ATTEMPTS",10)
+        try:
+            channel = MessageRelay.setup_connection()
+            channel.basic_publish(
+                exchange='pluto-deliverables',
+                routing_key=routing_key,
+                body=payload
+            )
+        except (pika.exceptions.ChannelWrongStateError, pika.exceptions.AMQPConnectionError, pika.exceptions.AMQPChannelError) as e:
+            if "CI" in os.environ:
+                logger.warning("Ignoring connection error as we are in CI mode")
+                return
+            if connect_attempt>max_attempts:
+                logger.error("Could not re-establish broker connection after {0} attempts, giving up")
+                raise
+            else:
+                sleep(2*connect_attempt)
+                logger.warning("Message queue connection was lost: {0}. Attempting to reconnect, attempt {1}".format(str(e), connect_attempt))
+                self.send_content(routing_key, payload, connect_attempt+1)
+
     def relay_message(self, affected_model, action):
         from .serializers import DeliverableSerializer, DeliverableAssetSerializer
-        send_attempt = 0
-        connect_attempt = 0
-        max_attempts = getattr(settings,"RABBITMQ_MAX_SEND_ATTEMPTS",10)
 
-        while True:
-            send_attempt+=1
-            if send_attempt>1:
-                logger.info("trying to send update message, attempt {0}".format(send_attempt))
-            try:
-                if isinstance(affected_model, Deliverable):
-                    logger.info("{0} an instance of Deliverable with id {1}".format(action, affected_model.project_id))
-                    content = DeliverableSerializer(affected_model)
-                elif isinstance(affected_model, DeliverableAsset):
-                    logger.info("{0} an instance of DeliverableAsset with id {1} at {2}".format(action, affected_model.pk, affected_model.absolute_path))
-                    content = DeliverableAssetSerializer(affected_model)
-                elif affected_model.__class__.__name__=="Migration": #silently ignore this one
-                    content = None
-                elif affected_model.__class__.__name__=="User": #silently ignore this one
-                    content = None
-                else:
-                    content = None
-                    logger.error("model_saved got an unexpected model class: {0}.{1}".format(affected_model.__class__.__module__, affected_model.__class__.__name__))
+        try:
+            if isinstance(affected_model, Deliverable):
+                logger.info("{0} an instance of Deliverable with id {1}".format(action, affected_model.project_id))
+                content = DeliverableSerializer(affected_model)
+            elif isinstance(affected_model, DeliverableAsset):
+                logger.info("{0} an instance of DeliverableAsset with id {1} at {2}".format(action, affected_model.pk, affected_model.absolute_path))
+                content = DeliverableAssetSerializer(affected_model)
+            elif affected_model.__class__.__name__=="Migration": #silently ignore this one
+                content = None
+            elif affected_model.__class__.__name__=="User": #silently ignore this one
+                content = None
+            else:
+                content = None
+                logger.error("model_saved got an unexpected model class: {0}.{1}".format(affected_model.__class__.__module__, affected_model.__class__.__name__))
 
-                if content:
-                    channel = MessageRelay.setup_connection()
-                    routing_key = "deliverables.{0}.{1}".format(affected_model.__class__.__name__.lower(), action)
-                    payload = JSONRenderer().render(content.data)
-                    channel.basic_publish(
-                        exchange='pluto-deliverables',
-                        routing_key=routing_key,
-                        body=payload
-                    )
-                break
-            except pika.exceptions.ChannelWrongStateError:
-                while True:
-                    connect_attempt +=1
-                    if connect_attempt>max_attempts:
-                        break
-                    logger.error("Message queue connection was lost. Attempting to reconnect, attempt {0}".format(connect_attempt))
-                    try:
-                        self.channel = self.setup_connection()
-                        logger.info("Connection re-established")
-                        break
-                    except Exception as e:
-                        logger.exception("Could not restart message queue connection", exc_info=e)
-                        sleep(2*connect_attempt)
-            except Exception as e:
-                logger.exception(e)
-                break
-            if connect_attempt>max_attempts:
-                raise RuntimeError("Could not connect to rabbitmq after {0} tries", max_attempts)
+            if content:
+                routing_key = "deliverables.{0}.{1}".format(affected_model.__class__.__name__.lower(), action)
+                payload = JSONRenderer().render(content.data)
+                self.send_content(routing_key, payload)
+
+        except Exception as e:
+            logger.error("Could not relay message of {0} on {1}: {2}".format(action, affected_model, str(e)))
+            logger.exception(e) #we don't want to bring down the app here, log it out and hope somebody sees
+
 
 
 msgrelay = MessageRelay()

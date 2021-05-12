@@ -174,8 +174,12 @@ TRANSCODE_PRESETS = {
     r'^application/x-material-exchange-format': "lowres"
 }
 
-# Watchfolder base path to output syndication trigger files
-CDS_WATCHFOLDER_PATH = os.environ.get("CDS_WATCHFOLDER_PATH")
+# Map of a valid CDS route name to the (lowercase) platform designation.
+# No validation of the route name is made here, if the route does not exist then CDS will throw an error
+CDS_ROUTE_MAP = {
+    "mainstream": "MainstreamMedia.xml",
+    "dailymotion": "Dailymotion.xml"
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

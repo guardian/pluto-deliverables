@@ -11,12 +11,13 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from gnm_deliverables.inmeta import write_inmeta
+from gnm_deliverables.inmeta import inmeta_to_string
 from django.conf import settings
 import os
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.models import DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
     LogEntry
+import json
 from gnm_deliverables.serializers import *
 from rabbitmq.time_funcs import get_current_time
 import requests
@@ -325,40 +326,63 @@ class PlatformLogUpdateView(APIView):
 class TriggerOutputView(APIView):
     authentication_classes = (JwtRestAuth, )
 
-    def post(self, request, project_id:int, platform:str, asset_id:int):
+    def post(self, *args, **kwargs):
         try:
-            asset = DeliverableAsset.objects.get(pk=asset_id)
+            return self.do_post(*args, **kwargs)
+        except Exception as e:
+            logger.error("Could not trigger metadata output: {0}".format(str(e)))
+            logger.exception("Trace was ", exc_info=e)
+            return Response({"status":"uncaught_error", "detail":str(e)})
+
+    def do_post(self, request, project_id:int, platform:str, asset_id:int):
+        from gnm_deliverables.signals import MessageRelay
+        try:
+            asset:DeliverableAsset = DeliverableAsset.objects.get(pk=asset_id)
         except DeliverableAsset.DoesNotExist:
             return Response({"status":"error","details":"Asset not found"}, status=404)
 
-        output_dir = getattr(settings,"CDS_WATCHFOLDER_PATH")
-        if output_dir is None:
-            logger.warning("CDS_WATCHFOLDER_PATH not set, can't output syndication")
-            return Response({"status":"error","details":"CDS_WATCHFOLDER_PATH not set"}, status=500)
+        try:
+            relay = MessageRelay()
+        except Exception as e:
+            logger.error("Could not initialise message relay: {0}".format(e))
+            return Response({"status":"error","details": "could not initialise message relay"}, status=500)
+
+        routes_map:dict = getattr(settings, "CDS_ROUTE_MAP")
+        if routes_map is None:
+            logger.error("Could not find CDS_ROUTE_MAP in the configuration")
+            return Response({"status":"config_error","details": "CDS_ROUTE_MAP not in configuration"}, status=500)
 
         platform_name = platform.lower()
-        if platform_name=="mainstream":
-            if not asset.mainstream_master:
-                return Response({"status":"error","details":"No mainstream syndication data"}, status=400)
-            else:
-                filepath = write_inmeta(asset, platform_name, os.path.join(output_dir, platform_name))
-                asset.mainstream_master.upload_status = 'Ready for Upload'
-                asset.mainstream_master.save()
-                return Response({"status":"ok","filepath":filepath})
-        elif platform_name=="dailymotion":
-            if not asset.DailyMotion_master:
-                return Response({"status":"error","details":"No daily motion syndication data"}, status=400)
-            else:
-                filepath = write_inmeta(asset, platform_name, os.path.join(output_dir, platform_name))
-                asset.DailyMotion_master.upload_status = 'Ready for Upload'
-                asset.DailyMotion_master.save()
-                return Response({"status":"ok","filepath":filepath})
-        elif platform_name=="youtube":
-            return Response({"status":"error","detail":"Youtube syndication should go via media atom tool"},status=400)
-        elif platform_name=="gnmwebsite":
-            return Response({"status":"error","detail":"GNM website should go via the media atom tool"},status=400)
-        else:
-            return Response({"status":"error","detail":"Unrecognised platform name"})
+        route_name = routes_map.get(platform_name)
+        if route_name is None:
+            logger.error("Platform {0} was not recognised. CDS_ROUTE_MAP has {1}".format(platform_name, routes_map))
+            return Response({"status":"bad_request","detail": "Platform name not recognised"}, status=400)
+
+        routing_key = "deliverables.syndication.{0}.upload".format(platform_name)
+
+        message_content = {
+            "inmeta": inmeta_to_string(asset, platform_name),
+            "deliverable_asset": asset.pk,
+            "deliverable_bundle": asset.deliverable.pk,
+            "filename": os.path.basename(asset.filename),
+            "online_id": asset.online_item_id,
+            "nearline_id": asset.nearline_item_id,
+            "archive_id": asset.archive_item_id,
+            "routename": route_name
+        }
+        try:
+            encoded_payload = json.dumps(message_content).encode("UTF-8")
+        except Exception as e:
+            logger.error("Could not encode the message content payload: {0}".format(str(e)))
+            logger.error("Offending content was {0}".format(message_content))
+            return Response({"status":"error","detail":str(e)})
+
+        try:
+            relay.send_content(routing_key, encoded_payload)
+            return Response({"status":"ok","routing_key":routing_key})
+        except Exception as e:
+            logger.error("Could not send message to {0}: {1}".format(routing_key, str(e)))
+            return Response({"status":"error","detail": "Could not send message to broker"}, status=500)
 
 
 class ResyncToPublished(APIView):
