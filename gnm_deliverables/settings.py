@@ -27,7 +27,7 @@ if "KUBERNETES_PORT" in os.environ:
 else:
     DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['pluto-deliverables:9000']
 if "DEPLOYMENT_HOST" in os.environ:
     ALLOWED_HOSTS.append(os.environ["DEPLOYMENT_HOST"])
 if "CALLBACK_HOST" in os.environ:
