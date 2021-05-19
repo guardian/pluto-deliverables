@@ -13,8 +13,8 @@ class JobNotification(object):
 
     def __init__(self, jsondict: dict):
         self._content = jsondict
-        if not self.validate():
-            raise Exception
+        if jsondict is not None and not self.validate():
+            raise ValueError("The provided json data is not a vidispine job document")
 
     def __getattr__(self, item):
         for entry in self._content["field"]:
