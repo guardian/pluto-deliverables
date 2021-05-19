@@ -356,6 +356,7 @@ class DeliverableAsset(models.Model):
             logger.info("Item {0} already has a shape {1}, not transcoding it".format(item_info.name, preset_name))
             self.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
             self.save()
+            return  #don't proceed to make a transcode if one already exists!
         except VSNotFound:
             pass
 

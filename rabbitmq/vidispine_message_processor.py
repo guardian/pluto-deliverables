@@ -42,7 +42,15 @@ class VidispineMessageProcessor(MessageProcessor):
         }
     }
 
-    def get_item_metadata(self, item_id):
+    DONT_TRANSCODE_THESE_TYPES = [DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS,
+                                  DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS,
+                                  DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT,
+                                  DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE
+                                  ]
+
+    def get_item_metadata(self, item_id) -> (float, str):
+        duration_seconds=None
+        version=None
         if item_id is not None:
             try:
                 vs_item = VSItem(url=settings.VIDISPINE_URL,
@@ -86,6 +94,15 @@ class VidispineMessageProcessor(MessageProcessor):
             logger.warning("Incoming message lacked one or more required fields. {0}".format(e))
             return
 
+        return self.handle_notification(notification, routing_key)
+
+    def handle_notification(self, notification:JobNotification, routing_key:str):
+        """
+        takes a constructed JobNotification, works out what it means and performs the relevant actions
+        :param notification: JobNotification instance
+        :param routing_key: routing key with which this was sent
+        :return: none
+        """
         try:
             asset = DeliverableAsset.objects.get(job_id=notification.jobId)
         except DeliverableAsset.DoesNotExist:
@@ -105,7 +122,7 @@ class VidispineMessageProcessor(MessageProcessor):
             else:
                 asset.status = DELIVERABLE_ASSET_STATUS_INGESTING
             asset.save()
-        elif notification.status == 'FINISHED':
+        elif notification.status in ['FINISHED','FINISHED_WARNING']:
             if notification.type == 'TRANSCODE':
                 asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
                 duration_seconds, version = self.get_item_metadata(notification.itemId)
@@ -117,7 +134,7 @@ class VidispineMessageProcessor(MessageProcessor):
                 asset.ingest_complete_dt = get_current_time()
             else:
                 asset.online_item_id = notification.itemId
-                if asset.type in [DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS, DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS, DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT, DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE]:
+                if asset.type in self.DONT_TRANSCODE_THESE_TYPES:
                     asset.status = DELIVERABLE_ASSET_STATUS_TRANSCODED
                 else:
                     asset.status = DELIVERABLE_ASSET_STATUS_INGESTED

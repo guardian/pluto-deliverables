@@ -1,0 +1,33 @@
+- model: gnm_deliverables.deliverable
+  pk: 1
+  fields:
+    project_id: null
+    commission_id: 12
+    pluto_core_project_id: 12
+    name: gsdfg
+    created: 2020-08-18 11:20:55.206046+00:00
+- model: gnm_deliverables.deliverableasset
+  pk: 1
+  fields:
+    type: 11  # PAC FORM
+    filename: test_pac_form.pdf
+    absolute_path: /tmp/gsdfg/test_pac_form.pdf
+    size: 768506239
+    access_dt: 2020-08-18 11:21:46.335402+00:00
+    modified_dt: 2020-08-18 11:21:48.615383+00:00
+    changed_dt: 2020-08-18 11:21:48.615383+00:00
+    job_id: VX-99998
+    online_item_id: "VX-41"
+    nearline_item_id: null
+    archive_item_id: null
+    ingest_complete_dt: null
+    file_removed_dt: null
+    status: 1
+    created_from_existing_item: false
+    deliverable: 1
+    gnm_website_master: null
+    youtube_master: null
+    DailyMotion_master: null
+    mainstream_master: null
+    atom_id: null
+
