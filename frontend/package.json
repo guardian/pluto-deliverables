@@ -75,7 +75,8 @@
     "ts-jest": "^26.5.4",
     "ts-loader": "^7.0.5",
     "typescript": "^4.2.4",
-    "vm-browserify": "^1.1.2"
+    "vm-browserify": "^1.1.2",
+    "url-loader": "^4.1.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.26",

@@ -10,7 +10,8 @@ from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingV
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet, \
     DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView, GenericAssetSearchAPI, NewDeliverabesApiBundleGet, \
-    BundlesForCommission, RetryJobForAsset, InvalidAPIList, CountInvalid, CountInvalidByType, CountInvalidByStatus
+    BundlesForCommission, RetryJobForAsset, InvalidAPIList, CountInvalid, CountInvalidByType, CountInvalidByStatus, GetAssetView
+
 
 urlpatterns = [
     path(r'api/asset/byFileName', SearchForDeliverableAPIView.as_view()),
@@ -20,6 +21,8 @@ urlpatterns = [
     path(r'api/bundle/byproject/<int:projectId>', NewDeliverablesApiGet.as_view()),
     path(r'api/bundle/bybundleid/<int:bundleId>', NewDeliverabesApiBundleGet.as_view()),
     path(r'api/bundle/new', NewDeliverablesAPICreate.as_view(), name='bundle-create'),
+    path(r'api/asset/<int:assetId>', GetAssetView.as_view()),
+    path(r'api/bundle/new', NewDeliverablesAPICreate.as_view()),
     path(r'api/bundle/scan', NewDeliverableAPIScan.as_view()),
     path(r'api/bundle/adopt', AdoptExistingVidispineItemView.as_view(), name="adopt-asset"),
     path(r'api/bundle', NewDeliverablesAPIList.as_view(), name="new-api-list"),

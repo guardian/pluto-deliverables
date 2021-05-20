@@ -28,6 +28,20 @@ var config = {
   module: {
     rules: [
       {
+        test: /\.[tj]sx?/,
+        include: APP_DIR,
+        loader: "ts-loader",
+      },
+      {
+        test: /\.(png|jpg|gif)$/i,
+        use: [{
+          loader: "url-loader",
+          options: {
+            encoding: "base64"
+          }
+        }]
+      },
+      {
         enforce: "pre",
         test: /\.js$/,
         exclude: /node_modules/,
@@ -39,11 +53,6 @@ var config = {
           fullySpecified: false,
         },
         type: "javascript/auto", //see https://github.com/webpack/webpack/issues/11467
-      },
-      {
-        test: /\.[tj]sx?/,
-        include: APP_DIR,
-        loader: "ts-loader",
       },
       {
         test: /\.(css|s[ac]ss)$/,
