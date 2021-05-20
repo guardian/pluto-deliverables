@@ -215,6 +215,8 @@ class DeliverableAsset(models.Model):
 
     duration_seconds = models.FloatField(null=True, blank=True)
     version = models.IntegerField(null=True, blank=True)
+    linked_to_lowres = models.BooleanField(null=True, blank=True)
+    
     # Fields set by atom responder
     atom_id = models.UUIDField(null=True)
 
