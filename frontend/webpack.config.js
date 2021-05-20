@@ -33,15 +33,6 @@ var config = {
         loader: "ts-loader",
       },
       {
-        test: /\.(png|jpg|gif)$/i,
-        use: [{
-          loader: "url-loader",
-          options: {
-            encoding: "base64"
-          }
-        }]
-      },
-      {
         enforce: "pre",
         test: /\.js$/,
         exclude: /node_modules/,
