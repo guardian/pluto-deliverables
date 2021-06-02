@@ -41,7 +41,7 @@ def find_free_filepath(output_dir:str, filebase:str)->str:
         i+=1
 
 
-def write_inmeta(asset:DeliverableAsset, platform:str, output_dir:str)->str:
+def inmeta_to_string(asset:DeliverableAsset, platform:str)->str:
     content = make_doc(asset, platform)
 
     if content is None:
@@ -59,12 +59,11 @@ def write_inmeta(asset:DeliverableAsset, platform:str, output_dir:str)->str:
         logger.error("Could not determine a filename for asset {0} - no online id, nearline id or filename available!".format(asset.id))
         raise ValueError("Could not determine a filename")
 
-    safe_filename = safe_filename.encode("ASCII",errors='ignore').decode("ASCII")
-    filepath = find_free_filepath(output_dir, os.path.basename(safe_filename))
-    logger.debug("Writing inmeta to {0}".format(filepath))
-    with open(filepath, "wb") as f:
-        f.write(ET.tostring(content, "UTF-8"))
-    return filepath
+    xml_content = ET.tostring(content, "UTF-8")
+    if isinstance(xml_content, bytes):
+        return xml_content.decode("UTF-8")
+    else:
+        return xml_content
 
 
 def make_doc(asset:DeliverableAsset, platform:str) -> ET.Element:

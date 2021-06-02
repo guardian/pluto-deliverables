@@ -27,7 +27,7 @@ if "KUBERNETES_PORT" in os.environ:
 else:
     DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['pluto-deliverables:9000']
 if "DEPLOYMENT_HOST" in os.environ:
     ALLOWED_HOSTS.append(os.environ["DEPLOYMENT_HOST"])
 if "CALLBACK_HOST" in os.environ:
@@ -174,8 +174,12 @@ TRANSCODE_PRESETS = {
     r'^application/x-material-exchange-format': "lowres"
 }
 
-# Watchfolder base path to output syndication trigger files
-CDS_WATCHFOLDER_PATH = os.environ.get("CDS_WATCHFOLDER_PATH")
+# Map of a valid CDS route name to the (lowercase) platform designation.
+# No validation of the route name is made here, if the route does not exist then CDS will throw an error
+CDS_ROUTE_MAP = {
+    "mainstream": "MainstreamMedia.xml",
+    "dailymotion": "DailyMotion.xml"
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
