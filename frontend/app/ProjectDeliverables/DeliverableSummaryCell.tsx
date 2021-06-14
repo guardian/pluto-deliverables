@@ -1,11 +1,11 @@
 import React from "react";
 import {
-    Grid,
-    IconButton,
-    TableCell,
-    Tooltip,
-    Typography,
-    makeStyles,
+  Grid,
+  IconButton,
+  TableCell,
+  Tooltip,
+  Typography,
+  makeStyles,
 } from "@material-ui/core";
 // @ts-ignore
 import atomIcon from "../static/atom_icon.svg";
@@ -17,9 +17,9 @@ interface DeliverableSummaryCellProps {
 }
 
 const useStyles = makeStyles({
-    greyText: {
-        color: "#868686"
-    }
+  greyText: {
+    color: "#868686",
+  },
 });
 
 //import globals that were set by the backend
@@ -33,7 +33,13 @@ const DeliverableSummaryCell: React.FC<DeliverableSummaryCellProps> = (
   return (
     <Grid container direction="row" alignItems="center" justify="space-between">
       <Grid item>
-        {props.deliverable.linked_to_lowres ? (<Typography className={classes.greyText}>{props.deliverable.filename}</Typography>) : (<Typography>{props.deliverable.filename}</Typography>)}
+        {props.deliverable.linked_to_lowres ? (
+          <Typography className={classes.greyText}>
+            {props.deliverable.filename}
+          </Typography>
+        ) : (
+          <Typography>{props.deliverable.filename}</Typography>
+        )}
       </Grid>
       <Grid item>
         {props.deliverable.atom_id ? (

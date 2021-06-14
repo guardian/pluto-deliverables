@@ -35,7 +35,7 @@ describe("MasterList", () => {
       status_string: "",
       atom_id: null,
       absolute_path: null,
-      linked_to_lowres: null
+      linked_to_lowres: null,
     };
     moxios.install();
   });
