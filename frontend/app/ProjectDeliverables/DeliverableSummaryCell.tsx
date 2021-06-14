@@ -1,10 +1,11 @@
 import React from "react";
 import {
-  Grid,
-  IconButton,
-  TableCell,
-  Tooltip,
-  Typography,
+    Grid,
+    IconButton,
+    TableCell,
+    Tooltip,
+    Typography,
+    makeStyles,
 } from "@material-ui/core";
 // @ts-ignore
 import atomIcon from "../static/atom_icon.svg";
@@ -15,6 +16,12 @@ interface DeliverableSummaryCellProps {
   deliverable: Deliverable;
 }
 
+const useStyles = makeStyles({
+    greyText: {
+        color: "#868686"
+    }
+});
+
 //import globals that were set by the backend
 declare var mediaAtomToolUrl: string;
 declare var archiverHunterURL: string;
@@ -22,10 +29,11 @@ declare var archiverHunterURL: string;
 const DeliverableSummaryCell: React.FC<DeliverableSummaryCellProps> = (
   props
 ) => {
+  const classes = useStyles();
   return (
     <Grid container direction="row" alignItems="center" justify="space-between">
       <Grid item>
-        <Typography>{props.deliverable.filename}</Typography>
+        {props.deliverable.linked_to_lowres ? (<Typography className={classes.greyText}>{props.deliverable.filename}</Typography>) : (<Typography>{props.deliverable.filename}</Typography>)}
       </Grid>
       <Grid item>
         {props.deliverable.atom_id ? (
