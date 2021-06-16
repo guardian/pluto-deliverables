@@ -33,13 +33,13 @@ const DeliverableSummaryCell: React.FC<DeliverableSummaryCellProps> = (
   return (
     <Grid container direction="row" alignItems="center" justify="space-between">
       <Grid item>
-        {props.deliverable.linked_to_lowres ? (
-          <Typography className={classes.greyText}>
-            {props.deliverable.filename}
-          </Typography>
-        ) : (
-          <Typography>{props.deliverable.filename}</Typography>
-        )}
+        <Typography
+          className={
+            props.deliverable.linked_to_lowres ? classes.greyText : undefined
+          }
+        >
+          {props.deliverable.filename}
+        </Typography>
       </Grid>
       <Grid item>
         {props.deliverable.atom_id ? (
