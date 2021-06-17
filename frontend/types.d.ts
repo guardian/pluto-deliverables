@@ -30,6 +30,7 @@ interface Deliverable {
   status_string: string;
   atom_id: string | null;
   absolute_path: string | null;
+  linked_to_lowres: boolean | null;
 }
 
 interface CreateGuardianMaster {
