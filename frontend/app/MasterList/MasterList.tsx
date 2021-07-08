@@ -29,9 +29,7 @@ import {
   getDeliverableDailymotion,
   getDeliverableMainstream,
 } from "../utils/master-api-service";
-import SystemNotification, {
-  SystemNotificationKind,
-} from "../SystemNotification";
+import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import SyndicationTrigger from "./SyndicationTrigger";
 import SyndicationLastLog from "./SyndicationLastLog";
 
@@ -131,7 +129,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
 
   const displayError = (error: any) => {
     if (error) {
-      SystemNotification.open(SystemNotificationKind.Error, error?.toString());
+      SystemNotification.open(SystemNotifcationKind.Error, error?.toString());
     }
   };
 

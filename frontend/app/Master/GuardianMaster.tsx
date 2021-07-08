@@ -24,9 +24,7 @@ import {
   resyncToPublished,
   updateGNMDeliverable,
 } from "../utils/master-api-service";
-import SystemNotification, {
-  SystemNotificationKind,
-} from "../SystemNotification";
+import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
 
 const useStyles = makeStyles({
@@ -164,14 +162,14 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
       if (isEditing) {
         await updateGNMDeliverable(projectid, assetid, master);
         SystemNotification.open(
-          SystemNotificationKind.Success,
+          SystemNotifcationKind.Success,
           `Successfully Updated GNM Website!`
         );
         navigateBack();
       } else {
         await createGNMDeliverable(projectid, assetid, master);
         SystemNotification.open(
-          SystemNotificationKind.Success,
+          SystemNotifcationKind.Success,
           `Successfully Created GNM Website!`
         );
         navigateBack();
@@ -179,7 +177,7 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
     } catch (error) {
       console.error(error);
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Failed to ${isEditing ? "Update" : "Create"}  GNM Website.`
       );
     }
@@ -193,13 +191,13 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
     try {
       await deleteGNMDeliverable(projectid, assetid);
       SystemNotification.open(
-        SystemNotificationKind.Success,
+        SystemNotifcationKind.Success,
         `Successfully deleted website information`
       );
       navigateBack();
     } catch (error) {
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Failed to delete website information`
       );
     }
@@ -237,12 +235,12 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
         props.match.params.assetid
       );
       SystemNotification.open(
-        SystemNotificationKind.Success,
+        SystemNotifcationKind.Success,
         "Requested resync, data should arrive within a couple of minutes."
       );
     } catch (err) {
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Could not request resync, ${err}`
       );
     }

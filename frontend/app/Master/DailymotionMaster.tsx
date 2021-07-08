@@ -24,9 +24,7 @@ import {
   deleteDailymotionDeliverable,
   getDeliverableYoutube,
 } from "../utils/master-api-service";
-import SystemNotification, {
-  SystemNotificationKind,
-} from "../SystemNotification";
+import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
 import DailyMotionChannelSelector from "./DailymotionChannelSelector";
 
@@ -165,14 +163,14 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
       if (isEditing) {
         await updateDailymotionDeliverable(projectid, assetid, master);
         SystemNotification.open(
-          SystemNotificationKind.Success,
+          SystemNotifcationKind.Success,
           `Successfully Updated Dailymotion Master!`
         );
         navigateBack();
       } else {
         await createDailymotionDeliverable(projectid, assetid, master);
         SystemNotification.open(
-          SystemNotificationKind.Success,
+          SystemNotifcationKind.Success,
           `Successfully Created Dailymotion Master!`
         );
         navigateBack();
@@ -180,7 +178,7 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
     } catch (error) {
       console.error(error);
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Failed to ${isEditing ? "Update" : "Create"} Dailymotion Master.`
       );
     }
@@ -190,13 +188,13 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
     try {
       await deleteDailymotionDeliverable(projectid, assetid);
       SystemNotification.open(
-        SystemNotificationKind.Success,
+        SystemNotifcationKind.Success,
         `Successfully Deleted Dailymotion Master!`
       );
       navigateBack();
     } catch (error) {
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Failed to Delete Dailymotion Master.`
       );
     }
