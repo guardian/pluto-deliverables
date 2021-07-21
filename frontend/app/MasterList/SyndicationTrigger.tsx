@@ -21,9 +21,7 @@ import {
   Error,
 } from "@material-ui/icons";
 import axios from "axios";
-import SystemNotification, {
-  SystemNotificationKind,
-} from "../SystemNotification";
+import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import {
   createStyles,
   Theme,
@@ -404,13 +402,13 @@ const SyndicationTrigger: React.FC<SyndicationTriggerProps> = (props) => {
       console.log("send initiated");
       props.sendInitiated();
       SystemNotification.open(
-        SystemNotificationKind.Success,
+        SystemNotifcationKind.Success,
         `Started ${props.platform} syndication`
       );
     } catch (err) {
       console.error("Could not start syndication: ", err);
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Could not start ${props.platform} syndication, see browser console for details`
       );
     }

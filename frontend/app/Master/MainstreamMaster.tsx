@@ -22,9 +22,7 @@ import {
   deleteMainstreamDeliverable,
   getDeliverableYoutube,
 } from "../utils/master-api-service";
-import SystemNotification, {
-  SystemNotificationKind,
-} from "../SystemNotification";
+import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
 
 const useStyles = makeStyles({
@@ -159,14 +157,14 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
       if (isEditing) {
         await updateMainstreamDeliverable(projectid, assetid, master);
         SystemNotification.open(
-          SystemNotificationKind.Success,
+          SystemNotifcationKind.Success,
           `Successfully Updated Mainstream Master!`
         );
         navigateBack();
       } else {
         await createMainstreamDeliverable(projectid, assetid, master);
         SystemNotification.open(
-          SystemNotificationKind.Success,
+          SystemNotifcationKind.Success,
           `Successfully Created Mainstream Master!`
         );
         navigateBack();
@@ -174,7 +172,7 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
     } catch (error) {
       console.error(error);
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Failed to ${isEditing ? "Update" : "Create"} Mainstream Master.`
       );
     }
@@ -184,13 +182,13 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
     try {
       await deleteMainstreamDeliverable(projectid, assetid);
       SystemNotification.open(
-        SystemNotificationKind.Success,
+        SystemNotifcationKind.Success,
         `Successfully Deleted Mainstream Master!`
       );
       navigateBack();
     } catch (error) {
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Failed to Delete Mainstream Master.`
       );
     }

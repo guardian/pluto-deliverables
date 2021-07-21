@@ -24,9 +24,7 @@ import {
   updateYoutubeDeliverable,
   deleteYoutubeDeliverable,
 } from "../utils/master-api-service";
-import SystemNotification, {
-  SystemNotificationKind,
-} from "../SystemNotification";
+import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { Launch } from "@material-ui/icons";
 
@@ -163,14 +161,14 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
       if (isEditing) {
         await updateYoutubeDeliverable(projectid, assetid, master);
         SystemNotification.open(
-          SystemNotificationKind.Success,
+          SystemNotifcationKind.Success,
           `Successfully Updated Youtube Master!`
         );
         navigateBack();
       } else {
         await createYoutubeDeliverable(projectid, assetid, master);
         SystemNotification.open(
-          SystemNotificationKind.Success,
+          SystemNotifcationKind.Success,
           `Successfully Created Youtube Master!`
         );
         navigateBack();
@@ -178,7 +176,7 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
     } catch (error) {
       console.error(error);
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Failed to ${isEditing ? "Update" : "Create"} Youtube Master.`
       );
     }
@@ -188,13 +186,13 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
     try {
       await deleteYoutubeDeliverable(projectid, assetid);
       SystemNotification.open(
-        SystemNotificationKind.Success,
+        SystemNotifcationKind.Success,
         `Successfully Deleted Youtube Master!`
       );
       navigateBack();
     } catch (error) {
       SystemNotification.open(
-        SystemNotificationKind.Error,
+        SystemNotifcationKind.Error,
         `Failed to Delete Youtube Master.`
       );
     }
