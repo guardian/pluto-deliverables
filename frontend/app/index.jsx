@@ -6,7 +6,12 @@ import ProjectsListComponent from "./ProjectsListComponent";
 import axios from "axios";
 import ProjectDeliverablesComponent from "./ProjectDeliverablesComponent";
 import CreateDeliverable from "./CreateDeliverable";
-import {Header, AppSwitcher, handleUnauthorized, PlutoThemeProvider} from "pluto-headers";
+import {
+  Header,
+  AppSwitcher,
+  handleUnauthorized,
+  PlutoThemeProvider,
+} from "pluto-headers";
 import NotLoggedIn from "./NotLoggedIn";
 import GuardianMaster from "./Master/GuardianMaster";
 import YoutubeMaster from "./Master/YoutubeMaster";
@@ -103,7 +108,7 @@ class App extends React.Component {
 
     return (
       <PlutoThemeProvider>
-        <CssBaseline/>
+        <CssBaseline />
         <Helmet>
           <title>Pluto – Deliverables</title>
         </Helmet>

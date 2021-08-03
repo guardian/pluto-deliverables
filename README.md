@@ -50,6 +50,8 @@ $ kubectl apply -f .
 $ kubectl rollout status deployment/pluto-deliverables
 ```
 
+Repeat the build image - delete pod steps each time you make a change to see it in the browser.  Remember that you may
+need to use the browser tools to temporarily disable cache in order to get the latest javascript code.
 
 ## Running locally
 
