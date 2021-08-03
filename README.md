@@ -3,7 +3,55 @@
 An interface that allows for storage and retrieval of finished media
 products, masters, audio stems, post scripts etc.
 
-## Local dev setup
+## Running in prexit-local minikube (recommended)
+0. Download and set up prexit-local, carefully following the instructions there.
+   
+1. Build the frontend:
+```bash
+$ cd frontend
+$ yarn install
+$ yarn dev
+```
+
+This will put webpack into watching mode, rebuilding a dev (debugging) build
+of the app bundle every time the frontend source changes.
+
+2. Build the docker image.  You must have minikube set up and running in order for this to work:
+```bash
+$ cd ${repo-root}
+$ eval $(minikube docker-env)
+$ docker build . -t guardianmultimedia/pluto-deliverables:DEV
+```
+
+3. Check if you already have an instance of pluto-deliverables running:
+```bash
+$ kubectl get pods | grep deliverables
+```
+
+4a. If you do have one running, then check that it is pointing to the "DEV" image:
+```bash
+$ kubectl describe pod ${podname} | grep -A 5 Image
+```
+
+- If you see a number instead of :DEV at the end of the image name, then you must edit the manifest in pluto-dev to change
+the `image:` line to `guardianmultimedia/pluto-deliverables:DEV` and add `imagePullPolicy: Never` just below it if that 
+is not present already.  Then redeploy as in step 4b.
+- If you see "DEV" at the end then you simply need to delete the existing pod:
+```bash
+$ kubectl delete pod ${podname}
+```
+and the system will restart with the new "DEV" image you built in step 2.
+
+4b. If you don't have a pod running, or you had to change the manifest in step 4b, you need to redeploy the pluto-deliverables
+manifests.  These live in the `kube/pluto-deliverables` directory _of prexit-local_.
+```bash
+$ cd ${prexit-local}/kube/pluto-deliverables
+$ kubectl apply -f .
+$ kubectl rollout status deployment/pluto-deliverables
+```
+
+
+## Running locally
 
 pluto-deliverables is a django project, so the usual method of setting up
 a django project applies; but there are a couple of specific twists.
