@@ -214,7 +214,7 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
           count={-1}
           rowsPerPage={rowsPerPage}
           page={page}
-          onChangePage={handleChangePage}
+          onPageChange={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
           labelDisplayedRows={({ from, to }) => `${from}-${to}`}
         />
