@@ -16,11 +16,17 @@ interface DeliverableSummaryCellProps {
   deliverable: Deliverable;
 }
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   greyText: {
     color: "#868686",
   },
-});
+  moreReadableFilename: {
+    color:
+      theme.palette.type == "dark"
+        ? theme.palette.primary.light
+        : theme.palette.primary.main,
+  },
+}));
 
 //import globals that were set by the backend
 declare var mediaAtomToolUrl: string;
@@ -35,7 +41,9 @@ const DeliverableSummaryCell: React.FC<DeliverableSummaryCellProps> = (
       <Grid item>
         <Typography
           className={
-            props.deliverable.linked_to_lowres ? classes.greyText : undefined
+            props.deliverable.linked_to_lowres
+              ? classes.greyText
+              : classes.moreReadableFilename
           }
         >
           {props.deliverable.filename}
