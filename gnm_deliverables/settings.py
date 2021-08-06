@@ -22,10 +22,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DEPLOYMENT_SECRET",'ouu5awo+ny)_4@x2e2v6cm5aur4rdli(0e#tu0hvekurbbf)*o')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if "KUBERNETES_PORT" in os.environ:
-    DEBUG = False
-else:
+if "UNSAFE_DEBUG" in os.environ:
     DEBUG = True
+else:
+    DEBUG = False
 
 ALLOWED_HOSTS = ['pluto-deliverables:9000']
 if "DEPLOYMENT_HOST" in os.environ:

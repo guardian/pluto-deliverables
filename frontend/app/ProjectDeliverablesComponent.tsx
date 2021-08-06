@@ -47,7 +47,7 @@ import {
 import MasterList from "./MasterList/MasterList";
 import DeliverableRow from "./ProjectDeliverables/DeliverableRow";
 import BeforeUnloadComponent from "react-beforeunload-component";
-import { CloudUpload } from "@material-ui/icons";
+import { Check, CloudUpload } from "@material-ui/icons";
 import UploaderMain from "./DeliverableUploader/UploaderMain";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import CloseIcon from "@material-ui/icons/Close";
@@ -57,6 +57,8 @@ import {
   withStyles,
   WithStyles,
 } from "@material-ui/core/styles";
+import CreateBundleDialogContent from "./CreateBundle/CreateBundleDialogContent";
+import CustomDialogTitle from "./CustomDialogTitle";
 
 interface HeaderTitles {
   label: string;
@@ -130,44 +132,6 @@ const useStyles = makeStyles({
   },
 });
 
-const styles = (theme: Theme) =>
-  createStyles({
-    root: {
-      margin: 0,
-      padding: theme.spacing(2),
-    },
-    closeButton: {
-      position: "absolute",
-      right: theme.spacing(1),
-      top: theme.spacing(1),
-      color: theme.palette.grey[500],
-    },
-  });
-
-export interface DialogTitleProps extends WithStyles<typeof styles> {
-  id: string;
-  children: React.ReactNode;
-  onClose: () => void;
-}
-
-const CustomDialogTitle = withStyles(styles)((props: DialogTitleProps) => {
-  const { children, classes, onClose, ...other } = props;
-  return (
-    <MuiDialogTitle disableTypography className={classes.root} {...other}>
-      <Typography variant="h6">{children}</Typography>
-      {onClose ? (
-        <IconButton
-          aria-label="close"
-          className={classes.closeButton}
-          onClick={onClose}
-        >
-          <CloseIcon />
-        </IconButton>
-      ) : null}
-    </MuiDialogTitle>
-  );
-});
-
 const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
   const history = useHistory();
@@ -192,8 +156,11 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const [showingUploader, setShowingUploader] = useState(false);
 
+  const [haveExistingBundle, setHaveExistingBundle] = useState(true);
+
   // Material-UI
   const classes = useStyles();
+
   const doRefresh = async () => {
     try {
       const rescanResult = await axios({
@@ -206,7 +173,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
       const projectDeliverables = await getProjectDeliverables(projectid);
       setDeliverables(projectDeliverables);
-      loadStartedStatus();
+      await loadStartedStatus();
     } catch (err) {
       if (err.response) {
         //server returned a bad status code
@@ -257,8 +224,13 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       const response = await axios.get(`/api/bundle/byproject/${projectid}`);
       return setParentBundleInfo(response.data);
     } catch (err) {
-      console.error("Could not load in parent bundle data: ", err);
-      setCentralMessage("Could not load in parent bundle data");
+      if (err.response.status == 404) {
+        console.log("bundle does not exist for project ", projectid);
+        setHaveExistingBundle(false);
+      } else {
+        console.error("Could not load in parent bundle data: ", err);
+        setCentralMessage("Could not load in parent bundle data");
+      }
     }
   };
 
@@ -311,11 +283,20 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const getSelectedDeliverables = (): Deliverable[] =>
     deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
 
-  useEffect(() => {
+  useEffect(()=>{
     loadDelTypes();
-    loadRecord();
-    loadParentBundle();
   }, []);
+
+  useEffect(() => {
+    const performLoad = async () => {
+      await Promise.all([loadRecord(), loadParentBundle()]);
+    }
+    if(haveExistingBundle) {
+      performLoad().catch(err=>{
+        console.error("Could not load in bundle data: ", err);
+      })
+    }
+  }, [haveExistingBundle]);
 
   const loadStartedStatus = async () => {
     try {
@@ -335,6 +316,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const handleClose = () => {
     setShowingUploader(false);
   };
+
+  const newBundleCreated = async ()=>{
+    setHaveExistingBundle(true);
+    setCentralMessage("");
+    doRefresh();
+  }
 
   return (
     <>
@@ -496,6 +483,19 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
             />
           </DialogContent>
         </Dialog>
+
+        {
+          //if we have no existing bundle, then display a modal dialog prompting the user to create one
+          haveExistingBundle ? undefined : (
+            <Dialog
+              open={!haveExistingBundle}
+              onClose={() => history.goBack()}
+              aria-labelled-by="create-bundle-title"
+            >
+              <CreateBundleDialogContent projectid={projectid} didComplete={newBundleCreated}/>
+            </Dialog>
+          )
+        }
       </BeforeUnloadComponent>
     </>
   );
