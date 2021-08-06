@@ -469,7 +469,15 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
         <Dialog
           open={showingUploader}
-          onClose={() => setShowingUploader(false)}
+          onClose={() => {
+            doRefresh().catch((err) => {
+              console.error("Could not refresh: ", err);
+              setCentralMessage(
+                "There was an error, please click the Refresh button"
+              );
+            });
+            setShowingUploader(false);
+          }}
           aria-labelled-by="uploader-title"
           aria-describedby="uploader-desc"
         >
