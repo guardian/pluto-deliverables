@@ -14,11 +14,11 @@ import CustomDialogTitle from "../CustomDialogTitle";
 import { useHistory } from "react-router-dom";
 import { Alert } from "@material-ui/lab";
 import { format } from "date-fns/fp";
-import {createProjectDeliverable} from "./CreateBundleService";
+import { createProjectDeliverable } from "./CreateBundleService";
 
 interface CreateBundleDialogContentProps {
   projectid: number;
-  didComplete: ()=>void;
+  didComplete: () => void;
 }
 
 const CreateBundleDialogContent: React.FC<CreateBundleDialogContentProps> = (
@@ -36,7 +36,9 @@ const CreateBundleDialogContent: React.FC<CreateBundleDialogContentProps> = (
   const [projectOwner, setProjectOwner] = useState<string | undefined>(
     undefined
   );
-  const [projectCommission, setProjectCommission] = useState<number|undefined>(undefined);
+  const [projectCommission, setProjectCommission] = useState<
+    number | undefined
+  >(undefined);
 
   const [lastError, setLastError] = useState<string | undefined>(undefined);
   const [canComplete, setCanComplete] = useState(false);
@@ -68,19 +70,32 @@ const CreateBundleDialogContent: React.FC<CreateBundleDialogContentProps> = (
   };
 
   //validate that we have the right information for the create bundle call to succeed, and if so allow the user to complete
-    useEffect(()=>{
-        const newValue = props.projectid!==undefined && projectTitle!==undefined && projectCommission !==undefined;
-        console.log(`checking if we have enough data: ${newValue}...`);
-        if(!canComplete && newValue) {
-            console.log("all values present to create a bundle");
-            setLastError(undefined);
-            setCanComplete(newValue);
-        }
-        if(!newValue && !lastError) {
-            console.error("can't create a bundle as some data is missing: projectid=", props.projectid, " projectTitle=", projectTitle, " projectCommission=", projectCommission);
-            setLastError("Did not get the right data from pluto-core. Please report this to multimediatech.")
-        }
-    }, [projectTitle, projectCommission, props.projectid]);
+  useEffect(() => {
+    const newValue =
+      props.projectid !== undefined &&
+      projectTitle !== undefined &&
+      projectCommission !== undefined;
+    console.log(`checking if we have enough data: ${newValue}...`);
+    if (!canComplete && newValue) {
+      console.log("all values present to create a bundle");
+      setLastError(undefined);
+      setCanComplete(newValue);
+    }
+    if (!newValue && !lastError) {
+      console.info(
+        "can't create a bundle as some data is missing: projectid=",
+        props.projectid,
+        " projectTitle=",
+        projectTitle,
+        " projectCommission=",
+        projectCommission
+      );
+      setLastError(
+        "Did not get the right data from pluto-core. Please report this to multimediatech."
+      );
+      setCanComplete(false);
+    }
+  }, [projectTitle, projectCommission, props.projectid]);
 
   const loadProjectInfo = async () => {
     setLoading(true);
@@ -94,7 +109,6 @@ const CreateBundleDialogContent: React.FC<CreateBundleDialogContentProps> = (
         setProjectCreated(safeDate(response.data.result.created));
         setProjectOwner(response.data.result.user);
         setProjectCommission(response.data.result.commissionId);
-
       } else {
         setLastError(
           "Could not understand server response, please report this to multimediatech"
@@ -113,11 +127,20 @@ const CreateBundleDialogContent: React.FC<CreateBundleDialogContentProps> = (
             window.setTimeout(() => loadProjectInfo(), 3000);
             break;
           default:
-            console.error(
+            if (err.response && err.response.data && err.response.data.detail) {
+              setLastError(
+                `There was a server error: ${err.response.data.detail}, please go back and try again.`
+              );
+            } else {
+              setLastError(
+                `There was a server error, please go back and try again.`
+              );
+            }
+            console.log(
               "pluto-core responded with ",
               err.response.status,
               ": ",
-              err.response.body
+              err.response.data
             );
             break;
         }
@@ -130,17 +153,19 @@ const CreateBundleDialogContent: React.FC<CreateBundleDialogContentProps> = (
   }, [props.projectid]);
 
   const createBundle = () => {
-      if(projectCommission && projectTitle) {
-          createProjectDeliverable(props.projectid, projectCommission, projectTitle)
-              .then(_=>props.didComplete())
-              .catch(err=>{
-                  console.error("could not complete bundle creation: ", err);
-                  setLastError("Deliverable bundle create failed, please try again.")
-              })
-      } else {
-          setLastError("Did not have enough information to complete, this is a bug.");
-      }
-  }
+    if (projectCommission && projectTitle) {
+      createProjectDeliverable(props.projectid, projectCommission, projectTitle)
+        .then((_) => props.didComplete())
+        .catch((err) => {
+          console.error("could not complete bundle creation: ", err);
+          setLastError("Deliverable bundle create failed, please try again.");
+        });
+    } else {
+      setLastError(
+        "Did not have enough information to complete, this is a bug."
+      );
+    }
+  };
 
   return (
     <>
@@ -152,11 +177,13 @@ const CreateBundleDialogContent: React.FC<CreateBundleDialogContentProps> = (
       </CustomDialogTitle>
       <DialogContent>
         {loading ? (
-          <CircularProgress />
+          <CircularProgress id="spinner" />
         ) : (
           <>
             {lastError ? (
-              <Alert severity="error">{lastError}</Alert>
+              <Alert severity="error" id="error-text">
+                {lastError}
+              </Alert>
             ) : (
               <>
                 <Typography>
@@ -177,6 +204,7 @@ const CreateBundleDialogContent: React.FC<CreateBundleDialogContentProps> = (
           Go back
         </Button>
         <Button
+          id="create-button"
           variant="contained"
           color="primary"
           disabled={!canComplete}

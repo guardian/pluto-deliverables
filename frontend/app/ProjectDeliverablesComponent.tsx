@@ -283,18 +283,18 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const getSelectedDeliverables = (): Deliverable[] =>
     deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
 
-  useEffect(()=>{
+  useEffect(() => {
     loadDelTypes();
   }, []);
 
   useEffect(() => {
     const performLoad = async () => {
       await Promise.all([loadRecord(), loadParentBundle()]);
-    }
-    if(haveExistingBundle) {
-      performLoad().catch(err=>{
+    };
+    if (haveExistingBundle) {
+      performLoad().catch((err) => {
         console.error("Could not load in bundle data: ", err);
-      })
+      });
     }
   }, [haveExistingBundle]);
 
@@ -317,11 +317,11 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     setShowingUploader(false);
   };
 
-  const newBundleCreated = async ()=>{
+  const newBundleCreated = async () => {
     setHaveExistingBundle(true);
     setCentralMessage("");
     doRefresh();
-  }
+  };
 
   return (
     <>
@@ -492,7 +492,10 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
               onClose={() => history.goBack()}
               aria-labelled-by="create-bundle-title"
             >
-              <CreateBundleDialogContent projectid={projectid} didComplete={newBundleCreated}/>
+              <CreateBundleDialogContent
+                projectid={projectid}
+                didComplete={newBundleCreated}
+              />
             </Dialog>
           )
         }

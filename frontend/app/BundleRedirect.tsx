@@ -51,7 +51,7 @@ const BundleRedirect: React.FC<RouteComponentProps> = (props) => {
     return <Redirect to={`/project/${bundle.pluto_core_project_id}`} />;
   } else {
     return (
-      <Grid container justify="space-around">
+      <Grid container justifyContent="space-around">
         <Grid item xs={4}>
           {loading ? <CircularProgress /> : null}
           {lastError ? (

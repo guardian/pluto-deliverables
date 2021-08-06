@@ -156,7 +156,7 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
 
   return (
     <>
-      <Grid container justify="space-between" alignItems="flex-end">
+      <Grid container justifyContent="space-between" alignItems="flex-end">
         <Grid item>
           <h2>Deliverables</h2>
         </Grid>

@@ -37,7 +37,12 @@ const DeliverableSummaryCell: React.FC<DeliverableSummaryCellProps> = (
 ) => {
   const classes = useStyles();
   return (
-    <Grid container direction="row" alignItems="center" justify="space-between">
+    <Grid
+      container
+      direction="row"
+      alignItems="center"
+      justifyContent="space-between"
+    >
       <Grid item>
         <Typography
           className={

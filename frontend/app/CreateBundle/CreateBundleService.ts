@@ -34,18 +34,22 @@ export const createProjectDeliverable = async (
       }
     );
 
-    if (response.status == 200) {
-      return response.data;
-    } else if (response.status == 409) {
-      //conflict - the given bundle already exists, so just return the project id
-      return projectId;
+    switch (response.status) {
+      case 200:
+        return response.data;
+      case 201:
+        return projectId; //no data - this means that the api has changed
+      case 409:
+        //conflict - the given bundle already exists, so just return the project id
+        return projectId;
+      default:
+        console.error(
+          "program bug, server responded with an unhandled code: ",
+          response.status
+        );
+        return Promise.reject("internal program bug");
     }
-
-    throw "Could not create Project deliverable";
   } catch (error) {
-    if (error?.response?.status === 404) {
-      return Promise.reject();
-    }
     console.error(error);
     return Promise.reject(error);
   }
