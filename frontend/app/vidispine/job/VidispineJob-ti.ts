@@ -86,6 +86,7 @@ export const VidispineJobIF = t.iface([], {
   currentStep: t.opt("VidispineJobStep"),
   data: t.opt(t.array("JobMetadata")),
   steps: t.opt(t.array("VidispineJobStep")),
+  totalSteps: t.opt("number"),
   log: t.opt("VidispineJobLog"),
 });
 
