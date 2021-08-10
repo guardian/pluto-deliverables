@@ -221,8 +221,20 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const loadParentBundle = async () => {
     try {
-      const response = await axios.get(`/api/bundle/byproject/${projectid}`);
-      return setParentBundleInfo(response.data);
+      if(projectid=="-1") {
+        return setParentBundleInfo({
+          commission_id: -1,
+          created: "2020-11-01T00:00:00Z",
+          local_open_uri: "",
+          local_path: "",
+          name: "Invalid deliverables",
+          pluto_core_project_id: -1,
+          project_id: "-1"
+        })
+      } else {
+        const response = await axios.get(`/api/bundle/byproject/${projectid}`);
+        return setParentBundleInfo(response.data);
+      }
     } catch (err) {
       if (err.response.status == 404) {
         console.log("bundle does not exist for project ", projectid);
@@ -337,7 +349,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       >
         <div>
           <Breadcrumb projectId={projectid} />
-          {parentBundleInfo ? (
+          {parentBundleInfo && projectid!="-1" ? (
             <LocationLink
               bundleInfo={parentBundleInfo}
               networkUploadSelected={() => setShowingUploader(true)}
@@ -350,6 +362,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           <Button
             className={classes.buttons}
             variant="outlined"
+            disabled={projectid==="-1"}
             onClick={() => doRefresh()}
           >
             Refresh
@@ -357,7 +370,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           <Button
             className={classes.buttons}
             variant="outlined"
-            disabled={selectedIDs.length === 0}
+            disabled={selectedIDs.length === 0 || projectid===-1}
             onClick={() => setOpenDialog(true)}
           >
             Delete
