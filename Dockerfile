@@ -1,4 +1,4 @@
-FROM python:3.8-alpine
+FROM python:3.8-alpine3.12
 
 COPY requirements.txt /opt/pluto-deliverables/requirements.txt
 ADD gnmvidispine /tmp/gnmvidispine
@@ -7,6 +7,7 @@ RUN apk add --no-cache alpine-sdk linux-headers openssl-dev libffi-dev mailcap p
     pip install -r /tmp/gnmvidispine/requirements.txt && \
     cd /tmp/gnmvidispine && python /tmp/gnmvidispine/setup.py install && cd /opt/pluto-deliverables && \
     pip install -r requirements.txt uwsgi && \
+    rm -rf /root/.cache && \
     rm -rf /tmp/gnmvidispine && \
     apk --no-cache del alpine-sdk linux-headers openssl-dev libffi-dev postgresql-dev
 COPY manage.py /opt/pluto-deliverables/manage.py

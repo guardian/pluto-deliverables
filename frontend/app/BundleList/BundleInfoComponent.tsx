@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { CircularProgress, Grid } from "@material-ui/core";
+import { CircularProgress, Grid, makeStyles } from "@material-ui/core";
 import { People } from "@material-ui/icons";
-import iconCommission from "../static/icon_commission.png";
-import iconProject from "../static/icon_project.png";
+import IconCommission from "pluto-headers/src/static/c.svg";
+import IconProject from "pluto-headers/src/static/p.svg";
 
 interface BundleInfoComponentProps {
   projectId: number;
@@ -34,6 +34,14 @@ interface PlutoCoreCommission {
   productionOffice: string;
 }
 
+const useStyles = makeStyles((theme) => ({
+  inlineIcon: {
+    height: "16px",
+    marginRight: "0.2em",
+    verticalAlign: "middle",
+  },
+}));
+
 const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
   const [projectInfo, setProjectInfo] = useState<PlutoCoreProject | undefined>(
     undefined
@@ -42,8 +50,9 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
     PlutoCoreCommission | undefined
   >(undefined);
   const [lastError, setLastError] = useState<string | undefined>(undefined);
-
   const [loading, setLoading] = useState<boolean>(true);
+
+  const classes = useStyles();
 
   const loadCommissionInfo = async () => {
     try {
@@ -119,15 +128,7 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
         ) : null}
         {commissionInfo ? (
           <>
-            <img
-              src={iconCommission}
-              style={{
-                height: "16px",
-                marginRight: "0.2em",
-                verticalAlign: "middle",
-              }}
-              alt="Commission"
-            />
+            <img src={IconCommission} className={classes.inlineIcon} alt="C" />
             {commissionInfo.title} ({commissionInfo.productionOffice})
           </>
         ) : null}
@@ -135,15 +136,7 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
       <Grid item xs={6} style={{ paddingBottom: 0 }}>
         {projectInfo ? (
           <>
-            <img
-              src={iconProject}
-              style={{
-                height: "16px",
-                marginRight: "0.2em",
-                verticalAlign: "middle",
-              }}
-              alt="Project"
-            />
+            <img src={IconProject} className={classes.inlineIcon} alt="P" />
             {projectInfo.title} ({projectInfo.productionOffice})
           </>
         ) : null}
