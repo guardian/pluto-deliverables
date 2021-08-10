@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { CircularProgress, Grid, makeStyles } from "@material-ui/core";
 import { People } from "@material-ui/icons";
-import iconCommission from "./static/icon_commission.png";
-import iconProject from "./static/icon_project.png";
+import CommissionIcon from "pluto-headers/src/static/c.svg";
+import ProjectIcon from "pluto-headers/src/static/p.svg";
 
 interface BundleInfoComponentProps {
   projectId: number;
@@ -38,7 +38,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
   const loadCommissionInfo = async () => {
     try {
       const response = await axios.get<PlutoCoreCommissionResponse>(
-        `../pluto-core/api/pluto/commission/${props.commissionId}`
+        `/pluto-core/api/pluto/commission/${props.commissionId}`
       );
       response.data.hasOwnProperty("result")
         ? setCommissionInfo(response.data.result as PlutoCoreCommission)
@@ -75,14 +75,6 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
   }, [projectInfo, commissionInfo, lastError]);
 
   /**
-   * Load in data on mount.
-   */
-  useEffect(() => {
-    loadCommissionInfo();
-    loadProjectInfo();
-  }, []);
-
-  /**
    * Load in data on update.
    */
   useEffect(() => {
@@ -105,11 +97,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
         ) : null}
         {commissionInfo ? (
           <>
-            <img
-              src={iconCommission}
-              className={classes.inlineIcon}
-              alt="Commission"
-            />
+            <img src={CommissionIcon} alt="C" className={classes.inlineIcon} />
             {commissionInfo.title} ({commissionInfo.productionOffice})
           </>
         ) : null}
@@ -117,11 +105,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
       <Grid item xs={12} style={{ paddingBottom: 0 }}>
         {projectInfo ? (
           <>
-            <img
-              src={iconProject}
-              className={classes.inlineIcon}
-              alt="Project"
-            />
+            <img src={ProjectIcon} alt="P" className={classes.inlineIcon} />
             {projectInfo.title} ({projectInfo.productionOffice})
           </>
         ) : null}

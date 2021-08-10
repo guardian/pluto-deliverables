@@ -1,12 +1,17 @@
 import React from "react";
 import { render } from "react-dom";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { ThemeProvider, createMuiTheme, CssBaseline } from "@material-ui/core";
+import { CssBaseline } from "@material-ui/core";
 import ProjectsListComponent from "./ProjectsListComponent";
 import axios from "axios";
 import ProjectDeliverablesComponent from "./ProjectDeliverablesComponent";
 import CreateDeliverable from "./CreateDeliverable";
-import { Header, AppSwitcher, handleUnauthorized } from "pluto-headers";
+import {
+  Header,
+  AppSwitcher,
+  handleUnauthorized,
+  PlutoThemeProvider,
+} from "pluto-headers";
 import NotLoggedIn from "./NotLoggedIn";
 import GuardianMaster from "./Master/GuardianMaster";
 import YoutubeMaster from "./Master/YoutubeMaster";
@@ -19,27 +24,6 @@ import BundleRedirect from "./BundleRedirect";
 import InvalidDeliverablesComponent from "./InvalidDeliverablesComponent";
 
 require("./app.css");
-
-const theme = createMuiTheme({
-  typography: {
-    fontFamily: [
-      "sans-serif",
-      '"Helvetica Neue"',
-      "Helvetica",
-      "Arial",
-      "sans-serif",
-    ].join(","),
-    fontWeight: 400,
-  },
-  palette: {
-    primary: {
-      main: "#052963",
-    },
-    secondary: {
-      main: "#777777",
-    },
-  },
-});
 
 axios.interceptors.request.use(function (config) {
   const token = window.localStorage.getItem("pluto:access-token");
@@ -123,7 +107,8 @@ class App extends React.Component {
     }
 
     return (
-      <ThemeProvider theme={theme}>
+      <PlutoThemeProvider>
+        <CssBaseline />
         <Helmet>
           <title>Pluto – Deliverables</title>
         </Helmet>
@@ -204,7 +189,7 @@ class App extends React.Component {
           </Switch>
         </div>
         <SystemNotification />
-      </ThemeProvider>
+      </PlutoThemeProvider>
     );
   }
 }

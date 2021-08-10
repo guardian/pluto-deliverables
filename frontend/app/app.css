@@ -3,15 +3,6 @@ html {
   font-size: 100%;
 }
 
-body {
-  font-family: sans-serif, "Helvetica Neue", Helvetica, Arial;
-  font-size: 1em;
-  line-height: 1.6;
-  color: #222;
-  font-weight: 400;
-  margin: 0;
-}
-
 .main-body {
   padding: 1rem;
 }

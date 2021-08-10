@@ -163,7 +163,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
           container
           direction="row"
           alignItems="center"
-          justify="space-between"
+          justifyContent="space-between"
         >
           {jobData?.wasSuccess() ? (
             <>

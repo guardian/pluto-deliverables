@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { validator } from "./UuidValidator";
 import {
+  Link,
   Paper,
   Table,
   TableBody,
@@ -13,7 +14,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import DeliverableSummaryCell from "../ProjectDeliverables/DeliverableSummaryCell";
 import DateTimeFormatter from "../Form/DateTimeFormatter";
 
@@ -109,7 +110,10 @@ const AssetSearchTable: React.FC<SearchTableProps> = (props) => {
             {props.results.map((entry, idx) => (
               <TableRow key={idx}>
                 <TableCell>
-                  <Link to={`/bundle/${entry.deliverable}`}>
+                  <Link
+                    component={RouterLink}
+                    to={`/bundle/${entry.deliverable}`}
+                  >
                     <DeliverableSummaryCell deliverable={entry} />
                   </Link>
                 </TableCell>

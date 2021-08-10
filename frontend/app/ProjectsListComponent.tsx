@@ -156,7 +156,7 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
 
   return (
     <>
-      <Grid container justify="space-between" alignItems="flex-end">
+      <Grid container justifyContent="space-between" alignItems="flex-end">
         <Grid item>
           <h2>Deliverables</h2>
         </Grid>
@@ -214,7 +214,7 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
           count={-1}
           rowsPerPage={rowsPerPage}
           page={page}
-          onChangePage={handleChangePage}
+          onPageChange={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
           labelDisplayedRows={({ from, to }) => `${from}-${to}`}
         />

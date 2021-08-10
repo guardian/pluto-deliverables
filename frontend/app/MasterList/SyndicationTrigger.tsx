@@ -415,7 +415,7 @@ const SyndicationTrigger: React.FC<SyndicationTriggerProps> = (props) => {
   };
 
   return (
-    <Grid container direction="row" alignItems="center" justify="center">
+    <Grid container direction="row" alignItems="center" justifyContent="center">
       <Grid item>
         {props.uploadStatus == IN_PROGRESS ||
         props.uploadStatus == WAITING_FOR_START ? null : (
