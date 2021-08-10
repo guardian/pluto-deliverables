@@ -74,14 +74,6 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
     }
   }, [projectInfo, commissionInfo, lastError]);
 
-  // /**
-  //  * Load in data on mount.
-  //  */
-  // useEffect(() => {
-  //   loadCommissionInfo();
-  //   loadProjectInfo();
-  // }, []);
-
   /**
    * Load in data on update.
    */
