@@ -105,7 +105,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
         ) : null}
         {commissionInfo ? (
           <>
-            <CommissionIcon className={classes.inlineIcon} />
+            <img src={CommissionIcon} alt="C" className={classes.inlineIcon} />
             {commissionInfo.title} ({commissionInfo.productionOffice})
           </>
         ) : null}
@@ -113,7 +113,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
       <Grid item xs={12} style={{ paddingBottom: 0 }}>
         {projectInfo ? (
           <>
-            <ProjectIcon className={classes.inlineIcon} />
+            <img src={ProjectIcon} alt="P" className={classes.inlineIcon} />
             {projectInfo.title} ({projectInfo.productionOffice})
           </>
         ) : null}
