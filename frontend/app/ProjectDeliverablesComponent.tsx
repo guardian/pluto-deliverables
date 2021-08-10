@@ -221,7 +221,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const loadParentBundle = async () => {
     try {
-      if(projectid=="-1") {
+      if (projectid == "-1") {
         return setParentBundleInfo({
           commission_id: -1,
           created: "2020-11-01T00:00:00Z",
@@ -229,8 +229,8 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           local_path: "",
           name: "Invalid deliverables",
           pluto_core_project_id: -1,
-          project_id: "-1"
-        })
+          project_id: "-1",
+        });
       } else {
         const response = await axios.get(`/api/bundle/byproject/${projectid}`);
         return setParentBundleInfo(response.data);
@@ -349,7 +349,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       >
         <div>
           <Breadcrumb projectId={projectid} />
-          {parentBundleInfo && projectid!="-1" ? (
+          {parentBundleInfo && projectid != "-1" ? (
             <LocationLink
               bundleInfo={parentBundleInfo}
               networkUploadSelected={() => setShowingUploader(true)}
@@ -362,7 +362,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           <Button
             className={classes.buttons}
             variant="outlined"
-            disabled={projectid==="-1"}
+            disabled={projectid === "-1"}
             onClick={() => doRefresh()}
           >
             Refresh
@@ -370,7 +370,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           <Button
             className={classes.buttons}
             variant="outlined"
-            disabled={selectedIDs.length === 0 || projectid===-1}
+            disabled={selectedIDs.length === 0 || projectid === -1}
             onClick={() => setOpenDialog(true)}
           >
             Delete
