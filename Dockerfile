@@ -1,4 +1,4 @@
-FROM python:3.8-alpine3.12
+FROM python:3.8-alpine
 
 COPY requirements.txt /opt/pluto-deliverables/requirements.txt
 ADD gnmvidispine /tmp/gnmvidispine
