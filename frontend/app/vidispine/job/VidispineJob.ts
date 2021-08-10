@@ -81,7 +81,7 @@ interface VidispineJobIF {
   currentStep?: VidispineJobStep;
   data?: JobMetadata[];
   steps?: VidispineJobStep[];
-  totalSteps?: number;
+  totalSteps: number;
   log?: VidispineJobLog;
 }
 
