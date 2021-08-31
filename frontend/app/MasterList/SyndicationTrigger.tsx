@@ -53,7 +53,11 @@ interface SyndicationTriggerProps {
 interface SyndicationButtonProps {
   disabled: boolean;
   onClicked: () => void;
+<<<<<<< HEAD
   link: string | null;
+=======
+  platformName?: string;
+>>>>>>> disable syndication button if there is no metadata to send
 }
 
 interface SyndicationIconProps {
@@ -116,6 +120,7 @@ const FAILED = "Upload Failed";
 const COMPLETE = "Upload Complete";
 
 const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
+<<<<<<< HEAD
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const closeDialog = () => {
     setOpenDialog(false);
@@ -174,6 +179,17 @@ const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
         </DialogActions>
       </Dialog>
     </>
+=======
+  const platformName = props.platformName ?? "syndication"
+  return (
+      <Tooltip title={props.disabled ? `You must add ${platformName} details before starting to upload` : "Send to syndication partner"}>
+        <span> {/* span is required here because disabled buttons don't fire mouseover events so the tooltip won't work. */}
+          <IconButton disabled={props.disabled} onClick={props.onClicked}>
+            <BackupOutlined />
+          </IconButton>
+        </span>
+    </Tooltip>
+>>>>>>> disable syndication button if there is no metadata to send
   );
 };
 
@@ -478,9 +494,10 @@ const SyndicationTrigger: React.FC<SyndicationTriggerProps> = (props) => {
         {props.uploadStatus == IN_PROGRESS ||
         props.uploadStatus == WAITING_FOR_START ? null : (
           <SyndicationTriggerButton
-            disabled={props.uploadStatus == COMPLETE}
+            disabled={props.title==null && props.uploadStatus==null}
             onClicked={triggerUpload}
             link={props.link}
+            platformName={props.platform}
           />
         )}
       </Grid>
