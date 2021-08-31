@@ -278,6 +278,9 @@ class PlatformLogUpdateView(APIView):
 
             lcplatform = platform.lower()
             if lcplatform=="dailymotion":
+                if asset.DailyMotion_master is None:
+                    logger.error("Received daily motion syndication progress for {0} but no DN record exists on this asset".format(asset_id))
+                    return Response({"status": "invalid_target","detail":"no daily motion metadata to update"}, status=404)
                 related_id = asset.DailyMotion_master_id
                 newentry.related_daily_motion = asset.DailyMotion_master
                 if not did_fail and not did_succeed:
@@ -294,6 +297,9 @@ class PlatformLogUpdateView(APIView):
                         asset.DailyMotion_master.daily_motion_url = request.data["uploadedUrl"]
                     asset.DailyMotion_master.save()
             elif lcplatform=="mainstream":
+                if asset.mainstream_master is None:
+                    logger.error("Received Mainstream syndication progress for {0} but no MS record exists on this asset".format(asset_id))
+                    return Response({"status": "invalid_target","detail":"no MS metadata to update"}, status=404)
                 related_id = asset.mainstream_master_id
                 newentry.related_mainstream = asset.mainstream_master
                 if not did_fail and not did_succeed:

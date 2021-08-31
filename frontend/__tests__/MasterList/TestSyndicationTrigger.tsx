@@ -16,13 +16,6 @@ jest.mock("pluto-headers", () => ({
 import SyndicationTrigger from "../../app/MasterList/SyndicationTrigger";
 import { act } from "react-dom/test-utils";
 
-/*
-const NOT_UPLOADING = "Not ready";
-const WAITING_FOR_START = "Ready for Upload";
-const IN_PROGRESS = "Uploading";
-const FAILED = "Upload Failed";
-const COMPLETE = "Upload Complete";
- */
 describe("SyndicationTrigger", () => {
   beforeEach(() => {
     moxios.install();
