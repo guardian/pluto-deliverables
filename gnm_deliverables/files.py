@@ -4,7 +4,7 @@ import stat
 from collections import namedtuple
 import typing
 import pytz
-
+import re
 from django.utils.timezone import datetime
 import logging
 
@@ -12,53 +12,39 @@ logger = logging.getLogger(__name__)
 
 FileInfo = namedtuple('FileInfo', 'absolute_path path size access_dt modified_dt changed_dt')
 
-
-def strpbrk(haystack: str, char_list:str) -> typing.Union[str, None]:
-    """
-    strips "dangerous" characters from a string to make it suitable for a pathname
-    :param haystack: incoming raw string
-    :param char_list: characters to strip
-    :return: the sanitised string, or None if the operation failed
-    """
-    try:
-        pos = next(i for i, x in enumerate(haystack) if x in char_list)
-        return haystack[pos:]
-    except Exception as e:
-        logger.error("strpbrk encountered an error processing {0} with danger list {1}: {2}".format(haystack, char_list, str(e)))
-        return None
+DANGEROUS_CHARS = '\\/?%*;:!|\"<>'
+FILEPATH_SANITISER = re.compile("[{0}]".format(DANGEROUS_CHARS))
 
 
-def is_valid_dir_name(name):
+def sanitise_dir_name(name: str) -> str:
     """
-    sanitises the given string to a valid directory name
+    sanitise the given path part
     :param name:
     :return:
     """
-    return strpbrk(name, '\\/?%*:|\"<>')
+    return FILEPATH_SANITISER.sub("", name)
 
 
 def get_path_for_deliverable(name: str)->str:
     """
     returns the expected server-side path of the dropfolder for assets for the given bundle name.
-    Note that sanitization is assumed to have been applied to the string already, use `is_valid_dir_name()` before calling
-    this to ensure that it's the case
 
     :param name: bundle name
     :return: the expected path for the asset folder.
     """
     from django.conf import settings
-    return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT', '/tmp'), name)
+    return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT', '/tmp'), sanitise_dir_name(name))
 
 
 def get_local_path_for_deliverable(name: str) -> str:
     """
     returns the expected client-side path of the dropfolder for assets for the given bundle name.
-    Note that sanitization is assumed to have been applied to the string already, use `is_valid_dir_name()` to ensure
+
     :param name: bundle name
     :return: the expected path for the asset folder.
     """
     from django.conf import settings
-    return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT_LOCAL', '/tmp'), name)
+    return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT_LOCAL', '/tmp'), sanitise_dir_name(name))
 
 
 def ts_to_dt(timestamp: typing.Union[float, int], millis=False) -> datetime:
