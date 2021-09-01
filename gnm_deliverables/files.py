@@ -106,6 +106,7 @@ def create_folder(path, permission=None):
         os.chmod(path, permission)
         return path, True
     except OSError as e:
+        logger.error("Got {0}, checking for {1}".format(e.errno, errno.EEXIST))
         if e.errno == errno.EEXIST:
             return path, False
         raise e
