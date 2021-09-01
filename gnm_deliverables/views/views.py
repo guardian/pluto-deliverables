@@ -369,6 +369,7 @@ class TestCreateProxyView(APIView):
                              exc_info=e)
             return Response({"status": "error", "detail": str(e)}, status=500)
 
+
 class GetAssetView(RetrieveAPIView):
     authentication_classes = (JwtRestAuth, )
     permission_classes = (IsAuthenticated, )
@@ -387,6 +388,7 @@ class GetAssetView(RetrieveAPIView):
 
     def get_queryset(self):
         return DeliverableAsset.objects.get(pk=self.asset_id)
+
 
 class DeliverableAPIStarted(APIView):
     authentication_classes = (JwtRestAuth, HmacRestAuth)
@@ -656,3 +658,23 @@ class CountInvalidByStatus(APIView):
         except Exception as e:
             logger.exception("Could not process invalid count: {0}".format(str(e)))
             return Response({"status":"error","detail":"Could not process invalid count: {0}".format(str(e))}, status=500)
+
+
+class TestAndFixDropfolder(APIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = (JSONRenderer, )
+
+    def get(self, *args, **kwargs):
+        project_id = kwargs.get("project_id")
+        if project_id is None:  #the router should prevent this from happening but there's no harm in handling the case here
+            return Response({"status": "error", "detail": "bad request"}, status=400)
+        try:
+            bundle = Deliverable.objects.get(pluto_core_project_id=project_id)
+            bundle.create_folder_for_deliverable()
+            return Response({"status": "ok", "clientpath": bundle.local_path})
+        except Deliverable.DoesNotExist:
+            return Response({"status": "notfound", "detail": "Invalid deliverable bundle"}, status=404)
+        except Exception as e:
+            logger.exception("TestAndFixDropfolder got an unexpected error: {0}".format(str(e)))
+            return Response({"status": "error", "detail": str(e)}, status=500)
