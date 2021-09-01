@@ -2,6 +2,8 @@ import os
 import errno
 import stat
 from collections import namedtuple
+import typing
+import pytz
 
 from django.utils.timezone import datetime
 import logging
@@ -11,42 +13,77 @@ logger = logging.getLogger(__name__)
 FileInfo = namedtuple('FileInfo', 'absolute_path path size access_dt modified_dt changed_dt')
 
 
-def strpbrk(haystack, char_list):
+def strpbrk(haystack: str, char_list:str) -> typing.Union[str, None]:
+    """
+    strips "dangerous" characters from a string to make it suitable for a pathname
+    :param haystack: incoming raw string
+    :param char_list: characters to strip
+    :return: the sanitised string, or None if the operation failed
+    """
     try:
         pos = next(i for i, x in enumerate(haystack) if x in char_list)
         return haystack[pos:]
-    except:
+    except Exception as e:
+        logger.error("strpbrk encountered an error processing {0} with danger list {1}: {2}".format(haystack, char_list, str(e)))
         return None
 
 
 def is_valid_dir_name(name):
+    """
+    sanitises the given string to a valid directory name
+    :param name:
+    :return:
+    """
     return strpbrk(name, '\\/?%*:|\"<>')
 
 
-def get_path_for_deliverable(name):
+def get_path_for_deliverable(name: str)->str:
+    """
+    returns the expected server-side path of the dropfolder for assets for the given bundle name.
+    Note that sanitization is assumed to have been applied to the string already, use `is_valid_dir_name()` before calling
+    this to ensure that it's the case
+
+    :param name: bundle name
+    :return: the expected path for the asset folder.
+    """
     from django.conf import settings
     return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT', '/tmp'), name)
 
 
-def get_local_path_for_deliverable(name):
+def get_local_path_for_deliverable(name: str) -> str:
+    """
+    returns the expected client-side path of the dropfolder for assets for the given bundle name.
+    Note that sanitization is assumed to have been applied to the string already, use `is_valid_dir_name()` to ensure
+    :param name: bundle name
+    :return: the expected path for the asset folder.
+    """
     from django.conf import settings
     return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT_LOCAL', '/tmp'), name)
 
 
-def ts_to_dt(timestamp, millis=False):
+def ts_to_dt(timestamp: typing.Union[float, int], millis=False) -> datetime:
     """
-    converts a timestamp value to a datetime value
-    :param timestamp:
-    :param millis:
-    :return:
+    Converts a timestamp value to a datetime value.
+    The configured timezone from the settings is applied to the resulting DateTime.  If no timezone is configured,
+    then we default to UTC and emit a warning
+    :param timestamp: epoch timestamp value to convert. Expect a TypeError to be raised if this is not a float or int.
+    :param millis: if True, then the `timestamp` value is in milliseconds. If False (the default) then it's in seconds
+    :return: the timezone-aware datetime
     """
-    try:
-        ts = float(timestamp)
-        if millis:
-            ts /= 1000.0
-        return datetime.utcfromtimestamp(ts)
-    except TypeError:
-        return None
+    from django.conf import settings
+
+    ts = float(timestamp)
+    if millis:
+        ts /= 1000.0
+    naive_dt = datetime.utcfromtimestamp(ts)
+    tz = pytz.timezone("UTC")
+    aware_utc_dt = tz.localize(naive_dt)
+    if hasattr(settings, "TIME_ZONE"):
+        server_tz = pytz.timezone(settings.TIME_ZONE)
+        return aware_utc_dt.astimezone(server_tz)
+    else:
+        logger.warning("TIME_ZONE is not configured in the settings, defaulting to UTC")
+        return aware_utc_dt
 
 
 def find_files_for_deliverable(name):
@@ -57,7 +94,7 @@ def find_files_for_deliverable(name):
     :return: yields fileInfo objects, possibly zero if there is nothing in the dropfolder.
     """
     deliverable_path = get_path_for_deliverable(name)
-    print("find_files_for_deliverable: scanning {0}".format(deliverable_path))
+    logger.info("find_files_for_deliverable: scanning {0}".format(deliverable_path))
     for root, dirs, files in os.walk(deliverable_path):
         for f in files:
             if f[0] == '.':
