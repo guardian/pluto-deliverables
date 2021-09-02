@@ -2,7 +2,9 @@ import os
 import errno
 import stat
 from collections import namedtuple
-
+import typing
+import pytz
+import re
 from django.utils.timezone import datetime
 import logging
 
@@ -10,43 +12,64 @@ logger = logging.getLogger(__name__)
 
 FileInfo = namedtuple('FileInfo', 'absolute_path path size access_dt modified_dt changed_dt')
 
-
-def strpbrk(haystack, char_list):
-    try:
-        pos = next(i for i, x in enumerate(haystack) if x in char_list)
-        return haystack[pos:]
-    except:
-        return None
+DANGEROUS_CHARS = '\\/?%*;:!|\"<>'
+FILEPATH_SANITISER = re.compile("[{0}]".format(DANGEROUS_CHARS))
 
 
-def is_valid_dir_name(name):
-    return strpbrk(name, '\\/?%*:|\"<>')
-
-
-def get_path_for_deliverable(name):
-    from django.conf import settings
-    return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT', '/tmp'), name)
-
-
-def get_local_path_for_deliverable(name):
-    from django.conf import settings
-    return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT_LOCAL', '/tmp'), name)
-
-
-def ts_to_dt(timestamp, millis=False):
+def sanitise_dir_name(name: str) -> str:
     """
-    converts a timestamp value to a datetime value
-    :param timestamp:
-    :param millis:
+    sanitise the given path part
+    :param name:
     :return:
     """
-    try:
-        ts = float(timestamp)
-        if millis:
-            ts /= 1000.0
-        return datetime.utcfromtimestamp(ts)
-    except TypeError:
-        return None
+    return FILEPATH_SANITISER.sub("", name)
+
+
+def get_path_for_deliverable(name: str)->str:
+    """
+    returns the expected server-side path of the dropfolder for assets for the given bundle name.
+
+    :param name: bundle name
+    :return: the expected path for the asset folder.
+    """
+    from django.conf import settings
+    return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT', '/tmp'), sanitise_dir_name(name))
+
+
+def get_local_path_for_deliverable(name: str) -> str:
+    """
+    returns the expected client-side path of the dropfolder for assets for the given bundle name.
+
+    :param name: bundle name
+    :return: the expected path for the asset folder.
+    """
+    from django.conf import settings
+    return os.path.join(getattr(settings, 'GNM_DELIVERABLES_SAN_ROOT_LOCAL', '/tmp'), sanitise_dir_name(name))
+
+
+def ts_to_dt(timestamp: typing.Union[float, int], millis=False) -> datetime:
+    """
+    Converts a timestamp value to a datetime value.
+    The configured timezone from the settings is applied to the resulting DateTime.  If no timezone is configured,
+    then we default to UTC and emit a warning
+    :param timestamp: epoch timestamp value to convert. Expect a TypeError to be raised if this is not a float or int.
+    :param millis: if True, then the `timestamp` value is in milliseconds. If False (the default) then it's in seconds
+    :return: the timezone-aware datetime
+    """
+    from django.conf import settings
+
+    ts = float(timestamp)
+    if millis:
+        ts /= 1000.0
+    naive_dt = datetime.utcfromtimestamp(ts)
+    tz = pytz.timezone("UTC")
+    aware_utc_dt = tz.localize(naive_dt)
+    if hasattr(settings, "TIME_ZONE"):
+        server_tz = pytz.timezone(settings.TIME_ZONE)
+        return aware_utc_dt.astimezone(server_tz)
+    else:
+        logger.warning("TIME_ZONE is not configured in the settings, defaulting to UTC")
+        return aware_utc_dt
 
 
 def find_files_for_deliverable(name):
@@ -57,7 +80,7 @@ def find_files_for_deliverable(name):
     :return: yields fileInfo objects, possibly zero if there is nothing in the dropfolder.
     """
     deliverable_path = get_path_for_deliverable(name)
-    print("find_files_for_deliverable: scanning {0}".format(deliverable_path))
+    logger.info("find_files_for_deliverable: scanning {0}".format(deliverable_path))
     for root, dirs, files in os.walk(deliverable_path):
         for f in files:
             if f[0] == '.':
@@ -83,6 +106,7 @@ def create_folder(path, permission=None):
         os.chmod(path, permission)
         return path, True
     except OSError as e:
+        logger.error("Got {0}, checking for {1}".format(e.errno, errno.EEXIST))
         if e.errno == errno.EEXIST:
             return path, False
         raise e

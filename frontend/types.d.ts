@@ -185,3 +185,8 @@ interface PlutoCoreProject {
 }
 
 type PlutoCoreProjectResponse = PlutoCoreResponse<PlutoCoreProject>;
+
+interface DropfolderStatus {
+  status: string;
+  clientpath: string;
+}

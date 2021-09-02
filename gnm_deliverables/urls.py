@@ -10,7 +10,8 @@ from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingV
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet, \
     DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView, GenericAssetSearchAPI, NewDeliverabesApiBundleGet, \
-    BundlesForCommission, RetryJobForAsset, InvalidAPIList, CountInvalid, CountInvalidByType, CountInvalidByStatus, GetAssetView
+    BundlesForCommission, RetryJobForAsset, InvalidAPIList, CountInvalid, CountInvalidByType, CountInvalidByStatus, GetAssetView, \
+    TestAndFixDropfolder
 
 
 urlpatterns = [
@@ -30,6 +31,7 @@ urlpatterns = [
     path(r'api/deliverable', DeliverableAPIView.as_view()),
     path(r'api/typeslist', DeliverablesTypeListAPI.as_view(), name="asset-types"),
     path(r'api/bundle/<int:project_id>/count', CountDeliverablesView.as_view()),
+    path(r'api/bundle/<int:project_id>/dropfolder', TestAndFixDropfolder.as_view(), name="dropfolder"),
     path(r'api/bundle/<str:project_id>/asset/<int:asset_id>/atomresync', ResyncToPublished.as_view(), name="resync"),
     path(r'api/bundle/<str:project_id>/asset/<int:asset_id>/gnmwebsite', GNMWebsiteAPIView.as_view(), name="gnmwebsite"),
     path(r'api/bundle/<str:project_id>/asset/<int:asset_id>/mainstream', MainstreamAPIView.as_view()),
