@@ -16,6 +16,7 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Link,
 } from "@material-ui/core";
 import {
   AccessAlarmOutlined,
@@ -150,9 +151,9 @@ const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
               <>
                 {" "}
                 to{" "}
-                <a href={props.link} target="_blank">
+                <Link href={props.link} target="_blank">
                   {props.link}
-                </a>
+                </Link>
               </>
             ) : null}
             . Sending it again will cause it to be duplicated. Are you really
