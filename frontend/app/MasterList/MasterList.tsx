@@ -386,6 +386,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                       assetId={deliverable.id}
                       sendInitiated={() => startRegularRefresh()}
                       title={master.title}
+                      link={master.link}
                     />
                   ) : null}
                 </TableCell>

@@ -13,6 +13,10 @@ import {
   Table,
   TableRow,
   TableBody,
+  DialogContentText,
+  DialogActions,
+  Button,
+  Link,
 } from "@material-ui/core";
 import {
   AccessAlarmOutlined,
@@ -43,11 +47,13 @@ interface SyndicationTriggerProps {
   assetId: bigint;
   sendInitiated: () => void;
   title: string | null;
+  link: string | null;
 }
 
 interface SyndicationButtonProps {
   disabled: boolean;
   onClicked: () => void;
+  link: string | null;
 }
 
 interface SyndicationIconProps {
@@ -110,12 +116,64 @@ const FAILED = "Upload Failed";
 const COMPLETE = "Upload Complete";
 
 const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const closeDialog = () => {
+    setOpenDialog(false);
+  };
   return (
-    <Tooltip title="Send to syndication partner">
-      <IconButton disabled={props.disabled} onClick={props.onClicked}>
-        <BackupOutlined />
-      </IconButton>
-    </Tooltip>
+    <>
+      <Tooltip title="Send to syndication partner">
+        {props.disabled ? (
+          <IconButton
+            onClick={(event) => {
+              event.stopPropagation();
+              setOpenDialog(true);
+            }}
+          >
+            <BackupOutlined />
+          </IconButton>
+        ) : (
+          <IconButton onClick={props.onClicked}>
+            <BackupOutlined />
+          </IconButton>
+        )}
+      </Tooltip>
+      <Dialog
+        open={openDialog}
+        onClose={closeDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            This file has already been uploaded
+            {props.link ? (
+              <>
+                {" "}
+                to{" "}
+                <Link href={props.link} target="_blank">
+                  {props.link}
+                </Link>
+              </>
+            ) : null}
+            . Sending it again will cause it to be duplicated. Are you really
+            sure that you want to continue?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={(event) => {
+              event.stopPropagation();
+              props.onClicked();
+              closeDialog();
+            }}
+          >
+            Continue
+          </Button>
+          <Button onClick={closeDialog}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
@@ -422,6 +480,7 @@ const SyndicationTrigger: React.FC<SyndicationTriggerProps> = (props) => {
           <SyndicationTriggerButton
             disabled={props.uploadStatus == COMPLETE}
             onClicked={triggerUpload}
+            link={props.link}
           />
         )}
       </Grid>
