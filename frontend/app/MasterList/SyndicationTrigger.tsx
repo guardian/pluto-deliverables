@@ -123,44 +123,52 @@ const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
     <>
       <Tooltip title="Send to syndication partner">
         {props.disabled ? (
-        <IconButton
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setOpenDialog(true);
-                    }}
-        >
-          <BackupOutlined />
-        </IconButton>
+          <IconButton
+            onClick={(event) => {
+              event.stopPropagation();
+              setOpenDialog(true);
+            }}
+          >
+            <BackupOutlined />
+          </IconButton>
         ) : (
-            <IconButton onClick={props.onClicked}>
-              <BackupOutlined />
-            </IconButton>
-        ) }
+          <IconButton onClick={props.onClicked}>
+            <BackupOutlined />
+          </IconButton>
+        )}
       </Tooltip>
       <Dialog
-          open={openDialog}
-          onClose={closeDialog}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
+        open={openDialog}
+        onClose={closeDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
       >
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             This video has already been uploaded
             {props.link ? (
-                <> to <a href={props.link} target="_blank">{props.link}</a></>
-            ) : null }
-            . Sending it again will cause it to be duplicated.
-            Are you really sure that you want to continue?
+              <>
+                {" "}
+                to{" "}
+                <a href={props.link} target="_blank">
+                  {props.link}
+                </a>
+              </>
+            ) : null}
+            . Sending it again will cause it to be duplicated. Are you really
+            sure that you want to continue?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    props.onClicked();
-                    closeDialog();
-                  }}
-          >Continue</Button>
+            onClick={(event) => {
+              event.stopPropagation();
+              props.onClicked();
+              closeDialog();
+            }}
+          >
+            Continue
+          </Button>
           <Button onClick={closeDialog}>Cancel</Button>
         </DialogActions>
       </Dialog>
