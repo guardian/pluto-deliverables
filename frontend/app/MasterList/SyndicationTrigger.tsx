@@ -145,7 +145,7 @@ const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
       >
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            This video has already been uploaded
+            This file has already been uploaded
             {props.link ? (
               <>
                 {" "}
