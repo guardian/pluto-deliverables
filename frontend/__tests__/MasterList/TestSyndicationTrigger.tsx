@@ -33,6 +33,7 @@ describe("SyndicationTrigger", () => {
         uploadStatus={null}
         platform="Test"
         projectId={1234}
+        link="https://test.location/"
         assetId={BigInt(5678)}
         sendInitiated={sendInitiatedCb}
         title="Test deliverable"
@@ -73,6 +74,7 @@ describe("SyndicationTrigger", () => {
         uploadStatus="Ready for Upload"
         platform="Test"
         projectId={1234}
+        link="https://test.location/"
         assetId={BigInt(5678)}
         sendInitiated={sendInitiatedCb}
         title="Test deliverable"
@@ -117,6 +119,7 @@ describe("SyndicationTrigger", () => {
         uploadStatus="Uploading"
         platform="Test"
         projectId={1234}
+        link="https://test.location/"
         assetId={BigInt(5678)}
         sendInitiated={sendInitiatedCb}
         title="Test deliverable"
@@ -165,6 +168,7 @@ describe("SyndicationTrigger", () => {
       <SyndicationTrigger
         uploadStatus="Upload Failed"
         platform="Test"
+        link="https://test.location/"
         projectId={1234}
         assetId={BigInt(5678)}
         sendInitiated={sendInitiatedCb}
@@ -199,22 +203,20 @@ describe("SyndicationTrigger", () => {
     });
   });
 
-  it("should display a disabled upload and enabled log button if uploadStatus is COMPLETE, clicking it should display logs", (done) => {
+  it("should display an upload and enabled log button if uploadStatus is COMPLETE, clicking it should display logs", (done) => {
     const sendInitiatedCb = sinon.spy();
 
     const rendered = mount(
       <SyndicationTrigger
         uploadStatus="Upload Complete"
         platform="Test"
+        link="https://test.location/"
         projectId={1234}
         assetId={BigInt(5678)}
         sendInitiated={sendInitiatedCb}
         title="Test deliverable"
       />
     );
-
-    const trigger = rendered.find("button#syndication-trigger");
-    expect(trigger.props().disabled).toBeTruthy();
 
     const b = rendered.find("button#output-complete-logs");
     const svg = b.find("svg.MuiSvgIcon-root");
@@ -246,13 +248,14 @@ describe("SyndicationTrigger", () => {
     });
   });
 
-  it("should now allow upload if metadata is not defined", () => {
+  it("should not allow upload if metadata is not defined", () => {
     const sendInitiatedCb = sinon.spy();
 
     const rendered = mount(
       <SyndicationTrigger
         uploadStatus={null}
         platform="Test"
+        link="https://test.location/"
         projectId={1234}
         assetId={BigInt(5678)}
         sendInitiated={sendInitiatedCb}

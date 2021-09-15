@@ -123,18 +123,19 @@ const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
   };
 
   const platformName = props.platformName ?? "syndication";
-  
+
   return (
     <>
       <Tooltip
-          title={
-            props.disabled
-                ? `You must add ${platformName} details before starting to upload`
-                : "Send to syndication partner"
-          }
+        title={
+          props.disabled
+            ? `You must add ${platformName} details before starting to upload`
+            : "Send to syndication partner"
+        }
       >
         {props.disabled ? (
           <IconButton
+            id="syndication-trigger"
             onClick={(event) => {
               event.stopPropagation();
               setOpenDialog(true);
@@ -143,7 +144,7 @@ const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
             <BackupOutlined />
           </IconButton>
         ) : (
-          <IconButton onClick={props.onClicked}>
+          <IconButton onClick={props.onClicked} id="syndication-trigger">
             <BackupOutlined />
           </IconButton>
         )}
