@@ -32,7 +32,7 @@ class StoragetierArchivedMessageProcessor(MessageProcessor):
         if len(matching_assets) == 0:
             logger.info("No deliverables found with a filepath matching {0}".format(msg.originalFilePath))
             return
-        if len(matching_assets) > 0:
+        if len(matching_assets) > 1:
             logger.warning("Expected 1 asset to match {0} but got {1}!".format(msg.originalFilePath, len(matching_assets)))
 
         for rec in matching_assets:
