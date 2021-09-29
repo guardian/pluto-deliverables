@@ -32,8 +32,8 @@ class StoragetierSuccessMessage(Model):
     uploadedVersion = IntegerField(null=True, blank=True)
     vidispineItemId = TextField(max_length=128, null=True, blank=True)
     vidispineVersionId = IntegerField(null=True, blank=True)
-    proxyBucket = TextField(max_length=128)
-    proxyPath = TextField(max_length=32768)
+    proxyBucket = TextField(max_length=128, null=True, blank=True)
+    proxyPath = TextField(max_length=32768, null=True, blank=True)
     proxyVersion = IntegerField(null=True, blank=True)
-    metadataXML = TextField(max_length=32768)   # path to the XML, not the actual content!!
+    metadataXML = TextField(max_length=32768, null=True, blank=True)   # path to the XML, not the actual content!!
     metadataVersion = IntegerField(null=True, blank=True)
