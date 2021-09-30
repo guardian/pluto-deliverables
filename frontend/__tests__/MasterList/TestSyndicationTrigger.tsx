@@ -264,7 +264,7 @@ describe("SyndicationTrigger", () => {
     );
 
     const trigger = rendered.find("button#syndication-trigger");
-    expect(trigger.props().disabled).toBeTruthy();
+    expect(trigger.props().disabled).toBeFalsy();
 
     const b = rendered.find("button#output-complete-logs");
     expect(b.length).toEqual(0);
