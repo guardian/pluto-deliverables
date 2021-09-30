@@ -54,6 +54,7 @@ interface SyndicationButtonProps {
   disabled: boolean;
   onClicked: () => void;
   link: string | null;
+  platformName?: string;
 }
 
 interface SyndicationIconProps {
@@ -120,11 +121,21 @@ const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
   const closeDialog = () => {
     setOpenDialog(false);
   };
+
+  const platformName = props.platformName ?? "syndication";
+
   return (
     <>
-      <Tooltip title="Send to syndication partner">
+      <Tooltip
+        title={
+          props.disabled
+            ? `You must add ${platformName} details before starting to upload`
+            : "Send to syndication partner"
+        }
+      >
         {props.disabled ? (
           <IconButton
+            id="syndication-trigger"
             onClick={(event) => {
               event.stopPropagation();
               setOpenDialog(true);
@@ -133,7 +144,7 @@ const SyndicationTriggerButton: React.FC<SyndicationButtonProps> = (props) => {
             <BackupOutlined />
           </IconButton>
         ) : (
-          <IconButton onClick={props.onClicked}>
+          <IconButton onClick={props.onClicked} id="syndication-trigger">
             <BackupOutlined />
           </IconButton>
         )}
@@ -402,6 +413,7 @@ const SyndicationTriggerIcon: React.FC<SyndicationIconProps> = (props) => {
         <>
           <Tooltip title="Output failed - Click to show full log">
             <IconButton
+              id="output-failed-logs"
               onClick={(event) => {
                 event.stopPropagation();
                 setOpenDialog(true);
@@ -426,6 +438,7 @@ const SyndicationTriggerIcon: React.FC<SyndicationIconProps> = (props) => {
         <>
           <Tooltip title="Output success - Click to show full log">
             <IconButton
+              id="output-complete-logs"
               onClick={(event) => {
                 event.stopPropagation();
                 setOpenDialog(true);
@@ -478,9 +491,13 @@ const SyndicationTrigger: React.FC<SyndicationTriggerProps> = (props) => {
         {props.uploadStatus == IN_PROGRESS ||
         props.uploadStatus == WAITING_FOR_START ? null : (
           <SyndicationTriggerButton
-            disabled={props.uploadStatus == COMPLETE}
+            disabled={
+              props.uploadStatus == COMPLETE ||
+              (props.title == null && props.uploadStatus == null)
+            }
             onClicked={triggerUpload}
             link={props.link}
+            platformName={props.platform}
           />
         )}
       </Grid>
