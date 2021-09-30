@@ -1,6 +1,8 @@
 from .AtomResponderProcessor import AtomResponderProcessor
 from .AssetUpdatedProcessor import AssetUpdatedProcessor
 from .vidispine_message_processor import VidispineMessageProcessor
+from .StoragetierArchivedMessageProcessor import StoragetierArchivedMessageProcessor
+
 
 ##This structure is imported by name in the run_rabbitmq_responder
 EXCHANGE_MAPPINGS = [
@@ -15,5 +17,9 @@ EXCHANGE_MAPPINGS = [
     {
         "exchange": 'vidispine-events',
         "handler": VidispineMessageProcessor(),
+    },
+    {
+        "exchange": "storagetier-online-archive",
+        "handler": StoragetierArchivedMessageProcessor(),
     }
 ]

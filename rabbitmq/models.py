@@ -1,9 +1,5 @@
 from django.db.models import Model, TextField, IntegerField, FloatField, BooleanField, UUIDField
 from django.core.validators import RegexValidator
-# {"title": "dsa", "type": "video-upload", "assetVersion": -1, "projectId": "VX-600",
-# "enabled": true, "s3Key": "uploads/b98cf3c2-f56f-4a01-a2c8-acac4ad1e8d7--d60d06e4-0562-4558-b6f8-e7e924908201/complete",
-# "atomId": "b98cf3c2-f56f-4a01-a2c8-acac4ad1e8d7",
-# "user": "joe.bloggs@mydomain.com"}
 
 
 class AtomResponderMessage(Model):
@@ -22,3 +18,22 @@ class AtomResponderMessage(Model):
     mtime = FloatField(null=True, blank=True)
     ctime = FloatField(null=True, blank=True)
     atime = FloatField(null=True, blank=True)
+
+
+class StoragetierSuccessMessage(Model):
+    """
+    represents the message coming from pluto-storagetier online->archive
+    """
+    archiveHunterID = TextField(max_length=32768)
+    archiveHunterIDValidated = BooleanField()
+    originalFilePath = TextField(max_length=32768)
+    uploadedBucket = TextField(max_length=128)
+    uploadedPath = TextField(max_length=32768)
+    uploadedVersion = IntegerField(null=True, blank=True)
+    vidispineItemId = TextField(max_length=128, null=True, blank=True)
+    vidispineVersionId = IntegerField(null=True, blank=True)
+    proxyBucket = TextField(max_length=128, null=True, blank=True)
+    proxyPath = TextField(max_length=32768, null=True, blank=True)
+    proxyVersion = IntegerField(null=True, blank=True)
+    metadataXML = TextField(max_length=32768, null=True, blank=True)   # path to the XML, not the actual content!!
+    metadataVersion = IntegerField(null=True, blank=True)
