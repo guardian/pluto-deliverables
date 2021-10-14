@@ -311,9 +311,11 @@ class DeliverableAsset(models.Model):
         else:
             current_item = self.item(user=user)
 
-        should_we_not_attempt_a_transcode = False
-        if self.type == DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS or self.type == DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT or self.type == DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE:
-            should_we_not_attempt_a_transcode = True
+        should_we_not_attempt_a_transcode = self.type in [DELIVERABLE_ASSET_TYPE_OTHER_MISCELLANEOUS,
+                                                          DELIVERABLE_ASSET_TYPE_OTHER_PAC_FORMS,
+                                                          DELIVERABLE_ASSET_TYPE_OTHER_POST_PRODUCTION_SCRIPT,
+                                                          DELIVERABLE_ASSET_TYPE_OTHER_SUBTITLE]
+
         #run_as should be taken care of by the VSItem base class, initated from self.item
         import_job = current_item.import_to_shape(uri="file://" + self.absolute_path.replace(" ","%20"),
                                                   priority="MEDIUM",
