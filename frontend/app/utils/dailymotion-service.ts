@@ -14,7 +14,8 @@ async function fetchDailyMotionChannels() {
   const result = await fetch(`${apiBase}/channels`);
   switch (result.status) {
     case 200:
-      const channelContent = (await result.json()) as DailymotionChannelResponse;
+      const channelContent =
+        (await result.json()) as DailymotionChannelResponse;
       return channelContent.list;
     default:
       const serverResponse = await result.text();

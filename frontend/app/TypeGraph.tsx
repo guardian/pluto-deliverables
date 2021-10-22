@@ -7,21 +7,7 @@ interface GraphProps {}
 
 const TypeGraph: React.FC<GraphProps> = (props) => {
   const [invalidCount, setInvalidCount] = useState<number[]>([
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
 
   const legendlables = [

@@ -169,12 +169,8 @@ export const createYoutubeDeliverable = async (
   assetId: string,
   youtubeMaster: CreateYoutubeMaster
 ): Promise<YoutubeMaster> => {
-  const {
-    youtube_id,
-    youtube_title,
-    youtube_description,
-    youtube_tags,
-  } = youtubeMaster;
+  const { youtube_id, youtube_title, youtube_description, youtube_tags } =
+    youtubeMaster;
   try {
     const { status, data } = await axios.put<YoutubeMaster>(
       `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_YOUTUBE}`,

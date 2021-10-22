@@ -7,18 +7,7 @@ interface GraphProps {}
 
 const DayGraph: React.FC<GraphProps> = (props) => {
   const [invalidCount, setInvalidCount] = useState<number[]>([
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
 
   const days = ["Sun", "Mon", "Tues", "Weds", "Thur", "Fri", "Sat"];

@@ -85,9 +85,10 @@ const useStyles = makeStyles({
   dialog: {
     "& .MuiDialogActions-root.MuiDialogActions-spacing": {
       justifyContent: "flex-start",
-      "& .MuiButtonBase-root.MuiButton-root.MuiButton-contained:not(.MuiButton-containedSecondary)": {
-        marginLeft: "auto",
-      },
+      "& .MuiButtonBase-root.MuiButton-root.MuiButton-contained:not(.MuiButton-containedSecondary)":
+        {
+          marginLeft: "auto",
+        },
     },
   },
   loading: {
