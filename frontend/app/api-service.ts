@@ -6,11 +6,13 @@ const API_DELIVERABLES = `${API}/deliverables`;
 const API_INVALID = `${API}/invalid`;
 
 export const getProjectDeliverables = async (
-  projectId: number
+  projectId: number,
+  orderBy: string,
+  order: string
 ): Promise<Deliverable[]> => {
   try {
     const { status, data } = await axios.get<Deliverable[]>(
-      `${API_DELIVERABLES}?project_id=${projectId}`
+      `${API_DELIVERABLES}?project_id=${projectId}&sortBy=${orderBy}&sortOrder=${order}`
     );
 
     if (status === 200) {

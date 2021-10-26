@@ -171,9 +171,18 @@ class NewDeliverableAssetAPIList(ListAPIView):
     serializer_class = DeliverableAssetSerializer
 
     def get_queryset(self):
+        sort_by = 'filename'
+        if "sortBy" in self.request.GET:
+            sort_by = self.request.GET["sortBy"]
+
+        sort_order = '-'
+        if "sortOrder" in self.request.GET:
+            if self.request.GET["sortOrder"] == 'asc':
+                sort_order = ''
+
         bundle_id = self.request.GET["project_id"]
         parent_bundle = Deliverable.objects.get(pluto_core_project_id=bundle_id)
-        return DeliverableAsset.objects.filter(deliverable=parent_bundle)
+        return DeliverableAsset.objects.filter(deliverable=parent_bundle).order_by('{0}{1}'.format(sort_order, sort_by))
 
     def get(self, *args, **kwargs):
         try:
