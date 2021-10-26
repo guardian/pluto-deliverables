@@ -87,7 +87,16 @@ class NewDeliverablesAPIList(ListAPIView):
             else:
                 start_at = 0
 
-            return Deliverable.objects.all().order_by('-created')[start_at:start_at+page_size]
+            sort_by = 'created'
+            if "sortBy" in self.request.GET:
+                sort_by = self.request.GET["sortBy"]
+
+            sort_order = '-'
+            if "sortOrder" in self.request.GET:
+                if self.request.GET["sortOrder"] == 'asc':
+                    sort_order = ''
+
+            return Deliverable.objects.all().order_by('{0}{1}'.format(sort_order, sort_by))[start_at:start_at+page_size]
         except ValueError:
             return Response({"status":"error","detail":"either pageSize or page was incorrectly formatted"}, status=400)
         except Exception as e:

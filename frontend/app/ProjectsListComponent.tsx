@@ -42,7 +42,7 @@ declare var deploymentRootPath: string;
 
 const tableHeaderTitles: HeaderTitles[] = [
   { label: "Project title", key: "name" },
-  { label: "Project ID", key: "project_id" },
+  { label: "Project ID", key: "pluto_core_project_id" },
   { label: "Created", key: "created" },
   { label: "Open" },
 ];
@@ -97,8 +97,8 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
   const { search } = useLocation();
 
   // React state
-  const [order, setOrder] = useState<SortDirection>("asc");
-  const [orderBy, setOrderBy] = useState<keyof Project>("name");
+  const [order, setOrder] = useState<SortDirection>("desc");
+  const [orderBy, setOrderBy] = useState<keyof Project>("created");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [lastError, setLastError] = useState<object | null>(null);
@@ -129,7 +129,7 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
 
     try {
       const server_response = await axios.get(
-        `/api/bundle?p=${page}&pageSize=${rowsPerPage}`
+        `/api/bundle?p=${page}&pageSize=${rowsPerPage}&sortBy=${orderBy}&sortOrder=${order}`
       );
       return Promise.all([
         setProjects(server_response.data),
@@ -148,10 +148,18 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
   useEffect(() => {
     console.log("filter or search changed, updating...");
     fetchProjectsOnPage();
-  }, [page, rowsPerPage, order]);
+  }, [page, rowsPerPage, order, orderBy]);
 
   const closeDialog = () => {
     setOpenDialog(false);
+  };
+
+  const sortByColumn = (property: keyof Project) => (
+    _event: React.MouseEvent<unknown>
+  ) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
   };
 
   return (
@@ -183,7 +191,22 @@ const ProjectsListComponent: React.FC<RouteComponentProps> = () => {
             <TableHead>
               <TableRow>
                 {tableHeaderTitles.map((title, idx) => (
-                  <TableCell key={title.label ?? idx}>{title.label}</TableCell>
+                  <TableCell
+                    key={title.label ? title.label : idx}
+                    sortDirection={order}
+                  >
+                    {title.key ? (
+                      <TableSortLabel
+                        active={orderBy === title.key}
+                        direction={orderBy === title.key ? order : "asc"}
+                        onClick={sortByColumn(title.key)}
+                      >
+                        {title.label}
+                      </TableSortLabel>
+                    ) : (
+                      title.label
+                    )}
+                  </TableCell>
                 ))}
               </TableRow>
             </TableHead>
