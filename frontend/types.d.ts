@@ -8,7 +8,14 @@ interface Project {
   local_path: string;
 }
 
-interface Deliverable {
+/**
+ * The API can give us DeliverableAsset objects in two formats - raw or denormalised.
+ * The former refers to sub-objects by IDs, while the latter contains a copy of the sub-object information at the point
+ * in time that the record was retrieved.
+ * BaseDeliverable contains the fields that are common to both; Deliverable extends BaseDeliverable and contains the fields
+ * for a raw DeliverableAsset and DenormalisedDeliverable returns fields for a denormalised records
+ */
+interface BaseDeliverable {
   id: bigint;
   type: number | null;
   filename: string;
@@ -20,7 +27,6 @@ interface Deliverable {
   online_item_id: string | null;
   nearline_item_id: string | null;
   archive_item_id: string | null;
-  deliverable: bigint;
   has_ongoing_job: boolean | null;
   status: bigint;
   type_string: string | null;
@@ -31,6 +37,10 @@ interface Deliverable {
   atom_id: string | null;
   absolute_path: string | null;
   linked_to_lowres: boolean | null;
+}
+
+interface Deliverable extends BaseDeliverable {
+  deliverable: bigint;
 }
 
 interface CreateGuardianMaster {
@@ -110,6 +120,14 @@ interface DailyMotionChannel {
   id: string;
   name: string;
   description: string;
+}
+
+interface DenormalisedDeliverable extends BaseDeliverable {
+  deliverable: Project;
+  gnm_website_master?: GuardianMaster;
+  youtube_master?: YoutubeMaster;
+  DailyMotion_master?: DailymotionMaster;
+  mainstream_master?: MainstreamMaster;
 }
 
 //see SearchRequestSerializer in serializers.py

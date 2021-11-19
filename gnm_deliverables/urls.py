@@ -12,7 +12,7 @@ from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingV
     DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView, GenericAssetSearchAPI, NewDeliverabesApiBundleGet, \
     BundlesForCommission, RetryJobForAsset, InvalidAPIList, CountInvalid, CountInvalidByType, CountInvalidByStatus, GetAssetView, \
     TestAndFixDropfolder
-
+from gnm_deliverables.views.deliverables_dash_views import *
 
 urlpatterns = [
     path(r'api/asset/byFileName', SearchForDeliverableAPIView.as_view()),
@@ -48,5 +48,6 @@ urlpatterns = [
     path(r'api/invalid/count', CountInvalid.as_view()),
     path(r'api/invalid/countbytype', CountInvalidByType.as_view()),
     path(r'api/invalid/countbystatus', CountInvalidByStatus.as_view()),
+    path(r'api/dash/assets', DeliverableAssetsList.as_view(), name="dashboard-assets"),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view()),
 ]

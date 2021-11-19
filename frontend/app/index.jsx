@@ -22,6 +22,7 @@ import { Helmet } from "react-helmet";
 import AssetSearchComponent from "./AssetSearchComponent";
 import BundleRedirect from "./BundleRedirect";
 import InvalidDeliverablesComponent from "./InvalidDeliverablesComponent";
+import DeliverablesDashFront from "./DeliverablesDash/DeliverablesDashFront";
 
 require("./app.css");
 
@@ -185,6 +186,7 @@ class App extends React.Component {
             />
             <Route path="/bundle/:bundleId" component={BundleRedirect} />
             <Route path="/search" component={AssetSearchComponent} />
+            <Route path="/dash" component={DeliverablesDashFront}/>
             <Route exact path="/" component={ProjectsListComponent} />
           </Switch>
         </div>
