@@ -95,20 +95,16 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
         {loading ? (
           <CircularProgress style={{ width: "14px", height: "14px" }} />
         ) : null}
-        {commissionInfo ? (
           <>
             <img src={CommissionIcon} alt="C" className={classes.inlineIcon} />
-            {commissionInfo.title} ({commissionInfo.productionOffice})
+            {commissionInfo ? `${commissionInfo.title} (${commissionInfo.productionOffice})` : `${props.commissionId} not found`}
           </>
-        ) : null}
       </Grid>
       <Grid item xs={12} style={{ paddingBottom: 0 }}>
-        {projectInfo ? (
           <>
             <img src={ProjectIcon} alt="P" className={classes.inlineIcon} />
-            {projectInfo.title} ({projectInfo.productionOffice})
+            {projectInfo ? `${projectInfo.title} (${projectInfo.productionOffice})` : `${props.projectId} not found`}
           </>
-        ) : null}
       </Grid>
       <Grid item xs={12} style={{ paddingBottom: 0 }}>
         {projectInfo?.user ? (

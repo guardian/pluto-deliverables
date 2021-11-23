@@ -68,7 +68,6 @@ const DeliverablesDashList: React.FC<DeliverablesDashListProps> = (props) => {
             <TableRow>
               <TableCell>Filename</TableCell>
               <TableCell>Dates</TableCell>
-              <TableCell>Commission</TableCell>
               <TableCell>Project</TableCell>
               <TableCell>Deliverable type</TableCell>
               <TableCell>Links</TableCell>

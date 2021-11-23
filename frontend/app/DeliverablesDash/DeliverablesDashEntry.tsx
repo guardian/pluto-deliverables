@@ -19,6 +19,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import NiceDateFormatter from "../Common/NiceDateFormatter";
 import PlatformIndicator from "./PlatformIndicator";
 import { useHistory } from "react-router-dom";
+import BundleInfoComponentForInvalid from "../BundleInfoComponentForInvalid";
 
 //import globals that were set by the backend
 declare var mediaAtomToolUrl: string;
@@ -110,21 +111,9 @@ const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
         </Typography>
       </TableCell>
       <TableCell>
-        {/*<Grid container>*/}
-        {/*    <Grid item>*/}
-        {/*        <IconButton onClick={commissionFilterChanged}>*/}
-        {/*            <Search/>*/}
-        {/*        </IconButton>*/}
-        {/*    </Grid>*/}
-        {/*    <Grid item>*/}
-        <ShowCommission commissionId={props.entry.deliverable.commission_id} />
-        {/*    </Grid>*/}
-        {/*</Grid>*/}
-      </TableCell>
-      <TableCell>
-        <ShowProject
-          projectId={props.entry.deliverable.pluto_core_project_id}
-        />
+        <BundleInfoComponentForInvalid bundleName={props.entry.deliverable.name}
+                                       commissionId={props.entry.deliverable.commission_id}
+                                       projectId={props.entry.deliverable.pluto_core_project_id}/>
       </TableCell>
       <TableCell>
         <Typography>{props.entry.type_string}</Typography>
