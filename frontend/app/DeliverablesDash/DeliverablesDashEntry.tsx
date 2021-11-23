@@ -184,8 +184,8 @@ const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
           />
         </Tooltip>
       </TableCell>
-      <TableCell style={{minWidth: "200px"}}>
-        <SyndicationNotes deliverableId={props.entry.id}/>
+      <TableCell style={{ minWidth: "200px" }}>
+        <SyndicationNotes deliverableId={props.entry.id} />
       </TableCell>
       <TableCell>
         <Button

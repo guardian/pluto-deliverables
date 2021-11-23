@@ -17,6 +17,7 @@ import DeliverablesDashEntry from "./DeliverablesDashEntry";
 interface DeliverablesDashListProps {
   startDate: Date;
   endDate: Date;
+  types: "fullmasters" | "all";
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -39,7 +40,7 @@ const DeliverablesDashList: React.FC<DeliverablesDashListProps> = (props) => {
       const response = await axios.get(
         `/api/dash/assets?startDate=${formatISO(
           props.startDate
-        )}&endDate=${formatISO(props.endDate)}`,
+        )}&endDate=${formatISO(props.endDate)}&types=${props.types}`,
         { validateStatus: () => true }
       );
       switch (response.status) {
@@ -55,7 +56,7 @@ const DeliverablesDashList: React.FC<DeliverablesDashListProps> = (props) => {
     };
 
     loadData();
-  }, [props.startDate, props.endDate]);
+  }, [props.startDate, props.endDate, props.types]);
 
   const commissionFilterRequested = (newCommissionId?: number) => {};
   const projectFilterRequested = (newCommissionId?: number) => {};

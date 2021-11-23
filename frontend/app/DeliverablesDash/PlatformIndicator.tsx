@@ -50,14 +50,14 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
       <Grid item>
         <Tooltip
           title={
-            entry.gnm_website_master
+            entry.youtube_master
               ? "This has been published to Youtube"
               : "This has not been published to Youtube"
           }
         >
           <img
             className={classes.inlineIcon}
-            src={entry.gnm_website_master ? youtubeEnabled : youtubeDisabled}
+            src={entry.youtube_master ? youtubeEnabled : youtubeDisabled}
             alt="Y"
           />
         </Tooltip>
@@ -65,7 +65,7 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
       <Grid item>
         <Tooltip
           title={
-            entry.gnm_website_master
+            entry.DailyMotion_master
               ? "This has been published to Daily Motion"
               : "This has not been published to Daily Motion"
           }
@@ -73,7 +73,7 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
           <img
             className={classes.inlineIcon}
             src={
-              entry.gnm_website_master
+              entry.DailyMotion_master
                 ? dailymotionEnabled
                 : dailymotionDisabled
             }
@@ -84,7 +84,7 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
       <Grid item>
         <Tooltip
           title={
-            entry.gnm_website_master
+            entry.mainstream_master
               ? "This has been published to Mainstream"
               : "This has not been published to Mainstream"
           }
@@ -92,7 +92,7 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
           <img
             className={classes.inlineIcon}
             src={
-              entry.gnm_website_master ? mainstreamEnabled : mainstreamDisabled
+              entry.mainstream_master ? mainstreamEnabled : mainstreamDisabled
             }
             alt="M"
           />

@@ -11,7 +11,7 @@ from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from datetime import datetime
 import logging
 from gnm_deliverables.models import Deliverable, DeliverableAsset, GNMWebsite, SyndicationNotes
-
+import gnm_deliverables.choices as choices
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +22,12 @@ class DeliverableAssetsList(ListAPIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = DenormalisedAssetSerializer
 
+    def typeForString(self, typeString):
+        if typeString=="fullmasters":
+            return choices.DELIVERABLE_ASSET_TYPE_VIDEO_FULL_MASTER
+        else:
+            raise ValueError("Value not found: {0}".format(typeString))
+
     def get_queryset(self):
         """
         build a queryset from the provided parameters.
@@ -30,6 +36,7 @@ class DeliverableAssetsList(ListAPIView):
         - endDate: (ISO datetime)
         [- deliverableType is done in frontend]
         - atomId: (string)
+        - types: "fullmasters"|"all"
         :return:
         """
         end_date = datetime.now()
@@ -47,14 +54,19 @@ class DeliverableAssetsList(ListAPIView):
 
         queryset = DeliverableAsset.objects.select_related().filter(changed_dt__gte=start_date, changed_dt__lte=end_date)
 
+        if "types" in self.request.GET and self.request.GET["types"] != "all":
+            queryset = queryset.filter(type=self.typeForString(self.request.GET["types"]))
+
         if "atomId" in self.request.GET:
             queryset = GNMWebsite.objects.select_related().filter(media_atom_id=self.request.GET["atomId"])
 
-        return queryset[0:100]
+        return queryset.order_by("-changed_dt")[0:100]
 
     def dispatch(self, *args, **kwargs):
         try:
             return super(DeliverableAssetsList, self).dispatch(*args, **kwargs)
+        except ValueError as e:
+            return Response({"status":"error","detail": str(e)}, status=400)
         except Exception as e:
             logger.error("Could not list deliverables for {0}: {1}".format(self.request.GET, str(e)))
             return Response({"status":"error","detail":"Server error, please see logs"}, status=500)
