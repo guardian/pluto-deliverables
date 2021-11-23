@@ -12,14 +12,13 @@ import {
 import LaunchIcon from "@material-ui/icons/Launch";
 // @ts-ignore
 import atomIcon from "../static/atom_icon.svg";
-import ShowCommission from "../PlutoCore/ShowCommission";
-import ShowProject from "../PlutoCore/ShowProject";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
 import { makeStyles } from "@material-ui/core/styles";
 import NiceDateFormatter from "../Common/NiceDateFormatter";
 import PlatformIndicator from "./PlatformIndicator";
 import { useHistory } from "react-router-dom";
 import BundleInfoComponentForInvalid from "../BundleInfoComponentForInvalid";
+import SyndicationNotes from "./SyndicationNotes";
 
 //import globals that were set by the backend
 declare var mediaAtomToolUrl: string;
@@ -111,9 +110,11 @@ const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
         </Typography>
       </TableCell>
       <TableCell>
-        <BundleInfoComponentForInvalid bundleName={props.entry.deliverable.name}
-                                       commissionId={props.entry.deliverable.commission_id}
-                                       projectId={props.entry.deliverable.pluto_core_project_id}/>
+        <BundleInfoComponentForInvalid
+          bundleName={props.entry.deliverable.name}
+          commissionId={props.entry.deliverable.commission_id}
+          projectId={props.entry.deliverable.pluto_core_project_id}
+        />
       </TableCell>
       <TableCell>
         <Typography>{props.entry.type_string}</Typography>
@@ -183,8 +184,8 @@ const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
           />
         </Tooltip>
       </TableCell>
-      <TableCell>
-        <Typography>Not implemented yet</Typography>
+      <TableCell style={{minWidth: "200px"}}>
+        <SyndicationNotes deliverableId={props.entry.id}/>
       </TableCell>
       <TableCell>
         <Button

@@ -23,6 +23,8 @@ urlpatterns = [
     path(r'api/bundle/bybundleid/<int:bundleId>', NewDeliverabesApiBundleGet.as_view()),
     path(r'api/bundle/new', NewDeliverablesAPICreate.as_view(), name='bundle-create'),
     path(r'api/asset/<int:assetId>', GetAssetView.as_view()),
+    path(r'api/asset/<int:asset>/notes', ListSyndicationNotes.as_view()),
+    path(r'api/asset/<int:asset>/notes/new', AddSyndicationNote.as_view()),
     path(r'api/bundle/new', NewDeliverablesAPICreate.as_view()),
     path(r'api/bundle/scan', NewDeliverableAPIScan.as_view()),
     path(r'api/bundle/adopt', AdoptExistingVidispineItemView.as_view(), name="adopt-asset"),

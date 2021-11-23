@@ -28,6 +28,7 @@ from .files import get_path_for_deliverable, find_files_for_deliverable, create_
     get_local_path_for_deliverable, create_folder_for_deliverable
 from .templatetags.deliverable_tags import sizeof_fmt
 from .transcodepreset import TranscodePresetFinder
+import datetime
 logger = logging.getLogger(__name__)
 
 
@@ -561,3 +562,10 @@ class LogEntry(models.Model):
                                            db_index=True)
     sender = models.TextField(null=False, blank=False, db_index=True)
     log_line = models.TextField(null=False, blank=False)
+
+
+class SyndicationNotes(models.Model):
+    timestamp = models.DateTimeField(default=datetime.datetime.now)
+    username = models.TextField(max_length=255)
+    content = models.TextField(max_length=32768)
+    deliverable_asset = models.ForeignKey(DeliverableAsset, on_delete=models.CASCADE, db_index=True)

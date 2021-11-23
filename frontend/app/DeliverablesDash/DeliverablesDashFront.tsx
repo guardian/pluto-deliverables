@@ -19,9 +19,6 @@ const DeliverablesDashFront: React.FC = () => {
   });
   const [finishDateEntered, setFinishDateEntered] = useState<Date>(new Date());
 
-  console.log("startDateEntered: ", startDateEntered);
-  console.log("finishDateEntered: ", finishDateEntered);
-
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Helmet>

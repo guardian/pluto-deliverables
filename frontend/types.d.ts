@@ -208,3 +208,20 @@ interface DropfolderStatus {
   status: string;
   clientpath: string;
 }
+
+//https://www.django-rest-framework.org/api-guide/pagination/#limitoffsetpagination
+interface LimitOffsetPaginationResponse<T> {
+  count: number;
+  next: string;
+  previous: string;
+  results: T[];
+}
+
+interface SyndicationNote {
+  timestamp: string;
+  deliverable_asset: number;
+  username: string;
+  content: string;
+}
+
+type SyndicationNoteResponse = LimitOffsetPaginationResponse<SyndicationNote>;
