@@ -186,7 +186,7 @@ class App extends React.Component {
             />
             <Route path="/bundle/:bundleId" component={BundleRedirect} />
             <Route path="/search" component={AssetSearchComponent} />
-            <Route path="/dash" component={DeliverablesDashFront}/>
+            <Route path="/dash" component={DeliverablesDashFront} />
             <Route exact path="/" component={ProjectsListComponent} />
           </Switch>
         </div>
