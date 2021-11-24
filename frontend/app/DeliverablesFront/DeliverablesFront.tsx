@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import {
   CircularProgress,
@@ -10,6 +10,9 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 import clsx from "clsx";
+import axios from "axios";
+import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import CapiSearchResult from "./CapiSearchResult";
 
 const useStyles = makeStyles({
   clickable: {
@@ -38,6 +41,9 @@ const DeliverablesFront: React.FC<{}> = () => {
 
   const [urlSearchValue, setUrlSearchValue] = useState("");
   const [urlSearchRunning, setUrlSearchRunning] = useState(false);
+  const [urlSearchResult, setUrlSearchResult] = useState<
+    CapiSearchResponse | undefined
+  >(undefined);
 
   const [delivSearchValue, setDelivSearchValue] = useState("");
 
@@ -54,6 +60,33 @@ const DeliverablesFront: React.FC<{}> = () => {
   };
 
   const history = useHistory();
+
+  useEffect(() => {
+    const runUrlSearch = async () => {
+      setUrlSearchRunning(true);
+      try {
+        const response = await axios.get<CapiSearchResponse>(
+          `/api/capiscan?url=${encodeURIComponent(urlSearchValue)}`
+        );
+        setUrlSearchRunning(false);
+        setUrlSearchResult(response.data);
+      } catch (err) {
+        setUrlSearchRunning(false);
+        console.error(`Could not search CAPI for ${urlSearchValue}: `, err);
+        SystemNotification.open(
+          SystemNotifcationKind.Error,
+          "Could not perform the search."
+        );
+      }
+    };
+
+    if (urlSearchValue == "") {
+      setUrlSearchRunning(false);
+      setUrlSearchResult(undefined);
+    } else {
+      runUrlSearch();
+    }
+  }, [urlSearchValue]);
 
   return (
     <>
@@ -75,19 +108,24 @@ const DeliverablesFront: React.FC<{}> = () => {
               I want to find the deliverable for a page on the website
             </Typography>
             {showFindPage ? (
-              <Grid container justifyContent="space-between">
-                <Grid item style={{ flexGrow: 1 }}>
-                  <TextField
-                    onChange={(evt) => setUrlSearchValue(evt.target.value)}
-                    className={classes.input}
-                    value={urlSearchValue}
-                    label="Paste the page URL here"
-                  />
+              <>
+                <Grid container justifyContent="space-between">
+                  <Grid item style={{ flexGrow: 1 }}>
+                    <TextField
+                      onChange={(evt) => setUrlSearchValue(evt.target.value)}
+                      className={classes.input}
+                      value={urlSearchValue}
+                      label="Paste the page URL here"
+                    />
+                  </Grid>
+                  <Grid item>
+                    {urlSearchRunning ? <CircularProgress /> : undefined}
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  {urlSearchRunning ? <CircularProgress /> : undefined}
-                </Grid>
-              </Grid>
+                {urlSearchResult ? (
+                  <CapiSearchResult data={urlSearchResult} />
+                ) : undefined}
+              </>
             ) : undefined}
           </li>
 

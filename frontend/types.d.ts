@@ -225,3 +225,17 @@ interface SyndicationNote {
 }
 
 type SyndicationNoteResponse = LimitOffsetPaginationResponse<SyndicationNote>;
+
+interface CapiSearchAtom {
+  atomTitle: string;
+  atomId: string; //uuid
+  image: string;  //url
+  deliverable?: string;
+}
+
+interface CapiSearchResponse {
+  status: "ok"|"capi_response_error"
+  detail?: string;  //this is set if status is 'capi_response_error'
+  webTitle: string;
+  atoms: CapiSearchAtom[];
+}

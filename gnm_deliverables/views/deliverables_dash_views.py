@@ -12,8 +12,12 @@ from datetime import datetime
 import logging
 from gnm_deliverables.models import Deliverable, DeliverableAsset, GNMWebsite, SyndicationNotes
 import gnm_deliverables.choices as choices
+import requests
+from django.conf import settings
+import urllib.parse
 
 logger = logging.getLogger(__name__)
+logger.level = logging.DEBUG
 
 
 class DeliverableAssetsList(ListAPIView):
@@ -108,3 +112,115 @@ class AddSyndicationNote(APIView):
         except Exception as e:
             logger.error("could not create syndication note for record {0}")
             return Response({"status":"error","detail":str(e)}, status=500)
+
+
+class GNMWebsiteSearch(APIView):
+    renderer_classes = (JSONRenderer, )
+    authentication_classes = (JwtRestAuth, BasicAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated, )
+
+    @staticmethod
+    def find_smallest_poster(atom_info):
+        """
+        finds the smallest posterImage or returns None if there were not any
+        :param atom_info: dictionary of atom info. It's expected that this will have a "posterImage" key,
+        which will in turn have an "assets" key which is an array
+        :return:
+        """
+        current_size = 9999999
+        current_url = None
+
+        try:
+            for entry in atom_info["data"]["media"]["posterImage"]["assets"]:
+                if "dimensions" in entry and "width" in entry["dimensions"]:
+                    if entry["dimensions"]["width"] < current_size:
+                        current_size = entry["dimensions"]["width"]
+                        current_url = entry["file"]
+        except KeyError:
+            return None
+
+        return current_url
+
+    @staticmethod
+    def validate_capi_content(capi_content:dict):
+        """
+        checks if the passed dictionary has the keys we need to treat it as a capi record
+        :param capi_content:
+        :return: the contents of the response.content keys if it's valid or None if its not.
+        """
+        if "response" not in capi_content or "content" not in capi_content["response"]:
+            return None
+
+        if "atoms" not in capi_content["response"]["content"] or "media" not in capi_content["response"]["content"]["atoms"]:
+            return None
+
+        if not isinstance(capi_content["response"]["content"]["atoms"]["media"], list):
+            return None
+
+        return capi_content["response"]["content"]
+
+    @staticmethod
+    def find_deliverable_url_for_id(atom_id:str):
+        try:
+            assets = DeliverableAsset.objects.filter(atom_id=atom_id)
+            if len(assets)==0:
+                return None
+            elif len(assets) > 0:
+                logger.warning("There are {0} assets associated with atom id {1}, using the first", len(assets), atom_id)
+
+            return "/item/{0}".format(assets[0].id)
+
+        except DeliverableAsset.DoesNotExist:
+            return None
+
+    def get(self, request, *args, **kwargs):
+        if not hasattr(settings, "CAPI_KEY"):
+            return Response({"status":"error","detail": "You need to set capi_key in the settings"}, status=500)
+        if not hasattr(settings, "CAPI_BASE"):
+            return Response({"status":"error","detail": "You need to set capi_base in the settings"}, status=500)
+        if "url" not in request.GET:
+            return Response({"status":"error","detail": "No url= parameter"}, status=500)
+
+        try:
+            unquoted_url = urllib.parse.unquote(request.GET["url"])
+            parsed_url = urllib.parse.urlparse(unquoted_url)
+            url_to_call = "https://{base}{0}?api-key={key}&show-atoms=media".format(parsed_url.path,
+                                                                                   base=settings.CAPI_BASE,
+                                                                                   key=settings.CAPI_KEY)
+            logger.info("CAPI url for {0} is {1}".format(request.GET["url"], url_to_call))
+            response = requests.get(url_to_call)
+            logger.info("CAPI response was {0}".format(response.status_code))
+            if response.status_code == 200:
+                capi_content = self.validate_capi_content(response.json())
+                if capi_content is None:
+                    logger.error("CAPI did not return enough fields that we wanted. Consult deliverables_dash_views.py for details on what's needed. We got: {0}.".format(response.text))
+                    return Response({
+                        "status": "capi_response_error",
+                        "detail": "This does not seem to be a video atom"
+                    })
+                elif len(capi_content["atoms"]["media"])==0:
+                    logger.error("CAPI did not return any media atoms in the page. We got: {0}".format(response.text))
+                    return Response({
+                        "status": "capi_response_error",
+                        "detail": "There were no video atoms on the page"
+                    })
+                else:
+                    return Response({
+                        "status": "ok",
+                        "webTitle": capi_content["webTitle"],
+                        "atoms": [{
+                            "atomTitle": atom["title"],
+                            "atomId": atom["id"],
+                            "image": self.find_smallest_poster(atom),
+                            "deliverable": self.find_deliverable_url_for_id(atom["id"])
+                        } for atom in capi_content["atoms"]["media"]]
+                    })
+            else:
+                logger.error("Could not access {0}: CAPI returned {1} {2}".format(url_to_call, response.status_code, response.text))
+                return Response({
+                    "status": "capi_response_error",
+                    "detail": "CAPI returned {0}".format(response.status_code)
+                })
+        except Exception as e:
+            logger.error("Could not make proxy request to CAPI: {0}".format(str(e)))
+            return Response({"status":"error", "detail": "See server logs"}, status=500)

@@ -181,6 +181,9 @@ CDS_ROUTE_MAP = {
     "dailymotion": "DailyMotion.xml"
 }
 
+# Content API integration details
+CAPI_KEY = os.environ.get("CAPI_KEY")
+CAPI_BASE = os.environ.get("CAPI_BASE")
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
 }

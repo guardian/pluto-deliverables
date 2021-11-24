@@ -51,5 +51,6 @@ urlpatterns = [
     path(r'api/invalid/countbytype', CountInvalidByType.as_view()),
     path(r'api/invalid/countbystatus', CountInvalidByStatus.as_view()),
     path(r'api/dash/assets', DeliverableAssetsList.as_view(), name="dashboard-assets"),
+    path(r'api/capiscan', GNMWebsiteSearch.as_view()),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view()),
 ]
