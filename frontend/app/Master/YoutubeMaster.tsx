@@ -27,76 +27,8 @@ import {
 import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { Launch } from "@material-ui/icons";
-
-const useStyles = makeStyles({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    "& form": {
-      display: "flex",
-      width: "100%",
-      maxWidth: "800px",
-      flexDirection: "column",
-      alignItems: "flex-start",
-    },
-    "& .MuiAutocomplete-root": {
-      width: "100%",
-    },
-    "& .MuiTextField-root": {
-      width: "100%",
-      marginBottom: "1rem",
-    },
-    "& .MuiFormControl-root": {
-      width: "100%",
-      marginBottom: "1rem",
-    },
-    "& .metadata-info": {
-      marginBottom: "1rem",
-      display: "flex",
-      width: "100%",
-      flexDirection: "column",
-      "& .subtitle-small": {
-        fontSize: "14px",
-        margin: "0",
-        textOverflow: "ellipsis",
-        display: "inline-block",
-        overflow: "hidden",
-        maxWidth: "790px",
-        whiteSpace: "nowrap",
-        minHeight: "22px",
-      },
-    },
-    "& .MuiBadge-root": {
-      marginLeft: "1rem",
-    },
-  },
-  formButtons: {
-    display: "flex",
-    marginTop: "1rem",
-    width: "100%",
-    "& .cancel": {
-      marginLeft: "1rem",
-    },
-    "& .delete": {
-      marginLeft: "auto",
-    },
-  },
-  dialog: {
-    "& .MuiDialogActions-root.MuiDialogActions-spacing": {
-      justifyContent: "flex-start",
-      "& .MuiButtonBase-root.MuiButton-root.MuiButton-contained:not(.MuiButton-containedSecondary)": {
-        marginLeft: "auto",
-      },
-    },
-  },
-  loading: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    alignItems: "center",
-  },
-});
+import { metadataStyles } from "./MetadataStyles";
+import YoutubeMasterForm from "./YoutubeMasterForm";
 
 interface YoutubeMasterProps
   extends RouteComponentProps<{ projectid: string; assetid: string }> {
@@ -104,7 +36,7 @@ interface YoutubeMasterProps
 }
 
 const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
-  const classes = useStyles();
+  const classes = metadataStyles();
   const history = useHistory();
   const [master, setMaster] = useState<YoutubeMaster>({
     youtube_id: "",
@@ -250,71 +182,14 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
             {isEditing ? "Edit" : "Create"} Youtube master
           </Typography>
 
-          {isEditing && (
-            <>
-              <TextField
-                label="Publication Date"
-                value={master.publication_date || ""}
-                disabled
-              />
-              <div className="metadata-info">
-                <Typography variant="subtitle1">Youtube category</Typography>
-                <p className="subtitle-small">
-                  {master.youtube_category ?? ""}
-                </p>
-              </div>
-              <div className="metadata-info">
-                <Typography variant="subtitle1">Youtube channel</Typography>
-
-                <p className="subtitle-small">{master.youtube_channel ?? ""}</p>
-              </div>
-            </>
-          )}
-
-          <Grid direction="row" container>
-            <Grid item>
-              <TextField
-                label="Youtube ID"
-                value={master.youtube_id || ""}
-                onChange={(event) => fieldChanged(event, "youtube_id")}
-                error={!isReadOnly && isDirty && !master.youtube_id}
-                helperText={
-                  !isReadOnly && isDirty && !master.youtube_id
-                    ? "Youtube ID is required"
-                    : ""
-                }
-                required={!isReadOnly}
-                disabled={isReadOnly}
-              />
-            </Grid>
-            <Grid item style={{ flex: "0 0 48px" }}>
-              <Tooltip
-                title={`https://youtube.com/watch?v=${master.youtube_id}`}
-              >
-                <IconButton
-                  onClick={() => {
-                    window.open(
-                      `https://youtube.com/watch?v=${master.youtube_id}`,
-                      "_blank"
-                    );
-                  }}
-                >
-                  <Launch />
-                </IconButton>
-              </Tooltip>
-            </Grid>
-          </Grid>
-          <CommonMaster
-            prefix={"Youtube"}
-            fields={{
-              title: master.youtube_title,
-              description: master.youtube_description,
-              tags: master.youtube_tags,
-            }}
-            onChange={onCommonMasterChanged}
+          <YoutubeMasterForm
+            isEditing={isEditing}
+            master={master}
+            isReadOnly={isReadOnly}
             isDirty={isDirty}
-            disabled={isReadOnly}
-          ></CommonMaster>
+            fieldChanged={fieldChanged}
+            onCommonMasterChanged={onCommonMasterChanged}
+          />
 
           <div className={classes.formButtons}>
             <Button

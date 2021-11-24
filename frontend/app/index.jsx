@@ -23,6 +23,7 @@ import AssetSearchComponent from "./AssetSearchComponent";
 import BundleRedirect from "./BundleRedirect";
 import InvalidDeliverablesComponent from "./InvalidDeliverablesComponent";
 import DeliverablesDashFront from "./DeliverablesDash/DeliverablesDashFront";
+import DeliverableItem from "./DeliverableItem/DeliverableItem";
 
 require("./app.css");
 
@@ -119,6 +120,7 @@ class App extends React.Component {
         </>
         <div className="main-body">
           <Switch>
+            <Route path="/item/:assetId" component={DeliverableItem} />
             <Route
               path="/project/:projectid/new"
               component={CreateDeliverable}

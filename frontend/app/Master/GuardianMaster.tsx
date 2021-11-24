@@ -26,75 +26,77 @@ import {
 } from "../utils/master-api-service";
 import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
+import GuardianMasterForm from "./GuardianMasterForm";
+import { metadataStyles } from "./MetadataStyles";
 
-const useStyles = makeStyles({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    "& form": {
-      display: "flex",
-      width: "100%",
-      maxWidth: "800px",
-      flexDirection: "column",
-      alignItems: "flex-start",
-    },
-    "& .MuiAutocomplete-root": {
-      width: "100%",
-    },
-    "& .MuiTextField-root": {
-      width: "100%",
-      marginBottom: "1rem",
-    },
-    "& .MuiFormControl-root": {
-      width: "100%",
-      marginBottom: "1rem",
-    },
-    "& .metadata-info": {
-      width: "100%",
-      "& .MuiTypography-subtitle1": {
-        display: "inline-block",
-      },
-      "& a": {
-        marginLeft: "10px",
-      },
-    },
-    "& .MuiDivider-root": {
-      marginTop: "3px",
-    },
-    "& .atom-tool-warning": {
-      paddingTop: "20px",
-    },
-  },
-  formButtons: {
-    display: "flex",
-    marginTop: "1rem",
-    width: "100%",
-    "& .cancel": {
-      marginLeft: "1rem",
-    },
-    "& .delete": {
-      marginLeft: "auto",
-    },
-    "& .resync": {
-      marginLeft: "auto",
-    },
-  },
-  dialog: {
-    "& .MuiDialogActions-root.MuiDialogActions-spacing": {
-      justifyContent: "flex-start",
-      "& .MuiButtonBase-root.MuiButton-root.MuiButton-contained:not(.MuiButton-containedSecondary)": {
-        marginLeft: "auto",
-      },
-    },
-  },
-  loading: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    alignItems: "center",
-  },
-});
+// const useStyles = makeStyles({
+//   root: {
+//     display: "flex",
+//     flexDirection: "column",
+//     alignItems: "center",
+//     "& form": {
+//       display: "flex",
+//       width: "100%",
+//       maxWidth: "800px",
+//       flexDirection: "column",
+//       alignItems: "flex-start",
+//     },
+//     "& .MuiAutocomplete-root": {
+//       width: "100%",
+//     },
+//     "& .MuiTextField-root": {
+//       width: "100%",
+//       marginBottom: "1rem",
+//     },
+//     "& .MuiFormControl-root": {
+//       width: "100%",
+//       marginBottom: "1rem",
+//     },
+//     "& .metadata-info": {
+//       width: "100%",
+//       "& .MuiTypography-subtitle1": {
+//         display: "inline-block",
+//       },
+//       "& a": {
+//         marginLeft: "10px",
+//       },
+//     },
+//     "& .MuiDivider-root": {
+//       marginTop: "3px",
+//     },
+//     "& .atom-tool-warning": {
+//       paddingTop: "20px",
+//     },
+//   },
+//   formButtons: {
+//     display: "flex",
+//     marginTop: "1rem",
+//     width: "100%",
+//     "& .cancel": {
+//       marginLeft: "1rem",
+//     },
+//     "& .delete": {
+//       marginLeft: "auto",
+//     },
+//     "& .resync": {
+//       marginLeft: "auto",
+//     },
+//   },
+//   dialog: {
+//     "& .MuiDialogActions-root.MuiDialogActions-spacing": {
+//       justifyContent: "flex-start",
+//       "& .MuiButtonBase-root.MuiButton-root.MuiButton-contained:not(.MuiButton-containedSecondary)": {
+//         marginLeft: "auto",
+//       },
+//     },
+//   },
+//   loading: {
+//     display: "flex",
+//     flexDirection: "column",
+//     width: "100%",
+//     alignItems: "center",
+//   },
+// });
 
 interface GuardianMasterProps
   extends RouteComponentProps<{
@@ -105,7 +107,7 @@ interface GuardianMasterProps
 }
 
 const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
-  const classes = useStyles();
+  const classes = metadataStyles();
   const history = useHistory();
   const [master, setMaster] = useState<GuardianMaster>({
     upload_status: "",
@@ -263,129 +265,59 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
         </title>
       </Helmet>
 
-      <div className={classes.root}>
-        <form onSubmit={onProjectSubmit} noValidate autoComplete="off">
-          <Typography variant="h4">
-            {isEditing ? "Edit" : "Create"} GNM website
-          </Typography>
+      <form onSubmit={onProjectSubmit} noValidate autoComplete="off">
+        <Typography variant="h4">
+          {isEditing ? "Edit" : "Create"} GNM website
+        </Typography>
 
-          {isEditing ? (
-            <>
-              <div className="metadata-info">
-                <Typography variant="subtitle1">Media Atom ID</Typography>
+        <GuardianMasterForm
+          isEditing={isEditing}
+          master={master}
+          isReadOnly={isReadOnly}
+          fieldChanged={fieldChanged}
+          isDirty={isDirty}
+          onCommonMasterChanged={onCommonMasterChanged}
+        />
 
-                {master.media_atom_id ? (
-                  <a target="_blank" href={master.media_atom_id}>
-                    {master.media_atom_id}
-                  </a>
-                ) : (
-                  ""
-                )}
-
-                <Divider />
-              </div>
-
-              <TextField
-                label="Upload Status"
-                value={master.upload_status || ""}
-                disabled
-              />
-
-              <TextField
-                label="Publication Status"
-                value={master.publication_status || ""}
-                disabled
-              />
-
-              <TextField
-                label="Publication Date"
-                value={master.publication_date || ""}
-                disabled
-              />
-            </>
-          ) : (
-            ""
+        <div className={classes.formButtons}>
+          <Button
+            disabled={isReadOnly}
+            type="submit"
+            color="primary"
+            variant="contained"
+          >
+            {isEditing ? "Save" : "Create"}
+          </Button>
+          <Button
+            className="cancel"
+            variant="contained"
+            onClick={() => history.goBack()}
+          >
+            Cancel
+          </Button>
+          {!isReadOnly && isEditing && (
+            <Button
+              className="delete"
+              variant="contained"
+              color="secondary"
+              startIcon={<DeleteIcon />}
+              onClick={() => setOpenDialog(true)}
+            >
+              Delete
+            </Button>
           )}
-
-          <FormSelect
-            label="Production Office"
-            value={master.production_office || ""}
-            onChange={(event: any) => fieldChanged(event, "production_office")}
-            options={validProductionOffices}
-            required={!isReadOnly}
-            error={!isReadOnly && isDirty && !master.production_office}
-            disabled={isReadOnly}
-          />
-
-          <CommonMaster
-            prefix="Website"
-            fields={{
-              title: master.website_title,
-              description: master.website_description,
-              tags: master.tags,
-            }}
-            onChange={onCommonMasterChanged}
-            isDirty={isDirty}
-            disabled={isReadOnly}
-          />
-
-          <FormSelect
-            label="Primary Tone"
-            value={master.primary_tone || ""}
-            onChange={(event: any) => fieldChanged(event, "primary_tone")}
-            options={validPrimaryTones}
-            disabled={isReadOnly}
-          />
-
-          <div className={classes.formButtons}>
+          <Tooltip title="Update the GNM website data from the published atom">
             <Button
-              disabled={isReadOnly}
-              type="submit"
-              color="primary"
-              variant="contained"
+              className="resync"
+              variant="outlined"
+              onClick={() => requestResync()}
             >
-              {isEditing ? "Save" : "Create"}
+              Resync
             </Button>
-            <Button
-              className="cancel"
-              variant="contained"
-              onClick={() => history.goBack()}
-            >
-              Cancel
-            </Button>
-            {!isReadOnly && isEditing && (
-              <Button
-                className="delete"
-                variant="contained"
-                color="secondary"
-                startIcon={<DeleteIcon />}
-                onClick={() => setOpenDialog(true)}
-              >
-                Delete
-              </Button>
-            )}
-            <Tooltip title="Update the GNM website data from the published atom">
-              <Button
-                className="resync"
-                variant="outlined"
-                onClick={() => requestResync()}
-              >
-                Resync
-              </Button>
-            </Tooltip>
-          </div>
-        </form>
-        {isEditing ? (
-          <div className="atom-tool-warning">
-            You can not adjust this here. You need to do it in Atom Tool.&nbsp;
-            <a href="https://video.gutools.co.uk/" target="_blank">
-              https://video.gutools.co.uk/
-            </a>
-          </div>
-        ) : (
-          ""
-        )}
-      </div>
+          </Tooltip>
+        </div>
+      </form>
+
       <Dialog
         className={classes.dialog}
         open={openDialog}

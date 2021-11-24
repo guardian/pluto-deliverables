@@ -22,7 +22,7 @@ urlpatterns = [
     path(r'api/bundle/byproject/<int:projectId>', NewDeliverablesApiGet.as_view()),
     path(r'api/bundle/bybundleid/<int:bundleId>', NewDeliverabesApiBundleGet.as_view()),
     path(r'api/bundle/new', NewDeliverablesAPICreate.as_view(), name='bundle-create'),
-    path(r'api/asset/<int:assetId>', GetAssetView.as_view()),
+    path(r'api/asset/<int:pk>', GetAssetView.as_view()),
     path(r'api/asset/<int:asset>/notes', ListSyndicationNotes.as_view()),
     path(r'api/asset/<int:asset>/notes/new', AddSyndicationNote.as_view()),
     path(r'api/bundle/new', NewDeliverablesAPICreate.as_view()),

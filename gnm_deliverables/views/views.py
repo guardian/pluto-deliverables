@@ -392,20 +392,9 @@ class GetAssetView(RetrieveAPIView):
     authentication_classes = (JwtRestAuth, )
     permission_classes = (IsAuthenticated, )
     renderer_classes = (JSONRenderer, )
+    queryset = DeliverableAsset.objects.all()
+    serializer_class = DenormalisedAssetSerializer
 
-    def __init__(self):
-        super(GetAssetView, self).__init__()
-        self.asset_id = None
-
-    def get(self, request, *args, **kwargs):
-        if "assetId" in kwargs:
-            self.asset_id = kwargs["assetId"]
-            return super(GetAssetView, self).get(request, *args, **kwargs)
-        else:
-            return Response({"status":"error","detail":"No asset id"},status=400)
-
-    def get_queryset(self):
-        return DeliverableAsset.objects.get(pk=self.asset_id)
 
 
 class DeliverableAPIStarted(APIView):
