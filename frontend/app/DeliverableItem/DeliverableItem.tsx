@@ -22,6 +22,7 @@ import GuardianMasterForm from "../Master/GuardianMasterForm";
 import clsx from "clsx";
 import YoutubeMasterForm from "../Master/YoutubeMasterForm";
 import DailyMotionMasterForm from "../Master/DailyMotionMasterForm";
+import MainstreamMasterForm from "../Master/MainstreamMasterForm";
 
 interface DeliverableItemParam {
   assetId: string;
@@ -46,8 +47,8 @@ const useStyles = makeStyles((theme) => ({
   },
   metaPanel: {
     flex: 1,
-    maxWidth: "720px",
-    minWidth: "220px",
+    maxWidth: "840px",
+    minWidth: "550px",
   },
 }));
 
@@ -238,6 +239,37 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
             ) : (
               <Typography variant="caption">
                 No Daily Motion data available for this item
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
+
+        <Grid item className={classes.metaPanel}>
+          <Paper elevation={3} className={classes.basicMetadataBox}>
+            <Typography variant="h6">
+              <img
+                className={clsx(classes.inlineIcon, classes.sizedIcon)}
+                src={
+                  deliverable?.mainstream_master
+                    ? mainstreamEnabled
+                    : mainstreamDisabled
+                }
+              />
+              Mainstream Media
+            </Typography>
+            {deliverable?.mainstream_master ? (
+              <MainstreamMasterForm
+                isEditing={false}
+                master={deliverable.mainstream_master}
+                isReadOnly={true}
+                isDirty={false}
+                checkboxChanged={() => {}}
+                onCopyButton={() => {}}
+                onCommonMasterChanged={() => {}}
+              />
+            ) : (
+              <Typography variant="caption">
+                No Mainstream data available for this item
               </Typography>
             )}
           </Paper>

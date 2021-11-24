@@ -24,6 +24,7 @@ import {
 } from "../utils/master-api-service";
 import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
+import MainstreamMasterForm from "./MainstreamMasterForm";
 
 const useStyles = makeStyles({
   root: {
@@ -271,45 +272,14 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
             {isEditing ? "Edit" : "Create"} Mainstream master
           </Typography>
 
-          {isEditing ? (
-            <>
-              <TextField
-                label="Upload Status"
-                value={master.upload_status || ""}
-                disabled
-              />
-            </>
-          ) : (
-            ""
-          )}
-
-          <CopyingMaster
-            prefix="Mainstream"
-            fields={{
-              title: master.mainstream_title,
-              description: master.mainstream_description,
-              tags: master.mainstream_tags,
-            }}
-            onChange={onCommonMasterChanged}
+          <MainstreamMasterForm
+            isEditing={isEditing}
+            master={master}
+            isReadOnly={false}
             isDirty={isDirty}
-            onButton={onCopyButton}
-          ></CopyingMaster>
-
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={master.mainstream_rules_contains_adult_content}
-                onChange={(event) =>
-                  checkboxChanged(
-                    event,
-                    "mainstream_rules_contains_adult_content"
-                  )
-                }
-                name="contains-adult-content"
-                color="primary"
-              />
-            }
-            label="Contains adult content"
+            checkboxChanged={checkboxChanged}
+            onCopyButton={onCopyButton}
+            onCommonMasterChanged={onCommonMasterChanged}
           />
 
           <div className={classes.formButtons}>
