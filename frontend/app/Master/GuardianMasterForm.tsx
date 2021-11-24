@@ -11,6 +11,7 @@ import { validPrimaryTones, validProductionOffices } from "../utils/constants";
 import CommonMaster from "./CommonMaster";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { makeStyles } from "@material-ui/core/styles";
+import { metadataStyles } from "./MetadataStyles";
 
 interface GuardianMasterFormProps {
   isEditing: boolean;
@@ -29,47 +30,6 @@ interface GuardianMasterFormProps {
   onCommonMasterChanged: (evt: any, field: string) => void;
 }
 
-const useStyles = makeStyles({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    "& form": {
-      display: "flex",
-      width: "100%",
-      maxWidth: "800px",
-      flexDirection: "column",
-      alignItems: "flex-start",
-    },
-    "& .MuiAutocomplete-root": {
-      width: "100%",
-    },
-    "& .MuiTextField-root": {
-      width: "100%",
-      marginBottom: "1rem",
-    },
-    "& .MuiFormControl-root": {
-      width: "100%",
-      marginBottom: "1rem",
-    },
-    "& .metadata-info": {
-      width: "100%",
-      "& .MuiTypography-subtitle1": {
-        display: "inline-block",
-      },
-      "& a": {
-        marginLeft: "10px",
-      },
-    },
-    "& .MuiDivider-root": {
-      marginTop: "3px",
-    },
-    "& .atom-tool-warning": {
-      paddingTop: "20px",
-    },
-  },
-});
-
 const GuardianMasterForm: React.FC<GuardianMasterFormProps> = (props) => {
   const {
     isEditing,
@@ -79,7 +39,8 @@ const GuardianMasterForm: React.FC<GuardianMasterFormProps> = (props) => {
     fieldChanged,
     onCommonMasterChanged,
   } = props;
-  const classes = useStyles();
+
+  const classes = metadataStyles();
 
   return (
     <div className={classes.root}>

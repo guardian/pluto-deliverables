@@ -21,6 +21,7 @@ import reutersEnabled from "../static/reuters_enabled.png";
 import GuardianMasterForm from "../Master/GuardianMasterForm";
 import clsx from "clsx";
 import YoutubeMasterForm from "../Master/YoutubeMasterForm";
+import DailyMotionMasterForm from "../Master/DailyMotionMasterForm";
 
 interface DeliverableItemParam {
   assetId: string;
@@ -205,6 +206,38 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
             ) : (
               <Typography variant="caption">
                 No YouTube data available for this item
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
+
+        <Grid item className={classes.metaPanel}>
+          <Paper elevation={3} className={classes.basicMetadataBox}>
+            <Typography variant="h6">
+              <img
+                className={clsx(classes.inlineIcon, classes.sizedIcon)}
+                src={
+                  deliverable?.DailyMotion_master
+                    ? dailymotionEnabled
+                    : dailymotionDisabled
+                }
+              />
+              Daily Motion
+            </Typography>
+            {deliverable?.DailyMotion_master ? (
+              <DailyMotionMasterForm
+                isEditing={false}
+                master={deliverable.DailyMotion_master}
+                isReadOnly={true}
+                isDirty={false}
+                checkboxChanged={(evt) => {}}
+                channelSelectorChanged={(newValue) => {}}
+                onCopyButton={() => {}}
+                onCommonMasterChanged={(evt, field) => {}}
+              />
+            ) : (
+              <Typography variant="caption">
+                No Daily Motion data available for this item
               </Typography>
             )}
           </Paper>
