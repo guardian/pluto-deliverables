@@ -24,6 +24,7 @@ import BundleRedirect from "./BundleRedirect";
 import InvalidDeliverablesComponent from "./InvalidDeliverablesComponent";
 import DeliverablesDashFront from "./DeliverablesDash/DeliverablesDashFront";
 import DeliverableItem from "./DeliverableItem/DeliverableItem";
+import DeliverablesFront from "./DeliverablesFront/DeliverablesFront";
 
 require("./app.css");
 
@@ -189,7 +190,8 @@ class App extends React.Component {
             <Route path="/bundle/:bundleId" component={BundleRedirect} />
             <Route path="/search" component={AssetSearchComponent} />
             <Route path="/dash" component={DeliverablesDashFront} />
-            <Route exact path="/" component={ProjectsListComponent} />
+            <Route path="/projects" component={ProjectsListComponent} />
+            <Route exact path="/" component={DeliverablesFront} />
           </Switch>
         </div>
         <SystemNotification />

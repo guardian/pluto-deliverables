@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { RouteChildrenProps } from "react-router";
 import { Helmet } from "react-helmet";
-import { Grid, Link, Paper, Typography } from "@material-ui/core";
+import { Grid, IconButton, Link, Paper, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
-import { Movie } from "@material-ui/icons";
+import { Add, Edit, Movie } from "@material-ui/icons";
 import guardianEnabled from "../static/guardian_enabled.png";
 import guardianDisabled from "../static/guardian_disabled.png";
 import youtubeEnabled from "../static/youtube_enabled.png";
@@ -23,6 +23,7 @@ import clsx from "clsx";
 import YoutubeMasterForm from "../Master/YoutubeMasterForm";
 import DailyMotionMasterForm from "../Master/DailyMotionMasterForm";
 import MainstreamMasterForm from "../Master/MainstreamMasterForm";
+import { useHistory } from "react-router-dom";
 
 interface DeliverableItemParam {
   assetId: string;
@@ -61,6 +62,8 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
   const [loading, setLoading] = useState(true);
 
   const classes = useStyles();
+
+  const history = useHistory();
 
   useEffect(() => {
     const loadDeliverable = async () => {
@@ -156,17 +159,32 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
       <Grid container direction="row" className={classes.fullWidth} spacing={3}>
         <Grid item className={classes.metaPanel}>
           <Paper elevation={3} className={classes.basicMetadataBox}>
-            <Typography variant="h6">
-              <img
-                className={clsx(classes.inlineIcon, classes.sizedIcon)}
-                src={
-                  deliverable?.gnm_website_master
-                    ? guardianEnabled
-                    : guardianDisabled
-                }
-              />
-              GNM Website
-            </Typography>
+            <Grid container justifyContent="space-between">
+              <Grid item>
+                <Typography variant="h6">
+                  <img
+                    className={clsx(classes.inlineIcon, classes.sizedIcon)}
+                    src={
+                      deliverable?.gnm_website_master
+                        ? guardianEnabled
+                        : guardianDisabled
+                    }
+                  />
+                  GNM Website
+                </Typography>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  onClick={() =>
+                    history.push(
+                      `/project/${deliverable?.deliverable.pluto_core_project_id}/asset/${deliverable?.id}/atom`
+                    )
+                  }
+                >
+                  {deliverable?.gnm_website_master ? <Edit /> : <Add />}
+                </IconButton>
+              </Grid>
+            </Grid>
             {deliverable?.gnm_website_master ? (
               <GuardianMasterForm
                 master={deliverable.gnm_website_master}
@@ -186,15 +204,32 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
 
         <Grid item className={classes.metaPanel}>
           <Paper elevation={3} className={classes.basicMetadataBox}>
-            <Typography variant="h6">
-              <img
-                className={clsx(classes.inlineIcon, classes.sizedIcon)}
-                src={
-                  deliverable?.youtube_master ? youtubeEnabled : youtubeDisabled
-                }
-              />
-              Youtube
-            </Typography>
+            <Grid container justifyContent="space-between">
+              <Grid item>
+                <Typography variant="h6">
+                  <img
+                    className={clsx(classes.inlineIcon, classes.sizedIcon)}
+                    src={
+                      deliverable?.youtube_master
+                        ? youtubeEnabled
+                        : youtubeDisabled
+                    }
+                  />
+                  Youtube
+                </Typography>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  onClick={() =>
+                    history.push(
+                      `/project/${deliverable?.deliverable.pluto_core_project_id}/asset/${deliverable?.id}/youtube`
+                    )
+                  }
+                >
+                  {deliverable?.youtube_master ? <Edit /> : <Add />}
+                </IconButton>
+              </Grid>
+            </Grid>
             {deliverable?.youtube_master ? (
               <YoutubeMasterForm
                 master={deliverable.youtube_master}
@@ -214,17 +249,78 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
 
         <Grid item className={classes.metaPanel}>
           <Paper elevation={3} className={classes.basicMetadataBox}>
-            <Typography variant="h6">
-              <img
-                className={clsx(classes.inlineIcon, classes.sizedIcon)}
-                src={
-                  deliverable?.DailyMotion_master
-                    ? dailymotionEnabled
-                    : dailymotionDisabled
-                }
+            <Grid container justifyContent="space-between">
+              <Grid item>
+                <Typography variant="h6">
+                  <img
+                    className={clsx(classes.inlineIcon, classes.sizedIcon)}
+                    src={
+                      deliverable?.mainstream_master
+                        ? mainstreamEnabled
+                        : mainstreamDisabled
+                    }
+                  />
+                  Mainstream Media
+                </Typography>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  onClick={() =>
+                    history.push(
+                      `/project/${deliverable?.deliverable.pluto_core_project_id}/asset/${deliverable?.id}/mainstream`
+                    )
+                  }
+                >
+                  {deliverable?.mainstream_master ? <Edit /> : <Add />}
+                </IconButton>
+              </Grid>
+            </Grid>
+            {deliverable?.mainstream_master ? (
+              <MainstreamMasterForm
+                isEditing={false}
+                master={deliverable.mainstream_master}
+                isReadOnly={true}
+                isDirty={false}
+                checkboxChanged={() => {}}
+                onCopyButton={() => {}}
+                onCommonMasterChanged={() => {}}
               />
-              Daily Motion
-            </Typography>
+            ) : (
+              <Typography variant="caption">
+                No Mainstream data available for this item
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
+
+        <Grid item className={classes.metaPanel}>
+          <Paper elevation={3} className={classes.basicMetadataBox}>
+            <Grid container justifyContent="space-between">
+              <Grid item>
+                <Typography variant="h6">
+                  <img
+                    className={clsx(classes.inlineIcon, classes.sizedIcon)}
+                    src={
+                      deliverable?.DailyMotion_master
+                        ? dailymotionEnabled
+                        : dailymotionDisabled
+                    }
+                  />
+                  Daily Motion
+                </Typography>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  onClick={() =>
+                    history.push(
+                      `/project/${deliverable?.deliverable.pluto_core_project_id}/asset/${deliverable?.id}/dailymotion`
+                    )
+                  }
+                >
+                  {deliverable?.DailyMotion_master ? <Edit /> : <Add />}
+                </IconButton>
+              </Grid>
+            </Grid>
             {deliverable?.DailyMotion_master ? (
               <DailyMotionMasterForm
                 isEditing={false}
@@ -239,37 +335,6 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
             ) : (
               <Typography variant="caption">
                 No Daily Motion data available for this item
-              </Typography>
-            )}
-          </Paper>
-        </Grid>
-
-        <Grid item className={classes.metaPanel}>
-          <Paper elevation={3} className={classes.basicMetadataBox}>
-            <Typography variant="h6">
-              <img
-                className={clsx(classes.inlineIcon, classes.sizedIcon)}
-                src={
-                  deliverable?.mainstream_master
-                    ? mainstreamEnabled
-                    : mainstreamDisabled
-                }
-              />
-              Mainstream Media
-            </Typography>
-            {deliverable?.mainstream_master ? (
-              <MainstreamMasterForm
-                isEditing={false}
-                master={deliverable.mainstream_master}
-                isReadOnly={true}
-                isDirty={false}
-                checkboxChanged={() => {}}
-                onCopyButton={() => {}}
-                onCommonMasterChanged={() => {}}
-              />
-            ) : (
-              <Typography variant="caption">
-                No Mainstream data available for this item
               </Typography>
             )}
           </Paper>
