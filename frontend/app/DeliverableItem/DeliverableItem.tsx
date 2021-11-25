@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { RouteChildrenProps } from "react-router";
 import { Helmet } from "react-helmet";
-import { Grid, IconButton, Paper, Typography } from "@material-ui/core";
+import { Button, Grid, IconButton, Paper, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
@@ -58,7 +58,28 @@ const useStyles = makeStyles((theme) => ({
     textOverflow: "ellipsis",
     fontStyle: "italic",
   },
+  playerFrame: {
+    padding: "1em",
+  },
+  playerS: {
+    width: "640px",
+    height: "440px",
+  },
+  playerM: {
+    width: "960px",
+    height: "660px",
+  },
+  playerL: {
+    width: "1280px",
+    height: "880px",
+  },
+  playerX: {
+    width: "1920px",
+    height: "1320",
+  },
 }));
+
+type PlayerSizing = "S" | "M" | "L" | "X";
 
 const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
   props
@@ -70,6 +91,7 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
   const [notes, setNotes] = useState<SyndicationNote[]>([]);
   const [showAddNote, setShowAddNote] = useState(false);
   const [reloadCounter, setReloadCounter] = useState(0);
+  const [playerSize, setPlayerSize] = useState<PlayerSizing>("S");
 
   const classes = useStyles();
 
@@ -154,6 +176,19 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
     }
   };
 
+  const classForSize = () => {
+    switch (playerSize) {
+      case "S":
+        return classes.playerS;
+      case "M":
+        return classes.playerM;
+      case "L":
+        return classes.playerL;
+      case "X":
+        return classes.playerX;
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -164,6 +199,7 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
         <Grid item style={{ flexGrow: 1 }}>
           {deliverable ? (
             <iframe
+              className={clsx(classes.playerFrame, classForSize())}
               src={`/vs/embed/player?onlineId=${deliverable.online_item_id}&nearlineId=${deliverable.nearline_item_id}&archiveId=${deliverable.archive_item_id}`}
             />
           ) : undefined}
@@ -176,6 +212,45 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
             </Typography>
             <table>
               <tbody>
+                <tr>
+                  <td>Player size</td>
+                  <td>
+                    <Grid container direction="row" spacing={1}>
+                      <Grid item>
+                        <Button
+                          variant={playerSize == "S" ? "contained" : undefined}
+                          onClick={() => setPlayerSize("S")}
+                        >
+                          S
+                        </Button>
+                      </Grid>
+                      <Grid>
+                        <Button
+                          variant={playerSize == "M" ? "contained" : undefined}
+                          onClick={() => setPlayerSize("M")}
+                        >
+                          M
+                        </Button>
+                      </Grid>
+                      <Grid>
+                        <Button
+                          variant={playerSize == "L" ? "contained" : undefined}
+                          onClick={() => setPlayerSize("L")}
+                        >
+                          L
+                        </Button>
+                      </Grid>
+                      <Grid>
+                        <Button
+                          variant={playerSize == "X" ? "contained" : undefined}
+                          onClick={() => setPlayerSize("X")}
+                        >
+                          X
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </td>
+                </tr>
                 <tr>
                   <td>Deliverable type</td>
                   <td>{deliverable?.type_string}</td>
