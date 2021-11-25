@@ -13,8 +13,9 @@ import clsx from "clsx";
 import axios from "axios";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
 import CapiSearchResult from "./CapiSearchResult";
+import {ChevronRightRounded} from "@material-ui/icons";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme)=>({
   clickable: {
     cursor: "pointer",
   },
@@ -31,9 +32,18 @@ const useStyles = makeStyles({
     width: "80%",
   },
   item: {
-    marginBottom: "2em",
+    padding: "0.8em",
+    listStyle: "none",
+    "&:hover": {
+      backgroundColor: theme.palette.type==="dark" ? theme.palette.grey["700"] : theme.palette.grey["300"],
+      borderRadius: "8px"
+    }
   },
-});
+  inlineIcon: {
+    verticalAlign: "top",
+    marginRight: "4px"
+  }
+}));
 
 const DeliverablesFront: React.FC<{}> = () => {
   const [showFindPage, setShowFindPage] = useState(false);
@@ -97,7 +107,7 @@ const DeliverablesFront: React.FC<{}> = () => {
 
       <Paper elevation={3} className={classes.container}>
         <Typography variant="h6">
-          Please click the option that you want to follow
+          Please click the option that you want to follow:
         </Typography>
         <ul>
           <li
@@ -105,7 +115,7 @@ const DeliverablesFront: React.FC<{}> = () => {
             onClick={requestedFindPage}
           >
             <Typography>
-              I want to find the deliverable for a page on the website
+              <ChevronRightRounded className={classes.inlineIcon}/>I want to find the deliverable for a page on the website
             </Typography>
             {showFindPage ? (
               <>
@@ -134,7 +144,7 @@ const DeliverablesFront: React.FC<{}> = () => {
             onClick={requestedFindDeliverable}
           >
             <Typography>
-              I want to find a deliverable based on its title
+              <ChevronRightRounded className={classes.inlineIcon}/>I want to find a deliverable based on its title
             </Typography>
             {showFindDeliverable ? (
               <Grid container justifyContent="space-between">
@@ -157,7 +167,7 @@ const DeliverablesFront: React.FC<{}> = () => {
             className={clsx(classes.clickable, classes.item)}
             onClick={() => history.push("/dash")}
           >
-            <Typography>I want to go to the dashboard</Typography>
+            <Typography><ChevronRightRounded className={classes.inlineIcon}/>I want to browse what's available, take me to the dashboard &gt;</Typography>
           </li>
         </ul>
       </Paper>
