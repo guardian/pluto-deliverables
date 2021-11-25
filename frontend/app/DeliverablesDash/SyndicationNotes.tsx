@@ -19,6 +19,7 @@ import { format, parseISO } from "date-fns";
 import AddIcon from "@material-ui/icons/Add";
 import ShowAllSelector from "./ShowAllSelector";
 import clsx from "clsx";
+import AddNoteDialog from "./AddNoteDialog";
 
 interface SyndicationNotesProps {
   deliverableId: bigint;
@@ -65,13 +66,10 @@ const SyndicationNotes: React.FC<SyndicationNotesProps> = (props) => {
   const [totalNotes, setTotalNotes] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const [enteredNote, setEnteredNote] = useState("");
-
   const classes = useStyles();
 
   useEffect(() => {
     const loadNotes = async () => {
-      setEnteredNote("");
       setLoading(true);
       try {
         const response = await axios.get<SyndicationNoteResponse>(
@@ -108,14 +106,11 @@ const SyndicationNotes: React.FC<SyndicationNotesProps> = (props) => {
 
   const closeEntryNoSave = () => setShowingEntry(false);
 
-  const saveAndClose = async () => {
+  const saveAndClose = async (newNote: string) => {
     try {
-      await axios.post(
-        `/api/asset/${props.deliverableId}/notes/new`,
-        enteredNote,
-        { headers: { "Content-Type": "text/plain" } }
-      );
-      setEnteredNote("");
+      await axios.post(`/api/asset/${props.deliverableId}/notes/new`, newNote, {
+        headers: { "Content-Type": "text/plain" },
+      });
       setShowingEntry(false);
       setReloadCounter((prev) => prev + 1);
       SystemNotification.open(SystemNotifcationKind.Info, "Saved note");
@@ -170,26 +165,10 @@ const SyndicationNotes: React.FC<SyndicationNotesProps> = (props) => {
         ))}
       </ul>
       {showingEntry ? (
-        <Dialog open={showingEntry} onClose={closeEntryNoSave}>
-          <DialogTitle>Add note</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Please enter the text of your note in the box below and click the
-              "Save" button. It will then be recorded alongside your username
-              and the time that the note was made.
-            </DialogContentText>
-            <TextField
-              multiline={true}
-              style={{ width: "100%" }}
-              onChange={(evt) => setEnteredNote(evt.target.value)}
-              value={enteredNote}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeEntryNoSave}>Cancel</Button>
-            <Button onClick={saveAndClose}>Save</Button>
-          </DialogActions>
-        </Dialog>
+        <AddNoteDialog
+          closeEntryNoSave={closeEntryNoSave}
+          saveAndClose={saveAndClose}
+        />
       ) : undefined}
     </>
   );

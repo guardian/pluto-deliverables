@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { RouteChildrenProps } from "react-router";
 import { Helmet } from "react-helmet";
-import { Grid, IconButton, Link, Paper, Typography } from "@material-ui/core";
+import { Grid, IconButton, Paper, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
@@ -14,16 +14,14 @@ import dailymotionEnabled from "../static/dailymotion_enabled.jpg";
 import dailymotionDisabled from "../static/dailymotion_disabled.jpg";
 import mainstreamEnabled from "../static/mainstream_enabled.png";
 import mainstreamDisabled from "../static/mainstream_disabled.png";
-import oovvuuDisabled from "../static/oovvuu_disabled.png";
-import oovvuuEnabled from "../static/oovvuu_enabled.png";
-import reutersDisabled from "../static/reuters_disabled.png";
-import reutersEnabled from "../static/reuters_enabled.png";
 import GuardianMasterForm from "../Master/GuardianMasterForm";
 import clsx from "clsx";
 import YoutubeMasterForm from "../Master/YoutubeMasterForm";
 import DailyMotionMasterForm from "../Master/DailyMotionMasterForm";
 import MainstreamMasterForm from "../Master/MainstreamMasterForm";
 import { useHistory } from "react-router-dom";
+import { format, parseISO } from "date-fns";
+import AddNoteDialog from "../DeliverablesDash/AddNoteDialog";
 
 interface DeliverableItemParam {
   assetId: string;
@@ -50,6 +48,15 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     maxWidth: "840px",
     minWidth: "550px",
+    maxHeight: "496px",
+  },
+  attributionBox: {
+    fontSize: "0.8em",
+    height: "1rem",
+    overflow: "hidden",
+    textAlign: "right",
+    textOverflow: "ellipsis",
+    fontStyle: "italic",
   },
 }));
 
@@ -60,6 +67,9 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
     DenormalisedDeliverable | undefined
   >(undefined);
   const [loading, setLoading] = useState(true);
+  const [notes, setNotes] = useState<SyndicationNote[]>([]);
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [reloadCounter, setReloadCounter] = useState(0);
 
   const classes = useStyles();
 
@@ -91,6 +101,58 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
     };
     loadDeliverable();
   }, [props.match?.params]);
+
+  useEffect(() => {
+    const loadNotes = async () => {
+      if (props.match) {
+        try {
+          const response = await axios.get<SyndicationNoteResponse>(
+            `/api/asset/${props.match.params.assetId}/notes?limit=100`
+          );
+          setNotes(response.data.results ?? []);
+        } catch (err) {
+          SystemNotification.open(
+            SystemNotifcationKind.Error,
+            `Could not load syndication notes: ${err}`
+          );
+        }
+      }
+    };
+
+    loadNotes();
+  }, [props.match?.params, reloadCounter]);
+
+  const requestAddNote = () => setShowAddNote(true);
+
+  const formatTime = (timeStr: string) => {
+    try {
+      const date = parseISO(timeStr);
+      return format(date, "do MMM yy");
+    } catch (e) {
+      console.error("Could not parse time string ", timeStr, ": ", e);
+      return "(invalid)";
+    }
+  };
+
+  const saveAndClose = async (newNote: string) => {
+    try {
+      await axios.post(
+        `/api/asset/${props.match?.params.assetId}/notes/new`,
+        newNote,
+        {
+          headers: { "Content-Type": "text/plain" },
+        }
+      );
+      setShowAddNote(false);
+      setReloadCounter((prev) => prev + 1);
+      SystemNotification.open(SystemNotifcationKind.Info, "Saved note");
+    } catch (err) {
+      SystemNotification.open(
+        SystemNotifcationKind.Error,
+        `Could not save your note: ${err}`
+      );
+    }
+  };
 
   return (
     <>
@@ -157,6 +219,44 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
       </Grid>
 
       <Grid container direction="row" className={classes.fullWidth} spacing={3}>
+        <Grid item className={classes.metaPanel}>
+          <Paper elevation={3} className={classes.basicMetadataBox}>
+            <Grid container justifyContent="space-between">
+              <Grid item>
+                <Typography variant="h6">Notes</Typography>
+              </Grid>
+              <Grid item>
+                <IconButton onClick={requestAddNote}>
+                  <Add />
+                </IconButton>
+              </Grid>
+            </Grid>
+            {notes.length === 0 ? (
+              <Typography variant="caption">
+                No notes present on this item
+              </Typography>
+            ) : (
+              <Typography variant="caption">{notes.length} notes</Typography>
+            )}
+            <ul
+              style={{
+                overflowY: "auto",
+                paddingRight: "1em",
+                paddingLeft: "30px",
+              }}
+            >
+              {notes.map((note, idx) => (
+                <li key={idx}>
+                  <Typography>{note.content}</Typography>
+                  <Typography className={classes.attributionBox}>
+                    {note.username} {formatTime(note.timestamp)}
+                  </Typography>
+                </li>
+              ))}
+            </ul>
+          </Paper>
+        </Grid>
+
         <Grid item className={classes.metaPanel}>
           <Paper elevation={3} className={classes.basicMetadataBox}>
             <Grid container justifyContent="space-between">
@@ -340,6 +440,12 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
           </Paper>
         </Grid>
       </Grid>
+      {showAddNote ? (
+        <AddNoteDialog
+          closeEntryNoSave={() => setShowAddNote(false)}
+          saveAndClose={saveAndClose}
+        />
+      ) : undefined}
     </>
   );
 };
