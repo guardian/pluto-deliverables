@@ -1,48 +1,13 @@
 import React from "react";
 import { Grid, Paper, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import { WarningRounded } from "@material-ui/icons";
 import clsx from "clsx";
 import { useHistory } from "react-router-dom";
+import { useStyles } from "./SearchResultStyles";
 
 interface CapiSearchResultProps {
   data: CapiSearchResponse;
 }
-
-const useStyles = makeStyles((theme) => ({
-  itemTile: {
-    width: "160px",
-    height: "150px",
-    overflow: "hidden",
-    padding: "20px",
-  },
-  clickable: {
-    cursor: "pointer",
-  },
-  tileCaption: {
-    fontSize: "0.9em",
-    width: "160px",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    overflow: "hidden",
-  },
-  tileImage: {
-    width: "140px",
-    height: "80px",
-    marginLeft: "auto",
-    marginRight: "auto",
-    overflow: "hidden",
-  },
-  containerPaper: {
-    marginTop: "1em",
-    paddingTop: "0.2em",
-    padding: "1em",
-  },
-  warning: {
-    fontSize: "0.9em",
-    color: theme.palette.error.dark,
-  },
-}));
 
 const CapiSearchResult: React.FC<CapiSearchResultProps> = (props) => {
   const classes = useStyles();
@@ -64,7 +29,7 @@ const CapiSearchResult: React.FC<CapiSearchResultProps> = (props) => {
         container
         direction="row"
         spacing={2}
-        style={{ overflow: "scroll" }}
+        style={{ overflowX: "scroll" }}
       >
         {props.data.atoms.map((atom, idx) => (
           <Grid

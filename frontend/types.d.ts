@@ -217,6 +217,8 @@ interface LimitOffsetPaginationResponse<T> {
   results: T[];
 }
 
+type DeliverableSearchResponse = LimitOffsetPaginationResponse<Deliverable>
+
 interface SyndicationNote {
   timestamp: string;
   deliverable_asset: number;
@@ -239,3 +241,5 @@ interface CapiSearchResponse {
   webTitle: string;
   atoms: CapiSearchAtom[];
 }
+
+;

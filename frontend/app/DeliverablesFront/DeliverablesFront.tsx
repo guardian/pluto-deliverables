@@ -13,9 +13,10 @@ import clsx from "clsx";
 import axios from "axios";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
 import CapiSearchResult from "./CapiSearchResult";
-import {ChevronRightRounded} from "@material-ui/icons";
+import { ChevronRightRounded } from "@material-ui/icons";
+import TitleSearchResult from "./TitleSearchResult";
 
-const useStyles = makeStyles((theme)=>({
+const useStyles = makeStyles((theme) => ({
   clickable: {
     cursor: "pointer",
   },
@@ -35,14 +36,17 @@ const useStyles = makeStyles((theme)=>({
     padding: "0.8em",
     listStyle: "none",
     "&:hover": {
-      backgroundColor: theme.palette.type==="dark" ? theme.palette.grey["700"] : theme.palette.grey["300"],
-      borderRadius: "8px"
-    }
+      backgroundColor:
+        theme.palette.type === "dark"
+          ? theme.palette.grey["700"]
+          : theme.palette.grey["300"],
+      borderRadius: "8px",
+    },
   },
   inlineIcon: {
     verticalAlign: "top",
-    marginRight: "4px"
-  }
+    marginRight: "4px",
+  },
 }));
 
 const DeliverablesFront: React.FC<{}> = () => {
@@ -56,7 +60,11 @@ const DeliverablesFront: React.FC<{}> = () => {
   >(undefined);
 
   const [delivSearchValue, setDelivSearchValue] = useState("");
+  const [delivSearchResult, setDelivSearchResult] = useState<
+    DeliverableSearchResponse | undefined
+  >(undefined);
 
+  const titleSearchLimit = 10;
   const classes = useStyles();
 
   const requestedFindPage = () => {
@@ -98,6 +106,38 @@ const DeliverablesFront: React.FC<{}> = () => {
     }
   }, [urlSearchValue]);
 
+  useEffect(() => {
+    const runTitleSearch = async () => {
+      setUrlSearchRunning(true);
+      try {
+        const response = await axios.post<DeliverableSearchResponse>(
+          `/api/asset/search?limit=${titleSearchLimit}`,
+          { title: delivSearchValue },
+          { headers: { "Content-Type": "application/json" } }
+        );
+        setUrlSearchRunning(false);
+        setDelivSearchResult(response.data);
+      } catch (err) {
+        setUrlSearchRunning(false);
+        console.error(
+          `Could not search deliverables for ${delivSearchValue}: `,
+          err
+        );
+        SystemNotification.open(
+          SystemNotifcationKind.Error,
+          "Could not perform the search"
+        );
+      }
+    };
+
+    if (delivSearchValue == "") {
+      setUrlSearchRunning(false);
+      setDelivSearchResult(undefined);
+    } else {
+      runTitleSearch();
+    }
+  }, [delivSearchValue]);
+
   return (
     <>
       <Helmet>
@@ -115,7 +155,8 @@ const DeliverablesFront: React.FC<{}> = () => {
             onClick={requestedFindPage}
           >
             <Typography>
-              <ChevronRightRounded className={classes.inlineIcon}/>I want to find the deliverable for a page on the website
+              <ChevronRightRounded className={classes.inlineIcon} />I want to
+              find the deliverable for a page on the website
             </Typography>
             {showFindPage ? (
               <>
@@ -144,22 +185,31 @@ const DeliverablesFront: React.FC<{}> = () => {
             onClick={requestedFindDeliverable}
           >
             <Typography>
-              <ChevronRightRounded className={classes.inlineIcon}/>I want to find a deliverable based on its title
+              <ChevronRightRounded className={classes.inlineIcon} />I want to
+              find a deliverable based on its title
             </Typography>
             {showFindDeliverable ? (
-              <Grid container justifyContent="space-between">
-                <Grid item style={{ flexGrow: 1 }}>
-                  <TextField
-                    className={classes.input}
-                    label="Deliverable name"
-                    onChange={(evt) => setDelivSearchValue(evt.target.value)}
-                    value={delivSearchValue}
+              <>
+                <Grid container justifyContent="space-between">
+                  <Grid item style={{ flexGrow: 1 }}>
+                    <TextField
+                      className={classes.input}
+                      label="Deliverable name"
+                      onChange={(evt) => setDelivSearchValue(evt.target.value)}
+                      value={delivSearchValue}
+                    />
+                  </Grid>
+                  <Grid item>
+                    {urlSearchRunning ? <CircularProgress /> : undefined}
+                  </Grid>
+                </Grid>
+                {delivSearchResult ? (
+                  <TitleSearchResult
+                    data={delivSearchResult}
+                    displayLimit={titleSearchLimit}
                   />
-                </Grid>
-                <Grid item>
-                  {urlSearchRunning ? <CircularProgress /> : undefined}
-                </Grid>
-              </Grid>
+                ) : undefined}
+              </>
             ) : undefined}
           </li>
 
@@ -167,7 +217,10 @@ const DeliverablesFront: React.FC<{}> = () => {
             className={clsx(classes.clickable, classes.item)}
             onClick={() => history.push("/dash")}
           >
-            <Typography><ChevronRightRounded className={classes.inlineIcon}/>I want to browse what's available, take me to the dashboard &gt;</Typography>
+            <Typography>
+              <ChevronRightRounded className={classes.inlineIcon} />I want to
+              browse what's available, take me to the dashboard &gt;
+            </Typography>
           </li>
         </ul>
       </Paper>
