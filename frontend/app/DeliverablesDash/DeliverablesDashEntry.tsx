@@ -19,6 +19,7 @@ import PlatformIndicator from "./PlatformIndicator";
 import { useHistory } from "react-router-dom";
 import BundleInfoComponentForInvalid from "../BundleInfoComponentForInvalid";
 import SyndicationNotes from "./SyndicationNotes";
+import { ChevronRightRounded } from "@material-ui/icons";
 
 //import globals that were set by the backend
 declare var mediaAtomToolUrl: string;
@@ -58,14 +59,6 @@ const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
 
   const goToAtom = () => {};
 
-  /*
-                    const targetUrl = props.deliverable.online_item_id
-                  ? `/vs/item/${props.deliverable.online_item_id}`
-                  : `${archiverHunterURL}${encodeURIComponent(
-                      props.deliverable.archive_item_id as string
-                    )}`;
-                window.open(targetUrl, "_blank");
-     */
   const openInMediabrowser = () => {
     if (props.entry.online_item_id) {
       window.open(`/vs/item/${props.entry.online_item_id}`, "_blank");
@@ -84,15 +77,30 @@ const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
     }
   };
 
+  const openInDeliverables = () => {
+    window.open(`/deliverables/item/${props.entry.id}`, "_blank");
+  };
+
   return (
     <TableRow>
       <TableCell>
-        {props.entry.gnm_website_master?.website_title ? (
-          <Typography>
-            {props.entry.gnm_website_master.website_title}
-          </Typography>
-        ) : undefined}
-        <Typography>{props.entry.filename}</Typography>
+        <Grid container justifyContent="space-between">
+          <Grid item>
+            {props.entry.gnm_website_master?.website_title ? (
+              <Typography>
+                {props.entry.gnm_website_master.website_title}
+              </Typography>
+            ) : undefined}
+            <Typography>{props.entry.filename}</Typography>
+          </Grid>
+          <Grid item>
+            <Tooltip title="Click here to view deliverable details">
+              <IconButton onClick={openInDeliverables}>
+                <ChevronRightRounded />
+              </IconButton>
+            </Tooltip>
+          </Grid>
+        </Grid>
       </TableCell>
       <TableCell style={{ minWidth: "250px", maxWidth: "500px" }}>
         {props.entry.gnm_website_master?.publication_date ? (
