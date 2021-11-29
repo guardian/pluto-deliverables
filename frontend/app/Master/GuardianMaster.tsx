@@ -21,6 +21,7 @@ import {
   createGNMDeliverable,
   deleteGNMDeliverable,
   getDeliverableGNM,
+  requestResync,
   resyncToPublished,
   updateGNMDeliverable,
 } from "../utils/master-api-service";
@@ -230,24 +231,6 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
     fieldChanged(event, property as keyof GuardianMaster);
   };
 
-  const requestResync = async () => {
-    try {
-      await resyncToPublished(
-        props.match.params.projectid,
-        props.match.params.assetid
-      );
-      SystemNotification.open(
-        SystemNotifcationKind.Success,
-        "Requested resync, data should arrive within a couple of minutes."
-      );
-    } catch (err) {
-      SystemNotification.open(
-        SystemNotifcationKind.Error,
-        `Could not request resync, ${err}`
-      );
-    }
-  };
-
   if (isLoading) {
     return (
       <div className={classes.loading}>
@@ -310,7 +293,12 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
             <Button
               className="resync"
               variant="outlined"
-              onClick={() => requestResync()}
+              onClick={() =>
+                requestResync(
+                  props.match.params.projectid,
+                  props.match.params.assetid
+                )
+              }
             >
               Resync
             </Button>

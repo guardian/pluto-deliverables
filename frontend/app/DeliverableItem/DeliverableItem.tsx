@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { RouteChildrenProps } from "react-router";
 import { Helmet } from "react-helmet";
-import { Button, Grid, IconButton, Paper, Typography } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  IconButton,
+  Link,
+  Paper,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
@@ -11,6 +18,7 @@ import {
   ChevronRightRounded,
   Edit,
   Movie,
+  Refresh,
 } from "@material-ui/icons";
 import guardianEnabled from "../static/guardian_enabled.png";
 import guardianDisabled from "../static/guardian_disabled.png";
@@ -28,6 +36,7 @@ import MainstreamMasterForm from "../Master/MainstreamMasterForm";
 import { useHistory } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import AddNoteDialog from "../DeliverablesDash/AddNoteDialog";
+import { requestResync } from "../utils/master-api-service";
 
 interface DeliverableItemParam {
   assetId: string;
@@ -371,19 +380,10 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
                   GNM Website
                 </Typography>
               </Grid>
-              <Grid item>
-                <IconButton
-                  onClick={() =>
-                    history.push(
-                      `/project/${deliverable?.deliverable.pluto_core_project_id}/asset/${deliverable?.id}/atom`
-                    )
-                  }
-                >
-                  {deliverable?.gnm_website_master ? <Edit /> : <Add />}
-                </IconButton>
-              </Grid>
             </Grid>
+            <Grid container direction="column" spacing={1} style={{marginTop:"12px"}}>  {/* marginTop makes up for the lack of an icon button*/}
             {deliverable?.gnm_website_master ? (
+                <Grid item>
               <GuardianMasterForm
                 master={deliverable.gnm_website_master}
                 isReadOnly={true}
@@ -392,11 +392,44 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
                 onCommonMasterChanged={(evt, f) => {}}
                 fieldChanged={(evt, f) => {}}
               />
+                </Grid>
             ) : (
-              <Typography variant="caption">
-                No GNM website data available for this item
-              </Typography>
+              <>
+                <Grid item>
+                <Typography variant="caption">
+                  No GNM website data available for this item. This means that
+                  it has not been published to the website, which must be done
+                  through the Media Atom tool at{" "}
+                  <Link href="https://video.gutools.co.uk">
+                    https://video.gutools.co.uk
+                  </Link>
+                  .
+                </Typography>
+                </Grid>
+                <Grid item>
+                <Typography variant="caption">
+                  Please email multimediatech at theguardian.com for more
+                  information.
+                </Typography>
+                </Grid>
+              </>
             )}
+            {deliverable && deliverable.deliverable ? (
+                <Grid item>
+              <Button
+                onClick={() =>
+                  requestResync(
+                    deliverable.deliverable.pluto_core_project_id.toString(),
+                    deliverable.id.toString()
+                  )
+                }
+                startIcon={<Refresh />}
+              >
+                Resync
+              </Button>
+                </Grid>
+            ) : undefined}
+            </Grid>
           </Paper>
         </Grid>
 

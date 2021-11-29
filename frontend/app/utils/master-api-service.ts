@@ -1,5 +1,6 @@
 import axios from "axios";
 import { etEE } from "@material-ui/core/locale";
+import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
 
 const API = "/api";
 const API_DELIVERABLE = `${API}/bundle`;
@@ -104,6 +105,21 @@ export const deleteGNMDeliverable = async (
     return Promise.reject(`Could not delete Asset GNM Website`);
   }
 };
+
+export async function requestResync(projectId: string, assetId: string) {
+  try {
+    await resyncToPublished(projectId, assetId);
+    SystemNotification.open(
+      SystemNotifcationKind.Success,
+      "Requested resync, data should arrive within a couple of minutes."
+    );
+  } catch (err) {
+    SystemNotification.open(
+      SystemNotifcationKind.Error,
+      `Could not request resync, ${err}`
+    );
+  }
+}
 
 export const resyncToPublished = async (
   bundleId: string,
