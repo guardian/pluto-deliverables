@@ -5,7 +5,13 @@ import { Button, Grid, IconButton, Paper, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
-import { Add, Edit, Movie } from "@material-ui/icons";
+import {
+  Add,
+  ChevronRight,
+  ChevronRightRounded,
+  Edit,
+  Movie,
+} from "@material-ui/icons";
 import guardianEnabled from "../static/guardian_enabled.png";
 import guardianDisabled from "../static/guardian_disabled.png";
 import youtubeEnabled from "../static/youtube_enabled.png";
@@ -254,6 +260,23 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
                 <tr>
                   <td>Deliverable type</td>
                   <td>{deliverable?.type_string}</td>
+                </tr>
+                <tr>
+                  <td>Related deliverables</td>
+                  <td>
+                    {deliverable?.deliverable ? (
+                      <Button
+                        endIcon={<ChevronRightRounded />}
+                        onClick={() =>
+                          history.push(
+                            `/project/${deliverable?.deliverable.pluto_core_project_id}`
+                          )
+                        }
+                      >
+                        Go to bundle
+                      </Button>
+                    ) : undefined}
+                  </td>
                 </tr>
                 <tr>
                   <td>Atom ID</td>

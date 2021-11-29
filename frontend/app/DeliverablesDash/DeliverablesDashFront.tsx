@@ -13,6 +13,7 @@ import {
 import DateFnsUtils from "@date-io/date-fns";
 import DeliverablesDashList from "./DeliverablesDashList";
 import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import { Search } from "@material-ui/icons";
 
 type DelivTypes = "fullmasters" | "all";
 
@@ -22,6 +23,7 @@ const DeliverablesDashFront: React.FC = () => {
     d.setDate(1);
     return d;
   });
+  const [titleSearchValue, setTitleSearchValue] = useState("");
   const [finishDateEntered, setFinishDateEntered] = useState<Date>(new Date());
   const [selectedDelivTypes, setSelectedDelivTypes] = useState<DelivTypes>(
     "fullmasters"
@@ -33,9 +35,17 @@ const DeliverablesDashFront: React.FC = () => {
         <title>Deliverables Dashboard</title>
       </Helmet>
       <Typography variant="h2">Deliverables Dashboard</Typography>
-      <Grid container justify="space-between">
+      <Grid container justify="space-between" style={{ marginBottom: "1em" }}>
         <Grid item>
           <Grid container spacing={3}>
+            <Grid item>
+              <Search style={{ verticalAlign: "baseline" }} />
+              <TextField
+                label="Search for title"
+                value={titleSearchValue}
+                onChange={(evt) => setTitleSearchValue(evt.target.value)}
+              />
+            </Grid>
             <Grid item>
               <FormControl>
                 <InputLabel id="deliv-type-label">Deliverable Type</InputLabel>
@@ -80,6 +90,7 @@ const DeliverablesDashFront: React.FC = () => {
         startDate={startDateEntered}
         endDate={finishDateEntered}
         types={selectedDelivTypes}
+        titleSearchValue={titleSearchValue}
       />
     </MuiPickersUtilsProvider>
   );

@@ -61,6 +61,8 @@ class DeliverableAssetsList(ListAPIView):
         if "types" in self.request.GET and self.request.GET["types"] != "all":
             queryset = queryset.filter(type=self.typeForString(self.request.GET["types"]))
 
+        if "q" in self.request.GET and self.request.GET["q"] != "":
+            queryset = queryset.filter(filename__icontains=self.request.GET["q"])
         if "atomId" in self.request.GET:
             queryset = GNMWebsite.objects.select_related().filter(media_atom_id=self.request.GET["atomId"])
 
