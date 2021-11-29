@@ -14,6 +14,7 @@ import axios from "axios";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
 import {
   Add,
+  Cancel,
   ChevronRight,
   ChevronRightRounded,
   Edit,
@@ -42,57 +43,9 @@ interface DeliverableItemParam {
   assetId: string;
 }
 
-const useStyles = makeStyles((theme) => ({
-  fullWidth: {
-    width: "100%",
-  },
-  basicMetadataBox: {
-    padding: "1em",
-    paddingLeft: "2em",
-    paddingRight: "2em",
-  },
-  inlineIcon: {
-    verticalAlign: "middle",
-    marginRight: "0.6em",
-  },
-  sizedIcon: {
-    width: "36px",
-    height: "36px",
-  },
-  metaPanel: {
-    flex: 1,
-    maxWidth: "840px",
-    minWidth: "550px",
-    maxHeight: "496px",
-  },
-  attributionBox: {
-    fontSize: "0.8em",
-    height: "1rem",
-    overflow: "hidden",
-    textAlign: "right",
-    textOverflow: "ellipsis",
-    fontStyle: "italic",
-  },
-  playerFrame: {
-    padding: "1em",
-  },
-  playerS: {
-    width: "640px",
-    height: "440px",
-  },
-  playerM: {
-    width: "960px",
-    height: "660px",
-  },
-  playerL: {
-    width: "1280px",
-    height: "880px",
-  },
-  playerX: {
-    width: "1920px",
-    height: "1320",
-  },
-}));
+import { useStyles } from "./DeliverableItemStyles";
+import EmbeddableYTForm from "./EmbeddableYTForm";
+import ErrorCatchingWrapper from "./ErrorCatchingWrapper";
 
 type PlayerSizing = "S" | "M" | "L" | "X";
 
@@ -107,6 +60,9 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
   const [showAddNote, setShowAddNote] = useState(false);
   const [reloadCounter, setReloadCounter] = useState(0);
   const [playerSize, setPlayerSize] = useState<PlayerSizing>("S");
+
+  const [editingMS, setEditingMS] = useState(false);
+  const [editingDM, setEditingDM] = useState(false);
 
   const classes = useStyles();
 
@@ -381,101 +337,80 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
                 </Typography>
               </Grid>
             </Grid>
-            <Grid container direction="column" spacing={1} style={{marginTop:"12px"}}>  {/* marginTop makes up for the lack of an icon button*/}
-            {deliverable?.gnm_website_master ? (
+            <Grid
+              container
+              direction="column"
+              spacing={1}
+              style={{ marginTop: "12px" }}
+            >
+              {" "}
+              {/* marginTop makes up for the lack of an icon button*/}
+              {deliverable?.gnm_website_master ? (
                 <Grid item>
-              <GuardianMasterForm
-                master={deliverable.gnm_website_master}
-                isReadOnly={true}
-                isEditing={false}
-                isDirty={false}
-                onCommonMasterChanged={(evt, f) => {}}
-                fieldChanged={(evt, f) => {}}
-              />
+                  <GuardianMasterForm
+                    master={deliverable.gnm_website_master}
+                    isReadOnly={true}
+                    isEditing={false}
+                    isDirty={false}
+                    onCommonMasterChanged={(evt, f) => {}}
+                    fieldChanged={(evt, f) => {}}
+                  />
                 </Grid>
-            ) : (
-              <>
+              ) : (
+                <>
+                  <Grid item>
+                    <Typography variant="caption">
+                      No GNM website data available for this item. This means
+                      that it has not been published to the website, which must
+                      be done through the Media Atom tool at{" "}
+                      <Link href="https://video.gutools.co.uk">
+                        https://video.gutools.co.uk
+                      </Link>
+                      .
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography variant="caption">
+                      Please email multimediatech at theguardian.com for more
+                      information.
+                    </Typography>
+                  </Grid>
+                </>
+              )}
+              {deliverable && deliverable.deliverable ? (
                 <Grid item>
-                <Typography variant="caption">
-                  No GNM website data available for this item. This means that
-                  it has not been published to the website, which must be done
-                  through the Media Atom tool at{" "}
-                  <Link href="https://video.gutools.co.uk">
-                    https://video.gutools.co.uk
-                  </Link>
-                  .
-                </Typography>
+                  <Button
+                    onClick={() =>
+                      requestResync(
+                        deliverable.deliverable.pluto_core_project_id.toString(),
+                        deliverable.id.toString()
+                      )
+                    }
+                    startIcon={<Refresh />}
+                  >
+                    Resync
+                  </Button>
                 </Grid>
-                <Grid item>
-                <Typography variant="caption">
-                  Please email multimediatech at theguardian.com for more
-                  information.
-                </Typography>
-                </Grid>
-              </>
-            )}
-            {deliverable && deliverable.deliverable ? (
-                <Grid item>
-              <Button
-                onClick={() =>
-                  requestResync(
-                    deliverable.deliverable.pluto_core_project_id.toString(),
-                    deliverable.id.toString()
-                  )
-                }
-                startIcon={<Refresh />}
-              >
-                Resync
-              </Button>
-                </Grid>
-            ) : undefined}
+              ) : undefined}
             </Grid>
           </Paper>
         </Grid>
 
         <Grid item className={classes.metaPanel}>
-          <Paper elevation={3} className={classes.basicMetadataBox}>
-            <Grid container justifyContent="space-between">
-              <Grid item>
-                <Typography variant="h6">
-                  <img
-                    className={clsx(classes.inlineIcon, classes.sizedIcon)}
-                    src={
-                      deliverable?.youtube_master
-                        ? youtubeEnabled
-                        : youtubeDisabled
-                    }
-                  />
-                  Youtube
-                </Typography>
-              </Grid>
-              <Grid item>
-                <IconButton
-                  onClick={() =>
-                    history.push(
-                      `/project/${deliverable?.deliverable.pluto_core_project_id}/asset/${deliverable?.id}/youtube`
-                    )
-                  }
-                >
-                  {deliverable?.youtube_master ? <Edit /> : <Add />}
-                </IconButton>
-              </Grid>
-            </Grid>
-            {deliverable?.youtube_master ? (
-              <YoutubeMasterForm
-                master={deliverable.youtube_master}
-                isReadOnly={true}
-                isEditing={false}
-                isDirty={false}
-                onCommonMasterChanged={(evt, f) => {}}
-                fieldChanged={(evt, f) => {}}
+          <ErrorCatchingWrapper>
+            {deliverable ? (
+              <EmbeddableYTForm
+                youtubeMaster={deliverable?.youtube_master}
+                deliverableId={deliverable?.id.toString()}
+                bundleId={deliverable?.deliverable.pluto_core_project_id.toString()}
+                didUpdate={(newValue) =>
+                  setDeliverable((prevValue) =>
+                    Object.assign({}, prevValue, { youtube_master: newValue })
+                  )
+                }
               />
-            ) : (
-              <Typography variant="caption">
-                No YouTube data available for this item
-              </Typography>
-            )}
-          </Paper>
+            ) : undefined}
+          </ErrorCatchingWrapper>
         </Grid>
 
         <Grid item className={classes.metaPanel}>

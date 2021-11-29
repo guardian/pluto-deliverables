@@ -75,30 +75,56 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
     loadYoutubeMaster();
   }, []);
 
-  const onProjectSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
-    event.preventDefault();
+  // const onProjectSubmit = async (
+  //   event: React.FormEvent<HTMLFormElement>
+  // ): Promise<void> => {
+  //   event.preventDefault();
+  //
+  //   setIsDirty(true);
+  //
+  //   const validForm = !!(master.youtube_id && master.youtube_title);
+  //
+  //   if (!validForm) {
+  //     console.warn("Could not submit the form because the form is invalid.");
+  //     return;
+  //   }
+  //
+  //   try {
+  //     if (isEditing) {
+  //       await updateYoutubeDeliverable(projectid, assetid, master);
+  //       SystemNotification.open(
+  //         SystemNotifcationKind.Success,
+  //         `Successfully Updated Youtube Master!`
+  //       );
+  //       navigateBack();
+  //     } else {
+  //       await createYoutubeDeliverable(projectid, assetid, master);
+  //       SystemNotification.open(
+  //         SystemNotifcationKind.Success,
+  //         `Successfully Created Youtube Master!`
+  //       );
+  //       navigateBack();
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     SystemNotification.open(
+  //       SystemNotifcationKind.Error,
+  //       `Failed to ${isEditing ? "Update" : "Create"} Youtube Master.`
+  //     );
+  //   }
+  // };
 
-    setIsDirty(true);
-
-    const validForm = !!(master.youtube_id && master.youtube_title);
-
-    if (!validForm) {
-      console.warn("Could not submit the form because the form is invalid.");
-      return;
-    }
-
+  const saveRequested = async (update: YoutubeMaster) => {
     try {
       if (isEditing) {
-        await updateYoutubeDeliverable(projectid, assetid, master);
+        await updateYoutubeDeliverable(projectid, assetid, update);
         SystemNotification.open(
           SystemNotifcationKind.Success,
           `Successfully Updated Youtube Master!`
         );
         navigateBack();
       } else {
-        await createYoutubeDeliverable(projectid, assetid, master);
+        await createYoutubeDeliverable(projectid, assetid, update);
         SystemNotification.open(
           SystemNotifcationKind.Success,
           `Successfully Created Youtube Master!`
@@ -138,26 +164,26 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
     history.push(`/project/${projectid}`);
   };
 
-  const fieldChanged = (
-    event: React.ChangeEvent<
-      | HTMLTextAreaElement
-      | HTMLInputElement
-      | HTMLSelectElement
-      | { name?: string; value: any }
-    >,
-    field: keyof YoutubeMaster
-  ): void => {
-    setMaster({ ...master, [field]: event.target.value });
-  };
-
-  const onCommonMasterChanged = (event: any, property: string) => {
-    if (property === "tags") {
-      setMaster({ ...master, youtube_tags: event });
-      return;
-    }
-
-    fieldChanged(event, property as keyof YoutubeMaster);
-  };
+  // const fieldChanged = (
+  //   event: React.ChangeEvent<
+  //     | HTMLTextAreaElement
+  //     | HTMLInputElement
+  //     | HTMLSelectElement
+  //     | { name?: string; value: any }
+  //   >,
+  //   field: keyof YoutubeMaster
+  // ): void => {
+  //   setMaster({ ...master, [field]: event.target.value });
+  // };
+  //
+  // const onCommonMasterChanged = (event: any, property: string) => {
+  //   if (property === "tags") {
+  //     setMaster({ ...master, youtube_tags: event });
+  //     return;
+  //   }
+  //
+  //   fieldChanged(event, property as keyof YoutubeMaster);
+  // };
 
   if (isLoading) {
     return (
@@ -177,50 +203,47 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
       </Helmet>
 
       <div className={classes.root}>
-        <form onSubmit={onProjectSubmit} noValidate autoComplete="off">
-          <Typography variant="h4">
-            {isEditing ? "Edit" : "Create"} Youtube master
-          </Typography>
+        <Typography variant="h4">
+          {isEditing ? "Edit" : "Create"} Youtube master
+        </Typography>
 
-          <YoutubeMasterForm
-            isEditing={isEditing}
-            master={master}
-            isReadOnly={isReadOnly}
-            isDirty={isDirty}
-            fieldChanged={fieldChanged}
-            onCommonMasterChanged={onCommonMasterChanged}
-          />
+        <YoutubeMasterForm
+          isEditing={isEditing}
+          master={master}
+          isReadOnly={isReadOnly}
+          isDirty={isDirty}
+          saveRequested={saveRequested}
+        />
 
-          <div className={classes.formButtons}>
+        <div className={classes.formButtons}>
+          <Button
+            disabled={isReadOnly}
+            type="submit"
+            color="primary"
+            variant="contained"
+          >
+            {isEditing ? "Save" : "Create"}
+          </Button>
+          <Button
+            className="cancel"
+            variant="contained"
+            onClick={() => history.goBack()}
+          >
+            Cancel
+          </Button>
+
+          {!isReadOnly && isEditing && (
             <Button
-              disabled={isReadOnly}
-              type="submit"
-              color="primary"
+              className="delete"
               variant="contained"
+              color="secondary"
+              startIcon={<DeleteIcon />}
+              onClick={() => setOpenDialog(true)}
             >
-              {isEditing ? "Save" : "Create"}
+              Delete
             </Button>
-            <Button
-              className="cancel"
-              variant="contained"
-              onClick={() => history.goBack()}
-            >
-              Cancel
-            </Button>
-
-            {!isReadOnly && isEditing && (
-              <Button
-                className="delete"
-                variant="contained"
-                color="secondary"
-                startIcon={<DeleteIcon />}
-                onClick={() => setOpenDialog(true)}
-              >
-                Delete
-              </Button>
-            )}
-          </div>
-        </form>
+          )}
+        </div>
       </div>
 
       <Dialog
@@ -256,4 +279,5 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
     </>
   );
 };
+
 export default YoutubeMaster;
