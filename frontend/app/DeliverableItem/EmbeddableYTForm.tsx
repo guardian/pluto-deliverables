@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {Grid, IconButton, Link, Paper, Tooltip, Typography} from "@material-ui/core";
+import {
+  Grid,
+  IconButton,
+  Link,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import clsx from "clsx";
 import youtubeEnabled from "../static/youtube_enabled.png";
 import youtubeDisabled from "../static/youtube_disabled.png";
@@ -12,15 +19,11 @@ import {
   updateYoutubeDeliverable,
 } from "../utils/master-api-service";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import { EmbeddableFormProps } from "./EmbeddableForm";
 
-interface EmbeddableYTFormProps {
-  youtubeMaster?: YoutubeMaster;
-  deliverableId: string;
-  bundleId: string;
-  didUpdate: (newValue: YoutubeMaster) => void;
-}
-
-const EmbeddableYTForm: React.FC<EmbeddableYTFormProps> = (props) => {
+const EmbeddableYTForm: React.FC<EmbeddableFormProps<YoutubeMaster>> = (
+  props
+) => {
   const classes = useStyles();
   const [editingYT, setEditingYT] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
@@ -29,13 +32,13 @@ const EmbeddableYTForm: React.FC<EmbeddableYTFormProps> = (props) => {
   const [didJustCreate, setDidJustCreate] = useState(false);
 
   useEffect(() => {
-    if (props.youtubeMaster) {
+    if (props.content) {
       setShowingForm(true);
     } else {
       setShowingForm(false);
     }
     setDidJustCreate(false);
-  }, [props.youtubeMaster]);
+  }, [props.content]);
 
   const emptyRecord: YoutubeMaster = {
     etag: "",
@@ -80,7 +83,7 @@ const EmbeddableYTForm: React.FC<EmbeddableYTFormProps> = (props) => {
           <Typography variant="h6">
             <img
               className={clsx(classes.inlineIcon, classes.sizedIcon)}
-              src={props.youtubeMaster ? youtubeEnabled : youtubeDisabled}
+              src={props.content ? youtubeEnabled : youtubeDisabled}
             />
             Youtube
           </Typography>
@@ -88,25 +91,25 @@ const EmbeddableYTForm: React.FC<EmbeddableYTFormProps> = (props) => {
         <Grid item>
           <Tooltip title="You can't send to youtube from here">
             <span>
-          <IconButton
-            disabled={true}
-            onClick={() => {
-              if (!props.youtubeMaster) {
-                setDidJustCreate(true);
-              }
-              setEditingYT(true);
-              setShowingForm(true); //should be true anyway if we have data but no harm setting it again here
-            }}
-          >
-            {props.youtubeMaster ? <Edit /> : <Add />}
-          </IconButton>
-              </span>
+              <IconButton
+                disabled={true}
+                onClick={() => {
+                  if (!props.content) {
+                    setDidJustCreate(true);
+                  }
+                  setEditingYT(true);
+                  setShowingForm(true); //should be true anyway if we have data but no harm setting it again here
+                }}
+              >
+                {props.content ? <Edit /> : <Add />}
+              </IconButton>
+            </span>
           </Tooltip>
         </Grid>
       </Grid>
       {showingForm ? (
         <YoutubeMasterForm
-          master={props.youtubeMaster ?? emptyRecord}
+          master={props.content ?? emptyRecord}
           isReadOnly={false}
           isEditing={editingYT}
           isDirty={formDirty}
@@ -123,19 +126,24 @@ const EmbeddableYTForm: React.FC<EmbeddableYTFormProps> = (props) => {
           }}
         />
       ) : (
-          <Grid container direction="column">
-            <Grid item>
-        <Typography variant="caption">
-          No YouTube data available for this item. This means that it has not been published to Youtube, which must be
-          done through the media atom tool at <Link href="https://video.gutools.co.uk">https://video.gutools.co.uk</Link>
-        </Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="caption">
-                Please email multimediatech at theguardian.com for more information
-              </Typography>
-            </Grid>
+        <Grid container direction="column">
+          <Grid item>
+            <Typography variant="caption">
+              No YouTube data available for this item. This means that it has
+              not been published to Youtube, which must be done through the
+              media atom tool at{" "}
+              <Link href="https://video.gutools.co.uk">
+                https://video.gutools.co.uk
+              </Link>
+            </Typography>
           </Grid>
+          <Grid item>
+            <Typography variant="caption">
+              Please email multimediatech at theguardian.com for more
+              information
+            </Typography>
+          </Grid>
+        </Grid>
       )}
     </Paper>
   );

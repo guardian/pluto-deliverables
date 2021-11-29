@@ -8,47 +8,16 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Cancel, Launch, SaveAlt } from "@material-ui/icons";
-import CommonMaster from "./CommonMaster";
 import ChipInput from "../Form/ChipInput";
-import { makeStyles } from "@material-ui/core/styles";
+import { MasterFormProps } from "./MasterForm";
+import { formStyles } from "./MetadataStyles";
 
-interface YoutubeMasterFormProps {
-  isEditing: boolean;
-  master: YoutubeMaster;
-  isReadOnly: boolean;
-  isDirty: boolean;
-  // fieldChanged: (
-  //   event: React.ChangeEvent<
-  //     | HTMLTextAreaElement
-  //     | HTMLInputElement
-  //     | HTMLSelectElement
-  //     | { name?: string; value: any }
-  //   >,
-  //   field: keyof YoutubeMaster
-  // ) => void;
-  // onCommonMasterChanged: (evt: any, field: string) => void;
-  saveRequested: (updated: YoutubeMaster) => void;
-  editCancelled?: () => void;
-}
-
-const useStyles = makeStyles((theme) => ({
-    root: {
-       width: "100%"
-    },
-  listContainer: {
-    listStyle: "none",
-    paddingLeft: 0,
-      margin: 0,
-  },
-  listItem: {
-    marginBottom: theme.spacing(1),
-  },
-}));
-
-const YoutubeMasterForm: React.FC<YoutubeMasterFormProps> = (props) => {
+const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
+  props
+) => {
   const { isEditing, master, isReadOnly, isDirty, saveRequested } = props;
 
-  const classes = useStyles();
+  const classes = formStyles();
 
   const [currentTags, setCurrentTags] = useState<string[]>([]);
   useEffect(() => {

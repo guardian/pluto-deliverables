@@ -140,6 +140,40 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
     loadMainstreamMaster();
   }, []);
 
+  const requestedSave = async (update:MainstreamMaster) => {
+    const validForm = !!update.mainstream_title;
+
+    if (!validForm) {
+      console.warn("Could not submit the form because the form is invalid.");
+      return;
+    }
+
+    try {
+      if (isEditing) {
+        await updateMainstreamDeliverable(projectid, assetid, update);
+        SystemNotification.open(
+            SystemNotifcationKind.Success,
+            `Successfully Updated Mainstream Master!`
+        );
+        navigateBack();
+      } else {
+        await createMainstreamDeliverable(projectid, assetid, update);
+        SystemNotification.open(
+            SystemNotifcationKind.Success,
+            `Successfully Created Mainstream Master!`
+        );
+        navigateBack();
+      }
+    } catch (error) {
+      console.error(error);
+      SystemNotification.open(
+          SystemNotifcationKind.Error,
+          `Failed to ${isEditing ? "Update" : "Create"} Mainstream Master.`
+      );
+    }
+  }
+
+  /*
   const onProjectSubmit = async (
     event: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
@@ -178,7 +212,7 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
       );
     }
   };
-
+*/
   const deleteMainstream = async () => {
     try {
       await deleteMainstreamDeliverable(projectid, assetid);
@@ -203,33 +237,33 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
     history.push(`/project/${projectid}`);
   };
 
-  const fieldChanged = (
-    event: React.ChangeEvent<
-      | HTMLTextAreaElement
-      | HTMLInputElement
-      | HTMLSelectElement
-      | { name?: string; value: any }
-    >,
-    field: keyof MainstreamMaster
-  ): void => {
-    setMaster({ ...master, [field]: event.target.value });
-  };
+  // const fieldChanged = (
+  //   event: React.ChangeEvent<
+  //     | HTMLTextAreaElement
+  //     | HTMLInputElement
+  //     | HTMLSelectElement
+  //     | { name?: string; value: any }
+  //   >,
+  //   field: keyof MainstreamMaster
+  // ): void => {
+  //   setMaster({ ...master, [field]: event.target.value });
+  // };
+  //
+  // const checkboxChanged = (
+  //   event: React.ChangeEvent<HTMLInputElement>,
+  //   field: keyof MainstreamMaster
+  // ): void => {
+  //   setMaster({ ...master, [field]: event.target.checked });
+  // };
 
-  const checkboxChanged = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    field: keyof MainstreamMaster
-  ): void => {
-    setMaster({ ...master, [field]: event.target.checked });
-  };
-
-  const onCommonMasterChanged = (event: any, property: string) => {
-    if (property === "tags") {
-      setMaster({ ...master, mainstream_tags: event });
-      return;
-    }
-
-    fieldChanged(event, property as keyof MainstreamMaster);
-  };
+  // const onCommonMasterChanged = (event: any, property: string) => {
+  //   if (property === "tags") {
+  //     setMaster({ ...master, mainstream_tags: event });
+  //     return;
+  //   }
+  //
+  //   fieldChanged(event, property as keyof MainstreamMaster);
+  // };
 
   if (isLoading) {
     return (
@@ -239,23 +273,23 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
     );
   }
 
-  const onCopyButton = (property: string) => {
-    if (property === "title") {
-      setMaster({ ...master, mainstream_title: youtubeMaster.youtube_title });
-      return;
-    }
-    if (property === "description") {
-      setMaster({
-        ...master,
-        mainstream_description: youtubeMaster.youtube_description,
-      });
-      return;
-    }
-    if (property === "tags") {
-      setMaster({ ...master, mainstream_tags: youtubeMaster.youtube_tags });
-      return;
-    }
-  };
+  // const onCopyButton = (property: string) => {
+  //   if (property === "title") {
+  //     setMaster({ ...master, mainstream_title: youtubeMaster.youtube_title });
+  //     return;
+  //   }
+  //   if (property === "description") {
+  //     setMaster({
+  //       ...master,
+  //       mainstream_description: youtubeMaster.youtube_description,
+  //     });
+  //     return;
+  //   }
+  //   if (property === "tags") {
+  //     setMaster({ ...master, mainstream_tags: youtubeMaster.youtube_tags });
+  //     return;
+  //   }
+  // };
 
   return (
     <>
@@ -267,46 +301,42 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
       </Helmet>
 
       <div className={classes.root}>
-        <form onSubmit={onProjectSubmit} noValidate autoComplete="off">
-          <Typography variant="h4">
-            {isEditing ? "Edit" : "Create"} Mainstream master
-          </Typography>
+        <Typography variant="h4">
+          {isEditing ? "Edit" : "Create"} Mainstream master
+        </Typography>
 
-          <MainstreamMasterForm
-            isEditing={isEditing}
-            master={master}
-            isReadOnly={false}
-            isDirty={isDirty}
-            checkboxChanged={checkboxChanged}
-            onCopyButton={onCopyButton}
-            onCommonMasterChanged={onCommonMasterChanged}
-          />
+        <MainstreamMasterForm
+          isEditing={isEditing}
+          master={master}
+          isReadOnly={false}
+          isDirty={isDirty}
+          saveRequested={requestedSave}
+        />
 
-          <div className={classes.formButtons}>
-            <Button type="submit" color="primary" variant="contained">
-              {isEditing ? "Save" : "Create"}
-            </Button>
+        <div className={classes.formButtons}>
+          <Button type="submit" color="primary" variant="contained">
+            {isEditing ? "Save" : "Create"}
+          </Button>
+          <Button
+            className="cancel"
+            variant="contained"
+            onClick={() => history.goBack()}
+          >
+            Cancel
+          </Button>
+
+          {isEditing && (
             <Button
-              className="cancel"
+              className="delete"
               variant="contained"
-              onClick={() => history.goBack()}
+              color="secondary"
+              startIcon={<DeleteIcon />}
+              onClick={() => setOpenDialog(true)}
             >
-              Cancel
+              Delete
             </Button>
-
-            {isEditing && (
-              <Button
-                className="delete"
-                variant="contained"
-                color="secondary"
-                startIcon={<DeleteIcon />}
-                onClick={() => setOpenDialog(true)}
-              >
-                Delete
-              </Button>
-            )}
-          </div>
-        </form>
+          )}
+        </div>
       </div>
       <Dialog
         className={classes.dialog}

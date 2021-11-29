@@ -46,6 +46,7 @@ interface DeliverableItemParam {
 import { useStyles } from "./DeliverableItemStyles";
 import EmbeddableYTForm from "./EmbeddableYTForm";
 import ErrorCatchingWrapper from "./ErrorCatchingWrapper";
+import EmbeddableMSForm from "./EmbeddableMSForm";
 
 type PlayerSizing = "S" | "M" | "L" | "X";
 
@@ -400,7 +401,7 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
           <ErrorCatchingWrapper>
             {deliverable ? (
               <EmbeddableYTForm
-                youtubeMaster={deliverable?.youtube_master}
+                content={deliverable?.youtube_master}
                 deliverableId={deliverable?.id.toString()}
                 bundleId={deliverable?.deliverable.pluto_core_project_id.toString()}
                 didUpdate={(newValue) =>
@@ -414,49 +415,17 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
         </Grid>
 
         <Grid item className={classes.metaPanel}>
-          <Paper elevation={3} className={classes.basicMetadataBox}>
-            <Grid container justifyContent="space-between">
-              <Grid item>
-                <Typography variant="h6">
-                  <img
-                    className={clsx(classes.inlineIcon, classes.sizedIcon)}
-                    src={
-                      deliverable?.mainstream_master
-                        ? mainstreamEnabled
-                        : mainstreamDisabled
-                    }
-                  />
-                  Mainstream Media
-                </Typography>
-              </Grid>
-              <Grid item>
-                <IconButton
-                  onClick={() =>
-                    history.push(
-                      `/project/${deliverable?.deliverable.pluto_core_project_id}/asset/${deliverable?.id}/mainstream`
-                    )
-                  }
-                >
-                  {deliverable?.mainstream_master ? <Edit /> : <Add />}
-                </IconButton>
-              </Grid>
-            </Grid>
-            {deliverable?.mainstream_master ? (
-              <MainstreamMasterForm
-                isEditing={false}
-                master={deliverable.mainstream_master}
-                isReadOnly={true}
-                isDirty={false}
-                checkboxChanged={() => {}}
-                onCopyButton={() => {}}
-                onCommonMasterChanged={() => {}}
-              />
-            ) : (
-              <Typography variant="caption">
-                No Mainstream data available for this item
-              </Typography>
-            )}
-          </Paper>
+          <ErrorCatchingWrapper>
+            { deliverable ? (
+          <EmbeddableMSForm content={deliverable?.mainstream_master}
+                            deliverableId={deliverable?.id.toString()}
+                            bundleId={deliverable?.deliverable.pluto_core_project_id.toString()}
+                            didUpdate={(newValue) => setDeliverable((prevValue) =>
+                              Object.assign({}, prevValue, {mainstream_master: newValue})
+                            )}/>
+                            ) : undefined
+            }
+          </ErrorCatchingWrapper>
         </Grid>
 
         <Grid item className={classes.metaPanel}>

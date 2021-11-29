@@ -1,71 +1,153 @@
-import React from "react";
-import { Checkbox, FormControlLabel, TextField } from "@material-ui/core";
+import React, { useEffect, useState } from "react";
+import {
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  TextField,
+  Tooltip,
+} from "@material-ui/core";
 import CopyingMaster from "./CopyingMaster";
+import { MasterFormProps } from "./MasterForm";
+import { formStyles } from "./MetadataStyles";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
+import ChipInput from "../Form/ChipInput";
 
-interface MainstreamMasterFormProps {
-  isEditing: boolean;
-  master: MainstreamMaster;
-  isReadOnly: boolean;
-  isDirty: boolean;
-  checkboxChanged: (
-    event: React.ChangeEvent<HTMLInputElement>,
-    field: keyof MainstreamMaster
-  ) => void;
-  onCopyButton: (property: string) => void;
-  onCommonMasterChanged: (evt: any, field: string) => void;
-}
+const MainstreamMasterForm: React.FC<MasterFormProps<
+  MainstreamMaster,
+  YoutubeMaster
+>> = (props) => {
+  const { isEditing, master, isReadOnly, saveRequested } = props;
 
-const MainstreamMasterForm: React.FC<MainstreamMasterFormProps> = (props) => {
-  const {
-    isEditing,
-    master,
-    isReadOnly,
-    isDirty,
-    checkboxChanged,
-    onCopyButton,
-    onCommonMasterChanged,
-  } = props;
+  const classes = formStyles();
+
+  const [isDirty, setIsDirty] = useState(false);
+
+  const [title, setTitle] = useState("");
+  useEffect(() => {
+    setTitle(master.mainstream_title);
+  }, [master]);
+
+  const [description, setDescription] = useState("");
+  useEffect(() => {
+    setDescription(master.mainstream_description);
+  }, [master]);
+
+  const [tags, setTags] = useState<string[]>([]);
+  useEffect(() => {
+    setTags(master.mainstream_tags);
+  }, [master]);
+
+  const [adult, setAdult] = useState(false);
+  useEffect(() => {
+    setAdult(master.mainstream_rules_contains_adult_content);
+  }, [master]);
 
   return (
-    <div>
-      {isEditing ? (
-        <>
-          <TextField
-            label="Upload Status"
-            value={master.upload_status || ""}
-            disabled
-          />
-        </>
-      ) : (
-        ""
-      )}
+    <ul className={classes.listContainer}>
+      <li className={classes.listItem}>
+        <TextField
+          label="Upload Status"
+          value={master.upload_status || ""}
+          disabled
+        />
+      </li>
 
-      <CopyingMaster
-        prefix="Mainstream"
-        fields={{
-          title: master.mainstream_title,
-          description: master.mainstream_description,
-          tags: master.mainstream_tags,
-        }}
-        onChange={onCommonMasterChanged}
-        isDirty={isDirty}
-        onButton={onCopyButton}
-      />
+      <li className={classes.listItem}>
+        <Grid container justifyContent="space-between">
+          <Grid item>
+            <TextField
+              label="Mainstream title"
+              value={title}
+              onChange={(evt) => setTitle(evt.target.value)}
+              disabled={!isEditing}
+              error={isDirty && (!title || title == "")}
+              helperText="You must specify a title"
+            />
+          </Grid>
+          {props.copySource && isEditing ? (
+            <Grid item>
+              <Tooltip title="Copy from youtube master">
+                <IconButton
+                  onClick={() =>
+                    setTitle(props.copySource?.youtube_title ?? "")
+                  }
+                >
+                  <FileCopyIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          ) : undefined}
+        </Grid>
+      </li>
 
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={master.mainstream_rules_contains_adult_content}
-            onChange={(event) =>
-              checkboxChanged(event, "mainstream_rules_contains_adult_content")
-            }
-            name="contains-adult-content"
-            color="primary"
-          />
-        }
-        label="Contains adult content"
-      />
-    </div>
+      <li className={classes.listItem}>
+        <Grid container justifyContent="space-between">
+          <Grid item>
+            <TextField
+              label="Mainstream description"
+              multiline
+              rows={4}
+              value={description}
+              onChange={(evt) => setDescription(evt.target.value)}
+              disabled={!isEditing}
+            />
+          </Grid>
+          {props.copySource && isEditing ? (
+            <Grid item>
+              <Tooltip title="Copy from youtube master">
+                <IconButton
+                  onClick={() =>
+                    setTitle(props.copySource?.youtube_description ?? "")
+                  }
+                >
+                  <FileCopyIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          ) : undefined}
+        </Grid>
+      </li>
+
+      <li className={classes.listItem}>
+        <Grid container justifyContent="space-between">
+          <Grid item>
+            <ChipInput
+              label={"Tags"}
+              value={tags}
+              onChange={(newValue) => setTags(newValue)}
+              disabled={!isEditing}
+            />
+          </Grid>
+          {props.copySource && isEditing ? (
+            <Grid item>
+              <Tooltip title="Copy from youtube master">
+                <IconButton
+                  onClick={() => setTags(props.copySource?.youtube_tags ?? [])}
+                >
+                  <FileCopyIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          ) : undefined}
+        </Grid>
+      </li>
+
+      <li className={classes.listItem}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={adult}
+              onChange={(event) => setAdult(event.target.checked)}
+              disabled={!isEditing}
+              name="contains-adult-content"
+              color="primary"
+            />
+          }
+          label="Contains adult content"
+        />
+      </li>
+    </ul>
   );
 };
 

@@ -1,5 +1,19 @@
 import { makeStyles } from "@material-ui/core";
 
+const formStyles = makeStyles((theme) => ({
+  root: {
+    width: "100%",
+  },
+  listContainer: {
+    listStyle: "none",
+    paddingLeft: 0,
+    margin: 0,
+  },
+  listItem: {
+    marginBottom: theme.spacing(1),
+  },
+}));
+
 const metadataStyles = makeStyles({
   root: {
     display: "flex",
@@ -70,4 +84,4 @@ const metadataStyles = makeStyles({
   },
 });
 
-export { metadataStyles };
+export { metadataStyles, formStyles };
