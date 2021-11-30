@@ -21,7 +21,7 @@ import {
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
 import { EmbeddableFormProps } from "./EmbeddableForm";
 
-const EmbeddableYTForm: React.FC<EmbeddableFormProps<YoutubeMaster>> = (
+const EmbeddableYTForm: React.FC<EmbeddableFormProps<YoutubeMaster, void>> = (
   props
 ) => {
   const classes = useStyles();

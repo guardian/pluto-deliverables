@@ -6,6 +6,7 @@ import {
   Grid,
   IconButton,
   Link,
+  Omit,
   Paper,
   Typography,
 } from "@material-ui/core";
@@ -23,12 +24,8 @@ import {
 } from "@material-ui/icons";
 import guardianEnabled from "../static/guardian_enabled.png";
 import guardianDisabled from "../static/guardian_disabled.png";
-import youtubeEnabled from "../static/youtube_enabled.png";
-import youtubeDisabled from "../static/youtube_disabled.png";
 import dailymotionEnabled from "../static/dailymotion_enabled.jpg";
 import dailymotionDisabled from "../static/dailymotion_disabled.jpg";
-import mainstreamEnabled from "../static/mainstream_enabled.png";
-import mainstreamDisabled from "../static/mainstream_disabled.png";
 import GuardianMasterForm from "../Master/GuardianMasterForm";
 import clsx from "clsx";
 import YoutubeMasterForm from "../Master/YoutubeMasterForm";
@@ -416,15 +413,21 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
 
         <Grid item className={classes.metaPanel}>
           <ErrorCatchingWrapper>
-            { deliverable ? (
-          <EmbeddableMSForm content={deliverable?.mainstream_master}
-                            deliverableId={deliverable?.id.toString()}
-                            bundleId={deliverable?.deliverable.pluto_core_project_id.toString()}
-                            didUpdate={(newValue) => setDeliverable((prevValue) =>
-                              Object.assign({}, prevValue, {mainstream_master: newValue})
-                            )}/>
-                            ) : undefined
-            }
+            {deliverable ? (
+              <EmbeddableMSForm
+                content={deliverable?.mainstream_master}
+                deliverableId={deliverable?.id.toString()}
+                bundleId={deliverable?.deliverable.pluto_core_project_id.toString()}
+                copySource={deliverable?.youtube_master}
+                didUpdate={(newValue) =>
+                  setDeliverable((prevValue) =>
+                    Object.assign({}, prevValue, {
+                      mainstream_master: newValue,
+                    })
+                  )
+                }
+              />
+            ) : undefined}
           </ErrorCatchingWrapper>
         </Grid>
 

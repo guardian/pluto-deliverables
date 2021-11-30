@@ -2,7 +2,19 @@ import { makeStyles } from "@material-ui/core";
 
 const formStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
+    width: "100% !important",
+    "& .MuiTextField-root": {
+      width: "100%",
+    },
+    "& .MuiFormControl-root": {
+      width: "100%",
+    },
+    "& .MuiAutocomplete-root": {
+      width: "100%",
+    },
+  },
+  expandable: {
+    flexGrow: 1,
   },
   listContainer: {
     listStyle: "none",

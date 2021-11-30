@@ -140,7 +140,7 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
     loadMainstreamMaster();
   }, []);
 
-  const requestedSave = async (update:MainstreamMaster) => {
+  const requestedSave = async (update: MainstreamMaster) => {
     const validForm = !!update.mainstream_title;
 
     if (!validForm) {
@@ -152,26 +152,26 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
       if (isEditing) {
         await updateMainstreamDeliverable(projectid, assetid, update);
         SystemNotification.open(
-            SystemNotifcationKind.Success,
-            `Successfully Updated Mainstream Master!`
+          SystemNotifcationKind.Success,
+          `Successfully Updated Mainstream Master!`
         );
         navigateBack();
       } else {
         await createMainstreamDeliverable(projectid, assetid, update);
         SystemNotification.open(
-            SystemNotifcationKind.Success,
-            `Successfully Created Mainstream Master!`
+          SystemNotifcationKind.Success,
+          `Successfully Created Mainstream Master!`
         );
         navigateBack();
       }
     } catch (error) {
       console.error(error);
       SystemNotification.open(
-          SystemNotifcationKind.Error,
-          `Failed to ${isEditing ? "Update" : "Create"} Mainstream Master.`
+        SystemNotifcationKind.Error,
+        `Failed to ${isEditing ? "Update" : "Create"} Mainstream Master.`
       );
     }
-  }
+  };
 
   /*
   const onProjectSubmit = async (

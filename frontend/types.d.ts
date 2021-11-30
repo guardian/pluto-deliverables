@@ -43,6 +43,11 @@ interface Deliverable extends BaseDeliverable {
   deliverable: bigint;
 }
 
+interface ResponseWrapper<T> {
+  status: string;
+  data: T;
+}
+
 interface CreateGuardianMaster {
   production_office: string;
   tags: string[];

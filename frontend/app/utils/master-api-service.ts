@@ -388,24 +388,36 @@ export const createMainstreamDeliverable = async (
     mainstream_rules_contains_adult_content,
   } = mainstreamMaster;
   try {
-    const { status, data } = await axios.put<MainstreamMaster>(
+    const { status, data } = await axios.put(
       `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_MAINSTREAM}`,
       {
         mainstream_title,
         mainstream_description,
         mainstream_tags,
         mainstream_rules_contains_adult_content,
+      },
+      {
+        validateStatus: (status) => status == 200 || status == 409,
       }
     );
 
-    if (status === 200) {
-      return data;
-    } else {
-      throw new Error(`Could not create Asset Mainstream Master`);
+    switch (status) {
+      case 200:
+        return (data as ResponseWrapper<MainstreamMaster>).data;
+      case 409:
+        return Promise.reject(
+          "There was a conflict, somebody else has updated in the meantime. Please reload and try again."
+        );
+      default:
+        return Promise.reject(
+          `Got an unknown response ${status} from the server`
+        );
     }
   } catch (error) {
     console.error(error);
-    return Promise.reject(`Could not create Asset Mainstream Master`);
+    return Promise.reject(
+      `Could not create Asset Mainstream Master, see browser console`
+    );
   }
 };
 
@@ -415,15 +427,25 @@ export const updateMainstreamDeliverable = async (
   mainstreamMaster: MainstreamMaster
 ): Promise<MainstreamMaster> => {
   try {
-    const { status, data } = await axios.put<MainstreamMaster>(
+    const { status, data } = await axios.put(
       `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_MAINSTREAM}`,
-      mainstreamMaster
+      mainstreamMaster,
+      {
+        validateStatus: (status) => status == 200 || status == 409,
+      }
     );
 
-    if (status === 200) {
-      return data;
-    } else {
-      throw new Error(`Could not update Asset Mainstream Master`);
+    switch (status) {
+      case 200:
+        return (data as ResponseWrapper<MainstreamMaster>).data;
+      case 409:
+        return Promise.reject(
+          "There was a conflict, somebody else has updated in the meantime. Please reload and try again."
+        );
+      default:
+        return Promise.reject(
+          `Got an unknown response ${status} from the server`
+        );
     }
   } catch (error) {
     console.error(error);
