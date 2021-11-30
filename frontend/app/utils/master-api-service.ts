@@ -1,6 +1,8 @@
 import axios from "axios";
 import { etEE } from "@material-ui/core/locale";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import MainstreamMaster from "../Master/MainstreamMaster";
+import DailymotionMaster from "../Master/DailymotionMaster";
 
 const API = "/api";
 const API_DELIVERABLE = `${API}/bundle`;
@@ -290,8 +292,10 @@ export const createDailymotionDeliverable = async (
     daily_motion_category,
   } = dailymotionMaster;
   try {
-    const { status, data } = await axios.put<DailymotionMaster>(
-      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_DAILYMOTION}`,
+    const response = await genericUpdate<CreateDailymotionMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_DAILYMOTION,
       {
         daily_motion_url,
         daily_motion_title,
@@ -302,12 +306,7 @@ export const createDailymotionDeliverable = async (
         daily_motion_category,
       }
     );
-
-    if (status === 200) {
-      return data;
-    } else {
-      throw new Error(`Could not create Asset Dailymotion Master`);
-    }
+    return response as DailymotionMaster;
   } catch (error) {
     console.error(error);
     return Promise.reject(`Could not create Asset Dailymotion Master`);
@@ -320,16 +319,12 @@ export const updateDailymotionDeliverable = async (
   dailymotionMaster: DailymotionMaster
 ): Promise<DailymotionMaster> => {
   try {
-    const { status, data } = await axios.put<DailymotionMaster>(
-      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_DAILYMOTION}`,
+    return genericUpdate<DailymotionMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_DAILYMOTION,
       dailymotionMaster
     );
-
-    if (status === 200) {
-      return data;
-    } else {
-      throw new Error(`Could not update Asset Dailymotion Master`);
-    }
   } catch (error) {
     console.error(error);
     return Promise.reject(`Could not update Asset Dailymotion Master`);
@@ -388,31 +383,19 @@ export const createMainstreamDeliverable = async (
     mainstream_rules_contains_adult_content,
   } = mainstreamMaster;
   try {
-    const { status, data } = await axios.put(
-      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_MAINSTREAM}`,
+    const result = await genericUpdate<CreateMainstreamMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_MAINSTREAM,
       {
         mainstream_title,
         mainstream_description,
         mainstream_tags,
         mainstream_rules_contains_adult_content,
-      },
-      {
-        validateStatus: (status) => status == 200 || status == 409,
+        publication_date: undefined,
       }
     );
-
-    switch (status) {
-      case 200:
-        return (data as ResponseWrapper<MainstreamMaster>).data;
-      case 409:
-        return Promise.reject(
-          "There was a conflict, somebody else has updated in the meantime. Please reload and try again."
-        );
-      default:
-        return Promise.reject(
-          `Got an unknown response ${status} from the server`
-        );
-    }
+    return result as MainstreamMaster;
   } catch (error) {
     console.error(error);
     return Promise.reject(
@@ -427,26 +410,12 @@ export const updateMainstreamDeliverable = async (
   mainstreamMaster: MainstreamMaster
 ): Promise<MainstreamMaster> => {
   try {
-    const { status, data } = await axios.put(
-      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_MAINSTREAM}`,
-      mainstreamMaster,
-      {
-        validateStatus: (status) => status == 200 || status == 409,
-      }
+    return genericUpdate<MainstreamMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_MAINSTREAM,
+      mainstreamMaster
     );
-
-    switch (status) {
-      case 200:
-        return (data as ResponseWrapper<MainstreamMaster>).data;
-      case 409:
-        return Promise.reject(
-          "There was a conflict, somebody else has updated in the meantime. Please reload and try again."
-        );
-      default:
-        return Promise.reject(
-          `Got an unknown response ${status} from the server`
-        );
-    }
   } catch (error) {
     console.error(error);
     return Promise.reject(`Could not update Asset Mainstream Master`);
@@ -466,3 +435,31 @@ export const deleteMainstreamDeliverable = async (
     return Promise.reject(`Could not delete Asset Mainstream Master`);
   }
 };
+
+async function genericUpdate<T>(
+  deliverableId: string,
+  assetId: string,
+  apiPath: string,
+  update: T
+): Promise<T> {
+  const { status, data } = await axios.put<ResponseWrapper<T>>(
+    `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${apiPath}`,
+    update,
+    {
+      validateStatus: (status) => status == 200 || status == 409,
+    }
+  );
+
+  switch (status) {
+    case 200:
+      return data.data;
+    case 409:
+      return Promise.reject(
+        "There was a conflict, somebody else has updated in the meantime. Please reload and try again."
+      );
+    default:
+      return Promise.reject(
+        `Got an unknown response ${status} from the server`
+      );
+  }
+}

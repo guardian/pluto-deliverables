@@ -100,7 +100,7 @@ interface CreateMainstreamMaster {
   mainstream_description: string;
   mainstream_tags: string[];
   mainstream_rules_contains_adult_content: boolean;
-  publication_date: string;
+  publication_date?: string;
 }
 
 interface MainstreamMaster extends CreateMainstreamMaster {

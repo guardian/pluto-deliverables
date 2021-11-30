@@ -44,6 +44,7 @@ import { useStyles } from "./DeliverableItemStyles";
 import EmbeddableYTForm from "./EmbeddableYTForm";
 import ErrorCatchingWrapper from "./ErrorCatchingWrapper";
 import EmbeddableMSForm from "./EmbeddableMSForm";
+import EmbeddableDMForm from "./EmbeddableDMForm";
 
 type PlayerSizing = "S" | "M" | "L" | "X";
 
@@ -432,50 +433,23 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
         </Grid>
 
         <Grid item className={classes.metaPanel}>
-          <Paper elevation={3} className={classes.basicMetadataBox}>
-            <Grid container justifyContent="space-between">
-              <Grid item>
-                <Typography variant="h6">
-                  <img
-                    className={clsx(classes.inlineIcon, classes.sizedIcon)}
-                    src={
-                      deliverable?.DailyMotion_master
-                        ? dailymotionEnabled
-                        : dailymotionDisabled
-                    }
-                  />
-                  Daily Motion
-                </Typography>
-              </Grid>
-              <Grid item>
-                <IconButton
-                  onClick={() =>
-                    history.push(
-                      `/project/${deliverable?.deliverable.pluto_core_project_id}/asset/${deliverable?.id}/dailymotion`
-                    )
-                  }
-                >
-                  {deliverable?.DailyMotion_master ? <Edit /> : <Add />}
-                </IconButton>
-              </Grid>
-            </Grid>
-            {deliverable?.DailyMotion_master ? (
-              <DailyMotionMasterForm
-                isEditing={false}
-                master={deliverable.DailyMotion_master}
-                isReadOnly={true}
-                isDirty={false}
-                checkboxChanged={(evt) => {}}
-                channelSelectorChanged={(newValue) => {}}
-                onCopyButton={() => {}}
-                onCommonMasterChanged={(evt, field) => {}}
+          <ErrorCatchingWrapper>
+            {deliverable ? (
+              <EmbeddableDMForm
+                content={deliverable?.DailyMotion_master}
+                deliverableId={deliverable?.id.toString()}
+                bundleId={deliverable?.deliverable.pluto_core_project_id.toString()}
+                copySource={deliverable?.youtube_master}
+                didUpdate={(newValue) =>
+                  setDeliverable((prevValue) =>
+                    Object.assign({}, prevValue, {
+                      DailyMotion_master: newValue,
+                    })
+                  )
+                }
               />
-            ) : (
-              <Typography variant="caption">
-                No Daily Motion data available for this item
-              </Typography>
-            )}
-          </Paper>
+            ) : undefined}
+          </ErrorCatchingWrapper>
         </Grid>
       </Grid>
       {showAddNote ? (
