@@ -77,8 +77,9 @@ const MainstreamMasterForm: React.FC<MasterFormProps<
               value={title}
               onChange={(evt) => setTitle(evt.target.value)}
               disabled={!isEditing}
+              required={isEditing}
               error={isDirty && (!title || title == "")}
-              helperText="You must specify a title"
+              helperText={title && title != "" ?  undefined : "You must specify a title"}
               className={classes.root}
             />
           </Grid>

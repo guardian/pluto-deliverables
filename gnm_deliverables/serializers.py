@@ -44,7 +44,7 @@ class DenormalisedAssetSerializer(DeliverableAssetSerializer):
 class DeliverableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deliverable
-        fields = ["project_id", "commission_id", "pluto_core_project_id", "name", "created",
+        fields = ["pk", "project_id", "commission_id", "pluto_core_project_id", "name", "created",
                   "local_open_uri", "local_path"]
 
 

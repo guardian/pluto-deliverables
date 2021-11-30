@@ -1,4 +1,5 @@
 interface Project {
+  pk: number; //primary-key, i.e. the record ID
   project_id: string; //this field is deprecated
   pluto_core_project_id: number; //this is now the correct project id
   commission_id: number;
@@ -246,5 +247,3 @@ interface CapiSearchResponse {
   webTitle: string;
   atoms: CapiSearchAtom[];
 }
-
-;

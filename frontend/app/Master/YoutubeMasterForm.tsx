@@ -80,7 +80,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
 
       <li className={classes.listItem}>
         <Grid direction="row" container>
-          <Grid item>
+          <Grid item className={classes.expandable}>
             <TextField
               label="Youtube ID"
               value={ytID}
@@ -91,8 +91,9 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
                   ? "Youtube ID is required"
                   : ""
               }
-              required={!isReadOnly}
-              disabled={isReadOnly}
+              className={classes.root}
+              required={!isEditing}
+              disabled={!isEditing}
             />
           </Grid>
           <Grid item style={{ flex: "0 0 48px" }}>
@@ -120,7 +121,8 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
           onChange={(evt) => setTitle(evt.target.value)}
           helperText={isDirty ? `Youtube title is required` : ""}
           required={!props.isReadOnly}
-          disabled={isReadOnly}
+          disabled={!isEditing}
+          className={classes.root}
         />
       </li>
 
@@ -131,8 +133,9 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
           rows={4}
           variant="outlined"
           value={description}
+          className={classes.root}
           onChange={(evt) => setDescription(evt.target.value)}
-          disabled={isReadOnly}
+          disabled={!isEditing}
         />
       </li>
 
@@ -141,7 +144,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
           label={"Tags"}
           value={currentTags}
           onChange={(newValue) => setCurrentTags(newValue)}
-          disabled={isReadOnly}
+          disabled={!isEditing}
         />
       </li>
 
