@@ -97,6 +97,13 @@ interface CreateOovvuuMaster {
   seen_on_channel: boolean;
 }
 
+interface CreateReutersConnectMaster {
+  seen_on_channel: boolean;
+}
+
+interface ReutersConnectMaster extends CreateReutersConnectMaster {
+  etag: string;
+}
 interface DailymotionMaster extends CreateDailymotionMaster {
   etag?: string;
   publication_date: string;
@@ -143,6 +150,7 @@ interface DenormalisedDeliverable extends BaseDeliverable {
   DailyMotion_master?: DailymotionMaster;
   mainstream_master?: MainstreamMaster;
   oovvuu_master?: OovvuuMaster;
+  reutersconnect_master?: ReutersConnectMaster;
 }
 
 //see SearchRequestSerializer in serializers.py

@@ -11,6 +11,7 @@ const API_PATH_YOUTUBE = "youtube";
 const API_PATH_DAILYMOTION = "dailymotion";
 const API_PATH_MAINSTREAM = "mainstream";
 const API_PATH_OOVVUU = "oovvuu";
+const API_PATH_REUTERSCONNECT = "reutersconnect";
 
 export const getDeliverableGNM = async (
   deliverableId: string,
@@ -515,6 +516,87 @@ export const deleteOovvuuDeliverable = async (
   } catch (error) {
     console.error(error);
     return Promise.reject(`Could not delete Asset Oovvuu Master`);
+  }
+};
+
+export const getDeliverableReutersConnect = async (
+  deliverableId: string,
+  assetId: string
+): Promise<ReutersConnectMaster> => {
+  try {
+    const { status, data } = await axios.get<ReutersConnectMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_REUTERSCONNECT}`
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not fetch Asset Mainstream master`);
+    }
+  } catch (error) {
+    // Due to GET returns 404 if the metadata entry does not exists
+    // do not treat this is an error
+    if (error?.response?.status === 404) {
+      return Promise.reject();
+    }
+
+    console.error(error);
+    return Promise.reject(`Could not fetch Asset Mainstream master`);
+  }
+};
+
+export const createReutersConnectDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  content: CreateReutersConnectMaster
+): Promise<ReutersConnectMaster> => {
+  try {
+    const result = await genericUpdate<CreateReutersConnectMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_REUTERSCONNECT,
+      {
+        seen_on_channel: content.seen_on_channel,
+      }
+    );
+    return result as ReutersConnectMaster;
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(
+      `Could not create Asset Reuters Connect Master, see browser console`
+    );
+  }
+};
+
+export const updateReutersConnectDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  content: ReutersConnectMaster
+): Promise<ReutersConnectMaster> => {
+  try {
+    return genericUpdate<ReutersConnectMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_REUTERSCONNECT,
+      content
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not update Asset Reuters Connect Master`);
+  }
+};
+
+export const deleteReutersConnectDeliverable = async (
+  deliverableId: string,
+  assetId: string
+): Promise<void> => {
+  try {
+    await axios.delete<void>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_REUTERSCONNECT}`
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not delete Asset Reuters Connect Master`);
   }
 };
 

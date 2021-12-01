@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from .choices import DELIVERABLE_ASSET_STATUSES_DICT
 from .models import DeliverableAsset, Deliverable, GNMWebsite, Youtube, Mainstream, DailyMotion, \
-    LogEntry, SyndicationNotes, Oovvuu
+    LogEntry, SyndicationNotes, Oovvuu, ReutersConnect
 
 
 class DeliverableAssetSerializer(serializers.ModelSerializer):
@@ -30,7 +30,7 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
                   'job_id', 'online_item_id', 'nearline_item_id', 'archive_item_id',
                   'deliverable', 'status', 'type_string', 'atom_id',
                   'size_string', 'status_string', 'changed_string',
-                  'gnm_website_master', 'youtube_master', 'DailyMotion_master', "oovvuu_master",
+                  'gnm_website_master', 'youtube_master', 'DailyMotion_master', "oovvuu_master", "reutersconnect_master",
                   'mainstream_master', 'absolute_path', 'linked_to_lowres']
         read_only_fields = ['id', 'filename', 'size', 'access_dt', 'modified_dt',
                             'changed_dt', 'job_id item_id', 'deliverable']
@@ -84,6 +84,12 @@ class DailyMotionSerializer(serializers.ModelSerializer):
 class OovvuuSerializer(serializers.ModelSerializer):
     class Meta:
         model = Oovvuu
+        fields = ["seen_on_channel", "etag"]
+
+
+class ReutersConnectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReutersConnect
         fields = ["seen_on_channel", "etag"]
 
 

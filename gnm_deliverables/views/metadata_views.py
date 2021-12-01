@@ -221,6 +221,28 @@ class OovvuuAPIView(MetadataAPIView):
             return Response({"status":"error","detail":str(e)}, status=500)
 
 
+class ReutersConnectAPIView(MetadataAPIView):
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+    metadata_model = ReutersConnect
+    metadata_serializer = ReutersConnectSerializer
+
+    def update_asset_metadata(self, asset, metadata):
+        asset.reutersconnect_master = metadata
+
+    def is_metadata_set(self, project_id, asset_id):
+        asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id,
+                                             pk=asset_id)
+        return asset.reutersconnect_master is not None
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super(ReutersConnectAPIView, self).dispatch(request, *args, **kwargs)
+        except Exception as e:
+            logger.error("Could not get Reuters Connect deliverable metadata: {0}".format(str(e)), e)
+            return Response({"status": "error", "detail": str(e)}, status=500)
+
+
 class PlatformLogsView(APIView):
     authentication_classes = (JwtRestAuth,)
 

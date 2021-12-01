@@ -1,58 +1,54 @@
-import React, { ChangeEvent, useContext, useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Switch,
-  Tooltip,
-} from "@material-ui/core";
-import { Cancel, DeleteOutlined } from "@material-ui/icons";
+import React from "react";
 import {
   createOovvuuDeliverable,
+  createReutersConnectDeliverable,
   updateOovvuuDeliverable,
+  updateReutersConnectDeliverable,
 } from "../utils/master-api-service";
-import {
-  SystemNotifcationKind,
-  SystemNotification,
-  UserContext,
-} from "pluto-headers";
-import { formatISO } from "date-fns";
 import axios from "axios";
+import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
 import GenericSwitcher from "./GenericSwitcher";
 
-interface OoovvuuSwitcherProps {
+interface ReutersConnectSwitcherProps {
   projectId: string;
   assetId: string;
-  content?: OovvuuMaster;
-  didUpdate: (newContent: OovvuuMaster) => void;
+  content?: ReutersConnectMaster;
+  didUpdate: (newContent: ReutersConnectMaster) => void;
 }
 
-const OoovvuuSwitcher: React.FC<OoovvuuSwitcherProps> = (props) => {
+const ReutersConnectSwitcher: React.FC<ReutersConnectSwitcherProps> = (
+  props
+) => {
   const saveUpdate = async (newState: boolean) => {
     try {
-      const update: OovvuuMaster = {
+      const update: ReutersConnectMaster = {
         seen_on_channel: newState,
         etag: props.content?.etag ?? "",
       };
       const newRecord = props.content
-        ? await updateOovvuuDeliverable(props.projectId, props.assetId, update)
-        : await createOovvuuDeliverable(props.projectId, props.assetId, update);
+        ? await updateReutersConnectDeliverable(
+            props.projectId,
+            props.assetId,
+            update
+          )
+        : await createReutersConnectDeliverable(
+            props.projectId,
+            props.assetId,
+            update
+          );
 
       try {
         await axios.post(
           `/api/asset/${props.assetId}/notes/new`,
-          newState ? "Seen on Oovvuu" : "Removed from Oovvuu",
+          newState ? "Seen on Reuters Connect" : "Removed from Reuters Connect",
           { headers: { "Content-Type": "text/plain" } }
         );
         SystemNotification.open(
           SystemNotifcationKind.Info,
-          "Recorded Oovvuu publication"
+          "Recorded Reuters Connect publication"
         );
       } catch (err) {
-        console.error("Failure while making note for oovvuu: ", err);
+        console.error("Failure while making note for Reuters Connect: ", err);
         SystemNotification.open(
           SystemNotifcationKind.Error,
           `Could not make note: ${err}`
@@ -61,7 +57,7 @@ const OoovvuuSwitcher: React.FC<OoovvuuSwitcherProps> = (props) => {
 
       props.didUpdate(newRecord);
     } catch (err) {
-      console.error("Could not save oovvuu: ", err);
+      console.error("Could not save Reuters Connect: ", err);
       SystemNotification.open(SystemNotifcationKind.Error, err.toString());
     }
   };
@@ -77,11 +73,11 @@ const OoovvuuSwitcher: React.FC<OoovvuuSwitcherProps> = (props) => {
   return (
     <GenericSwitcher
       seenOnChannel={props.content?.seen_on_channel}
-      channelName="Oovvuu"
+      channelName="Reuters Connect"
       removePublishedStatus={removePublishedStatus}
       addPublishedStatus={addPublishedStatus}
     />
   );
 };
 
-export default OoovvuuSwitcher;
+export default ReutersConnectSwitcher;

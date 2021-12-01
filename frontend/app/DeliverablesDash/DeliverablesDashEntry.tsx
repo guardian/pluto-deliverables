@@ -21,6 +21,7 @@ import BundleInfoComponentForInvalid from "../BundleInfoComponentForInvalid";
 import SyndicationNotes from "./SyndicationNotes";
 import { ChevronRightRounded } from "@material-ui/icons";
 import OoovvuuSwitcher from "./OoovvuuSwitcher";
+import ReutersConnectSwitcher from "./ReutersConnectSwitcher";
 
 //import globals that were set by the backend
 declare var mediaAtomToolUrl: string;
@@ -197,14 +198,23 @@ const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
         />
       </TableCell>
       <TableCell>
-        <Tooltip title="Indicate that this has been sent to Reuters Connect. Not implemented yet.">
-          <Switch
-            // onChange={(evt, checked) =>
-            //   //props.onReutersChanged(props.entry.id, checked)
-            // }
-            checked={false}
-          />
-        </Tooltip>
+        <ReutersConnectSwitcher
+          projectId={props.entry.deliverable.pluto_core_project_id.toString()}
+          assetId={props.entry.id.toString()}
+          content={props.entry.reutersconnect_master}
+          didUpdate={(newContent) => {
+            const updatedRecord: DenormalisedDeliverable = Object.assign(
+              {},
+              props.entry,
+              {
+                reutersconnect_master: newContent,
+              }
+            );
+            setNotesUpdate((prev) => prev + 1);
+            if (props.onRecordDidUpdate)
+              props.onRecordDidUpdate(props.entry.id, updatedRecord);
+          }}
+        />
       </TableCell>
       <TableCell style={{ minWidth: "200px" }}>
         <SyndicationNotes

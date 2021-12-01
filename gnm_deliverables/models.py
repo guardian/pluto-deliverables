@@ -236,6 +236,7 @@ class DeliverableAsset(models.Model):
     DailyMotion_master = models.ForeignKey('DailyMotion', on_delete=models.SET_NULL, null=True)
     mainstream_master = models.ForeignKey('Mainstream', on_delete=models.SET_NULL, null=True)
     oovvuu_master = models.ForeignKey("Oovvuu", on_delete=models.SET_NULL, null=True)
+    reutersconnect_master = models.ForeignKey("ReutersConnect", on_delete=models.SET_NULL, null=True)
 
     def __init__(self, *args, **kwargs):
         super(DeliverableAsset, self).__init__(*args, **kwargs)
@@ -552,6 +553,11 @@ class DailyMotion(models.Model):
 
 
 class Oovvuu(models.Model):
+    seen_on_channel = models.BooleanField(default=False)
+    etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+
+
+class ReutersConnect(models.Model):
     seen_on_channel = models.BooleanField(default=False)
     etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 

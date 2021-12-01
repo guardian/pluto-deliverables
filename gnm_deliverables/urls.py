@@ -5,7 +5,7 @@ URLS for the Guardian Project plugin
 from django.urls import path, re_path
 from django.views.decorators.csrf import csrf_exempt
 from gnm_deliverables.views.metadata_views import GNMWebsiteAPIView, YoutubeAPIView, DailyMotionAPIView, OovvuuAPIView, \
-    MainstreamAPIView, PlatformLogsView, TriggerOutputView, PlatformLogUpdateView, ResyncToPublished
+    MainstreamAPIView, PlatformLogsView, TriggerOutputView, PlatformLogUpdateView, ResyncToPublished, ReutersConnectAPIView
 from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingVidispineItemView, \
     SetTypeView, TestCreateProxyView, NewDeliverablesAPIList, NewDeliverableAssetAPIList, DeliverableAPIView, \
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet, \
@@ -40,6 +40,7 @@ urlpatterns = [
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/youtube', YoutubeAPIView.as_view(), name='youtube'),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/dailymotion', DailyMotionAPIView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/oovvuu', OovvuuAPIView.as_view()),
+    path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/reutersconnect', ReutersConnectAPIView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logs', PlatformLogsView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logupdate', PlatformLogUpdateView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/send', TriggerOutputView.as_view()),

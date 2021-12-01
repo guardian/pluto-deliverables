@@ -118,8 +118,22 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
         </Tooltip>
       </Grid>
       <Grid item>
-        <Tooltip title="Reuters Connect tracking has not been implemented yet">
-          <img className={classes.inlineIcon} src={reutersDisabled} alt="R" />
+        <Tooltip
+          title={
+            entry.reutersconnect_master?.seen_on_channel
+              ? "This has been seen on Reuters Connect"
+              : "This has not been seen on Reuters Connect"
+          }
+        >
+          <img
+            className={classes.inlineIcon}
+            src={
+              entry.reutersconnect_master?.seen_on_channel
+                ? reutersEnabled
+                : reutersDisabled
+            }
+            alt="R"
+          />
         </Tooltip>
       </Grid>
     </Grid>
