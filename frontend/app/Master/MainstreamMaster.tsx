@@ -47,12 +47,12 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
 
   return (
     <>
-        <EmbeddableMSForm
-          content={msData}
-          deliverableId={props.match.params.assetid}
-          bundleId={props.match.params.projectid}
-          didUpdate={() => history.goBack()}
-        />
+      <EmbeddableMSForm
+        content={msData}
+        deliverableId={props.match.params.assetid}
+        bundleId={props.match.params.projectid}
+        didUpdate={() => history.goBack()}
+      />
       <Button
         startIcon={<ChevronLeft />}
         onClick={() => history.goBack()}

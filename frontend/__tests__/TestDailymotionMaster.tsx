@@ -1,196 +1,150 @@
 import React from "react";
 import { mount, ReactWrapper } from "enzyme";
 import DailymotionMaster from "../app/Master/DailymotionMaster";
-import {
-  Location,
-  createMemoryHistory,
-  createLocation,
-  History,
-} from "history";
-import { match } from "react-router";
+import { createMemoryHistory, createLocation } from "history";
 import moxios from "moxios";
 import { act } from "react-dom/test-utils";
-import { disableFetchMocks, enableFetchMocks } from "jest-fetch-mock";
-import { dark } from "@material-ui/core/styles/createPalette";
 
 describe("DailymotionMaster", () => {
-  describe("Create Form", () => {
-    let wrapper: ReactWrapper<any, Readonly<{}>, React.Component<{}, {}, any>>;
-    let location: Location<History.UnknownFacade>;
-    let match: match<{
-      projectid: string;
-      assetid: string;
-    }>;
-    beforeEach(async () => {
-      moxios.install();
-      const path = "/project/:projectid/asset/:assetid/dailymotion";
+  beforeEach(() => {
+    moxios.install();
+  });
 
-      match = {
-        isExact: false,
-        path,
-        url: path,
-        params: {
-          projectid: "1",
-          assetid: "1",
-        },
-      };
-      location = createLocation(match.url);
+  afterEach(() => {
+    moxios.uninstall();
+  });
 
-      wrapper = mount(
-        <DailymotionMaster
-          history={createMemoryHistory()}
-          location={location}
-          match={match}
-        />
-      );
+  it("should populate data on load", (done) => {
+    const path = "/project/:projectid/asset/:assetid/mainstream/new";
 
-      await moxios.wait(jest.fn);
-      await act(async () => {
-        await moxios.requests.mostRecent().respondWith({
-          status: 404,
-          response: {},
+    const match = {
+      isExact: false,
+      path,
+      url: path,
+      params: {
+        projectid: "1",
+        assetid: "2",
+      },
+    };
+    const location = createLocation(match.url);
+
+    const mockInfo: DailymotionMaster = {
+      daily_motion_category: "News",
+      daily_motion_contains_adult_content: true,
+      daily_motion_description: "some description",
+      daily_motion_no_mobile_access: true,
+      daily_motion_tags: ["tag1", "tag2"],
+      daily_motion_title: "some title",
+      daily_motion_url: "https://some/url",
+      etag: "dsfasfasfsad",
+      publication_date: "2010-01-02T03:04:05Z",
+      upload_status: "Published",
+    };
+
+    const rendered = mount(
+      <DailymotionMaster
+        history={createMemoryHistory()}
+        location={location}
+        match={match}
+      />
+    );
+
+    moxios.wait(() => {
+      const result = act(async () => {
+        const req = moxios.requests.mostRecent();
+        expect(!!req).toBeTruthy();
+        expect(req.url).toEqual("/api/bundle/1/asset/2/dailymotion");
+
+        await req.respondWith({
+          status: 200,
+          response: mockInfo,
         });
       });
-      // Needed otherwise enzyme doesn't find the updated elements.
-      wrapper.update();
-    });
-    afterEach(() => {
-      moxios.uninstall();
-      wrapper.unmount();
-    });
 
-    it("should render Create Form of DailymotionMaster", () => {
-      const heading = wrapper.find("h4");
-      expect(heading.exists()).toEqual(true);
-      expect(heading.text()).toEqual("Create Dailymotion master");
-    });
+      result.then(
+        () => {
+          rendered.update();
+          expect(rendered.find("input#dm-title").props()["value"]).toEqual(
+            "some title"
+          );
+          expect(
+            rendered.find("textarea#dm-description").props()["value"]
+          ).toEqual("some description");
+          expect(
+            rendered.find("input#dm-upload-status").props()["value"]
+          ).toEqual("Published");
+          expect(
+            rendered.find("input#dm-publication-date").props()["value"]
+          ).toEqual("2010-01-02T03:04:05Z");
+          expect(rendered.find("input#dm-url").props()["value"]).toEqual(
+            "https://some/url"
+          );
+          expect(rendered.find("span.MuiChip-label").length).toEqual(2);
+          expect(rendered.find("span.MuiChip-label").at(0).text()).toEqual(
+            "tag1"
+          );
+          expect(rendered.find("span.MuiChip-label").at(1).text()).toEqual(
+            "tag2"
+          );
+          expect(
+            rendered.find("input#dm-no-mobile").props()["checked"]
+          ).toEqual(true);
 
-    it("should expect the fields to be read and write", () => {
-      const fields = wrapper
-        .find("input.MuiInputBase-input.MuiInput-input")
-        .not(".MuiAutocomplete-input");
-
-      fields.forEach((field) => {
-        expect(field.prop("disabled")).toEqual(false);
-      });
-      const autocomplete = wrapper.find(
-        ".MuiInputBase-input.MuiInput-input.MuiAutocomplete-input"
+          done();
+        },
+        (err) => done.fail(err)
       );
-      expect(autocomplete.prop("disabled")).toEqual(false);
-      const textArea = wrapper.find("textarea");
-      expect(textArea.prop("disabled")).toEqual(false);
-      const button = wrapper.find(`button[type="submit"]`);
-      expect(button.prop("disabled")).toEqual(false);
-    });
-
-    it("should render errors when required fields are not set", () => {
-      const button = wrapper.find(`button[type="submit"]`);
-
-      button.simulate("submit");
-
-      const errors = wrapper.find(
-        ".MuiFormHelperText-root.Mui-error.Mui-required"
-      );
-      expect(errors).toHaveLength(1);
-      expect(errors.at(0).text()).toEqual("Dailymotion title is required");
-    });
-
-    it("should not render errors when required fields are set", () => {
-      const textFields = wrapper.find(
-        "input.MuiInputBase-input.MuiInput-input"
-      );
-
-      textFields.at(0).simulate("change", { target: { value: "title" } });
-
-      const button = wrapper.find(`button[type="submit"]`);
-
-      button.simulate("submit");
-
-      const errors = wrapper.find(
-        ".MuiFormHelperText-root.Mui-error.Mui-required"
-      );
-      expect(errors).toHaveLength(0);
     });
   });
 
-  describe("Edit Form", () => {
-    let wrapper: ReactWrapper<any, Readonly<{}>, React.Component<{}, {}, any>>;
-    let location: Location<History.UnknownFacade>;
-    let match: match<{
-      projectid: string;
-      assetid: string;
-    }>;
-    beforeEach(async () => {
-      moxios.install();
-      const path = "/project/:projectid/asset/:assetid/dailymotion";
-      enableFetchMocks();
-      const fakeDMData = { list: [] };
-      fetchMock.mockResponseOnce(JSON.stringify(fakeDMData));
+  it("should present an empty form if a 404 is returned", (done) => {
+    const path = "/project/:projectid/asset/:assetid/dailymotion/new";
 
-      match = {
-        isExact: false,
-        path,
-        url: path,
-        params: {
-          projectid: "1",
-          assetid: "1",
-        },
-      };
-      location = createLocation(match.url);
+    const match = {
+      isExact: false,
+      path,
+      url: path,
+      params: {
+        projectid: "1",
+        assetid: "2",
+      },
+    };
+    const location = createLocation(match.url);
 
-      wrapper = mount(
-        <DailymotionMaster
-          history={createMemoryHistory()}
-          location={location}
-          match={match}
-        />
-      );
+    const rendered = mount(
+      <DailymotionMaster
+        history={createMemoryHistory()}
+        location={location}
+        match={match}
+      />
+    );
 
-      await moxios.wait(jest.fn);
-      await act(async () => {
-        await moxios.requests.mostRecent().respondWith({
-          status: 200,
-          response: {},
+    moxios.wait(() => {
+      const result = act(async () => {
+        const req = moxios.requests.mostRecent();
+        expect(!!req).toBeTruthy();
+        expect(req.url).toEqual("/api/bundle/1/asset/2/dailymotion");
+
+        await req.respondWith({
+          status: 404,
+          response: {
+            status: "notfound",
+            detail: "so there",
+          },
         });
       });
-      // Needed otherwise enzyme doesn't find the updated elements.
-      wrapper.update();
-    });
+      result.then(
+        () => {
+          rendered.update();
 
-    afterEach(() => {
-      moxios.uninstall();
-      disableFetchMocks();
-      wrapper.unmount();
-    });
+          expect(rendered.find("span.MuiTypography-caption").text()).toEqual(
+            "No Daily Motion data available for this item"
+          );
 
-    it("should render Edit Form of DailymotionMaster", () => {
-      const heading = wrapper.find("h4");
-      expect(heading.exists()).toEqual(true);
-      expect(heading.text()).toEqual("Edit Dailymotion master");
-    });
-
-    it("should expect the fields to be read and write", () => {
-      const fields = wrapper
-        .find("input.MuiInputBase-input.MuiInput-input")
-        .not(".MuiAutocomplete-input");
-      const readonlyFields = fields.slice(0, 3);
-      const formFields = fields.slice(3, fields.length);
-
-      readonlyFields.forEach((readonlyField) => {
-        expect(readonlyField.prop("disabled")).toEqual(true);
-      });
-
-      formFields.forEach((field) => {
-        expect(field.prop("disabled")).toEqual(false);
-      });
-      const autocomplete = wrapper.find(
-        ".MuiInputBase-input.MuiInput-input.MuiAutocomplete-input"
+          done();
+        },
+        (err) => done.fail(err)
       );
-      expect(autocomplete.prop("disabled")).toEqual(false);
-      const textArea = wrapper.find("textarea");
-      expect(textArea.prop("disabled")).toEqual(false);
-      const button = wrapper.find(`button[type="submit"]`);
-      expect(button.prop("disabled")).toEqual(false);
     });
   });
 });

@@ -90,6 +90,7 @@ const DailyMotionMasterForm: React.FC<MasterFormProps<
       <li className={clsx(classes.listItem, classes.root)}>
         <TextField
           label="Upload Status"
+          id="dm-upload-status"
           value={props.master.upload_status}
           disabled
         />
@@ -98,6 +99,7 @@ const DailyMotionMasterForm: React.FC<MasterFormProps<
       <li className={clsx(classes.listItem, classes.root)}>
         <TextField
           label="Publication Date"
+          id="dm-publication-date"
           value={props.master.publication_date}
           disabled
         />
@@ -105,6 +107,7 @@ const DailyMotionMasterForm: React.FC<MasterFormProps<
       <li className={clsx(classes.listItem, classes.root)}>
         <TextField
           label="Dailymotion URL"
+          id="dm-url"
           value={props.master.daily_motion_url}
           disabled
         />
@@ -115,6 +118,7 @@ const DailyMotionMasterForm: React.FC<MasterFormProps<
           <Grid item className={classes.expandable}>
             <TextField
               label="Daily Motion title"
+              id="dm-title"
               value={title}
               onChange={(evt) => setTitle(evt.target.value)}
               disabled={!isEditing}
@@ -148,6 +152,7 @@ const DailyMotionMasterForm: React.FC<MasterFormProps<
             <TextField
               label="Daily Motion description"
               multiline
+              id="dm-description"
               rows={4}
               value={description}
               className={classes.root}
@@ -211,6 +216,7 @@ const DailyMotionMasterForm: React.FC<MasterFormProps<
           control={
             <Checkbox
               checked={noMobile}
+              id="dm-no-mobile"
               onChange={(event) => setNoMobile(event.target.checked)}
               name="no-mobile-access"
               color="primary"
@@ -226,6 +232,7 @@ const DailyMotionMasterForm: React.FC<MasterFormProps<
           control={
             <Checkbox
               checked={adult}
+              id="dm-restricted"
               onChange={(event) => setAdult(event.target.checked)}
               name="contains-adult-content"
               color="primary"

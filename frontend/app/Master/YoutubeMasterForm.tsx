@@ -60,7 +60,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
     <ul className={classes.listContainer}>
       <li className={classes.listItem}>
         <TextField
-            id="yt-publication-date"
+          id="yt-publication-date"
           label="Publication Date"
           value={master.publication_date || ""}
           disabled
@@ -69,13 +69,17 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
       <li className={classes.listItem}>
         <div className="metadata-info">
           <Typography variant="subtitle1">Youtube category</Typography>
-          <p className="subtitle-small" id="yt-category">{master.youtube_category}</p>
+          <p className="subtitle-small" id="yt-category">
+            {master.youtube_category}
+          </p>
         </div>
       </li>
       <li className={classes.listItem}>
         <div className="metadata-info">
           <Typography variant="subtitle1">Youtube channel</Typography>
-          <p className="subtitle-small" id="yt-channel">{master.youtube_channel}</p>
+          <p className="subtitle-small" id="yt-channel">
+            {master.youtube_channel}
+          </p>
         </div>
       </li>
 
