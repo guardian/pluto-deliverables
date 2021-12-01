@@ -10,24 +10,26 @@ from gnm_deliverables.serializers import DenormalisedAssetSerializer, Syndicatio
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from datetime import datetime
 import logging
-from gnm_deliverables.models import Deliverable, DeliverableAsset, GNMWebsite, SyndicationNotes
+from gnm_deliverables.models import DeliverableAsset, GNMWebsite, SyndicationNotes, Youtube, DailyMotion, Mainstream, ReutersConnect, Oovvuu
 import gnm_deliverables.choices as choices
 import requests
 from django.conf import settings
 import urllib.parse
+from django.db.models.functions import TruncDay
+from django.db.models import Count
 
 logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
 
 
 class DeliverableAssetsList(ListAPIView):
-    renderer_classes = (JSONRenderer, )
+    renderer_classes = (JSONRenderer,)
     authentication_classes = (JwtRestAuth, BasicAuthentication, SessionAuthentication)
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     serializer_class = DenormalisedAssetSerializer
 
     def typeForString(self, typeString):
-        if typeString=="fullmasters":
+        if typeString == "fullmasters":
             return choices.DELIVERABLE_ASSET_TYPE_VIDEO_FULL_MASTER
         else:
             raise ValueError("Value not found: {0}".format(typeString))
@@ -44,7 +46,7 @@ class DeliverableAssetsList(ListAPIView):
         :return:
         """
         end_date = datetime.now()
-        start_date = end_date.replace(day=1,hour=23,minute=59,second=59,microsecond=999)
+        start_date = end_date.replace(day=1, hour=23, minute=59, second=59, microsecond=999)
         if "startDate" in self.request.GET:
             try:
                 start_date = parse_date(self.request.GET["startDate"])
@@ -56,7 +58,8 @@ class DeliverableAssetsList(ListAPIView):
             except Exception as err:
                 logger.warning("Could not parse provided string {0} as a date: {1}".format(end_date, err))
 
-        queryset = DeliverableAsset.objects.select_related().filter(changed_dt__gte=start_date, changed_dt__lte=end_date)
+        queryset = DeliverableAsset.objects.select_related().filter(changed_dt__gte=start_date,
+                                                                    changed_dt__lte=end_date)
 
         if "types" in self.request.GET and self.request.GET["types"] != "all":
             queryset = queryset.filter(type=self.typeForString(self.request.GET["types"]))
@@ -72,16 +75,16 @@ class DeliverableAssetsList(ListAPIView):
         try:
             return super(DeliverableAssetsList, self).dispatch(*args, **kwargs)
         except ValueError as e:
-            return Response({"status":"error","detail": str(e)}, status=400)
+            return Response({"status": "error", "detail": str(e)}, status=400)
         except Exception as e:
             logger.error("Could not list deliverables for {0}: {1}".format(self.request.GET, str(e)))
-            return Response({"status":"error","detail":"Server error, please see logs"}, status=500)
+            return Response({"status": "error", "detail": "Server error, please see logs"}, status=500)
 
 
 class ListSyndicationNotes(ListAPIView):
-    renderer_classes = (JSONRenderer, )
+    renderer_classes = (JSONRenderer,)
     authentication_classes = (JwtRestAuth, BasicAuthentication, SessionAuthentication)
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     serializer_class = SyndicationNoteSerializer
 
     def get_queryset(self):
@@ -90,17 +93,17 @@ class ListSyndicationNotes(ListAPIView):
 
 
 class AddSyndicationNote(APIView):
-    renderer_classes = (JSONRenderer, )
+    renderer_classes = (JSONRenderer,)
     authentication_classes = (JwtRestAuth, BasicAuthentication, SessionAuthentication)
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     serializer_class = SyndicationNoteSerializer
-    parser_classes = (PlainTextParser, )
+    parser_classes = (PlainTextParser,)
 
     def post(self, *args, **kwargs):
-        if len(self.request.data)==0:
-            return Response({"status":"error","detail":"Message body too short"}, status=400)
-        elif len(self.request.data)>32768:
-            return Response({"status":"error","detail":"Message body too long, limited to 32k"}, status=400)
+        if len(self.request.data) == 0:
+            return Response({"status": "error", "detail": "Message body too short"}, status=400)
+        elif len(self.request.data) > 32768:
+            return Response({"status": "error", "detail": "Message body too long, limited to 32k"}, status=400)
 
         try:
             deliverable = DeliverableAsset.objects.get(pk=kwargs["asset"])
@@ -108,18 +111,18 @@ class AddSyndicationNote(APIView):
                                    deliverable_asset=deliverable,
                                    content=self.request.data)
             rec.save()
-            return Response({"status":"ok","detail":"saved"})
+            return Response({"status": "ok", "detail": "saved"})
         except DeliverableAsset.DoesNotExist:
-            return Response({"status":"error","detail":"Invalid asset id"}, status=400)
+            return Response({"status": "error", "detail": "Invalid asset id"}, status=400)
         except Exception as e:
             logger.error("could not create syndication note for record {0}")
-            return Response({"status":"error","detail":str(e)}, status=500)
+            return Response({"status": "error", "detail": str(e)}, status=500)
 
 
 class GNMWebsiteSearch(APIView):
-    renderer_classes = (JSONRenderer, )
+    renderer_classes = (JSONRenderer,)
     authentication_classes = (JwtRestAuth, BasicAuthentication, SessionAuthentication)
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     @staticmethod
     def find_smallest_poster(atom_info):
@@ -144,7 +147,7 @@ class GNMWebsiteSearch(APIView):
         return current_url
 
     @staticmethod
-    def validate_capi_content(capi_content:dict):
+    def validate_capi_content(capi_content: dict):
         """
         checks if the passed dictionary has the keys we need to treat it as a capi record
         :param capi_content:
@@ -162,13 +165,14 @@ class GNMWebsiteSearch(APIView):
         return capi_content["response"]["content"]
 
     @staticmethod
-    def find_deliverable_url_for_id(atom_id:str):
+    def find_deliverable_url_for_id(atom_id: str):
         try:
             assets = DeliverableAsset.objects.filter(atom_id=atom_id)
-            if len(assets)==0:
+            if len(assets) == 0:
                 return None
             elif len(assets) > 0:
-                logger.warning("There are {0} assets associated with atom id {1}, using the first", len(assets), atom_id)
+                logger.warning("There are {0} assets associated with atom id {1}, using the first", len(assets),
+                               atom_id)
 
             return "/item/{0}".format(assets[0].id)
 
@@ -177,30 +181,32 @@ class GNMWebsiteSearch(APIView):
 
     def get(self, request, *args, **kwargs):
         if not hasattr(settings, "CAPI_KEY"):
-            return Response({"status":"error","detail": "You need to set capi_key in the settings"}, status=500)
+            return Response({"status": "error", "detail": "You need to set capi_key in the settings"}, status=500)
         if not hasattr(settings, "CAPI_BASE"):
-            return Response({"status":"error","detail": "You need to set capi_base in the settings"}, status=500)
+            return Response({"status": "error", "detail": "You need to set capi_base in the settings"}, status=500)
         if "url" not in request.GET:
-            return Response({"status":"error","detail": "No url= parameter"}, status=500)
+            return Response({"status": "error", "detail": "No url= parameter"}, status=500)
 
         try:
             unquoted_url = urllib.parse.unquote(request.GET["url"])
             parsed_url = urllib.parse.urlparse(unquoted_url)
             url_to_call = "https://{base}{0}?api-key={key}&show-atoms=media".format(parsed_url.path,
-                                                                                   base=settings.CAPI_BASE,
-                                                                                   key=settings.CAPI_KEY)
+                                                                                    base=settings.CAPI_BASE,
+                                                                                    key=settings.CAPI_KEY)
             logger.info("CAPI url for {0} is {1}".format(request.GET["url"], url_to_call))
             response = requests.get(url_to_call)
             logger.info("CAPI response was {0}".format(response.status_code))
             if response.status_code == 200:
                 capi_content = self.validate_capi_content(response.json())
                 if capi_content is None:
-                    logger.error("CAPI did not return enough fields that we wanted. Consult deliverables_dash_views.py for details on what's needed. We got: {0}.".format(response.text))
+                    logger.error(
+                        "CAPI did not return enough fields that we wanted. Consult deliverables_dash_views.py for details on what's needed. We got: {0}.".format(
+                            response.text))
                     return Response({
                         "status": "capi_response_error",
                         "detail": "This does not seem to be a video atom"
                     })
-                elif len(capi_content["atoms"]["media"])==0:
+                elif len(capi_content["atoms"]["media"]) == 0:
                     logger.error("CAPI did not return any media atoms in the page. We got: {0}".format(response.text))
                     return Response({
                         "status": "capi_response_error",
@@ -218,11 +224,64 @@ class GNMWebsiteSearch(APIView):
                         } for atom in capi_content["atoms"]["media"]]
                     })
             else:
-                logger.error("Could not access {0}: CAPI returned {1} {2}".format(url_to_call, response.status_code, response.text))
+                logger.error("Could not access {0}: CAPI returned {1} {2}".format(url_to_call, response.status_code,
+                                                                                  response.text))
                 return Response({
                     "status": "capi_response_error",
                     "detail": "CAPI returned {0}".format(response.status_code)
                 })
         except Exception as e:
             logger.error("Could not make proxy request to CAPI: {0}".format(str(e)))
-            return Response({"status":"error", "detail": "See server logs"}, status=500)
+            return Response({"status": "error", "detail": "See server logs"}, status=500)
+
+
+class PublicationDatesSummary(APIView):
+
+    renderer_classes = (JSONRenderer,)
+    authentication_classes = (JwtRestAuth, BasicAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    # with thanks to https://stackoverflow.com/questions/8746014/django-group-by-date-day-month-year
+    @staticmethod
+    def build_dataset(queryset, start_date:datetime, end_date:datetime)->dict:
+        """
+        builds a dictionary that contains the "bucketed aggregate" information for the given queryset.
+        We ask the database to give us the total count for each day value within the date range provided
+        and return this as a dictionary with a key "day" for the date and "count" for the count
+        :param queryset: base queryset to aggregate
+        :param start_date: datetime indicating the earliest result to return
+        :param end_date: datetime indicating the latest result to return
+        :return: a dictionary of data
+        """
+        return queryset.filter(publication_date__gte=start_date, publication_date__lte=end_date). \
+            annotate(day=TruncDay("publication_date")). \
+            order_by("day"). \
+            values("day"). \
+            annotate(count=Count("id"))
+
+    def get(self, request):
+        try:
+            end_date = datetime.now()
+            start_date = end_date.replace(day=1, hour=23, minute=59, second=59, microsecond=999)
+            if "startDate" in self.request.GET:
+                try:
+                    start_date = parse_date(self.request.GET["startDate"])
+                except Exception as err:
+                    logger.warning("Could not parse provided string {0} as a date: {1}".format(start_date, err))
+            if "endDate" in self.request.GET:
+                try:
+                    end_date = parse_date(self.request.GET["endDate"])
+                except Exception as err:
+                    logger.warning("Could not parse provided string {0} as a date: {1}".format(end_date, err))
+
+
+            data = {
+                "gnm_website": self.build_dataset(GNMWebsite.objects.all(), start_date, end_date),
+                "youtube": self.build_dataset(Youtube.objects.all(), start_date, end_date),
+                "dailymotion": self.build_dataset(DailyMotion.objects.all(), start_date, end_date),
+                "mainstream": self.build_dataset(Mainstream.objects.all(), start_date, end_date)
+            }
+            return Response(data)
+        except Exception as err:
+            logger.error("Could not compute data aggregation: ", err)
+            Response({"status": "error", "detail": str(err)}, status=500)
