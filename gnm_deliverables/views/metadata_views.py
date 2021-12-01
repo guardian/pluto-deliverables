@@ -16,7 +16,7 @@ from django.conf import settings
 import os
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.models import DeliverableAsset, GNMWebsite, Mainstream, Youtube, DailyMotion, \
-    LogEntry
+    LogEntry, Oovvuu
 import json
 from gnm_deliverables.serializers import *
 from rabbitmq.time_funcs import get_current_time
@@ -154,6 +154,7 @@ class MainstreamAPIView(MetadataAPIView):
             logger.error("Could not get youtube deliverable metadata: {0}".format(str(e)), e)
             return Response({"status":"error","detail":str(e)}, status=500)
 
+
 class YoutubeAPIView(MetadataAPIView):
     renderer_classes = (JSONRenderer,)
     parser_classes = (JSONParser,)
@@ -195,6 +196,28 @@ class DailyMotionAPIView(MetadataAPIView):
             return super(DailyMotionAPIView, self).dispatch(request, *args, **kwargs)
         except Exception as e:
             logger.error("Could not get youtube deliverable metadata: {0}".format(str(e)), e)
+            return Response({"status":"error","detail":str(e)}, status=500)
+
+
+class OovvuuAPIView(MetadataAPIView):
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
+    metadata_model = Oovvuu
+    metadata_serializer = OovvuuSerializer
+
+    def update_asset_metadata(self, asset, metadata):
+        asset.oovvuu_master = metadata
+
+    def is_metadata_set(self, project_id, asset_id):
+        asset = DeliverableAsset.objects.get(deliverable__pluto_core_project_id__exact=project_id,
+                                             pk=asset_id)
+        return asset.oovvuu_master is not None
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super(OovvuuAPIView, self).dispatch(request, *args, **kwargs)
+        except Exception as e:
+            logger.error("Could not get Oovvuu deliverable metadata: {0}".format(str(e)), e)
             return Response({"status":"error","detail":str(e)}, status=500)
 
 

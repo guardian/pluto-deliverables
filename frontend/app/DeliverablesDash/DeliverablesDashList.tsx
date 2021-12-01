@@ -32,9 +32,22 @@ const DeliverablesDashList: React.FC<DeliverablesDashListProps> = (props) => {
 
   const classes = useStyles();
 
-  const onOovvuuChanged = (delivId: bigint, newvalue: boolean) => {};
+  const didUpdate = (assetId: bigint, newValue: DenormalisedDeliverable) => {
+    //update the one entry in our content array matching the given asset id with the new value
+    setMatchingAssets((prevState) => {
+      let newState: DenormalisedDeliverable[] = new Array(prevState.length);
 
-  const onReutersConnectChanged = (delivId: bigint, newvalue: boolean) => {};
+      for (let i = 0; i < prevState.length; i++) {
+        if (prevState[i].id === assetId) {
+          newState[i] = newValue;
+        } else {
+          newState[i] = prevState[i];
+        }
+      }
+
+      return newState;
+    });
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -90,8 +103,7 @@ const DeliverablesDashList: React.FC<DeliverablesDashListProps> = (props) => {
                 entry={entry}
                 commissionFilterRequested={commissionFilterRequested}
                 projectFilterRequested={projectFilterRequested}
-                onOovvuuChanged={onOovvuuChanged}
-                onReutersChanged={onReutersConnectChanged}
+                onRecordDidUpdate={didUpdate}
               />
             ))}
           </TableBody>

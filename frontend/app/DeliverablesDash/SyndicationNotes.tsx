@@ -2,19 +2,7 @@ import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Grid,
-  IconButton,
-  Link,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { Grid, IconButton, Typography } from "@material-ui/core";
 import { format, parseISO } from "date-fns";
 import AddIcon from "@material-ui/icons/Add";
 import ShowAllSelector from "./ShowAllSelector";
@@ -24,6 +12,7 @@ import AddNoteDialog from "./AddNoteDialog";
 interface SyndicationNotesProps {
   deliverableId: bigint;
   initialMax?: number;
+  updateCounter?: number; //increment to trigger an update
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -90,7 +79,12 @@ const SyndicationNotes: React.FC<SyndicationNotesProps> = (props) => {
     };
 
     loadNotes();
-  }, [props.deliverableId, props.initialMax, reloadCounter]);
+  }, [
+    props.deliverableId,
+    props.initialMax,
+    reloadCounter,
+    props.updateCounter,
+  ]);
 
   const formatTime = (timeStr: string) => {
     try {

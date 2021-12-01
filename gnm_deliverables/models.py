@@ -235,6 +235,7 @@ class DeliverableAsset(models.Model):
     youtube_master = models.ForeignKey('Youtube', on_delete=models.SET_NULL, null=True)
     DailyMotion_master = models.ForeignKey('DailyMotion', on_delete=models.SET_NULL, null=True)
     mainstream_master = models.ForeignKey('Mainstream', on_delete=models.SET_NULL, null=True)
+    oovvuu_master = models.ForeignKey("Oovvuu", on_delete=models.SET_NULL, null=True)
 
     def __init__(self, *args, **kwargs):
         super(DeliverableAsset, self).__init__(*args, **kwargs)
@@ -547,6 +548,11 @@ class DailyMotion(models.Model):
     upload_status = models.TextField(null=True, blank=True, choices=UPLOAD_STATUS, db_index=True)
     daily_motion_no_mobile_access = models.BooleanField()
     daily_motion_contains_adult_content = models.BooleanField()
+    etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+
+
+class Oovvuu(models.Model):
+    seen_on_channel = models.BooleanField(default=False)
     etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
 

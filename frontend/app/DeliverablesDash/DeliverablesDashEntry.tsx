@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Grid,
@@ -20,6 +20,7 @@ import { useHistory } from "react-router-dom";
 import BundleInfoComponentForInvalid from "../BundleInfoComponentForInvalid";
 import SyndicationNotes from "./SyndicationNotes";
 import { ChevronRightRounded } from "@material-ui/icons";
+import OoovvuuSwitcher from "./OoovvuuSwitcher";
 
 //import globals that were set by the backend
 declare var mediaAtomToolUrl: string;
@@ -31,8 +32,10 @@ interface DeliverablesDashEntryProps {
   currentCommissionFilter?: number;
   projectFilterRequested: (projectId?: number) => void;
   currentProjectFilter?: number;
-  onOovvuuChanged: (delivId: bigint, newValue: boolean) => void;
-  onReutersChanged: (delivId: bigint, newValue: boolean) => void;
+  onRecordDidUpdate?: (
+    assetId: bigint,
+    newValue: DenormalisedDeliverable
+  ) => void; //called when a record has been updated in the backend
 }
 
 const useStyles = makeStyles({
@@ -46,6 +49,8 @@ const useStyles = makeStyles({
 
 const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
   const classes = useStyles();
+
+  const [notesUpdate, setNotesUpdate] = useState(0); //increment to trigger a refresh of notes
 
   const commissionFilterChanged = () => {
     if (props.currentCommissionFilter) {
@@ -173,27 +178,39 @@ const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
         )}
       </TableCell>
       <TableCell>
-        <Tooltip title="Indicate that this has been sent to Oovvuu. Not implemented yet.">
-          <Switch
-            onChange={(evt, checked) =>
-              props.onOovvuuChanged(props.entry.id, checked)
-            }
-            checked={false}
-          />
-        </Tooltip>
+        <OoovvuuSwitcher
+          projectId={props.entry.deliverable.pluto_core_project_id.toString()}
+          assetId={props.entry.id.toString()}
+          content={props.entry.oovvuu_master}
+          didUpdate={(newContent) => {
+            const updatedRecord: DenormalisedDeliverable = Object.assign(
+              {},
+              props.entry,
+              {
+                oovvuu_master: newContent,
+              }
+            );
+            setNotesUpdate((prev) => prev + 1);
+            if (props.onRecordDidUpdate)
+              props.onRecordDidUpdate(props.entry.id, updatedRecord);
+          }}
+        />
       </TableCell>
       <TableCell>
         <Tooltip title="Indicate that this has been sent to Reuters Connect. Not implemented yet.">
           <Switch
-            onChange={(evt, checked) =>
-              props.onReutersChanged(props.entry.id, checked)
-            }
+            // onChange={(evt, checked) =>
+            //   //props.onReutersChanged(props.entry.id, checked)
+            // }
             checked={false}
           />
         </Tooltip>
       </TableCell>
       <TableCell style={{ minWidth: "200px" }}>
-        <SyndicationNotes deliverableId={props.entry.id} />
+        <SyndicationNotes
+          deliverableId={props.entry.id}
+          updateCounter={notesUpdate}
+        />
       </TableCell>
       <TableCell>
         <Button

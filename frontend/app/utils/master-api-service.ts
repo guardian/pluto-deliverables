@@ -10,6 +10,7 @@ const API_PATH_GNM = "gnmwebsite";
 const API_PATH_YOUTUBE = "youtube";
 const API_PATH_DAILYMOTION = "dailymotion";
 const API_PATH_MAINSTREAM = "mainstream";
+const API_PATH_OOVVUU = "oovvuu";
 
 export const getDeliverableGNM = async (
   deliverableId: string,
@@ -433,6 +434,87 @@ export const deleteMainstreamDeliverable = async (
   } catch (error) {
     console.error(error);
     return Promise.reject(`Could not delete Asset Mainstream Master`);
+  }
+};
+
+export const getDeliverableOovvuu = async (
+  deliverableId: string,
+  assetId: string
+): Promise<OovvuuMaster> => {
+  try {
+    const { status, data } = await axios.get<OovvuuMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_OOVVUU}`
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not fetch Asset Mainstream master`);
+    }
+  } catch (error) {
+    // Due to GET returns 404 if the metadata entry does not exists
+    // do not treat this is an error
+    if (error?.response?.status === 404) {
+      return Promise.reject();
+    }
+
+    console.error(error);
+    return Promise.reject(`Could not fetch Asset Mainstream master`);
+  }
+};
+
+export const createOovvuuDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  content: OovvuuMaster
+): Promise<OovvuuMaster> => {
+  try {
+    const result = await genericUpdate<CreateOovvuuMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_OOVVUU,
+      {
+        seen_on_channel: content.seen_on_channel,
+      }
+    );
+    return result as OovvuuMaster;
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(
+      `Could not create Asset Oovvuu Master, see browser console`
+    );
+  }
+};
+
+export const updateOovvuuDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  content: OovvuuMaster
+): Promise<OovvuuMaster> => {
+  try {
+    return genericUpdate<OovvuuMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_OOVVUU,
+      content
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not update Asset Oovvuu Master`);
+  }
+};
+
+export const deleteOovvuuDeliverable = async (
+  deliverableId: string,
+  assetId: string
+): Promise<void> => {
+  try {
+    await axios.delete<void>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_OOVVUU}`
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not delete Asset Oovvuu Master`);
   }
 };
 

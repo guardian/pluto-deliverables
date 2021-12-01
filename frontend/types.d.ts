@@ -89,6 +89,14 @@ interface CreateDailymotionMaster {
   daily_motion_category: string;
 }
 
+interface OovvuuMaster extends CreateOovvuuMaster{
+  etag: string;
+}
+
+interface CreateOovvuuMaster {
+  seen_on_channel: boolean;
+}
+
 interface DailymotionMaster extends CreateDailymotionMaster {
   etag?: string;
   publication_date: string;
@@ -134,6 +142,7 @@ interface DenormalisedDeliverable extends BaseDeliverable {
   youtube_master?: YoutubeMaster;
   DailyMotion_master?: DailymotionMaster;
   mainstream_master?: MainstreamMaster;
+  oovvuu_master?: OovvuuMaster;
 }
 
 //see SearchRequestSerializer in serializers.py

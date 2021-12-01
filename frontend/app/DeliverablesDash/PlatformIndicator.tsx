@@ -51,7 +51,7 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
         <Tooltip
           title={
             entry.youtube_master
-              ? "This has been published to Youtube"
+              ? "This has Youtube information"
               : "This has not been published to Youtube"
           }
         >
@@ -66,7 +66,7 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
         <Tooltip
           title={
             entry.DailyMotion_master
-              ? "This has been published to Daily Motion"
+              ? "This has Daily Motion information"
               : "This has not been published to Daily Motion"
           }
         >
@@ -85,7 +85,7 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
         <Tooltip
           title={
             entry.mainstream_master
-              ? "This has been published to Mainstream"
+              ? "This has Mainstream information"
               : "This has not been published to Mainstream"
           }
         >
@@ -99,8 +99,22 @@ const PlatformIndicator: React.FC<PlatformIndicatorProps> = (props) => {
         </Tooltip>
       </Grid>
       <Grid item>
-        <Tooltip title="Oovvuu tracking has not been implemented yet">
-          <img className={classes.inlineIcon} src={oovvuuDisabled} alt="O" />
+        <Tooltip
+          title={
+            entry.oovvuu_master?.seen_on_channel
+              ? "This has been seen on Oovvuu"
+              : "This has not been seen on Oovvuu"
+          }
+        >
+          <img
+            className={classes.inlineIcon}
+            src={
+              entry.oovvuu_master?.seen_on_channel
+                ? oovvuuEnabled
+                : oovvuuDisabled
+            }
+            alt="O"
+          />
         </Tooltip>
       </Grid>
       <Grid item>
