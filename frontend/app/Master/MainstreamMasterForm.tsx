@@ -63,6 +63,7 @@ const MainstreamMasterForm: React.FC<MasterFormProps<
       <li className={clsx(classes.listItem, classes.root)}>
         <TextField
           label="Upload Status"
+          id="ms-upload-status"
           value={master.upload_status || ""}
           disabled
           className={classes.root}
@@ -74,6 +75,7 @@ const MainstreamMasterForm: React.FC<MasterFormProps<
           <Grid item className={classes.expandable}>
             <TextField
               label="Mainstream title"
+              id="ms-title"
               value={title}
               onChange={(evt) => setTitle(evt.target.value)}
               disabled={!isEditing}
@@ -106,6 +108,7 @@ const MainstreamMasterForm: React.FC<MasterFormProps<
           <Grid item className={classes.expandable}>
             <TextField
               label="Mainstream description"
+              id="ms-description"
               multiline
               rows={4}
               value={description}
@@ -159,6 +162,7 @@ const MainstreamMasterForm: React.FC<MasterFormProps<
           control={
             <Checkbox
               checked={adult}
+              id="ms-restricted"
               onChange={(event) => setAdult(event.target.checked)}
               disabled={!isEditing}
               name="contains-adult-content"

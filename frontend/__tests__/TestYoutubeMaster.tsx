@@ -18,7 +18,7 @@ describe("YoutubeMaster", () => {
   })
 
   it("should populate data on load",  (done)=>{
-    const path = "/project/:projectid/asset/:assetid/mainstream/new";
+    const path = "/project/:projectid/asset/:assetid/youtube/new";
 
     const match = {
       isExact: false,
@@ -73,7 +73,7 @@ describe("YoutubeMaster", () => {
   });
 
   it("should present an empty form if a 404 is returned",  (done)=>{
-    const path = "/project/:projectid/asset/:assetid/mainstream/new";
+    const path = "/project/:projectid/asset/:assetid/youtube/new";
 
     const match = {
       isExact: false,

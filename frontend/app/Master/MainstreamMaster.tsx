@@ -13,46 +13,7 @@ interface MainstreamMasterProps
 const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
   const history = useHistory();
 
-  const [bundleInfo, setBundleInfo] = useState<Project | undefined>(undefined);
-
   const [msData, setMSData] = useState<MainstreamMaster | undefined>(undefined);
-
-  useEffect(() => {
-    const loadBundle = async () => {
-      try {
-        const response = await axios.get<Project>(
-          `/api/bundle/byproject/${props.match.params.projectid}`,
-          { validateStatus: (status) => status == 200 || status == 404 }
-        );
-
-        switch (response.status) {
-          case 200:
-            setBundleInfo(response.data);
-            break;
-          case 404:
-            SystemNotification.open(
-              SystemNotifcationKind.Warning,
-              "That project does not exist or has no deliverable bundle"
-            );
-            break;
-          default:
-            SystemNotification.open(
-              SystemNotifcationKind.Error,
-              `Unexpected repsonse from server: ${response.status}`
-            );
-            break;
-        }
-      } catch (err) {
-        console.error("Could not load project bundle information: ", err);
-        SystemNotification.open(
-          SystemNotifcationKind.Error,
-          "Could not load project information, please try again"
-        );
-      }
-    };
-
-    loadBundle();
-  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -74,7 +35,7 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
             );
         }
       } catch (err) {
-        console.error("Could not load youtube information: ", err);
+        console.error("Could not load Mainstream information: ", err);
         SystemNotification.open(
           SystemNotifcationKind.Error,
           "Could not load data, see browser console for more information"
@@ -82,18 +43,16 @@ const MainstreamMaster: React.FC<MainstreamMasterProps> = (props) => {
       }
     };
     loadData();
-  }, [bundleInfo]);
+  }, []);
 
   return (
     <>
-      {bundleInfo ? (
         <EmbeddableMSForm
           content={msData}
           deliverableId={props.match.params.assetid}
           bundleId={props.match.params.projectid}
           didUpdate={() => history.goBack()}
         />
-      ) : undefined}
       <Button
         startIcon={<ChevronLeft />}
         onClick={() => history.goBack()}
