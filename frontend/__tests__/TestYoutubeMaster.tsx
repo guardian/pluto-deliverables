@@ -1,346 +1,121 @@
 import React from "react";
-import { mount, ReactWrapper } from "enzyme";
+import {mount} from "enzyme";
 import YoutubeMaster from "../app/Master/YoutubeMaster";
 import {
-  Location,
   createMemoryHistory,
   createLocation,
-  History,
 } from "history";
-import { match } from "react-router";
 import moxios from "moxios";
 import { act } from "react-dom/test-utils";
 
 describe("YoutubeMaster", () => {
-  describe("Admin User", () => {
-    describe("Create Form", () => {
-      let wrapper: ReactWrapper<
-        any,
-        Readonly<{}>,
-        React.Component<{}, {}, any>
-      >;
-      let location: Location<History.UnknownFacade>;
-      let match: match<{
-        projectid: string;
-        assetid: string;
-      }>;
-      beforeEach(async () => {
-        moxios.install();
-        const path = "/project/:projectid/asset/:assetid/youtube";
-
-        match = {
-          isExact: false,
-          path,
-          url: path,
-          params: {
-            projectid: "1",
-            assetid: "1",
-          },
-        };
-        location = createLocation(match.url);
-
-        wrapper = mount(
-          <YoutubeMaster
-            history={createMemoryHistory()}
-            location={location}
-            match={match}
-            isAdmin={true}
-          />
-        );
-
-        await moxios.wait(jest.fn);
-        await act(async () => {
-          await moxios.requests.mostRecent().respondWith({
-            status: 404,
-            response: {},
-          });
-        });
-        // Needed otherwise enzyme doesn't find the updated elements.
-        wrapper.update();
-      });
-      afterEach(() => {
-        moxios.uninstall();
-        wrapper.unmount();
-      });
-
-      it("should render Create Form of YoutubeMaster", () => {
-        const heading = wrapper.find("h4");
-        expect(heading.exists()).toEqual(true);
-        expect(heading.text()).toEqual("Create Youtube master");
-      });
-
-      it("should expect the fields to be read and write", () => {
-        const fields = wrapper
-          .find("input.MuiInputBase-input.MuiInput-input")
-          .not(".MuiAutocomplete-input");
-
-        fields.forEach((field) => {
-          expect(field.prop("disabled")).toEqual(false);
-        });
-        const autocomplete = wrapper.find(
-          ".MuiInputBase-input.MuiInput-input.MuiAutocomplete-input"
-        );
-        expect(autocomplete.prop("disabled")).toEqual(false);
-        const textArea = wrapper.find("textarea");
-        expect(textArea.prop("disabled")).toEqual(false);
-        const button = wrapper.find(`button[type="submit"]`);
-        expect(button.prop("disabled")).toEqual(false);
-      });
-
-      it("should render errors when required fields are not set", () => {
-        const button = wrapper.find(`button[type="submit"]`);
-
-        button.simulate("submit");
-
-        const errors = wrapper.find(
-          ".MuiFormHelperText-root.Mui-error.Mui-required"
-        );
-        expect(errors).toHaveLength(2);
-        expect(errors.at(0).text()).toEqual("Youtube ID is required");
-        expect(errors.at(1).text()).toEqual("Youtube title is required");
-      });
-
-      it("should not render errors when required fields are set", () => {
-        const textFields = wrapper.find(".MuiInput-input");
-        textFields.at(0).simulate("change", { target: { value: "id" } });
-        textFields.at(1).simulate("change", { target: { value: "title" } });
-
-        const button = wrapper.find(`button[type="submit"]`);
-
-        button.simulate("submit");
-
-        const errors = wrapper.find(
-          ".MuiFormHelperText-root.Mui-error.Mui-required"
-        );
-        expect(errors).toHaveLength(0);
-      });
-    });
-
-    describe("Edit Form", () => {
-      let wrapper: ReactWrapper<
-        any,
-        Readonly<{}>,
-        React.Component<{}, {}, any>
-      >;
-      let location: Location<History.UnknownFacade>;
-      let match: match<{
-        projectid: string;
-        assetid: string;
-      }>;
-      beforeEach(async () => {
-        moxios.install();
-        const path = "/project/:projectid/asset/:assetid/youtube";
-
-        match = {
-          isExact: false,
-          path,
-          url: path,
-          params: {
-            projectid: "1",
-            assetid: "1",
-          },
-        };
-        location = createLocation(match.url);
-
-        wrapper = mount(
-          <YoutubeMaster
-            history={createMemoryHistory()}
-            location={location}
-            match={match}
-            isAdmin={true}
-          />
-        );
-        await moxios.wait(jest.fn);
-        await act(async () => {
-          await moxios.requests.mostRecent().respondWith({
-            status: 200,
-            response: {},
-          });
-        });
-        // Needed otherwise enzyme doesn't find the updated elements.
-        wrapper.update();
-      });
-      afterEach(() => {
-        moxios.uninstall();
-        wrapper.unmount();
-      });
-
-      it("should render Edit Form of YoutubeMaster", () => {
-        const heading = wrapper.find("h4");
-        expect(heading.exists()).toEqual(true);
-        expect(heading.text()).toEqual("Edit Youtube master");
-      });
-
-      it("should expect the fields to be read and write", () => {
-        const fields = wrapper
-          .find("input.MuiInputBase-input.MuiInput-input")
-          .not(".MuiAutocomplete-input");
-        const readonlyFields = fields.slice(0, 1);
-        const formFields = fields.slice(1, fields.length);
-
-        readonlyFields.forEach((readonlyField) => {
-          expect(readonlyField.prop("disabled")).toEqual(true);
-        });
-
-        formFields.forEach((field) => {
-          expect(field.prop("disabled")).toEqual(false);
-        });
-        const autocomplete = wrapper.find(
-          ".MuiInputBase-input.MuiInput-input.MuiAutocomplete-input"
-        );
-        expect(autocomplete.prop("disabled")).toEqual(false);
-        const textArea = wrapper.find("textarea");
-        expect(textArea.prop("disabled")).toEqual(false);
-        const button = wrapper.find(`button[type="submit"]`);
-        expect(button.prop("disabled")).toEqual(false);
-      });
-    });
+  beforeEach(()=>{
+    moxios.install();
   });
 
-  describe("Normal User", () => {
-    describe("Create Form", () => {
-      let wrapper: ReactWrapper<
-        any,
-        Readonly<{}>,
-        React.Component<{}, {}, any>
-      >;
-      let location: Location<History.UnknownFacade>;
-      let match: match<{ projectid: string; assetid: string }>;
-      beforeEach(async () => {
-        moxios.install();
-        const path = "/project/:projectid/asset/:assetid/youtube";
+  afterEach(()=>{
+    moxios.uninstall();
+  })
 
-        match = {
-          isExact: false,
-          path,
-          url: path,
-          params: {
-            projectid: "1",
-            assetid: "1",
-          },
-        };
-        location = createLocation(match.url);
+  it("should populate data on load",  (done)=>{
+    const path = "/project/:projectid/asset/:assetid/mainstream/new";
 
-        wrapper = mount(
-          <YoutubeMaster
-            history={createMemoryHistory()}
-            location={location}
-            match={match}
-            isAdmin={false}
-          />
-        );
-        await moxios.wait(jest.fn);
-        await act(async () => {
-          await moxios.requests.mostRecent().respondWith({
-            status: 404,
-            response: {},
-          });
+    const match = {
+      isExact: false,
+      path,
+      url: path,
+      params: {
+        projectid: "1",
+        assetid: "2",
+      },
+    };
+    const location = createLocation(match.url);
+
+    const mockInfo:YoutubeMaster = {
+      publication_date: "2010-01-02T03:04:05Z",
+      youtube_description: "some description",
+      youtube_id: "xyzabc123",
+      youtube_tags: ["tag1","tag2"],
+      youtube_title: "some title",
+      youtube_category: "cat1",
+      youtube_channel: "chan1"
+    }
+    const rendered = mount(<YoutubeMaster history={createMemoryHistory()}
+                                            location={location}
+                                            match={match}/>);
+
+    moxios.wait(()=>{
+      const result = act(async ()=>{
+        const req = moxios.requests.mostRecent();
+        expect(!!req).toBeTruthy();
+        expect(req.url).toEqual("/api/bundle/1/asset/2/youtube");
+
+        await req.respondWith({
+          status: 200,
+          response: mockInfo
         });
-        // Needed otherwise enzyme doesn't find the updated elements.
-        wrapper.update();
       });
-      afterEach(() => {
-        moxios.uninstall();
-        wrapper.unmount();
-      });
+      result.then(()=>{
+        rendered.update();
+        expect(rendered.find("input#yt-publication-date").props()["value"]).toEqual("2010-01-02T03:04:05Z")
+        expect(rendered.find("p#yt-category").text()).toEqual("cat1");
+        expect(rendered.find("p#yt-channel").text()).toEqual("chan1");
+        expect(rendered.find("input#yt-id").props()["value"]).toEqual("xyzabc123");
+        expect(rendered.find("input#yt-title").props()["value"]).toEqual("some title");
+        expect(rendered.find("textarea#yt-description").props()["value"]).toEqual("some description");
+        expect(rendered.find("span.MuiChip-label").length).toEqual(2);
+        expect(rendered.find("span.MuiChip-label").at(0).text()).toEqual("tag1");
+        expect(rendered.find("span.MuiChip-label").at(1).text()).toEqual("tag2");
 
-      it("should render Create Form of YoutubeMaster", () => {
-        const heading = wrapper.find("h4");
-        expect(heading.exists()).toEqual(true);
-        expect(heading.text()).toEqual("Create Youtube master");
-      });
+        done();
+      }, (err)=>done.fail(err))
+    })
+  });
 
-      it("should expect the fields to be read and write", () => {
-        const fields = wrapper
-          .find("input.MuiInputBase-input.MuiInput-input")
-          .not(".MuiAutocomplete-input");
+  it("should present an empty form if a 404 is returned",  (done)=>{
+    const path = "/project/:projectid/asset/:assetid/mainstream/new";
 
-        fields.forEach((field) => {
-          expect(field.prop("disabled")).toEqual(false);
+    const match = {
+      isExact: false,
+      path,
+      url: path,
+      params: {
+        projectid: "1",
+        assetid: "2",
+      },
+    };
+    const location = createLocation(match.url);
+
+    const rendered = mount(<YoutubeMaster history={createMemoryHistory()}
+                                          location={location}
+                                          match={match}/>);
+
+    moxios.wait(()=>{
+      const result = act(async ()=>{
+        const req = moxios.requests.mostRecent();
+        expect(!!req).toBeTruthy();
+        expect(req.url).toEqual("/api/bundle/1/asset/2/youtube");
+
+        await req.respondWith({
+          status: 404,
+          response: {
+            status: "notfound",
+            detail: "so there"
+          }
         });
-        const autocomplete = wrapper.find(
-          ".MuiInputBase-input.MuiInput-input.MuiAutocomplete-input"
-        );
-        expect(autocomplete.prop("disabled")).toEqual(false);
-        const textArea = wrapper.find("textarea");
-        expect(textArea.prop("disabled")).toEqual(false);
-        const button = wrapper.find(`button[type="submit"]`);
-        expect(button.prop("disabled")).toEqual(false);
       });
-    });
+      result.then(()=>{
+        rendered.update();
+        expect(rendered.find("input#yt-publication-date").props()["value"]).toEqual("")
+        expect(rendered.find("p#yt-category").text()).toEqual("");
+        expect(rendered.find("p#yt-channel").text()).toEqual("");
+        expect(rendered.find("input#yt-id").props()["value"]).toEqual("");
+        expect(rendered.find("input#yt-title").props()["value"]).toEqual("");
+        expect(rendered.find("textarea#yt-description").props()["value"]).toEqual("");
+        expect(rendered.find("span.MuiChip-label").length).toEqual(0);
 
-    describe("Edit Form", () => {
-      let wrapper: ReactWrapper<
-        any,
-        Readonly<{}>,
-        React.Component<{}, {}, any>
-      >;
-      let location: Location<History.UnknownFacade>;
-      let match: match<{
-        projectid: string;
-        assetid: string;
-      }>;
-      beforeEach(async () => {
-        moxios.install();
-        const path = "/project/:projectid/asset/:assetid/youtube";
-
-        match = {
-          isExact: false,
-          path,
-          url: path,
-          params: {
-            projectid: "1",
-            assetid: "1",
-          },
-        };
-        location = createLocation(match.url);
-
-        wrapper = mount(
-          <YoutubeMaster
-            history={createMemoryHistory()}
-            location={location}
-            match={match}
-            isAdmin={false}
-          />
-        );
-        await moxios.wait(jest.fn);
-        await act(async () => {
-          await moxios.requests.mostRecent().respondWith({
-            status: 200,
-            response: {},
-          });
-        });
-        // Needed otherwise enzyme doesn't find the updated elements.
-        wrapper.update();
-      });
-      afterEach(() => {
-        moxios.uninstall();
-        wrapper.unmount();
-      });
-
-      it("should render Edit Form of YoutubeMaster", () => {
-        const heading = wrapper.find("h4");
-        expect(heading.exists()).toEqual(true);
-        expect(heading.text()).toEqual("Edit Youtube master");
-      });
-
-      it("should expect the fields to be read-only", () => {
-        const fields = wrapper
-          .find("input.MuiInputBase-input.MuiInput-input")
-          .not(".MuiAutocomplete-input");
-
-        fields.forEach((field) => {
-          expect(field.prop("disabled")).toEqual(true);
-        });
-        const autocomplete = wrapper.find(
-          ".MuiInputBase-input.MuiInput-input.MuiAutocomplete-input"
-        );
-        expect(autocomplete.prop("disabled")).toEqual(true);
-        const textArea = wrapper.find("textarea");
-        expect(textArea.prop("disabled")).toEqual(true);
-        const button = wrapper.find(`button[type="submit"]`);
-        expect(button.prop("disabled")).toEqual(true);
-      });
-    });
+        done();
+      }, (err)=>done.fail(err))
+    })
   });
 });

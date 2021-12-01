@@ -7,9 +7,7 @@ import { Button } from "@material-ui/core";
 import { ChevronLeft } from "@material-ui/icons";
 
 interface YoutubeMasterProps
-  extends RouteComponentProps<{ projectid: string; assetid: string }> {
-  isAdmin: boolean;
-}
+  extends RouteComponentProps<{ projectid: string; assetid: string }> {}
 
 const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
   const history = useHistory();

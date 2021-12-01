@@ -60,6 +60,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
     <ul className={classes.listContainer}>
       <li className={classes.listItem}>
         <TextField
+            id="yt-publication-date"
           label="Publication Date"
           value={master.publication_date || ""}
           disabled
@@ -68,13 +69,13 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
       <li className={classes.listItem}>
         <div className="metadata-info">
           <Typography variant="subtitle1">Youtube category</Typography>
-          <p className="subtitle-small">{master.youtube_category}</p>
+          <p className="subtitle-small" id="yt-category">{master.youtube_category}</p>
         </div>
       </li>
       <li className={classes.listItem}>
         <div className="metadata-info">
           <Typography variant="subtitle1">Youtube channel</Typography>
-          <p className="subtitle-small">{master.youtube_channel}</p>
+          <p className="subtitle-small" id="yt-channel">{master.youtube_channel}</p>
         </div>
       </li>
 
@@ -83,6 +84,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
           <Grid item className={classes.expandable}>
             <TextField
               label="Youtube ID"
+              id="yt-id"
               value={ytID}
               onChange={(evt) => setYtID(evt.target.value)}
               error={!isReadOnly && isDirty && !master.youtube_id}
@@ -117,6 +119,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
         <TextField
           label="Youtube title"
           value={title}
+          id="yt-title"
           error={isDirty && !title}
           onChange={(evt) => setTitle(evt.target.value)}
           helperText={isDirty ? `Youtube title is required` : ""}
@@ -131,6 +134,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
           label="Youtube description"
           multiline
           rows={4}
+          id="yt-description"
           variant="outlined"
           value={description}
           className={classes.root}
