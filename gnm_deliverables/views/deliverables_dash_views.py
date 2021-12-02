@@ -271,12 +271,14 @@ class PublicationDatesSummary(APIView):
         :return: a dictionary of data
         """
         current_date = start_date
-        day_count = (end_date - start_date).days + 1
-
+        day_count = (end_date - start_date).total_seconds() / (3600*24)
+        logger.debug("day_count is {0}".format(day_count))
+        platform_count = len(raw_response.keys())
         i=0
+
         content = {
-            "dates": numpy.empty(day_count, dtype=datetime),
-            "platforms": numpy.empty(day_count, dtype=object)
+            "dates": numpy.empty(int(day_count), dtype=datetime),
+            "platforms": numpy.empty(platform_count, dtype=object)
         }
 
         #set up date index
@@ -309,17 +311,18 @@ class PublicationDatesSummary(APIView):
         return content
 
     def get(self, request):
+        from django.utils import timezone
         try:
-            end_date = datetime.now()
+            end_date = timezone.make_aware(datetime.now())
             start_date = end_date.replace(day=1, hour=23, minute=59, second=59, microsecond=999)
             if "startDate" in self.request.GET:
                 try:
-                    start_date = parse_date(self.request.GET["startDate"])
+                    start_date = timezone.make_aware(parse_date(self.request.GET["startDate"]))
                 except Exception as err:
                     logger.warning("Could not parse provided string {0} as a date: {1}".format(start_date, err))
             if "endDate" in self.request.GET:
                 try:
-                    end_date = parse_date(self.request.GET["endDate"])
+                    end_date = timezone.make_aware(parse_date(self.request.GET["endDate"]))
                 except Exception as err:
                     logger.warning("Could not parse provided string {0} as a date: {1}".format(end_date, err))
 
@@ -332,5 +335,5 @@ class PublicationDatesSummary(APIView):
 
             return Response(data)
         except Exception as err:
-            logger.error("Could not compute data aggregation: ", err)
+            logger.exception("Could not compute data aggregation: ", err)
             return Response({"status": "error", "detail": str(err)}, status=500)

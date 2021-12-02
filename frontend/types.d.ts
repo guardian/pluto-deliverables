@@ -264,3 +264,20 @@ interface CapiSearchResponse {
   webTitle: string;
   atoms: CapiSearchAtom[];
 }
+
+interface UploadSummaryPlatform {
+  name: string;
+  data: number[];
+}
+
+interface UploadSummaryResponse {
+  dates: string[];
+  platforms: UploadSummaryPlatform[];
+}
+
+interface ChartDataset {
+  label: string;
+  data: number[];
+  backgroundColor?: string[];
+  borderColor?: string[];
+}
