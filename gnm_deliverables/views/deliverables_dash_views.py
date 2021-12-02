@@ -8,7 +8,9 @@ from rest_framework.permissions import IsAuthenticated
 from gnm_deliverables.parsers import PlainTextParser
 from gnm_deliverables.serializers import DenormalisedAssetSerializer, SyndicationNoteSerializer
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
-from datetime import datetime
+from datetime import datetime, timedelta
+from .numpy_json_rendered import NumpyJSONRenderer
+import numpy
 import logging
 from gnm_deliverables.models import DeliverableAsset, GNMWebsite, SyndicationNotes, Youtube, DailyMotion, Mainstream, ReutersConnect, Oovvuu
 import gnm_deliverables.choices as choices
@@ -236,14 +238,13 @@ class GNMWebsiteSearch(APIView):
 
 
 class PublicationDatesSummary(APIView):
-
-    renderer_classes = (JSONRenderer,)
+    renderer_classes = (NumpyJSONRenderer,)
     authentication_classes = (JwtRestAuth, BasicAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
 
     # with thanks to https://stackoverflow.com/questions/8746014/django-group-by-date-day-month-year
     @staticmethod
-    def build_dataset(queryset, start_date:datetime, end_date:datetime)->dict:
+    def build_dataset(queryset, start_date:datetime, end_date:datetime) -> dict:
         """
         builds a dictionary that contains the "bucketed aggregate" information for the given queryset.
         We ask the database to give us the total count for each day value within the date range provided
@@ -258,6 +259,54 @@ class PublicationDatesSummary(APIView):
             order_by("day"). \
             values("day"). \
             annotate(count=Count("id"))
+
+    @staticmethod
+    def invert_data(raw_response:dict, start_date:datetime, end_date: datetime) -> dict:
+        """
+        the data from the database contains a list of dates for each platform.
+        the graph requires a list of platforms for each date.
+        :param raw_response: raw aggregation response from the database
+        :param start_date: starting date of the requested range
+        :param end_date: ending date of the requested range
+        :return: a dictionary of data
+        """
+        current_date = start_date
+        day_count = (end_date - start_date).days + 1
+
+        i=0
+        content = {
+            "dates": numpy.empty(day_count, dtype=datetime),
+            "platforms": numpy.empty(day_count, dtype=object)
+        }
+
+        #set up date index
+        while True:
+            content["dates"][i] = current_date.isoformat("T")
+            i += 1
+            current_date = current_date + timedelta(days=1)
+            if current_date > end_date:
+                break
+
+        i = 0
+        for platform, entries in raw_response.items():
+            content["platforms"][i] = {
+                "name": platform,
+                "data": numpy.zeros(day_count, dtype=numpy.int)
+            }
+            entry_count = len(entries)
+            dest_ctr = 0
+            src_ctr  = 0
+            current_date = start_date
+            while src_ctr<entry_count and dest_ctr<day_count:
+                if entries[src_ctr]["day"] == current_date:
+                    content["platforms"][i]["data"][dest_ctr] = entries[src_ctr]["count"]
+                    src_ctr += 1
+                else:
+                    content["platforms"][i]["data"][dest_ctr] = 0
+                dest_ctr += 1
+                current_date = current_date + timedelta(days=1)
+            i += 1
+        return content
 
     def get(self, request):
         try:
@@ -274,14 +323,14 @@ class PublicationDatesSummary(APIView):
                 except Exception as err:
                     logger.warning("Could not parse provided string {0} as a date: {1}".format(end_date, err))
 
-
-            data = {
+            data = self.invert_data({
                 "gnm_website": self.build_dataset(GNMWebsite.objects.all(), start_date, end_date),
                 "youtube": self.build_dataset(Youtube.objects.all(), start_date, end_date),
                 "dailymotion": self.build_dataset(DailyMotion.objects.all(), start_date, end_date),
                 "mainstream": self.build_dataset(Mainstream.objects.all(), start_date, end_date)
-            }
+            }, start_date, end_date)
+
             return Response(data)
         except Exception as err:
             logger.error("Could not compute data aggregation: ", err)
-            Response({"status": "error", "detail": str(err)}, status=500)
+            return Response({"status": "error", "detail": str(err)}, status=500)
