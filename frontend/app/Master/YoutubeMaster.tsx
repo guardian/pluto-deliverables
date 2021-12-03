@@ -56,8 +56,8 @@ const YoutubeMaster: React.FC<YoutubeMasterProps> = (props) => {
     <>
       <EmbeddableYTForm
         content={ytData}
-        deliverableId={props.match.params.projectid}
-        bundleId={props.match.params.assetid}
+        deliverableId={BigInt(parseInt(props.match.params.projectid))}
+        bundleId={parseInt(props.match.params.assetid)}
         didUpdate={() => history.goBack()}
       />
       <Button

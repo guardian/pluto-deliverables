@@ -1,7 +1,7 @@
 interface EmbeddableFormProps<T, U> {
   content?: T;
-  deliverableId: string;
-  bundleId: string;
+  deliverableId: bigint;
+  bundleId: number;
   didUpdate: (newValue?: T) => void;
   copySource?: U;
 }

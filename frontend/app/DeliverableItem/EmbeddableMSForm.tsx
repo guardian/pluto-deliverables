@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -26,6 +27,7 @@ import {
 } from "../utils/master-api-service";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
+import SyndicationTrigger from "../MasterList/SyndicationTrigger";
 
 const EmbeddableMSForm: React.FC<EmbeddableFormProps<
   MainstreamMaster,
@@ -39,6 +41,8 @@ const EmbeddableMSForm: React.FC<EmbeddableFormProps<
   const [didJustCreate, setDidJustCreate] = useState(false);
 
   const [requestDeleteActive, setRequestDeleteActive] = useState(false);
+
+  const [syndicationClicked, setSyndicationClicked] = useState(false);
 
   useEffect(() => {
     if (props.content) {
@@ -62,13 +66,13 @@ const EmbeddableMSForm: React.FC<EmbeddableFormProps<
     try {
       const newMaster = didJustCreate
         ? await createMainstreamDeliverable(
-            props.bundleId,
-            props.deliverableId,
+            props.bundleId.toString(),
+            props.deliverableId.toString(),
             update
           )
         : await updateMainstreamDeliverable(
-            props.bundleId,
-            props.deliverableId,
+            props.bundleId.toString(),
+            props.deliverableId.toString(),
             update
           );
 
@@ -97,6 +101,25 @@ const EmbeddableMSForm: React.FC<EmbeddableFormProps<
             </Typography>
           </Grid>
           <Grid item>
+            {showingForm && !props.content ? undefined : syndicationClicked ? (
+              <CircularProgress />
+            ) : (
+              <SyndicationTrigger
+                uploadStatus={props.content?.upload_status ?? ""} //NOQA: the leading conditional fixes this
+                platform="mainstream"
+                projectId={props.bundleId}
+                assetId={props.deliverableId}
+                sendInitiated={() => {
+                  setSyndicationClicked(true);
+                  SystemNotification.open(
+                    SystemNotifcationKind.Info,
+                    "Started send to Mainstream"
+                  );
+                }}
+                title={props.content?.mainstream_title ?? ""} //NOQA: the leading conditional fixes this
+                link={""}
+              />
+            )}
             {showingForm ? (
               <Tooltip title="Permanently remove the mainstream metadata from this deliverable">
                 <IconButton
@@ -168,7 +191,10 @@ const EmbeddableMSForm: React.FC<EmbeddableFormProps<
               startIcon={<DeleteIcon />}
               onClick={() => {
                 setRequestDeleteActive(false);
-                deleteMainstreamDeliverable(props.bundleId, props.deliverableId)
+                deleteMainstreamDeliverable(
+                  props.bundleId.toString(),
+                  props.deliverableId.toString()
+                )
                   .then(() => {
                     SystemNotification.open(
                       SystemNotifcationKind.Info,

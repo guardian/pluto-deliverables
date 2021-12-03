@@ -50,8 +50,8 @@ const DailymotionMaster: React.FC<DailymotionMasterProps> = (props) => {
     <>
       <EmbeddableDMForm
         content={dmData}
-        deliverableId={props.match.params.assetid}
-        bundleId={props.match.params.projectid}
+        deliverableId={BigInt(parseInt(props.match.params.assetid))}
+        bundleId={parseInt(props.match.params.projectid)}
         didUpdate={() => history.goBack()}
       />
       <Button

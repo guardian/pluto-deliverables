@@ -55,13 +55,13 @@ const EmbeddableYTForm: React.FC<EmbeddableFormProps<YoutubeMaster, void>> = (
     try {
       const newMaster = didJustCreate
         ? await createYoutubeDeliverable(
-            props.bundleId,
-            props.deliverableId,
+            props.bundleId.toString(),
+            props.deliverableId.toString(),
             updated as CreateYoutubeMaster
           )
         : await updateYoutubeDeliverable(
-            props.bundleId,
-            props.deliverableId,
+            props.bundleId.toString(),
+            props.deliverableId.toString(),
             updated
           );
       props.didUpdate(newMaster);

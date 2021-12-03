@@ -65,13 +65,13 @@ const EmbeddableDMForm: React.FC<EmbeddableFormProps<
     try {
       const newMaster = didJustCreate
         ? await createDailymotionDeliverable(
-            props.bundleId,
-            props.deliverableId,
+            props.bundleId.toString(),
+            props.deliverableId.toString(),
             update
           )
         : await updateDailymotionDeliverable(
-            props.bundleId,
-            props.deliverableId,
+            props.bundleId.toString(),
+            props.deliverableId.toString(),
             update
           );
 
@@ -172,8 +172,8 @@ const EmbeddableDMForm: React.FC<EmbeddableFormProps<
               onClick={() => {
                 setRequestDeleteActive(false);
                 deleteDailymotionDeliverable(
-                  props.bundleId,
-                  props.deliverableId
+                  props.bundleId.toString(),
+                  props.deliverableId.toString()
                 )
                   .then(() => {
                     SystemNotification.open(

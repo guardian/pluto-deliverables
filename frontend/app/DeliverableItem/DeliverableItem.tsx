@@ -400,8 +400,8 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
             {deliverable ? (
               <EmbeddableYTForm
                 content={deliverable?.youtube_master}
-                deliverableId={deliverable?.id.toString()}
-                bundleId={deliverable?.deliverable.pluto_core_project_id.toString()}
+                deliverableId={deliverable?.id}
+                bundleId={deliverable?.deliverable.pluto_core_project_id}
                 didUpdate={(newValue) =>
                   setDeliverable((prevValue) =>
                     Object.assign({}, prevValue, { youtube_master: newValue })
@@ -417,8 +417,8 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
             {deliverable ? (
               <EmbeddableMSForm
                 content={deliverable?.mainstream_master}
-                deliverableId={deliverable?.id.toString()}
-                bundleId={deliverable?.deliverable.pluto_core_project_id.toString()}
+                deliverableId={deliverable?.id}
+                bundleId={deliverable?.deliverable.pluto_core_project_id}
                 copySource={deliverable?.youtube_master}
                 didUpdate={(newValue) =>
                   setDeliverable((prevValue) =>
@@ -437,8 +437,8 @@ const DeliverableItem: React.FC<RouteChildrenProps<DeliverableItemParam>> = (
             {deliverable ? (
               <EmbeddableDMForm
                 content={deliverable?.DailyMotion_master}
-                deliverableId={deliverable?.id.toString()}
-                bundleId={deliverable?.deliverable.pluto_core_project_id.toString()}
+                deliverableId={deliverable?.id}
+                bundleId={deliverable?.deliverable.pluto_core_project_id}
                 copySource={deliverable?.youtube_master}
                 didUpdate={(newValue) =>
                   setDeliverable((prevValue) =>
