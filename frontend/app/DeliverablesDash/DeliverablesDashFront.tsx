@@ -22,7 +22,9 @@ import {
   Search,
 } from "@material-ui/icons";
 import UploadsGraph from "./UploadsGraph";
-import { set } from "date-fns";
+import { formatISO, parseISO, set } from "date-fns";
+import { useHistory, useLocation } from "react-router-dom";
+import { break_down_searchstring } from "../utils/searchstring";
 
 type DelivTypes = "fullmasters" | "all";
 
@@ -43,8 +45,67 @@ const DeliverablesDashFront: React.FC = () => {
   const [selectedDelivTypes, setSelectedDelivTypes] = useState<DelivTypes>(
     "fullmasters"
   );
-
   const [showingChart, setShowingChart] = useState(true);
+
+  const history = useHistory();
+  const location = useLocation();
+
+  console.log("searchstring: ", location.search);
+  useEffect(() => {
+    if (location.search !== "") {
+      const args = break_down_searchstring(location.search);
+      const maybeStartTime = args.get("from");
+      if (maybeStartTime) {
+        try {
+          const parsedStartTime = parseISO(maybeStartTime);
+          setStartDateEntered(parsedStartTime);
+        } catch (err) {
+          console.warn(`${maybeStartTime} is not a valid time: `, err);
+        }
+      }
+
+      const maybeFinishTime = args.get("until");
+      if (maybeFinishTime) {
+        try {
+          const parsedFinishTime = parseISO(maybeFinishTime);
+          setFinishDateEntered(parsedFinishTime);
+        } catch (err) {
+          console.warn(`${maybeFinishTime} is not a valid time: `, err);
+        }
+      }
+    }
+  }, [location.search]);
+
+  const dateFilterUpdated = (
+    newStartTime: Date | undefined,
+    newFinishTime: Date | undefined
+  ) => {
+    const zeroTimePart = { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
+
+    const params = [
+      [
+        "from",
+        newStartTime ? formatISO(set(newStartTime, zeroTimePart)) : undefined,
+      ],
+      [
+        "until",
+        newFinishTime ? formatISO(set(newFinishTime, zeroTimePart)) : undefined,
+      ],
+    ].filter((entry) => !!entry[1]);
+
+    if (params.length > 0) {
+      const paramString = params
+        .map((kv) =>
+          kv[0] && kv[1]
+            ? `${encodeURIComponent(kv[0])}=${encodeURIComponent(kv[1])}`
+            : ""
+        )
+        .join("&");
+      history.push("?" + paramString);
+    } else {
+      history.push("/dash");
+    }
+  };
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -113,15 +174,9 @@ const DeliverablesDashFront: React.FC = () => {
                     label="Search from"
                     value={startDateEntered}
                     onChange={(newValue) =>
-                      setStartDateEntered(
-                        newValue
-                          ? set(newValue, {
-                              hours: 0,
-                              minutes: 0,
-                              seconds: 0,
-                              milliseconds: 0,
-                            })
-                          : new Date()
+                      dateFilterUpdated(
+                        newValue ?? undefined,
+                        finishDateEntered
                       )
                     }
                   />
@@ -131,16 +186,7 @@ const DeliverablesDashFront: React.FC = () => {
                     label="Search until"
                     value={finishDateEntered}
                     onChange={(newValue) =>
-                      setFinishDateEntered(
-                        newValue
-                          ? set(newValue, {
-                              hours: 23,
-                              minutes: 59,
-                              seconds: 59,
-                              milliseconds: 999,
-                            })
-                          : new Date()
-                      )
+                      dateFilterUpdated(startDateEntered, newValue ?? undefined)
                     }
                   />
                 </Grid>

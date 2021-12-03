@@ -17,7 +17,7 @@ const UploadsGraph: React.FC<UploadsGraphProps> = (props) => {
   const [labels, setLabels] = useState<string[]>([]);
   const [datasets, setDatasets] = useState<ChartDataset[]>([]);
 
-  const defaultFormatString = "do MMM";
+  const defaultFormatString = "EEEEE do MMM";
 
   /**
    * loads in data from the server
