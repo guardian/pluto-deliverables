@@ -44,6 +44,7 @@
   "author": "Andy Gallagher <andy.gallagher@theguardian.com>",
   "license": "ISC",
   "devDependencies": {
+    "@types/chart.js": "^2.9.34",
     "@types/enzyme": "^3.10.5",
     "@types/jest": "^26.0.0",
     "@types/js-cookie": "^2.2.6",

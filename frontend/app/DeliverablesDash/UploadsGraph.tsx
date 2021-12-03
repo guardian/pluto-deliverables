@@ -11,6 +11,7 @@ interface UploadsGraphProps {
   colourOffset?: number;
   saturation?: string; //should be percentage 0->100%
   value?: string; //should be percentage 0->100%
+  columnClicked?: (columnIndex: number) => void;
 }
 
 const UploadsGraph: React.FC<UploadsGraphProps> = (props) => {
@@ -76,6 +77,31 @@ const UploadsGraph: React.FC<UploadsGraphProps> = (props) => {
     loadData();
   }, [props.startDate, props.endDate, props.saturation, props.value]);
 
+  const graphWasClicked = (
+    evt: MouseEvent,
+    elements: Array<{ _index?: number }>
+  ) => {
+    //elements gives us an array of Dataset instances, for each of the data sets in the "bucket" defined by the date
+    //the property `_index` tells us which column it is, i.e. how many days since the start date of the graph.
+    //the first index is 0, i.e. date = startDate + _index
+    try {
+      if (elements.length > 0) {
+        const maybeColumnIndex = elements[0]["_index"];
+        if (maybeColumnIndex && props.columnClicked) {
+          props.columnClicked(maybeColumnIndex);
+        } else {
+          console.error("No _index defined under ", elements[0]);
+        }
+      } else {
+        console.log(
+          "Graph was clicked outside of the datasets, can't tell which day"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Bar
       data={{
@@ -85,6 +111,7 @@ const UploadsGraph: React.FC<UploadsGraphProps> = (props) => {
       options={{
         maintainAspectRatio: false,
         responsive: true,
+        onClick: graphWasClicked,
       }}
     />
   );

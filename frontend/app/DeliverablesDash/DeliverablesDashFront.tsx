@@ -22,7 +22,7 @@ import {
   Search,
 } from "@material-ui/icons";
 import UploadsGraph from "./UploadsGraph";
-import { formatISO, parseISO, set } from "date-fns";
+import { add, formatISO, parseISO, set } from "date-fns";
 import { useHistory, useLocation } from "react-router-dom";
 import { break_down_searchstring } from "../utils/searchstring";
 
@@ -203,6 +203,21 @@ const DeliverablesDashFront: React.FC = () => {
             <UploadsGraph
               startDate={startDateEntered}
               endDate={finishDateEntered}
+              columnClicked={(columnIndex) => {
+                const targetDate = add(startDateEntered, { days: columnIndex });
+                const targetEndDate = set(targetDate, {
+                  hours: 23,
+                  minutes: 59,
+                  seconds: 59,
+                  milliseconds: 999,
+                });
+                history.push(
+                  "?from=" +
+                    formatISO(targetDate) +
+                    "&until=" +
+                    formatISO(targetEndDate)
+                );
+              }}
             />
           </Grid>
         ) : undefined}
