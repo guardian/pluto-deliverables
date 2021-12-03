@@ -4,17 +4,25 @@ import {
   FormControl,
   FormControlLabel,
   Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
   TextField,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import DateFnsUtils from "@date-io/date-fns";
 import DeliverablesDashList from "./DeliverablesDashList";
 import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
-import { Search } from "@material-ui/icons";
+import {
+  Assessment,
+  AssessmentOutlined,
+  AssessmentRounded,
+  Search,
+} from "@material-ui/icons";
 import UploadsGraph from "./UploadsGraph";
+import { set } from "date-fns";
 
 type DelivTypes = "fullmasters" | "all";
 
@@ -22,13 +30,21 @@ const DeliverablesDashFront: React.FC = () => {
   const [startDateEntered, setStartDateEntered] = useState<Date>(() => {
     let d = new Date();
     d.setDate(1);
+    d.setHours(0);
+    d.setMinutes(0);
+    d.setSeconds(0);
+    d.setMilliseconds(0);
     return d;
   });
   const [titleSearchValue, setTitleSearchValue] = useState("");
-  const [finishDateEntered, setFinishDateEntered] = useState<Date>(new Date());
+  const [finishDateEntered, setFinishDateEntered] = useState<Date>(
+    set(new Date(), { hours: 23, minutes: 59, seconds: 59, milliseconds: 999 })
+  );
   const [selectedDelivTypes, setSelectedDelivTypes] = useState<DelivTypes>(
     "fullmasters"
   );
+
+  const [showingChart, setShowingChart] = useState(true);
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -36,7 +52,7 @@ const DeliverablesDashFront: React.FC = () => {
         <title>Deliverables Dashboard</title>
       </Helmet>
       <Typography variant="h2">Deliverables Dashboard</Typography>
-      <Grid container direction="column">
+      <Grid container direction="column" spacing={2}>
         <Grid item>
           <Grid
             container
@@ -46,7 +62,7 @@ const DeliverablesDashFront: React.FC = () => {
             <Grid item>
               <Grid container spacing={3}>
                 <Grid item>
-                  <Search style={{ verticalAlign: "baseline" }} />
+                  <Search style={{ verticalAlign: "bottom" }} />
                   <TextField
                     label="Search for title"
                     value={titleSearchValue}
@@ -70,6 +86,24 @@ const DeliverablesDashFront: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+
+                <Grid item>
+                  <Tooltip
+                    title={`${
+                      showingChart ? "Hide" : "Show"
+                    } upload summary graph`}
+                  >
+                    <IconButton
+                      onClick={() => setShowingChart((prev) => !prev)}
+                    >
+                      {showingChart ? (
+                        <AssessmentOutlined />
+                      ) : (
+                        <AssessmentRounded />
+                      )}
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
               </Grid>
             </Grid>
             <Grid item>
@@ -79,7 +113,16 @@ const DeliverablesDashFront: React.FC = () => {
                     label="Search from"
                     value={startDateEntered}
                     onChange={(newValue) =>
-                      setStartDateEntered(newValue ?? new Date())
+                      setStartDateEntered(
+                        newValue
+                          ? set(newValue, {
+                              hours: 0,
+                              minutes: 0,
+                              seconds: 0,
+                              milliseconds: 0,
+                            })
+                          : new Date()
+                      )
                     }
                   />
                 </Grid>
@@ -88,7 +131,16 @@ const DeliverablesDashFront: React.FC = () => {
                     label="Search until"
                     value={finishDateEntered}
                     onChange={(newValue) =>
-                      setFinishDateEntered(newValue ?? new Date())
+                      setFinishDateEntered(
+                        newValue
+                          ? set(newValue, {
+                              hours: 23,
+                              minutes: 59,
+                              seconds: 59,
+                              milliseconds: 999,
+                            })
+                          : new Date()
+                      )
                     }
                   />
                 </Grid>
@@ -97,8 +149,19 @@ const DeliverablesDashFront: React.FC = () => {
           </Grid>
         </Grid>
 
+        {showingChart ? (
+          <Grid
+            item
+            style={{ height: "45%", maxHeight: "800px", minHeight: "200px" }}
+          >
+            <UploadsGraph
+              startDate={startDateEntered}
+              endDate={finishDateEntered}
+            />
+          </Grid>
+        ) : undefined}
+
         <Grid item style={{ flexGrow: 1 }}>
-          <UploadsGraph startDate={startDateEntered} endDate={finishDateEntered} height={10}/>
           <DeliverablesDashList
             startDate={startDateEntered}
             endDate={finishDateEntered}

@@ -8,7 +8,9 @@ interface UploadsGraphProps {
   startDate: Date;
   endDate: Date;
   formatString?: string; //date-fns format string for the time
-    height: number;
+  colourOffset?: number;
+  saturation?: string; //should be percentage 0->100%
+  value?: string; //should be percentage 0->100%
 }
 
 const UploadsGraph: React.FC<UploadsGraphProps> = (props) => {
@@ -16,23 +18,6 @@ const UploadsGraph: React.FC<UploadsGraphProps> = (props) => {
   const [datasets, setDatasets] = useState<ChartDataset[]>([]);
 
   const defaultFormatString = "do MMM";
-
-  // /**
-  //  * sets up a string array to provide the date axis
-  //  */
-  // useEffect(()=>{
-  //     const oneDay = {days: 1};
-  //     const dateCount = (props.endDate.getTime() - props.startDate.getTime()) / 86400000;
-  //
-  //     let newLabels = new Array(dateCount);
-  //     let currentDate = props.startDate;
-  //     for(let i=0;i<dateCount;i++) {
-  //         newLabels[i] = format(currentDate, props.formatString ?? defaultFormatString);
-  //         currentDate = add(currentDate, oneDay);
-  //     }
-  //     setLabels(newLabels);
-  //
-  // }, [props.startDate, props.endDate, props.formatString]);
 
   /**
    * loads in data from the server
@@ -60,14 +45,24 @@ const UploadsGraph: React.FC<UploadsGraphProps> = (props) => {
         });
         setLabels(newLabels);
 
+        const colourInterval =
+          response.data.platforms.length > 0
+            ? 360 / (response.data.platforms.length + 1)
+            : 0;
+
         const datasets: ChartDataset[] = response.data.platforms
-            .filter(p=>!!p)
-            .map(
-              (platform) => ({
-                label: platform.name,
-                data: platform.data,
-              })
-            );
+          .filter((p) => !!p)
+          .map((platform, idx) => ({
+            label: platform.name,
+            data: platform.data,
+            backgroundColor: `hsl(${
+              (props.colourOffset ?? 0) + colourInterval * idx
+            }, ${props.saturation ?? "90%"}, ${props.value ?? "65%"})`,
+            borderColor: `has(${
+              (props.colourOffset ?? 0) + colourInterval * idx
+            }, ${props.saturation ?? "90%"}, ${props.value ?? "10%"}`,
+            borderWidth: 1,
+          }));
 
         setDatasets(datasets);
       } catch (err) {
@@ -79,7 +74,7 @@ const UploadsGraph: React.FC<UploadsGraphProps> = (props) => {
       }
     };
     loadData();
-  }, [props.startDate, props.endDate]);
+  }, [props.startDate, props.endDate, props.saturation, props.value]);
 
   return (
     <Bar
@@ -87,7 +82,10 @@ const UploadsGraph: React.FC<UploadsGraphProps> = (props) => {
         labels: labels,
         datasets: datasets,
       }}
-      height={props.height}
+      options={{
+        maintainAspectRatio: false,
+        responsive: true,
+      }}
     />
   );
 };

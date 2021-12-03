@@ -225,13 +225,14 @@ const DeliverablesDashEntry: React.FC<DeliverablesDashEntryProps> = (props) => {
       <TableCell>
         <Button
           variant="contained"
+          endIcon={<ChevronRightRounded />}
           onClick={() =>
             history.push(
               `/project/${props.entry.deliverable.pluto_core_project_id}`
             )
           }
         >
-          Bundle
+          Related
         </Button>
       </TableCell>
     </TableRow>
