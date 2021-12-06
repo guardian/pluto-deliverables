@@ -69,14 +69,14 @@ declare var deploymentRootPath: string;
 declare var vidispineBaseUri: string;
 
 const tableHeaderTitles: HeaderTitles[] = [
-  { label: "Selector", key: "id" },
+  { label: "Selector" },
   { label: "Filename", key: "filename" },
-  { label: "Version", key: "version" },
+  { label: "Version" },
   { label: "Size", key: "size" },
-  { label: "Duration", key: "duration" },
+  { label: "Duration" },
   { label: "Type", key: "type" },
   { label: "Last modified", key: "modified_dt" },
-  { label: "Import progress", key: "job_id" },
+  { label: "Import progress" },
   { label: "Action/status", key: "status" },
 ];
 
@@ -132,6 +132,8 @@ const useStyles = makeStyles({
   },
 });
 
+type SortDirection = "asc" | "desc";
+
 const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
   const history = useHistory();
@@ -157,6 +159,8 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [showingUploader, setShowingUploader] = useState(false);
 
   const [haveExistingBundle, setHaveExistingBundle] = useState(true);
+  const [order, setOrder] = useState<SortDirection>("asc");
+  const [orderBy, setOrderBy] = useState<keyof Deliverable>("filename");
 
   // Material-UI
   const classes = useStyles();
@@ -171,7 +175,11 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         },
       });
 
-      const projectDeliverables = await getProjectDeliverables(projectid);
+      const projectDeliverables = await getProjectDeliverables(
+        projectid,
+        orderBy,
+        order
+      );
       setDeliverables(projectDeliverables);
       await loadStartedStatus();
     } catch (err) {
@@ -192,7 +200,11 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     setLoading(true);
 
     try {
-      const projectDeliverables = await getProjectDeliverables(projectid);
+      const projectDeliverables = await getProjectDeliverables(
+        projectid,
+        orderBy,
+        order
+      );
       setDeliverables(projectDeliverables);
       await loadStartedStatus();
     } catch (err) {
@@ -335,6 +347,18 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     doRefresh();
   };
 
+  const sortByColumn = (property: keyof Deliverable) => (
+    _event: React.MouseEvent<unknown>
+  ) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  useEffect(() => {
+    loadRecord();
+  }, [order, orderBy]);
+
   return (
     <>
       {parentBundleInfo?.name ? (
@@ -403,7 +427,22 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
               <TableHead>
                 <TableRow>
                   {tableHeaderTitles.map((entry, idx) => (
-                    <TableCell key={`r${idx}`}>{entry.label}</TableCell>
+                    <TableCell
+                      key={entry.label ? entry.label : idx}
+                      sortDirection={order}
+                    >
+                      {entry.key ? (
+                        <TableSortLabel
+                          active={orderBy === entry.key}
+                          direction={orderBy === entry.key ? order : "asc"}
+                          onClick={sortByColumn(entry.key)}
+                        >
+                          {entry.label}
+                        </TableSortLabel>
+                      ) : (
+                        entry.label
+                      )}
+                    </TableCell>
                   ))}
                   <TableCell />
                 </TableRow>
