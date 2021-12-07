@@ -1,4 +1,5 @@
 interface Project {
+  pk: number; //primary-key, i.e. the record ID
   project_id: string; //this field is deprecated
   pluto_core_project_id: number; //this is now the correct project id
   commission_id: number;
@@ -8,7 +9,14 @@ interface Project {
   local_path: string;
 }
 
-interface Deliverable {
+/**
+ * The API can give us DeliverableAsset objects in two formats - raw or denormalised.
+ * The former refers to sub-objects by IDs, while the latter contains a copy of the sub-object information at the point
+ * in time that the record was retrieved.
+ * BaseDeliverable contains the fields that are common to both; Deliverable extends BaseDeliverable and contains the fields
+ * for a raw DeliverableAsset and DenormalisedDeliverable returns fields for a denormalised records
+ */
+interface BaseDeliverable {
   id: bigint;
   type: number | null;
   filename: string;
@@ -20,7 +28,6 @@ interface Deliverable {
   online_item_id: string | null;
   nearline_item_id: string | null;
   archive_item_id: string | null;
-  deliverable: bigint;
   has_ongoing_job: boolean | null;
   status: bigint;
   type_string: string | null;
@@ -31,6 +38,15 @@ interface Deliverable {
   atom_id: string | null;
   absolute_path: string | null;
   linked_to_lowres: boolean | null;
+}
+
+interface Deliverable extends BaseDeliverable {
+  deliverable: bigint;
+}
+
+interface ResponseWrapper<T> {
+  status: string;
+  data: T;
 }
 
 interface CreateGuardianMaster {
@@ -73,6 +89,21 @@ interface CreateDailymotionMaster {
   daily_motion_category: string;
 }
 
+interface OovvuuMaster extends CreateOovvuuMaster{
+  etag: string;
+}
+
+interface CreateOovvuuMaster {
+  seen_on_channel: boolean;
+}
+
+interface CreateReutersConnectMaster {
+  seen_on_channel: boolean;
+}
+
+interface ReutersConnectMaster extends CreateReutersConnectMaster {
+  etag: string;
+}
 interface DailymotionMaster extends CreateDailymotionMaster {
   etag?: string;
   publication_date: string;
@@ -84,7 +115,7 @@ interface CreateMainstreamMaster {
   mainstream_description: string;
   mainstream_tags: string[];
   mainstream_rules_contains_adult_content: boolean;
-  publication_date: string;
+  publication_date?: string;
 }
 
 interface MainstreamMaster extends CreateMainstreamMaster {
@@ -110,6 +141,16 @@ interface DailyMotionChannel {
   id: string;
   name: string;
   description: string;
+}
+
+interface DenormalisedDeliverable extends BaseDeliverable {
+  deliverable: Project;
+  gnm_website_master?: GuardianMaster;
+  youtube_master?: YoutubeMaster;
+  DailyMotion_master?: DailymotionMaster;
+  mainstream_master?: MainstreamMaster;
+  oovvuu_master?: OovvuuMaster;
+  reutersconnect_master?: ReutersConnectMaster;
 }
 
 //see SearchRequestSerializer in serializers.py
@@ -189,4 +230,55 @@ type PlutoCoreProjectResponse = PlutoCoreResponse<PlutoCoreProject>;
 interface DropfolderStatus {
   status: string;
   clientpath: string;
+}
+
+//https://www.django-rest-framework.org/api-guide/pagination/#limitoffsetpagination
+interface LimitOffsetPaginationResponse<T> {
+  count: number;
+  next: string;
+  previous: string;
+  results: T[];
+}
+
+type DeliverableSearchResponse = LimitOffsetPaginationResponse<Deliverable>
+
+interface SyndicationNote {
+  timestamp: string;
+  deliverable_asset: number;
+  username: string;
+  content: string;
+}
+
+type SyndicationNoteResponse = LimitOffsetPaginationResponse<SyndicationNote>;
+
+interface CapiSearchAtom {
+  atomTitle: string;
+  atomId: string; //uuid
+  image: string;  //url
+  deliverable?: string;
+}
+
+interface CapiSearchResponse {
+  status: "ok"|"capi_response_error"
+  detail?: string;  //this is set if status is 'capi_response_error'
+  webTitle: string;
+  atoms: CapiSearchAtom[];
+}
+
+interface UploadSummaryPlatform {
+  name: string;
+  data: number[];
+}
+
+interface UploadSummaryResponse {
+  dates: string[];
+  platforms: UploadSummaryPlatform[];
+}
+
+interface ChartDataset {
+  label: string;
+  data: number[];
+  backgroundColor?: string|string[];
+  borderColor?: string|string[];
+  borderWidth?: number;
 }

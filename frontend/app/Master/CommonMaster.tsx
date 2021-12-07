@@ -34,7 +34,7 @@ const CommonMaster: React.FC<CommonMasterProps> = (props) => {
         helperText={isDirty && !title ? `${titleLabel} is required` : ""}
         required={!props.disabled}
         disabled={props.disabled}
-      ></TextField>
+      />
 
       <TextField
         label={titleDescription}
@@ -46,14 +46,14 @@ const CommonMaster: React.FC<CommonMasterProps> = (props) => {
           props.onChange(event, `${prefixLowerCase}_description`)
         }
         disabled={props.disabled}
-      ></TextField>
+      />
 
       <ChipInput
         label={"Tags"}
         value={tags}
         onChange={(event) => props.onChange(event, "tags")}
         disabled={props.disabled}
-      ></ChipInput>
+      />
     </>
   );
 };

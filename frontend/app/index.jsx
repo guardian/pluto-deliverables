@@ -11,6 +11,7 @@ import {
   AppSwitcher,
   handleUnauthorized,
   PlutoThemeProvider,
+  UserContextProvider,
 } from "pluto-headers";
 import NotLoggedIn from "./NotLoggedIn";
 import GuardianMaster from "./Master/GuardianMaster";
@@ -22,6 +23,9 @@ import { Helmet } from "react-helmet";
 import AssetSearchComponent from "./AssetSearchComponent";
 import BundleRedirect from "./BundleRedirect";
 import InvalidDeliverablesComponent from "./InvalidDeliverablesComponent";
+import DeliverablesDashFront from "./DeliverablesDash/DeliverablesDashFront";
+import DeliverableItem from "./DeliverableItem/DeliverableItem";
+import DeliverablesFront from "./DeliverablesFront/DeliverablesFront";
 
 require("./app.css");
 
@@ -45,9 +49,9 @@ class App extends React.Component {
     this.state = {
       loading: true,
       isLoggedIn: false,
-      isAdmin: false,
       tokenExpired: false,
       plutoConfig: {},
+      userProfile: undefined,
     };
 
     this.handleUnauthorizedFailed = this.handleUnauthorizedFailed.bind(this);
@@ -75,24 +79,11 @@ class App extends React.Component {
   }
 
   async onLoginValid(valid, loginData) {
-    // Fetch the oauth config
-    let config;
-    try {
-      const response = await fetch("/meta/oauth/config.json");
-      if (response.status === 200) {
-        config = await response.json();
-        this.setState({ plutoConfig: config });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-
+    console.log("onLoginValid: ", valid, loginData);
     this.setState(
       {
         isLoggedIn: valid,
-        isAdmin:
-          loginData ??
-          (config && loginData.hasOwnProperty(config.adminClaimName)),
+        userProfile: loginData,
       },
       () => {
         this.setState({ loading: false });
@@ -109,86 +100,97 @@ class App extends React.Component {
     return (
       <PlutoThemeProvider>
         <CssBaseline />
-        <Helmet>
-          <title>Pluto – Deliverables</title>
-        </Helmet>
-        <>
-          <Header />
-          <AppSwitcher onLoginValid={this.onLoginValid} />
-        </>
-        <div className="main-body">
-          <Switch>
-            <Route
-              path="/project/:projectid/new"
-              component={CreateDeliverable}
-            />
-            <Route path="/project/new" component={CreateDeliverable} />
-            <Route
-              path="/project/:projectid/asset/:assetid/atom"
-              render={(props) => (
-                <GuardianMaster {...props} isAdmin={this.state.isAdmin} />
-              )}
-            />
-            <Route
-              path="/project/:projectid/asset/:assetid/youtube"
-              render={(props) => (
-                <YoutubeMaster {...props} isAdmin={this.state.isAdmin} />
-              )}
-            />
-            <Route
-              path="/project/:projectid/asset/:assetid/mainstream"
-              render={(props) => <MainstreamMaster {...props} />}
-            />
-            <Route
-              path="/project/:projectid/asset/:assetid/dailymotion"
-              render={(props) => <DailymotionMaster {...props} />}
-            />
-            <Route
-              path="/project/:projectid"
-              component={ProjectDeliverablesComponent}
-            />
-            <Route
-              path="/invalid/date/:date"
-              component={(props) => (
-                <InvalidDeliverablesComponent
-                  {...props}
-                  key={window.location.pathname}
-                />
-              )}
-            />
-            <Route
-              path="/invalid/type/:kind"
-              component={(props) => (
-                <InvalidDeliverablesComponent
-                  {...props}
-                  key={window.location.pathname}
-                />
-              )}
-            />
-            <Route
-              path="/invalid/status/:status"
-              component={(props) => (
-                <InvalidDeliverablesComponent
-                  {...props}
-                  key={window.location.pathname}
-                />
-              )}
-            />
-            <Route
-              path="/invalid"
-              component={(props) => (
-                <InvalidDeliverablesComponent
-                  {...props}
-                  key={window.location.pathname}
-                />
-              )}
-            />
-            <Route path="/bundle/:bundleId" component={BundleRedirect} />
-            <Route path="/search" component={AssetSearchComponent} />
-            <Route exact path="/" component={ProjectsListComponent} />
-          </Switch>
-        </div>
-        <SystemNotification />
+        <UserContextProvider
+          value={{
+            profile: this.state.userProfile,
+            updateProfile: (newValue) =>
+              this.setState({ userProfile: newValue }),
+          }}
+        >
+          <Helmet>
+            <title>Pluto – Deliverables</title>
+          </Helmet>
+          <>
+            <Header />
+            <AppSwitcher onLoginValid={this.onLoginValid} />
+          </>
+          <div className="main-body">
+            <Switch>
+              <Route path="/item/:assetId" component={DeliverableItem} />
+              <Route
+                path="/project/:projectid/new"
+                component={CreateDeliverable}
+              />
+              <Route path="/project/new" component={CreateDeliverable} />
+              <Route
+                path="/project/:projectid/asset/:assetid/atom"
+                render={(props) => (
+                  <GuardianMaster {...props} isAdmin={this.state.isAdmin} />
+                )}
+              />
+              <Route
+                path="/project/:projectid/asset/:assetid/youtube"
+                render={(props) => (
+                  <YoutubeMaster {...props} isAdmin={this.state.isAdmin} />
+                )}
+              />
+              <Route
+                path="/project/:projectid/asset/:assetid/mainstream"
+                render={(props) => <MainstreamMaster {...props} />}
+              />
+              <Route
+                path="/project/:projectid/asset/:assetid/dailymotion"
+                render={(props) => <DailymotionMaster {...props} />}
+              />
+              <Route
+                path="/project/:projectid"
+                component={ProjectDeliverablesComponent}
+              />
+              <Route
+                path="/invalid/date/:date"
+                component={(props) => (
+                  <InvalidDeliverablesComponent
+                    {...props}
+                    key={window.location.pathname}
+                  />
+                )}
+              />
+              <Route
+                path="/invalid/type/:kind"
+                component={(props) => (
+                  <InvalidDeliverablesComponent
+                    {...props}
+                    key={window.location.pathname}
+                  />
+                )}
+              />
+              <Route
+                path="/invalid/status/:status"
+                component={(props) => (
+                  <InvalidDeliverablesComponent
+                    {...props}
+                    key={window.location.pathname}
+                  />
+                )}
+              />
+              <Route
+                path="/invalid"
+                component={(props) => (
+                  <InvalidDeliverablesComponent
+                    {...props}
+                    key={window.location.pathname}
+                  />
+                )}
+              />
+              <Route path="/bundle/:bundleId" component={BundleRedirect} />
+              <Route path="/search" component={AssetSearchComponent} />
+              <Route path="/dash" component={DeliverablesDashFront} />
+              <Route path="/projects" component={ProjectsListComponent} />
+              <Route exact path="/" component={DeliverablesFront} />
+            </Switch>
+          </div>
+          <SystemNotification />
+        </UserContextProvider>
       </PlutoThemeProvider>
     );
   }

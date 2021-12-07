@@ -1,5 +1,8 @@
 import axios from "axios";
 import { etEE } from "@material-ui/core/locale";
+import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import MainstreamMaster from "../Master/MainstreamMaster";
+import DailymotionMaster from "../Master/DailymotionMaster";
 
 const API = "/api";
 const API_DELIVERABLE = `${API}/bundle`;
@@ -7,6 +10,8 @@ const API_PATH_GNM = "gnmwebsite";
 const API_PATH_YOUTUBE = "youtube";
 const API_PATH_DAILYMOTION = "dailymotion";
 const API_PATH_MAINSTREAM = "mainstream";
+const API_PATH_OOVVUU = "oovvuu";
+const API_PATH_REUTERSCONNECT = "reutersconnect";
 
 export const getDeliverableGNM = async (
   deliverableId: string,
@@ -104,6 +109,21 @@ export const deleteGNMDeliverable = async (
     return Promise.reject(`Could not delete Asset GNM Website`);
   }
 };
+
+export async function requestResync(projectId: string, assetId: string) {
+  try {
+    await resyncToPublished(projectId, assetId);
+    SystemNotification.open(
+      SystemNotifcationKind.Success,
+      "Requested resync, data should arrive within a couple of minutes."
+    );
+  } catch (err) {
+    SystemNotification.open(
+      SystemNotifcationKind.Error,
+      `Could not request resync, ${err}`
+    );
+  }
+}
 
 export const resyncToPublished = async (
   bundleId: string,
@@ -274,8 +294,10 @@ export const createDailymotionDeliverable = async (
     daily_motion_category,
   } = dailymotionMaster;
   try {
-    const { status, data } = await axios.put<DailymotionMaster>(
-      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_DAILYMOTION}`,
+    const response = await genericUpdate<CreateDailymotionMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_DAILYMOTION,
       {
         daily_motion_url,
         daily_motion_title,
@@ -286,12 +308,7 @@ export const createDailymotionDeliverable = async (
         daily_motion_category,
       }
     );
-
-    if (status === 200) {
-      return data;
-    } else {
-      throw new Error(`Could not create Asset Dailymotion Master`);
-    }
+    return response as DailymotionMaster;
   } catch (error) {
     console.error(error);
     return Promise.reject(`Could not create Asset Dailymotion Master`);
@@ -304,16 +321,12 @@ export const updateDailymotionDeliverable = async (
   dailymotionMaster: DailymotionMaster
 ): Promise<DailymotionMaster> => {
   try {
-    const { status, data } = await axios.put<DailymotionMaster>(
-      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_DAILYMOTION}`,
+    return genericUpdate<DailymotionMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_DAILYMOTION,
       dailymotionMaster
     );
-
-    if (status === 200) {
-      return data;
-    } else {
-      throw new Error(`Could not update Asset Dailymotion Master`);
-    }
   } catch (error) {
     console.error(error);
     return Promise.reject(`Could not update Asset Dailymotion Master`);
@@ -372,24 +385,24 @@ export const createMainstreamDeliverable = async (
     mainstream_rules_contains_adult_content,
   } = mainstreamMaster;
   try {
-    const { status, data } = await axios.put<MainstreamMaster>(
-      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_MAINSTREAM}`,
+    const result = await genericUpdate<CreateMainstreamMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_MAINSTREAM,
       {
         mainstream_title,
         mainstream_description,
         mainstream_tags,
         mainstream_rules_contains_adult_content,
+        publication_date: undefined,
       }
     );
-
-    if (status === 200) {
-      return data;
-    } else {
-      throw new Error(`Could not create Asset Mainstream Master`);
-    }
+    return result as MainstreamMaster;
   } catch (error) {
     console.error(error);
-    return Promise.reject(`Could not create Asset Mainstream Master`);
+    return Promise.reject(
+      `Could not create Asset Mainstream Master, see browser console`
+    );
   }
 };
 
@@ -399,16 +412,12 @@ export const updateMainstreamDeliverable = async (
   mainstreamMaster: MainstreamMaster
 ): Promise<MainstreamMaster> => {
   try {
-    const { status, data } = await axios.put<MainstreamMaster>(
-      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_MAINSTREAM}`,
+    return genericUpdate<MainstreamMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_MAINSTREAM,
       mainstreamMaster
     );
-
-    if (status === 200) {
-      return data;
-    } else {
-      throw new Error(`Could not update Asset Mainstream Master`);
-    }
   } catch (error) {
     console.error(error);
     return Promise.reject(`Could not update Asset Mainstream Master`);
@@ -428,3 +437,193 @@ export const deleteMainstreamDeliverable = async (
     return Promise.reject(`Could not delete Asset Mainstream Master`);
   }
 };
+
+export const getDeliverableOovvuu = async (
+  deliverableId: string,
+  assetId: string
+): Promise<OovvuuMaster> => {
+  try {
+    const { status, data } = await axios.get<OovvuuMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_OOVVUU}`
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not fetch Asset Mainstream master`);
+    }
+  } catch (error) {
+    // Due to GET returns 404 if the metadata entry does not exists
+    // do not treat this is an error
+    if (error?.response?.status === 404) {
+      return Promise.reject();
+    }
+
+    console.error(error);
+    return Promise.reject(`Could not fetch Asset Mainstream master`);
+  }
+};
+
+export const createOovvuuDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  content: OovvuuMaster
+): Promise<OovvuuMaster> => {
+  try {
+    const result = await genericUpdate<CreateOovvuuMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_OOVVUU,
+      {
+        seen_on_channel: content.seen_on_channel,
+      }
+    );
+    return result as OovvuuMaster;
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(
+      `Could not create Asset Oovvuu Master, see browser console`
+    );
+  }
+};
+
+export const updateOovvuuDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  content: OovvuuMaster
+): Promise<OovvuuMaster> => {
+  try {
+    return genericUpdate<OovvuuMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_OOVVUU,
+      content
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not update Asset Oovvuu Master`);
+  }
+};
+
+export const deleteOovvuuDeliverable = async (
+  deliverableId: string,
+  assetId: string
+): Promise<void> => {
+  try {
+    await axios.delete<void>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_OOVVUU}`
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not delete Asset Oovvuu Master`);
+  }
+};
+
+export const getDeliverableReutersConnect = async (
+  deliverableId: string,
+  assetId: string
+): Promise<ReutersConnectMaster> => {
+  try {
+    const { status, data } = await axios.get<ReutersConnectMaster>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_REUTERSCONNECT}`
+    );
+
+    if (status === 200) {
+      return data;
+    } else {
+      throw new Error(`Could not fetch Asset Mainstream master`);
+    }
+  } catch (error) {
+    // Due to GET returns 404 if the metadata entry does not exists
+    // do not treat this is an error
+    if (error?.response?.status === 404) {
+      return Promise.reject();
+    }
+
+    console.error(error);
+    return Promise.reject(`Could not fetch Asset Mainstream master`);
+  }
+};
+
+export const createReutersConnectDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  content: CreateReutersConnectMaster
+): Promise<ReutersConnectMaster> => {
+  try {
+    const result = await genericUpdate<CreateReutersConnectMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_REUTERSCONNECT,
+      {
+        seen_on_channel: content.seen_on_channel,
+      }
+    );
+    return result as ReutersConnectMaster;
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(
+      `Could not create Asset Reuters Connect Master, see browser console`
+    );
+  }
+};
+
+export const updateReutersConnectDeliverable = async (
+  deliverableId: string,
+  assetId: string,
+  content: ReutersConnectMaster
+): Promise<ReutersConnectMaster> => {
+  try {
+    return genericUpdate<ReutersConnectMaster>(
+      deliverableId,
+      assetId,
+      API_PATH_REUTERSCONNECT,
+      content
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not update Asset Reuters Connect Master`);
+  }
+};
+
+export const deleteReutersConnectDeliverable = async (
+  deliverableId: string,
+  assetId: string
+): Promise<void> => {
+  try {
+    await axios.delete<void>(
+      `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${API_PATH_REUTERSCONNECT}`
+    );
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(`Could not delete Asset Reuters Connect Master`);
+  }
+};
+
+async function genericUpdate<T>(
+  deliverableId: string,
+  assetId: string,
+  apiPath: string,
+  update: T
+): Promise<T> {
+  const { status, data } = await axios.put<ResponseWrapper<T>>(
+    `${API_DELIVERABLE}/${deliverableId}/asset/${assetId}/${apiPath}`,
+    update,
+    {
+      validateStatus: (status) => status == 200 || status == 409,
+    }
+  );
+
+  switch (status) {
+    case 200:
+      return data.data;
+    case 409:
+      return Promise.reject(
+        "There was a conflict, somebody else has updated in the meantime. Please reload and try again."
+      );
+    default:
+      return Promise.reject(
+        `Got an unknown response ${status} from the server`
+      );
+  }
+}

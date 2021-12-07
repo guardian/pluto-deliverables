@@ -21,11 +21,13 @@ interface CopyingMasterProps {
 const useStyles = makeStyles({
   grid_holder: {
     display: "grid",
-    gridTemplateColumns: "740px 40px",
+    gridTemplateColumns: "auto 40px",
+    marginBottom: "1em",
   },
   grid_1: {
     gridColumnStart: 1,
     gridColumnEnd: 1,
+    marginTop: "1em",
   },
   grid_2: {
     gridColumnStart: 2,
@@ -37,6 +39,9 @@ const useStyles = makeStyles({
     gridColumnEnd: 2,
     marginLeft: "10px",
     marginTop: "42px",
+  },
+  fullWidth: {
+    width: "100%",
   },
 });
 
@@ -63,7 +68,8 @@ const CopyingMaster: React.FC<CopyingMasterProps> = (props) => {
             helperText={isDirty && !title ? `${titleLabel} is required` : ""}
             required={!props.disabled}
             disabled={props.disabled}
-          ></TextField>
+            className={classes.fullWidth}
+          />
         </div>
         <div className={classes.grid_2}>
           <Tooltip title="Copy from Youtube master">
@@ -83,7 +89,8 @@ const CopyingMaster: React.FC<CopyingMasterProps> = (props) => {
               props.onChange(event, `${prefixLowerCase}_description`)
             }
             disabled={props.disabled}
-          ></TextField>
+            className={classes.fullWidth}
+          />
         </div>
         <div className={classes.description_button}>
           <Tooltip title="Copy from Youtube master">
@@ -98,7 +105,7 @@ const CopyingMaster: React.FC<CopyingMasterProps> = (props) => {
             value={tags}
             onChange={(event) => props.onChange(event, "tags")}
             disabled={props.disabled}
-          ></ChipInput>
+          />
         </div>
         <div className={classes.grid_2}>
           <Tooltip title="Copy from Youtube master">

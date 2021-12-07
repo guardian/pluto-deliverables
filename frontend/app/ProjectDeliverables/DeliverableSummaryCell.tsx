@@ -95,7 +95,7 @@ const DeliverableSummaryCell: React.FC<DeliverableSummaryCellProps> = (
               onClick={(evt) => {
                 evt.preventDefault();
                 const targetUrl = props.deliverable.online_item_id
-                  ? `/vs/item/${props.deliverable.online_item_id}`
+                  ? `/deliverables/item/${props.deliverable.id}`
                   : `${archiverHunterURL}${encodeURIComponent(
                       props.deliverable.archive_item_id as string
                     )}`;

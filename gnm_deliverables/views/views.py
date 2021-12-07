@@ -392,20 +392,9 @@ class GetAssetView(RetrieveAPIView):
     authentication_classes = (JwtRestAuth, )
     permission_classes = (IsAuthenticated, )
     renderer_classes = (JSONRenderer, )
+    queryset = DeliverableAsset.objects.all()
+    serializer_class = DenormalisedAssetSerializer
 
-    def __init__(self):
-        super(GetAssetView, self).__init__()
-        self.asset_id = None
-
-    def get(self, request, *args, **kwargs):
-        if "assetId" in kwargs:
-            self.asset_id = kwargs["assetId"]
-            return super(GetAssetView, self).get(request, *args, **kwargs)
-        else:
-            return Response({"status":"error","detail":"No asset id"},status=400)
-
-    def get_queryset(self):
-        return DeliverableAsset.objects.get(pk=self.asset_id)
 
 
 class DeliverableAPIStarted(APIView):
@@ -539,20 +528,7 @@ class GenericAssetSearchAPI(ListAPIView):
         else:
             queryset = queryset.order_by("-modified_dt")
 
-        start_at = 0
-        if "startAt" in self.request.GET:
-            try:
-                start_at = int(self.request.GET["startAt"])
-            except ValueError:
-                pass
-        limit = 25
-        if "limit" in self.request.GET:
-            try:
-                limit = int(self.request.GET["limit"])
-            except ValueError:
-                pass
-
-        return queryset[start_at:start_at+limit]
+        return queryset
 
     def get(self, request, *args, **kwargs):
         return Response({"status":"error","detail":"GET not supported on this endpoint"}, status=405)
@@ -564,7 +540,7 @@ class GenericAssetSearchAPI(ListAPIView):
 
         self._search_request = rq
         try:
-            return self.list(request, *args, **kwargs)
+            return super(GenericAssetSearchAPI, self).get(request, *args, **kwargs)
         except Exception as e:
             logger.exception("could not perform asset search: ", exc_info=e)
             return Response({"status":"error", "detail": str(e)}, status=500)

@@ -27,6 +27,7 @@ describe("LocationLink", () => {
     window.open = sinon.spy();
     const networkUploadSelectedCb = sinon.spy();
     const fakeBundle: Project = {
+      pk: 5555,
       project_id: "1234",
       pluto_core_project_id: 2345,
       commission_id: 567,
@@ -76,6 +77,7 @@ describe("LocationLink", () => {
     window.open = sinon.spy();
     const networkUploadSelectedCb = sinon.spy();
     const fakeBundle: Project = {
+      pk: 5555,
       project_id: "1234",
       pluto_core_project_id: 2345,
       commission_id: 567,
@@ -124,6 +126,7 @@ describe("LocationLink", () => {
     window.open = sinon.spy();
     const networkUploadSelectedCb = sinon.spy();
     const fakeBundle: Project = {
+      pk: 5555,
       project_id: "1234",
       pluto_core_project_id: 2345,
       commission_id: 567,
@@ -168,6 +171,7 @@ describe("LocationLink", () => {
     window.open = sinon.spy();
     const networkUploadSelectedCb = sinon.spy();
     const fakeBundle: Project = {
+      pk: 5555,
       project_id: "1234",
       pluto_core_project_id: 2345,
       commission_id: 567,

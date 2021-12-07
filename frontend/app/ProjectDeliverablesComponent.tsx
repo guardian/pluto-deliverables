@@ -235,6 +235,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     try {
       if (projectid == "-1") {
         return setParentBundleInfo({
+          pk: -1,
           commission_id: -1,
           created: "2020-11-01T00:00:00Z",
           local_open_uri: "",

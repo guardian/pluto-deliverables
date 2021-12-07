@@ -228,18 +228,18 @@ class AssetSearchResults extends React.Component<
       const searchDoc = Object.assign({}, initialSearchDoc, {
         order_by: this.djangoOrderParam(),
       });
-      const response = await axios.post<Deliverable[]>(
+      const response = await axios.post<DeliverableSearchResponse>(
         `/api/asset/search?startAt=${this.state.startAt}&limit=${this.state.pageSize}`,
         searchDoc
       );
-      if (response.data.length == 0) {
+      if (response.data.results.length == 0) {
         console.log("Reached end of list");
         return this.setStatePromise({ loading: false });
       }
 
       await this.setStatePromise((prevState: AssetSearchResultsState) => ({
-        results: prevState.results.concat(...response.data),
-        startAt: prevState.startAt + response.data.length,
+        results: prevState.results.concat(...response.data.results),
+        startAt: prevState.startAt + response.data.results.length,
       }));
 
       return this.state.startAt >= this.props.resultsLimit

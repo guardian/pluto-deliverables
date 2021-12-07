@@ -486,31 +486,27 @@ const SyndicationTrigger: React.FC<SyndicationTriggerProps> = (props) => {
   };
 
   return (
-    <Grid container direction="row" alignItems="center" justifyContent="center">
-      <Grid item>
-        {props.uploadStatus == IN_PROGRESS ||
-        props.uploadStatus == WAITING_FOR_START ? null : (
-          <SyndicationTriggerButton
-            disabled={
-              props.uploadStatus == COMPLETE ||
-              (props.title == null && props.uploadStatus == null)
-            }
-            onClicked={triggerUpload}
-            link={props.link}
-            platformName={props.platform}
-          />
-        )}
-      </Grid>
-      <Grid item>
-        <SyndicationTriggerIcon
-          uploadStatus={props.uploadStatus}
-          title={props.title}
-          platform={props.platform}
-          projectId={props.projectId}
-          assetId={props.assetId}
+    <>
+      {props.uploadStatus == IN_PROGRESS ||
+      props.uploadStatus == WAITING_FOR_START ? null : (
+        <SyndicationTriggerButton
+          disabled={
+            props.uploadStatus == COMPLETE ||
+            (props.title == null && props.uploadStatus == null)
+          }
+          onClicked={triggerUpload}
+          link={props.link}
+          platformName={props.platform}
         />
-      </Grid>
-    </Grid>
+      )}
+      <SyndicationTriggerIcon
+        uploadStatus={props.uploadStatus}
+        title={props.title}
+        platform={props.platform}
+        projectId={props.projectId}
+        assetId={props.assetId}
+      />
+    </>
   );
 };
 

@@ -28,6 +28,7 @@ from .files import get_path_for_deliverable, find_files_for_deliverable, create_
     get_local_path_for_deliverable, create_folder_for_deliverable
 from .templatetags.deliverable_tags import sizeof_fmt
 from .transcodepreset import TranscodePresetFinder
+import datetime
 logger = logging.getLogger(__name__)
 
 
@@ -234,6 +235,8 @@ class DeliverableAsset(models.Model):
     youtube_master = models.ForeignKey('Youtube', on_delete=models.SET_NULL, null=True)
     DailyMotion_master = models.ForeignKey('DailyMotion', on_delete=models.SET_NULL, null=True)
     mainstream_master = models.ForeignKey('Mainstream', on_delete=models.SET_NULL, null=True)
+    oovvuu_master = models.ForeignKey("Oovvuu", on_delete=models.SET_NULL, null=True)
+    reutersconnect_master = models.ForeignKey("ReutersConnect", on_delete=models.SET_NULL, null=True)
 
     def __init__(self, *args, **kwargs):
         super(DeliverableAsset, self).__init__(*args, **kwargs)
@@ -549,6 +552,16 @@ class DailyMotion(models.Model):
     etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
 
+class Oovvuu(models.Model):
+    seen_on_channel = models.BooleanField(default=False)
+    etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+
+
+class ReutersConnect(models.Model):
+    seen_on_channel = models.BooleanField(default=False)
+    etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+
+
 class LogEntry(models.Model):
     timestamp = models.DateTimeField(null=False, blank=False)
     related_gnm_website = models.ForeignKey(GNMWebsite, on_delete=models.CASCADE, null=True,
@@ -561,3 +574,10 @@ class LogEntry(models.Model):
                                            db_index=True)
     sender = models.TextField(null=False, blank=False, db_index=True)
     log_line = models.TextField(null=False, blank=False)
+
+
+class SyndicationNotes(models.Model):
+    timestamp = models.DateTimeField(default=datetime.datetime.now)
+    username = models.TextField(max_length=255)
+    content = models.TextField(max_length=32768)
+    deliverable_asset = models.ForeignKey(DeliverableAsset, on_delete=models.CASCADE, db_index=True)
