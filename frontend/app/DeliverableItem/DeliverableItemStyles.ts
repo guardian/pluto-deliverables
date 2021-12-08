@@ -21,7 +21,6 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     maxWidth: "840px",
     minWidth: "550px",
-    maxHeight: "600px",
   },
   attributionBox: {
     fontSize: "0.8em",
