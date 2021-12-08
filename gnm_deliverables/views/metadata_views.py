@@ -385,6 +385,24 @@ class TriggerOutputView(APIView):
             logger.exception("Trace was ", exc_info=e)
             return Response({"status":"uncaught_error", "detail":str(e)})
 
+    def make_sent_note(self, platform:str, user:str, asset:DeliverableAsset):
+        """
+        updates the syndication notes to mark when this was sent and by whom
+        :param platform: platform that the video is sent to
+        :param user: username that initiated the send
+        :param asset: DeliverableAsset instance that is being sent
+        :return: None. Also guaranteed not to raise exceptions; exceptions are caught and logged here.
+        """
+        try:
+            new_record = SyndicationNotes(
+                content="Requested send to {0}".format(platform),
+                deliverable_asset=asset,
+                username=user
+            )
+            new_record.save()
+        except Exception as e:
+            logger.error("Could not update syndication notes for send of {0} to {1} by {2}: {3}".format(asset.filename, platform, user, e))
+
     def do_post(self, request, project_id:int, platform:str, asset_id:int):
         from gnm_deliverables.signals import MessageRelay
         try:
@@ -430,6 +448,7 @@ class TriggerOutputView(APIView):
 
         try:
             relay.send_content(routing_key, encoded_payload)
+            self.make_sent_note(platform, request.user.username, asset)
             return Response({"status":"ok","routing_key":routing_key})
         except Exception as e:
             logger.error("Could not send message to {0}: {1}".format(routing_key, str(e)))
