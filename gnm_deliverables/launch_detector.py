@@ -357,7 +357,7 @@ def update_gnmwebsite(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.publication_date = msg.published.at
         rec.publication_status = 'Published'
     # set the etag in case something else is editing it at the moment
-    rec.etag = zoned_datetime()
+    rec.etag = zoned_datetime().isoformat('T')
 
     asset.gnm_website_master = rec  #no-op if it was already set like this
     rec.save()
@@ -391,7 +391,7 @@ def update_dailymotion(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.daily_motion_contains_adult_content = False
 
     # set the etag in case something else is editing it at the moment
-    rec.etag = zoned_datetime()
+    rec.etag = zoned_datetime().isoformat('T')
 
     asset.DailyMotion_master = rec  #no-op if it was already set like this
     rec.save()
@@ -420,7 +420,7 @@ def update_mainstream(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.mainstream_rules_contains_adult_content = False
 
     # set the etag in case something else is editing it at the moment
-    rec.etag = zoned_datetime()
+    rec.etag = zoned_datetime().isoformat('T')
 
     asset.mainstream_master = rec  #no-op if it was already set like this
     rec.save()
@@ -458,7 +458,7 @@ def update_youtube(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
     if msg.published is not None:
         rec.publication_date = msg.published.at
     # set the etag in case something else is editing it at the moment
-    rec.etag = zoned_datetime()
+    rec.etag = zoned_datetime().isoformat('T')
     asset.youtube_master = rec
     rec.save()
     asset.save()
