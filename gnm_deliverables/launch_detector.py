@@ -3,9 +3,9 @@ import jsonschema
 import datetime
 import dateutil.parser
 from typing import List
-from .files import ts_to_dt
 from .models import *
 import re
+import pytz
 
 logger = logging.getLogger(__name__)
 
@@ -313,6 +313,26 @@ def find_asset_for(msg: LaunchDetectorUpdate) -> DeliverableAsset:
     return matches[0]
 
 
+def zoned_datetime() -> datetime:
+    """
+    Outputs a datetime value with the correct time zone.
+    The configured timezone from the settings is applied to the resulting DateTime. If no timezone is configured,
+    then we default to UTC and emit a warning
+    :return: the timezone-aware datetime
+    """
+    from django.conf import settings
+
+    tz = pytz.timezone("UTC")
+    aware_utc_dt = tz.localize(datetime.datetime.now())
+    if hasattr(settings, "TIME_ZONE"):
+        server_tz = pytz.timezone(settings.TIME_ZONE)
+        return aware_utc_dt.astimezone(server_tz)
+
+    else:
+        logger.warning("TIME_ZONE is not configured in the settings, defaulting to UTC")
+        return aware_utc_dt
+
+
 def update_gnmwebsite(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
     """
     either create or update a gnmwebsite information object from the given message.
@@ -337,7 +357,7 @@ def update_gnmwebsite(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.publication_date = msg.published.at
         rec.publication_status = 'Published'
     # set the etag in case something else is editing it at the moment
-    rec.etag = ts_to_dt(datetime.datetime.now().isoformat('T'))
+    rec.etag = zoned_datetime()
 
     asset.gnm_website_master = rec  #no-op if it was already set like this
     rec.save()
@@ -371,7 +391,7 @@ def update_dailymotion(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.daily_motion_contains_adult_content = False
 
     # set the etag in case something else is editing it at the moment
-    rec.etag = ts_to_dt(datetime.datetime.now().isoformat('T'))
+    rec.etag = zoned_datetime()
 
     asset.DailyMotion_master = rec  #no-op if it was already set like this
     rec.save()
@@ -400,7 +420,7 @@ def update_mainstream(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.mainstream_rules_contains_adult_content = False
 
     # set the etag in case something else is editing it at the moment
-    rec.etag = ts_to_dt(datetime.datetime.now().isoformat('T'))
+    rec.etag = zoned_datetime()
 
     asset.mainstream_master = rec  #no-op if it was already set like this
     rec.save()
@@ -438,7 +458,7 @@ def update_youtube(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
     if msg.published is not None:
         rec.publication_date = msg.published.at
     # set the etag in case something else is editing it at the moment
-    rec.etag = ts_to_dt(datetime.datetime.now().isoformat('T'))
+    rec.etag = zoned_datetime()
     asset.youtube_master = rec
     rec.save()
     asset.save()
