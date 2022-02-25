@@ -130,7 +130,37 @@ class NewDeliverablesAPICreate(CreateAPIView):
     serializer_class = DeliverableSerializer
 
     def post(self, request, *args, **kwargs):
-        bundle = DeliverableSerializer(data=request.data)
+
+        if "retry" in self.request.POST:
+            if request.POST["retry"] == "true":
+                bundle = DeliverableSerializer(data=request.data)
+                if bundle.is_valid():
+                    print("wibble")
+                else:
+                    for field, error_details in bundle.errors.items():
+                        uniqueness_errors = list(filter(lambda entry: entry.code == 'unique', error_details))
+                        if (len(uniqueness_errors)>0) and (field == "name"):
+                            logger.info("Error with name")
+                            print("Error with name")
+                        else:
+                            logger.info("Error with: {0}".format(field))
+                            print("Error with: {0}".format(field))
+                    #try_success = False
+                    #attempt_number = 1
+                    #while try_success is False:
+                    #    bundle = DeliverableSerializer(data=request.data)
+                    #    if bundle.is_valid():
+                    #        try_success = True
+                    #    else:
+                    #        data_to_set = request.data
+                    #        data_to_set["name"] = "{0}{1}".format(data_to_set["name"], attempt_number)
+                    #        bundle = DeliverableSerializer(data=data_to_set)
+
+            else:
+                bundle = DeliverableSerializer(data=request.data)
+        else:
+            bundle = DeliverableSerializer(data=request.data)
+
 
         if bundle.is_valid():
             name = bundle.validated_data['name']
