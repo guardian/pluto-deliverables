@@ -130,54 +130,59 @@ class NewDeliverablesAPICreate(CreateAPIView):
     parser_classes = (JSONParser,)
     serializer_class = DeliverableSerializer
 
+    def attempt_create_bundle(self, bundle, auto_name, attempt_number, request):
+        """
+        Function to attempt to create a bundle.
+        :param bundle: DeliverableSerializer object.
+        :param auto_name: Boolean indicating if auto naming should be attempted if there is a problem with the name.
+        :param attempt_number: Number of attempts.
+        :param request: request object.
+        :return: a Response object indicating the outcome of the attempt.
+        """
+        if attempt_number > 200:
+            return Response({"status": "conflict", "field": "name", "detail": "This field must be a unique value. Two hundred attempts where made at automatically setting a unique value for it."}, status=409)
+
+        if not bundle.is_valid():
+            for field, error_details in bundle.errors.items():
+                uniqueness_errors = list(filter(lambda entry: entry.code == 'unique', error_details))
+                if (len(uniqueness_errors) > 0) and (field == "name") and auto_name:
+                    data_to_set = copy.copy(request.data)
+                    new_name = "{0}{1}".format(request.data["name"], attempt_number)
+                    data_to_set["name"] = new_name
+                    logger.debug('About to attempt to create a bundle with the name: {0}'.format(new_name))
+                    new_bundle = DeliverableSerializer(data=data_to_set)
+                    new_attempt_number = attempt_number + 1
+                    self.attempt_create_bundle(new_bundle, auto_name, new_attempt_number, request)
+                    return Response({"status": "conflict", "field": "name", "detail": "This field must be a unique value. An automatic attempt to correct the problem will be made."}, status=409)
+                if len(uniqueness_errors) > 0:
+                    return Response({"status": "conflict", "field": field, "detail": "This field must be a unique value"}, status=409)
+            return Response({"status": "error", "detail": str(bundle.errors)}, status=400)
+
+        name = bundle.validated_data['name']
+        try:
+            path, created = create_folder_for_deliverable(name)
+            if created and path:
+                logger.info('Created folder for deliverable at: %s', path)
+                bundle.save()
+                return Response({"status": "ok", "data": bundle.data}, status=200)
+            elif not created and path:
+                logger.error('The folder already exists for deliverable at: %s', path)
+                bundle.save()
+                return Response({"status": "ok", "data": bundle.data}, status=200)
+            else:
+                logger.error('Failed to create folder for deliverable at:  %s', path)
+                return Response({"status": "error", "data": bundle.data}, status=409)
+        except OSError as e:
+            logger.error(request, 'Failed to create folder for {name}: {e}'.format(name=name, e=e.strerror))
+            return Response({"status": "error", "data": e.strerror}, status=500)
+
     def post(self, request, *args, **kwargs):
         bundle = DeliverableSerializer(data=request.data)
-        if 'retry' in self.request.GET:
-            if self.request.GET.get("retry") == "true":
-                if not bundle.is_valid():
-                    for field, error_details in bundle.errors.items():
-                        uniqueness_errors = list(filter(lambda entry: entry.code == 'unique', error_details))
-                        if (len(uniqueness_errors) > 0) and (field == "name"):
-                            try_success = False
-                            attempt_number = 1
-                            data_to_set = copy.copy(request.data)
-                            while try_success is False:
-                                data_to_set["name"] = "{0}{1}".format(request.data["name"], attempt_number)
-                                bundle = DeliverableSerializer(data=data_to_set)
-                                if bundle.is_valid():
-                                    try_success = True
-                                attempt_number = attempt_number + 1
-
-        if bundle.is_valid():
-            name = bundle.validated_data['name']
-
-            try:
-                path, created = create_folder_for_deliverable(name)
-                if created and path:
-                    logger.info('Created folder for deliverable at: %s', path)
-
-                    bundle.save()
-                    return Response({"status": "ok", "data": bundle.data}, status=200)
-                elif not created and path:
-                    logger.error('The folder already exists for deliverable at: %s', path)
-                    bundle.save()
-                    return Response({"status": "ok", "data": bundle.data}, status=200)
-                else:
-                    logger.error('Failed to create folder for deliverable at:  %s',path)
-                    return Response({"status": "error", "data": bundle.data}, status=409)
-
-            except OSError as e:
-                logger.error(request,
-                             'Failed to create folder for {name}: {e}'.format(name=name,
-                                                                              e=e.strerror))
-                return Response({"status": "error", "data": e.strerror}, status=500)
-        else:
-            for field, error_details in bundle.errors.items():
-                uniqueness_errors = list(filter(lambda entry: entry.code=='unique', error_details))
-                if len(uniqueness_errors)>0:
-                    return Response({"status":"conflict","field": field,"detail":"This field must be a unique value"}, status=409)
-
-            return Response({"status": "error", "detail": str(bundle.errors)}, status=400)
+        auto_name = False
+        if 'autoname' in self.request.GET:
+            if self.request.GET.get("autoname") == "true":
+                auto_name = True
+        return self.attempt_create_bundle(bundle, auto_name, 1, request)
 
 
 class NewDeliverableAssetAPIList(ListAPIView):
