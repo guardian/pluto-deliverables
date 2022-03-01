@@ -67,7 +67,7 @@ class TestCreateBundle(TestCase):
         client = APIClient()
         client.force_authenticate(user)
 
-        with patch("gnm_deliverables.files.create_folder_for_deliverable") as mock_create_folder:
+        with patch("gnm_deliverables.views.views.create_folder_for_deliverable") as mock_create_folder:
             test_record = {"pluto_core_project_id":3333,
                            "commission_id":999,
                            "name":"Test",
@@ -86,7 +86,7 @@ class TestCreateBundle(TestCase):
         client = APIClient()
         client.force_authenticate(user)
 
-        with patch("gnm_deliverables.files.create_folder_for_deliverable") as mock_create_folder:
+        with patch("gnm_deliverables.views.views.create_folder_for_deliverable") as mock_create_folder:
             test_record = {"pluto_core_project_id":"something wrong here",
                            "commission_id":999,
                            "name":"Test",
@@ -106,7 +106,7 @@ class TestCreateBundle(TestCase):
         client.force_authenticate(user)
         mocked_return = '/test', True
 
-        with patch("gnm_deliverables.files.create_folder_for_deliverable", return_value=mocked_return) as mock_create_folder:
+        with patch("gnm_deliverables.views.views.create_folder_for_deliverable", return_value=mocked_return) as mock_create_folder:
             test_record = {"pluto_core_project_id": 3333324,
                            "commission_id": 99932,
                            "name": "test2",
