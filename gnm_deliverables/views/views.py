@@ -151,13 +151,11 @@ class NewDeliverablesAPICreate(CreateAPIView):
                     data_to_set["name"] = new_name
                     logger.debug('About to attempt to create a bundle with the name: {0}'.format(new_name))
                     new_bundle = DeliverableSerializer(data=data_to_set)
-                    new_attempt_number = attempt_number + 1
-                    self.attempt_create_bundle(new_bundle, auto_name, new_attempt_number, request)
-                    return Response({"status": "conflict", "field": "name", "detail": "This field must be a unique value. An automatic attempt to correct the problem will be made."}, status=409)
+                    return self.attempt_create_bundle(new_bundle, auto_name, attempt_number + 1, request)
                 if len(uniqueness_errors) > 0:
                     return Response({"status": "conflict", "field": field, "detail": "This field must be a unique value"}, status=409)
             return Response({"status": "error", "detail": str(bundle.errors)}, status=400)
-
+        # If we get here then the request is definitely valid so proceed.
         name = bundle.validated_data['name']
         try:
             path, created = create_folder_for_deliverable(name)
@@ -173,15 +171,12 @@ class NewDeliverablesAPICreate(CreateAPIView):
                 logger.error('Failed to create folder for deliverable at:  %s', path)
                 return Response({"status": "error", "data": bundle.data}, status=409)
         except OSError as e:
-            logger.error(request, 'Failed to create folder for {name}: {e}'.format(name=name, e=e.strerror))
+            logger.error('Failed to create folder for {name}: {e}'.format(name=name, e=e.strerror))
             return Response({"status": "error", "data": e.strerror}, status=500)
 
     def post(self, request, *args, **kwargs):
         bundle = DeliverableSerializer(data=request.data)
-        auto_name = False
-        if 'autoname' in self.request.GET:
-            if self.request.GET.get("autoname") == "true":
-                auto_name = True
+        auto_name = self.request.GET.get("autoname", "false").lower() in ["true", "t", "yes", "1"]
         return self.attempt_create_bundle(bundle, auto_name, 1, request)
 
 

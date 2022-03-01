@@ -113,7 +113,7 @@ class TestCreateBundle(TestCase):
                            "created": "2020-01-02T03:04:05Z"
                            }
             response = client.post("/api/bundle/new?autoname=true", data=json.dumps(test_record), content_type='application/json')
-            self.assertEqual(response.status_code, 409)
+            self.assertEqual(response.status_code, 200)
             mock_create_folder.assert_called_with('test21')
 
     def test_create_bundle_duplicate_no_autoname(self):
