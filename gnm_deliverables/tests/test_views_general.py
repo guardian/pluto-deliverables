@@ -115,3 +115,22 @@ class TestCreateBundle(TestCase):
             response = client.post("/api/bundle/new?autoname=true", data=json.dumps(test_record), content_type='application/json')
             self.assertEqual(response.status_code, 409)
             mock_create_folder.assert_called_with('test21')
+
+    def test_create_bundle_duplicate_no_autoname(self):
+        """
+        create bundle endpoint should not attempt to create a bundle if autoname is not set and the name is already in use
+        :return:
+        """
+        user = User.objects.get(username="peter")
+        client = APIClient()
+        client.force_authenticate(user)
+
+        with patch("gnm_deliverables.views.views.create_folder_for_deliverable") as mock_create_folder:
+            test_record = {"pluto_core_project_id": 3333324,
+                           "commission_id": 99932,
+                           "name": "test2",
+                           "created": "2020-01-02T03:04:05Z"
+                           }
+            response = client.post("/api/bundle/new", data=json.dumps(test_record), content_type='application/json')
+            self.assertEqual(response.status_code, 409)
+            mock_create_folder.assert_not_called()
