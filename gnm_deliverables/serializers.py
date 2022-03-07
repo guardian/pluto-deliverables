@@ -61,7 +61,7 @@ class MainstreamSerializer(serializers.ModelSerializer):
         model = Mainstream
         fields = ["mainstream_title", "mainstream_description", "mainstream_tags",
                   "mainstream_rules_contains_adult_content",
-                  "upload_status", "etag"]
+                  "upload_status", "etag", "routename", "job_id"]
 
 
 class YoutubeSerializer(serializers.ModelSerializer):
@@ -78,7 +78,7 @@ class DailyMotionSerializer(serializers.ModelSerializer):
         fields = ["daily_motion_url", "daily_motion_title", "daily_motion_description",
                   "daily_motion_tags", "daily_motion_category",
                   "publication_date", "upload_status", "daily_motion_no_mobile_access",
-                  "daily_motion_contains_adult_content", "etag"]
+                  "daily_motion_contains_adult_content", "etag", "routename", "job_id"]
 
 
 class OovvuuSerializer(serializers.ModelSerializer):

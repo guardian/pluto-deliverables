@@ -32,6 +32,7 @@ import {
 import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import SyndicationTrigger from "./SyndicationTrigger";
 import SyndicationLastLog from "./SyndicationLastLog";
+import ViewListIcon from "@material-ui/icons/ViewList";
 
 const useStyles = makeStyles({
   tableContainer: {
@@ -71,6 +72,9 @@ const tableHeaderTitles: string[] = [
   "Publish date",
   "ID Link",
   "Title",
+  "",
+  "",
+  "",
   "",
   "",
 ];
@@ -116,6 +120,8 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       link: null,
       tags: null,
       upload_status: null,
+      routename: null,
+      job_id: null,
     },
     {
       group: MasterEnum.Mainstream,
@@ -124,6 +130,8 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       link: null,
       tags: null,
       upload_status: null,
+      routename: null,
+      job_id: null,
     },
   ]);
 
@@ -218,6 +226,8 @@ const MasterList: React.FC<MasterListProps> = (props) => {
           link: dailymotionMaster.daily_motion_url,
           tags: dailymotionMaster.daily_motion_tags,
           upload_status: dailymotionMaster.upload_status,
+          routename: dailymotionMaster.routename,
+          job_id: dailymotionMaster.job_id,
         };
       }
       if (master.group === MasterEnum.Mainstream && mainstreamMaster) {
@@ -228,6 +238,8 @@ const MasterList: React.FC<MasterListProps> = (props) => {
           link: "",
           tags: mainstreamMaster.mainstream_tags,
           upload_status: mainstreamMaster.upload_status,
+          routename: mainstreamMaster.routename,
+          job_id: mainstreamMaster.job_id,
         };
       }
       return master;
@@ -397,6 +409,15 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                     projectId={props.project_id}
                     assetId={deliverable.id}
                   />
+                </TableCell>
+                <TableCell style={{ width: "96px" }}>
+                  {master.routename ? (
+                    <Tooltip title="CDS Data">
+                      <IconButton href={`/cds/log/${master.routename.replace('.','_')}/${master.job_id}.log`}>
+                        <ViewListIcon />
+                      </IconButton>
+                    </Tooltip>
+                  ): null}
                 </TableCell>
               </TableRow>
             ))}
