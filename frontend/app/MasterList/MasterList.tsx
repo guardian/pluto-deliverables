@@ -413,11 +413,15 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                 <TableCell style={{ width: "96px" }}>
                   {master.routename ? (
                     <Tooltip title="CDS Data">
-                      <IconButton href={`/cds/log/${master.routename.replace('.','_')}/${master.job_id}.log`}>
+                      <IconButton
+                        href={`/cds/log/${master.routename.replace(".", "_")}/${
+                          master.job_id
+                        }.log`}
+                      >
                         <ViewListIcon />
                       </IconButton>
                     </Tooltip>
-                  ): null}
+                  ) : null}
                 </TableCell>
               </TableRow>
             ))}
