@@ -414,9 +414,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                   {master.routename ? (
                     <Tooltip title="CDS Data">
                       <IconButton
-                        href={`/cds/log/${master.routename.replace(".", "_")}/${
-                          master.job_id
-                        }.log`}
+                        href={`/cds/api/logByJobName/${master.job_id}`}
                       >
                         <ViewListIcon />
                       </IconButton>

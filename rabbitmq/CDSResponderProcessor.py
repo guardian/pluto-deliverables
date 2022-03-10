@@ -33,13 +33,13 @@ class CDSResponderProcessor(MessageProcessor):
             mainstream = self.get_mainstream_record(int(msg.deliverable_asset))
             logger.info(mainstream.__dict__)
             mainstream.routename = msg.routename
-            mainstream.job_id = msg.job_id
+            mainstream.job_id = msg.job_name
             mainstream.save()
             logger.info(mainstream.__dict__)
         if msg.routename == 'DailyMotion.xml':
             dailymotion = self.get_dailymotion_record(int(msg.deliverable_asset))
             dailymotion.routename = msg.routename
-            dailymotion.job_id = msg.job_id
+            dailymotion.job_id = msg.job_name
             dailymotion.save()
 
 
