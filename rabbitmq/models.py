@@ -40,7 +40,7 @@ class StoragetierSuccessMessage(Model):
 
 
 class CDSResponderMessage(Model):
-    job_id = TextField(max_length=128)
+    job_name = TextField(max_length=128)
     routename = TextField(max_length=256)
     deliverable_asset = TextField(max_length=128)
     deliverable_bundle = TextField(max_length=128)
