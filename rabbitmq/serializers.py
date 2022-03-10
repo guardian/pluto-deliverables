@@ -22,7 +22,7 @@ class StoragetierSuccessMessageSerializer(ModelSerializer):
 class CDSMessageSerializer(ModelSerializer):
     class Meta:
         model = CDSResponderMessage
-        fields = 'job-id', 'routename', 'deliverable_asset', 'deliverable_bundle'
+        fields = 'job-name', 'routename', 'deliverable_asset', 'deliverable_bundle'
         extra_kwargs = {
-            'job-id': {'source': 'job_id'},
+            'job-name': {'source': 'job_name'},
         }
