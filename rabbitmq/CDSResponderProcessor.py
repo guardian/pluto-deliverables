@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class CDSResponderProcessor(MessageProcessor):
-    routing_key = "cds.job.started"
+    routing_key = "cds.job.*"
     serializer = CDSMessageSerializer
 
     def get_mainstream_record(self, asset_id: int) -> Mainstream:
@@ -32,15 +32,22 @@ class CDSResponderProcessor(MessageProcessor):
             logger.info(msg.deliverable_asset)
             mainstream = self.get_mainstream_record(int(msg.deliverable_asset))
             logger.info(mainstream.__dict__)
-            mainstream.routename = msg.routename
-            mainstream.job_id = msg.job_name
+            if routing_key == 'cds.job.started':
+                mainstream.routename = msg.routename
+                mainstream.job_id = msg.job_name
+            if routing_key == 'cds.job.invalid':
+                mainstream.upload_status = 'Upload Failed'
             mainstream.save()
             logger.info(mainstream.__dict__)
         if msg.routename == 'DailyMotion.xml':
             dailymotion = self.get_dailymotion_record(int(msg.deliverable_asset))
-            dailymotion.routename = msg.routename
-            dailymotion.job_id = msg.job_name
+            if routing_key == 'cds.job.started':
+                dailymotion.routename = msg.routename
+                dailymotion.job_id = msg.job_name
+            if routing_key == 'cds.job.invalid':
+                dailymotion.upload_status = 'Upload Failed'
             dailymotion.save()
+
 
 
 
