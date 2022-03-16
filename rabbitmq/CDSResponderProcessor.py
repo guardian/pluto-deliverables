@@ -40,7 +40,7 @@ class CDSResponderProcessor(MessageProcessor):
             mainstream.routename = msg.routename
             mainstream.job_id = msg.job_name
             mainstream.save()
-        if route_mapping == 'dailymotion':
+        elif route_mapping == 'dailymotion':
             dailymotion = get_dailymotion_record(int(msg.deliverable_asset))
             dailymotion.routename = msg.routename
             dailymotion.job_id = msg.job_name
@@ -58,7 +58,7 @@ class CDSInvalidProcessor(MessageProcessor):
             mainstream = get_mainstream_record(int(msg.deliverable_asset))
             mainstream.upload_status = 'Upload Failed'
             mainstream.save()
-        if route_mapping == 'dailymotion':
+        elif route_mapping == 'dailymotion':
             dailymotion = get_dailymotion_record(int(msg.deliverable_asset))
             dailymotion.upload_status = 'Upload Failed'
             dailymotion.save()
