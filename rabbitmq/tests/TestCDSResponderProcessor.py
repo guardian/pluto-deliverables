@@ -13,9 +13,3 @@ class TestCDSResponderProcessor(TestCase):
         self.assertEqual(mapping, 'mainstream')
         mapping = get_route_mapping('DailyMotion.xml')
         self.assertEqual(mapping, 'dailymotion')
-
-
-
-
-
-
