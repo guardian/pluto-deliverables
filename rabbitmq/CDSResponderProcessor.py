@@ -9,23 +9,38 @@ logger = logging.getLogger(__name__)
 
 
 def get_mainstream_record(asset_id: int) -> Mainstream:
-    try:
-        asset = DeliverableAsset.objects.get(id=asset_id)
-        return asset.mainstream_master
-    except DeliverableAsset.DoesNotExist:
-        pass
+    asset = DeliverableAsset.objects.get(id=asset_id)
+    return asset.mainstream_master
 
 
 def get_dailymotion_record(asset_id: int) -> DailyMotion:
-    try:
-        asset = DeliverableAsset.objects.get(id=asset_id)
-        return asset.DailyMotion_master
-    except DeliverableAsset.DoesNotExist:
-        pass
+    asset = DeliverableAsset.objects.get(id=asset_id)
+    return asset.DailyMotion_master
 
 
 def get_route_mapping(routename: str) -> str:
     return list(CDS_ROUTE_MAP.keys())[list(CDS_ROUTE_MAP.values()).index(routename)]
+
+
+def set_asset_data(routename, asset, job_id=None, upload_status=None):
+    try:
+        route_mapping = get_route_mapping(routename)
+        if route_mapping == 'mainstream':
+            mainstream = get_mainstream_record(asset)
+            if job_id is not None:
+                mainstream.job_id = job_id
+            if upload_status is not None:
+                mainstream.upload_status = upload_status
+            mainstream.save()
+        elif route_mapping == 'dailymotion':
+            dailymotion = get_dailymotion_record(asset)
+            if job_id is not None:
+                dailymotion.job_id = job_id
+            if upload_status is not None:
+                dailymotion.upload_status = upload_status
+            dailymotion.save()
+    except DeliverableAsset.DoesNotExist:
+        return Exception
 
 
 class CDSResponderProcessor(MessageProcessor):
@@ -33,18 +48,11 @@ class CDSResponderProcessor(MessageProcessor):
     serializer = CDSMessageSerializer
 
     def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body):
-        msg = CDSResponderMessage(**body)
-        route_mapping = get_route_mapping(msg.routename)
-        if route_mapping == 'mainstream':
-            mainstream = get_mainstream_record(int(msg.deliverable_asset))
-            mainstream.routename = msg.routename
-            mainstream.job_id = msg.job_name
-            mainstream.save()
-        elif route_mapping == 'dailymotion':
-            dailymotion = get_dailymotion_record(int(msg.deliverable_asset))
-            dailymotion.routename = msg.routename
-            dailymotion.job_id = msg.job_name
-            dailymotion.save()
+        try:
+            msg = CDSResponderMessage(**body)
+            set_asset_data(msg.routename, int(msg.deliverable_asset), job_id=msg.job_name)
+        except Exception:
+            return Exception
 
 
 class CDSInvalidProcessor(MessageProcessor):
@@ -52,15 +60,8 @@ class CDSInvalidProcessor(MessageProcessor):
     serializer = CDSMessageSerializer
 
     def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body):
-        msg = CDSResponderMessage(**body)
-        route_mapping = get_route_mapping(msg.routename)
-        if route_mapping == 'mainstream':
-            mainstream = get_mainstream_record(int(msg.deliverable_asset))
-            mainstream.upload_status = 'Upload Failed'
-            mainstream.save()
-        elif route_mapping == 'dailymotion':
-            dailymotion = get_dailymotion_record(int(msg.deliverable_asset))
-            dailymotion.upload_status = 'Upload Failed'
-            dailymotion.save()
-
-
+        try:
+            msg = CDSResponderMessage(**body)
+            set_asset_data(msg.routename, int(msg.deliverable_asset), upload_status='Upload Failed')
+        except Exception:
+            return Exception
