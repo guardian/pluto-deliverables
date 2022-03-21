@@ -4,7 +4,7 @@ import logging
 from .serializers import CDSMessageSerializer
 from .models import CDSResponderMessage
 from gnm_deliverables.settings import CDS_ROUTE_MAP
-from exceptions import PermanentFailure
+from .exceptions import PermanentFailure
 
 logger = logging.getLogger(__name__)
 

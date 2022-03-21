@@ -1,7 +1,7 @@
 import jsonschema
 import json
 import logging
-from exceptions import PermanentFailure
+from .exceptions import PermanentFailure
 import pika.spec
 from rest_framework.parsers import JSONParser
 import io
