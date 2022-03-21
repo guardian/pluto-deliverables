@@ -27,11 +27,13 @@ def set_asset_data(routename, asset, job_id=None, upload_status=None):
         route_mapping = get_route_mapping(routename)
         if route_mapping == 'mainstream':
             mainstream = get_mainstream_record(asset)
+            logger.info(mainstream.__dict__)
             if job_id is not None:
                 mainstream.job_id = job_id
             if upload_status is not None:
                 mainstream.upload_status = upload_status
             mainstream.save()
+            logger.info(mainstream.__dict__)
         elif route_mapping == 'dailymotion':
             dailymotion = get_dailymotion_record(asset)
             if job_id is not None:
@@ -50,6 +52,7 @@ class CDSResponderProcessor(MessageProcessor):
     def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body):
         try:
             msg = CDSResponderMessage(**body)
+            logger.info(msg.__dict__)
             set_asset_data(msg.routename, int(msg.deliverable_asset), job_id=msg.job_name)
         except Exception:
             return Exception
