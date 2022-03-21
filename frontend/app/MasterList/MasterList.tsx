@@ -411,7 +411,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                   />
                 </TableCell>
                 <TableCell style={{ width: "96px" }}>
-                  {master.routename ? (
+                  {master.job_id ? (
                     <Tooltip title="Upload Log">
                       <IconButton href={`/cds/logByJobName/${master.job_id}`}>
                         <ViewListIcon />
