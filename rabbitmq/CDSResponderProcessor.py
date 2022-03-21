@@ -4,6 +4,7 @@ import logging
 from .serializers import CDSMessageSerializer
 from .models import CDSResponderMessage
 from gnm_deliverables.settings import CDS_ROUTE_MAP
+from exceptions import PermanentFailure
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +20,23 @@ def get_dailymotion_record(asset_id: int) -> DailyMotion:
 
 
 def get_route_mapping(routename: str) -> str:
+    """
+    Get the correct route mapping to use by looking for the route name in the CDS_ROUTE_MAP dictionary from the settings file
+    :param routename: The routename to look up
+    :return: The string of the key name in the CDS_ROUTE_MAP dictionary
+    """
     return list(CDS_ROUTE_MAP.keys())[list(CDS_ROUTE_MAP.values()).index(routename)]
 
 
 def set_asset_data(routename, asset, job_id=None, upload_status=None):
+    """
+    Set data for asset on the correct route model if job_id and upload_status as present
+    :param routename: The routename to use to load the correct model
+    :param asset: The number of the asset
+    :param job_id: Optional job id. to set
+    :param upload_status: Optional upload status to set
+    :return:
+    """
     try:
         route_mapping = get_route_mapping(routename)
         if route_mapping == 'mainstream':
@@ -40,7 +54,7 @@ def set_asset_data(routename, asset, job_id=None, upload_status=None):
                 dailymotion.upload_status = upload_status
             dailymotion.save()
     except DeliverableAsset.DoesNotExist:
-        return Exception
+        raise PermanentFailure
 
 
 class CDSResponderProcessor(MessageProcessor):
@@ -48,11 +62,8 @@ class CDSResponderProcessor(MessageProcessor):
     serializer = CDSMessageSerializer
 
     def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body):
-        try:
-            msg = CDSResponderMessage(**body)
-            set_asset_data(msg.routename, int(msg.deliverable_asset), job_id=msg.job_name)
-        except Exception:
-            return Exception
+        msg = CDSResponderMessage(**body)
+        set_asset_data(msg.routename, int(msg.deliverable_asset), job_id=msg.job_name)
 
 
 class CDSInvalidProcessor(MessageProcessor):
@@ -60,8 +71,5 @@ class CDSInvalidProcessor(MessageProcessor):
     serializer = CDSMessageSerializer
 
     def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body):
-        try:
-            msg = CDSResponderMessage(**body)
-            set_asset_data(msg.routename, int(msg.deliverable_asset), upload_status='Upload Failed')
-        except Exception:
-            return Exception
+        msg = CDSResponderMessage(**body)
+        set_asset_data(msg.routename, int(msg.deliverable_asset), upload_status='Upload Failed')
