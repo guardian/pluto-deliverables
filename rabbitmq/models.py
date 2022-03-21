@@ -37,3 +37,10 @@ class StoragetierSuccessMessage(Model):
     proxyVersion = IntegerField(null=True, blank=True)
     metadataXML = TextField(max_length=32768, null=True, blank=True)   # path to the XML, not the actual content!!
     metadataVersion = IntegerField(null=True, blank=True)
+
+
+class CDSResponderMessage(Model):
+    job_name = TextField(max_length=128)
+    routename = TextField(max_length=256)
+    deliverable_asset = TextField(max_length=128)
+    deliverable_bundle = TextField(max_length=128)

@@ -1,0 +1,2 @@
+class PermanentFailure(Exception):
+    pass

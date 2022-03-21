@@ -108,6 +108,8 @@ interface DailymotionMaster extends CreateDailymotionMaster {
   etag?: string;
   publication_date: string;
   upload_status: string;
+  routename?: string | null;
+  job_id?: string | null;
 }
 
 interface CreateMainstreamMaster {
@@ -121,6 +123,8 @@ interface CreateMainstreamMaster {
 interface MainstreamMaster extends CreateMainstreamMaster {
   etag?: string;
   upload_status: string;
+  routename?: string;
+  job_id?: string;
 }
 
 type MasterGroups = "gnmwebsite" | "youtube" | "dailymotion" | "mainstream";
@@ -132,6 +136,8 @@ interface Master {
   link: string | null;
   tags: string[] | null;
   upload_status: string | null;
+  routename?: string | null;
+  job_id?: string | null;
 }
 
 //can't be more specific than this. each key is the section name and each value is an array of (id, name) pairs

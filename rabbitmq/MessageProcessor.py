@@ -1,7 +1,7 @@
 import jsonschema
 import json
 import logging
-
+from .exceptions import PermanentFailure
 import pika.spec
 from rest_framework.parsers import JSONParser
 import io
@@ -89,6 +89,11 @@ class MessageProcessor(object):
             try:
                 self.valid_message_receive(method.exchange, method.routing_key, method.delivery_tag, validated_content)
                 channel.basic_ack(delivery_tag=tag)
+            except PermanentFailure as e:
+                logger.error("Could not process message: {0}".format(str(e)))
+                channel.basic_nack(delivery_tag=tag, requeue=False)
+                channel.basic_cancel(method.consumer_tag)
+                raise ValueError("Could not process message")
             except Exception as e:
                 logger.error("Could not process message: {0}".format(str(e)))
                 channel.basic_nack(delivery_tag=tag, requeue=True)

@@ -523,6 +523,8 @@ class Mainstream(models.Model):
     upload_status = models.TextField(null=True, blank=True, choices=UPLOAD_STATUS, db_index=True)
     publication_date = models.DateTimeField(null=True, blank=True)
     etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+    routename = models.TextField(null=True, blank=True)
+    job_id = models.TextField(null=True, blank=True)
 
 
 class Youtube(models.Model):
@@ -550,6 +552,8 @@ class DailyMotion(models.Model):
     daily_motion_no_mobile_access = models.BooleanField()
     daily_motion_contains_adult_content = models.BooleanField()
     etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+    routename = models.TextField(null=True, blank=True)
+    job_id = models.TextField(null=True, blank=True)
 
 
 class Oovvuu(models.Model):
