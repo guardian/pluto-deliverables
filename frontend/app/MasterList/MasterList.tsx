@@ -414,6 +414,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                   {master.job_id ? (
                     <Tooltip title="Upload Log">
                       <IconButton
+                        // This is limited to fifty seven characters because CDS is only writing up to fifty seven character long file names not including the file extension.
                         href={`/cds/logByJobName/${master.job_id.substring(
                           0,
                           57
