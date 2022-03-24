@@ -413,7 +413,12 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                 <TableCell style={{ width: "96px" }}>
                   {master.job_id ? (
                     <Tooltip title="Upload Log">
-                      <IconButton href={`/cds/logByJobName/${master.job_id}`}>
+                      <IconButton
+                        href={`/cds/logByJobName/${master.job_id.substring(
+                          0,
+                          57
+                        )}`}
+                      >
                         <ViewListIcon />
                       </IconButton>
                     </Tooltip>
