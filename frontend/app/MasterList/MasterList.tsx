@@ -413,7 +413,13 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                 <TableCell style={{ width: "96px" }}>
                   {master.job_id ? (
                     <Tooltip title="Upload Log">
-                      <IconButton href={`/cds/logByJobName/${master.job_id}`}>
+                      <IconButton
+                        // This is limited to fifty seven characters because CDS is only writing up to fifty seven character long file names not including the file extension.
+                        href={`/cds/logByJobName/${master.job_id.substring(
+                          0,
+                          57
+                        )}`}
+                      >
                         <ViewListIcon />
                       </IconButton>
                     </Tooltip>
