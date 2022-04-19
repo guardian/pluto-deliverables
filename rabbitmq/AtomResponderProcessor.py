@@ -7,6 +7,8 @@ from django.conf import settings
 import gnm_deliverables.choices as AssetChoices
 import rabbitmq.constants as const
 import logging
+import pytz
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -79,10 +81,14 @@ class AtomResponderProcessor(MessageProcessor):
         else:
             bundle = self.get_or_create_bundle(projectid, commissionId)
 
+        timezone = pytz.timezone("UTC")
+        timestamp = timezone.localize(datetime.now()).isoformat()
+
         asset = DeliverableAsset(
             type=AssetChoices.DELIVERABLE_ASSET_TYPE_VIDEO_FULL_MASTER,
             atom_id=atomid,
             deliverable=bundle,
+            changed_dt=timestamp,
         )
         return asset, True
 
