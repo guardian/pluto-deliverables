@@ -585,3 +585,14 @@ class SyndicationNotes(models.Model):
     username = models.TextField(max_length=255)
     content = models.TextField(max_length=32768)
     deliverable_asset = models.ForeignKey(DeliverableAsset, on_delete=models.CASCADE, db_index=True)
+
+
+class YouTubeCategories(models.Model):
+    title = models.CharField(max_length=1024)
+    identity = models.CharField(max_length=64, blank=True, null=True)
+
+
+class YouTubeChannels(models.Model):
+    title = models.CharField(max_length=1024)
+    identity = models.CharField(max_length=128, blank=True, null=True)
+

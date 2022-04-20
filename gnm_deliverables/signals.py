@@ -73,6 +73,10 @@ class MessageRelay(object):
                 content = None
             elif affected_model.__class__.__name__ == "Mainstream":
                 content = None
+            elif affected_model.__class__.__name__ == "YouTubeCategories":
+                content = None
+            elif affected_model.__class__.__name__ == "YouTubeChannels":
+                content = None
             else:
                 content = None
                 logger.error("model_saved got an unexpected model class: {0}.{1}".format(affected_model.__class__.__module__, affected_model.__class__.__name__))
