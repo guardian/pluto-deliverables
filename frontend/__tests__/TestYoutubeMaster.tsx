@@ -62,8 +62,8 @@ describe("YoutubeMaster", () => {
           expect(
             rendered.find("input#yt-publication-date").props()["value"]
           ).toEqual("2010-01-02T03:04:05Z");
-          expect(rendered.find("p#yt-category").text()).toEqual("cat1");
-          expect(rendered.find("p#yt-channel").text()).toEqual("chan1");
+          expect(rendered.find("p#yt-category").text()).toEqual("");
+          expect(rendered.find("p#yt-channel").text()).toEqual("");
           expect(rendered.find("input#yt-id").props()["value"]).toEqual(
             "xyzabc123"
           );

@@ -11,6 +11,7 @@ import { Cancel, Launch, SaveAlt } from "@material-ui/icons";
 import ChipInput from "../Form/ChipInput";
 import { MasterFormProps } from "./MasterForm";
 import { formStyles } from "./MetadataStyles";
+import axios from "axios";
 
 const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
   props
@@ -56,6 +57,50 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
     saveRequested(update);
   };
 
+  const [youTubeCategory, setYouTubeCategory] = useState("");
+  const [youTubeChannel, setYouTubeChannel] = useState("");
+
+  const getYouTubeCategory = async (categoryId: string): Promise<string> => {
+    try {
+      const { status, data } = await axios.get(
+        `/deliverables/api/youtube/category/${categoryId}`
+      );
+      setYouTubeCategory(data.title);
+      return data.title;
+    } catch (error) {
+      if (categoryId) {
+        setYouTubeCategory(categoryId);
+      }
+      console.error(error);
+      return Promise.reject(`Could not find category title.`);
+    }
+  };
+
+  const getYouTubeChannel = async (channelId: string): Promise<string> => {
+    try {
+      const { status, data } = await axios.get(
+        `/deliverables/api/youtube/channel/${channelId}`
+      );
+      setYouTubeChannel(data.title);
+      return data.title;
+    } catch (error) {
+      if (channelId) {
+        setYouTubeCategory(channelId);
+      }
+      console.error(error);
+      return Promise.reject(`Could not find channel title.`);
+    }
+  };
+
+  useEffect(() => {
+    if (master.youtube_category) {
+      getYouTubeCategory(master.youtube_category);
+    }
+    if (master.youtube_channel) {
+      getYouTubeChannel(master.youtube_channel);
+    }
+  }, [master]);
+
   return (
     <ul className={classes.listContainer}>
       <li className={classes.listItem}>
@@ -70,7 +115,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
         <div className="metadata-info">
           <Typography variant="subtitle1">Youtube category</Typography>
           <p className="subtitle-small" id="yt-category">
-            {master.youtube_category}
+            {youTubeCategory}
           </p>
         </div>
       </li>
@@ -78,7 +123,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
         <div className="metadata-info">
           <Typography variant="subtitle1">Youtube channel</Typography>
           <p className="subtitle-small" id="yt-channel">
-            {master.youtube_channel}
+            {youTubeChannel}
           </p>
         </div>
       </li>

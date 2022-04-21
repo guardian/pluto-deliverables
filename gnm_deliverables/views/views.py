@@ -33,7 +33,7 @@ from gnm_deliverables.exceptions import NoShapeError
 from gnm_deliverables.files import create_folder_for_deliverable
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.hmac_auth_backend import HmacRestAuth
-from gnm_deliverables.models import Deliverable, DeliverableAsset
+from gnm_deliverables.models import Deliverable, DeliverableAsset, YouTubeCategories, YouTubeChannels
 from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DenormalisedAssetSerializer, SearchRequestSerializer
 from gnm_deliverables.vs_notification import VSNotification
 from datetime import datetime, timedelta
@@ -688,3 +688,33 @@ class TestAndFixDropfolder(APIView):
         except Exception as e:
             logger.exception("TestAndFixDropfolder got an unexpected error: {0}".format(str(e)))
             return Response({"status": "error", "detail": str(e)}, status=500)
+
+
+class GetYouTubeCategory(APIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+
+    def get(self, request, category_id):
+        try:
+            category = YouTubeCategories.objects.get(identity=category_id)
+            return Response({"title": category.title}, status=200)
+        except YouTubeCategories.DoesNotExist:
+            return Response({"status": "error", "detail": "Category not known."}, status=404)
+        except KeyError:
+            return Response({"status": "error", "detail": "You must specify a category identity."}, status=400)
+
+
+class GetYouTubeChannel(APIView):
+    authentication_classes = (JwtRestAuth, HmacRestAuth)
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,)
+
+    def get(self, request, channel_id):
+        try:
+            channel = YouTubeChannels.objects.get(identity=channel_id)
+            return Response({"title": channel.title}, status=200)
+        except YouTubeChannels.DoesNotExist:
+            return Response({"status": "error", "detail": "Channel not known."}, status=404)
+        except KeyError:
+            return Response({"status": "error", "detail": "You must specify a channel identity."}, status=400)

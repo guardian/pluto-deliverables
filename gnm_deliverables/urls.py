@@ -11,7 +11,7 @@ from gnm_deliverables.views.views import DeliverablesTypeListAPI, AdoptExistingV
     NewDeliverablesAPICreate, NewDeliverableAPIScan, NewDeliverableUI, CountDeliverablesView, NewDeliverablesApiGet, \
     DeliverableAPIStarted, LaunchDetectorUpdateView, SearchForDeliverableAPIView, GenericAssetSearchAPI, NewDeliverabesApiBundleGet, \
     BundlesForCommission, RetryJobForAsset, InvalidAPIList, CountInvalid, CountInvalidByType, CountInvalidByStatus, GetAssetView, \
-    TestAndFixDropfolder
+    TestAndFixDropfolder, GetYouTubeCategory, GetYouTubeChannel
 from gnm_deliverables.views.deliverables_dash_views import *
 
 urlpatterns = [
@@ -55,5 +55,7 @@ urlpatterns = [
     path(r'api/dash/assets', DeliverableAssetsList.as_view(), name="dashboard-assets"),
     path(r'api/dash/summary', PublicationDatesSummary.as_view()),
     path(r'api/capiscan', GNMWebsiteSearch.as_view()),
+    path(r'api/youtube/category/<str:category_id>', GetYouTubeCategory.as_view()),
+    path(r'api/youtube/channel/<str:channel_id>', GetYouTubeChannel.as_view()),
     re_path(r'^(?!api).*', NewDeliverableUI.as_view()),
 ]
