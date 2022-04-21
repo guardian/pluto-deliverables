@@ -51,8 +51,8 @@ class Command(BaseCommand):
                     channel_record.save()
             except YouTubeChannels.DoesNotExist:
                 try:
-                    logger.info('Found a new channel. Creating a new record for it.')
                     new_channel_record = YouTubeChannels(title=youtube_channel_json_data['items'][0]['snippet']['title'], identity=channel[0])
                     new_channel_record.save()
+                    logger.info('Found a new channel. Creating a new record for it.')
                 except KeyError:
                     logger.info('Channel identity not found in Google API.')
