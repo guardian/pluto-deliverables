@@ -60,9 +60,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
   const [youTubeCategory, setYouTubeCategory] = useState("");
   const [youTubeChannel, setYouTubeChannel] = useState("");
 
-  const getYouTubeCategory = async (
-    categoryId: string
-  ): Promise<string> => {
+  const getYouTubeCategory = async (categoryId: string): Promise<string> => {
     try {
       const { status, data } = await axios.get(
         `/deliverables/api/youtube/category/${categoryId}`
@@ -78,9 +76,7 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
     }
   };
 
-  const getYouTubeChannel = async (
-    channelId: string
-  ): Promise<string> => {
+  const getYouTubeChannel = async (channelId: string): Promise<string> => {
     try {
       const { status, data } = await axios.get(
         `/deliverables/api/youtube/channel/${channelId}`
