@@ -61,22 +61,14 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
   const [youTubeChannel, setYouTubeChannel] = useState("");
 
   const getYouTubeCategory = async (
-    categoryId: string | undefined
+    categoryId: string
   ): Promise<string> => {
     try {
       const { status, data } = await axios.get(
         `/deliverables/api/youtube/category/${categoryId}`
       );
-
-      if (status === 200) {
-        setYouTubeCategory(data.title);
-        return data.title;
-      } else {
-        if (categoryId) {
-          setYouTubeCategory(categoryId);
-        }
-        throw new Error(`Could not find category title.`);
-      }
+      setYouTubeCategory(data.title);
+      return data.title;
     } catch (error) {
       if (categoryId) {
         setYouTubeCategory(categoryId);
@@ -87,22 +79,14 @@ const YoutubeMasterForm: React.FC<MasterFormProps<YoutubeMaster, void>> = (
   };
 
   const getYouTubeChannel = async (
-    channelId: string | undefined
+    channelId: string
   ): Promise<string> => {
     try {
       const { status, data } = await axios.get(
         `/deliverables/api/youtube/channel/${channelId}`
       );
-
-      if (status === 200) {
-        setYouTubeChannel(data.title);
-        return data.title;
-      } else {
-        if (channelId) {
-          setYouTubeChannel(channelId);
-        }
-        throw new Error(`Could not find channel title.`);
-      }
+      setYouTubeChannel(data.title);
+      return data.title;
     } catch (error) {
       if (channelId) {
         setYouTubeCategory(channelId);

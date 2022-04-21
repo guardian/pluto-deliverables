@@ -3,6 +3,7 @@ from gnm_deliverables.models import YouTubeCategories, Youtube, YouTubeChannels
 import requests
 import os
 import logging
+import urllib.parse
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ class Command(BaseCommand):
     help = "Get data from YouTube"
 
     def handle(self, *args, **options):
-        response = requests.get('https://www.googleapis.com/youtube/v3/videoCategories?regionCode=uk&key={0}'.format(os.environ['YOUTUBE_KEY']))
+        response = requests.get('https://www.googleapis.com/youtube/v3/videoCategories?regionCode=uk&key={0}'.format(urllib.parse.quote(os.environ['YOUTUBE_KEY'])))
         youtube_json_data = response.json()
 
         for item in youtube_json_data['items']:
@@ -37,7 +38,7 @@ class Command(BaseCommand):
 
         for channel in youtube_channels.iterator():
             logger.info('Channel id.: {0}'.format(channel[0]))
-            channel_response = requests.get('https://www.googleapis.com/youtube/v3/channels?part=snippet&id={0}&key={1}'.format(channel[0], os.environ['YOUTUBE_KEY']))
+            channel_response = requests.get('https://www.googleapis.com/youtube/v3/channels?part=snippet&id={0}&key={1}'.format(channel[0], urllib.parse.quote(os.environ['YOUTUBE_KEY'])))
             youtube_channel_json_data = channel_response.json()
 
             try:
