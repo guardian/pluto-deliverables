@@ -26,9 +26,9 @@ class NiceDateFormatter extends React.Component<
   componentDidMount() {
     try {
       const dateValue: Date =
-          typeof this.props.date === "string"
-              ? parseISO(this.props.date as string)
-              : (this.props.date as Date);
+        typeof this.props.date === "string"
+          ? parseISO(this.props.date as string)
+          : (this.props.date as Date);
 
       this.setState({ formattedString: format(dateValue, "eee do MMM yy") });
     } catch (err) {
