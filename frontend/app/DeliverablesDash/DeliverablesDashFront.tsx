@@ -81,6 +81,7 @@ const DeliverablesDashFront: React.FC = () => {
     newFinishTime: Date | undefined
   ) => {
     const zeroTimePart = { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
+    const lateTimePart = { hours: 23, minutes: 59, seconds: 59, milliseconds: 999 };
 
     const params = [
       [
@@ -89,7 +90,7 @@ const DeliverablesDashFront: React.FC = () => {
       ],
       [
         "until",
-        newFinishTime ? formatISO(set(newFinishTime, zeroTimePart)) : undefined,
+        newFinishTime ? formatISO(set(newFinishTime, lateTimePart)) : undefined,
       ],
     ].filter((entry) => !!entry[1]);
 
