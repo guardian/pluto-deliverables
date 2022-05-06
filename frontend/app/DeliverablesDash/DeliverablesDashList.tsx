@@ -52,11 +52,11 @@ const DeliverablesDashList: React.FC<DeliverablesDashListProps> = (props) => {
   useEffect(() => {
     const loadData = async () => {
       const response = await axios.get(
-        `/api/dash/assets?startDate=${formatISO(
-          props.startDate
-        )}&endDate=${formatISO(props.endDate)}&types=${props.types}&q=${
-          props.titleSearchValue
-        }`,
+        `/api/dash/assets?startDate=${encodeURIComponent(
+          formatISO(props.startDate)
+        )}&endDate=${encodeURIComponent(formatISO(props.endDate))}&types=${
+          props.types
+        }&q=${props.titleSearchValue}`,
         { validateStatus: () => true }
       );
       switch (response.status) {
