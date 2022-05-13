@@ -29,6 +29,7 @@ from .files import get_path_for_deliverable, find_files_for_deliverable, create_
 from .templatetags.deliverable_tags import sizeof_fmt
 from .transcodepreset import TranscodePresetFinder
 import datetime
+import stat
 logger = logging.getLogger(__name__)
 
 
@@ -497,6 +498,22 @@ class DeliverableAsset(models.Model):
 
     def __str__(self):
         return '{name}'.format(name=self.filename)
+
+    def check_permissions(self):
+        st = os.stat(self.absolute_path)
+        return bool(st.st_mode & stat.S_IROTH)
+
+    def fix_permissions(self):
+        os.chmod(self.absolute_path, 0o664)
+
+    def check_folder_permissions(self):
+        folder_path = os.path.dirname(self.absolute_path)
+        st = os.stat(folder_path)
+        return bool(st.st_mode & stat.S_IROTH)
+
+    def fix_folder_permissions(self):
+        folder_path = os.path.dirname(self.absolute_path)
+        os.chmod(folder_path, 0o664)
 
 
 class GNMWebsite(models.Model):

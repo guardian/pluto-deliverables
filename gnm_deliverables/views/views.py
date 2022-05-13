@@ -372,6 +372,14 @@ class SetTypeView(APIView):
             if item.online_item_id is None:
                 logger.info("user object is {0}".format(request.user.__dict__))
                 logger.info("username is {0}".format(request.user.get_username()))
+                logger.info("Is folder writeable by others: {0}".format(item.check_folder_permissions()))
+                if not item.check_folder_permissions():
+                    logger.info("Attempting to fix folder permissions.")
+                    item.fix_folder_permissions()
+                logger.info("Is file writeable by others: {0}".format(item.check_permissions()))
+                if not item.check_permissions():
+                    logger.info("Attempting to fix file permissions.")
+                    item.fix_permissions()
                 item.start_file_import(user=request.user.get_username())
             else:
                 item.save()
