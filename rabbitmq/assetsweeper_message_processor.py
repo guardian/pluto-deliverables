@@ -16,9 +16,9 @@ class AssetSweeperMessageProcessor(MessageProcessor):
         }
     }
 
-    def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body: dict):
+    def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body):
         """
-        Receives the validated AssetSweeper JSON message.
+        Takes an incoming message, looks up the asset based on the old Vidispine job id. and replaces it with the new one.
         :param exchange_name:
         :param routing_key:
         :param delivery_tag:
@@ -30,19 +30,13 @@ class AssetSweeperMessageProcessor(MessageProcessor):
         logger.debug("Routing key: {0}".format(routing_key))
         logger.debug("Delivery tag: {0}".format(delivery_tag))
 
-        return self.handle_message(body)
-
-    def handle_message(self, message):
-        """
-        Takes an incoming message, looks up the asset based on the old Vidispine job id. and replaces it with the new one.
-        :param message: The body of the message
-        :return: none
-        """
         try:
-            asset = DeliverableAsset.objects.get(job_id=message.old)
+            asset = DeliverableAsset.objects.get(job_id=body["old"])
         except DeliverableAsset.DoesNotExist:
-            logger.warning("Received a message for job {0}. Cannot find a matching asset.".format(message.old))
+            logger.warning("Received a message for job {0}. Cannot find a matching asset.".format(body["old"]))
             return
 
-        asset.job_id = message.new
+        asset.job_id = body["new"]
         asset.save()
+
+
