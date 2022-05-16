@@ -8,9 +8,12 @@ logger = logging.getLogger(__name__)
 class AssetSweeperMessageProcessor(MessageProcessor):
     routing_key = "assetsweeper.permissions_monitor.vidispine_job_rerun"
     schema = {
-        "old": "string",
-        "new": "string",
-        "path": "string"
+        "type": "object",
+        "properties": {
+            "old": {"type": "string"},
+            "new": {"type": "string"},
+            "path": {"type": "string"}
+        }
     }
 
     def valid_message_receive(self, exchange_name, routing_key, delivery_tag, body: dict):
