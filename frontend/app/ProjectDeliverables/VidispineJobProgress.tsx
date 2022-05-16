@@ -126,10 +126,6 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       console.log("no job data");
       return;
     }
-    if (job && job.didFinish()) {
-      console.log("job completed already");
-      return;
-    } //don't try to reload data if the job has already completed
     loadJobData();
   };
 
