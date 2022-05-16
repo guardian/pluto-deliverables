@@ -121,3 +121,18 @@ export const getInvalidDeliverablesByStatus = async (
     throw error;
   }
 };
+
+export const getDeliverable = async (id: bigint): Promise<Deliverable> => {
+  try {
+    const { status, data } = await axios.get<Deliverable>(`${API}/asset/${id}`);
+
+    if (status === 200) {
+      return data;
+    }
+
+    throw new Error(`Could not fetch deliverable. ${status}`);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
