@@ -48,14 +48,14 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   /**
    * load in data for the job
    */
-  const loadJobData = async (initialMount = false) => {
+  const loadJobData = async (initialMount = false, jobToLoad: string) => {
     const aWeekAgo = moment(Date.now() - 604800000);
     const modDateTime = moment(props.modifiedDateTime);
     try {
-      let response = await axios.get(
-        `${props.vidispineBaseUrl}/API/job/${jobId}`
+      const response = await axios.get(
+        `${props.vidispineBaseUrl}/API/job/${jobToLoad}`
       );
-      let jobInfo = new VidispineJob(response.data);
+      const jobInfo = new VidispineJob(response.data);
 
       setIndeterminate(jobInfo.data.totalSteps <= 0);
 
@@ -96,7 +96,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       if (err instanceof VError) {
         console.error(
           "Vidispine returned unexpected data for ",
-          props.jobId,
+          jobToLoad,
           ": ",
           err
         );
@@ -127,12 +127,12 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       console.log("no job data");
       return;
     }
-    loadJobData();
+    loadJobData(false, jobId);
   };
 
   useEffect(() => {
     setUpdateTimer(window.setInterval(updateHandler, 5000));
-    loadJobData(true);
+    loadJobData(true, jobId);
 
     return () => {
       console.log("clearing update timer for ", props.jobId);
