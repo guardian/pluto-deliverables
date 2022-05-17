@@ -52,10 +52,10 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
     const aWeekAgo = moment(Date.now() - 604800000);
     const modDateTime = moment(props.modifiedDateTime);
     try {
-      const response = await axios.get(
+      let response = await axios.get(
         `${props.vidispineBaseUrl}/API/job/${jobId}`
       );
-      const jobInfo = new VidispineJob(response.data);
+      let jobInfo = new VidispineJob(response.data);
 
       setIndeterminate(jobInfo.data.totalSteps <= 0);
 
