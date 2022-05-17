@@ -128,6 +128,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       console.log("no job data");
       return;
     }
+    console.log("Job going into method: " + jobId);
     loadJobData(false, jobId);
   };
 
