@@ -51,6 +51,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   const loadJobData = async (initialMount = false, jobToLoad: string) => {
     const aWeekAgo = moment(Date.now() - 604800000);
     const modDateTime = moment(props.modifiedDateTime);
+    console.info("Job to load: " + jobToLoad);
     try {
       const response = await axios.get(
         `${props.vidispineBaseUrl}/API/job/${jobToLoad}`
