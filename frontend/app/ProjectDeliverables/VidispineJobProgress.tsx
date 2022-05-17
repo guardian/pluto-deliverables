@@ -29,6 +29,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   const [jobData, setJobData] = useState<VidispineJob | undefined>(undefined);
   const [updateTimer, setUpdateTimer] = useState<number | undefined>(undefined);
   const [lastError, setLastError] = useState<string | undefined>(undefined);
+  const [jobId, setJobId] = useState<string>(props.jobId);
 
   //we need to use a reference so that the timer callback can get access to the job data
   const jobDataRef = useRef<VidispineJob>();
@@ -52,7 +53,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
     const modDateTime = moment(props.modifiedDateTime);
     try {
       const response = await axios.get(
-        `${props.vidispineBaseUrl}/API/job/${props.jobId}`
+        `${props.vidispineBaseUrl}/API/job/${jobId}`
       );
       const jobInfo = new VidispineJob(response.data);
 
@@ -138,6 +139,10 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       if (updateTimer) window.clearInterval(updateTimer);
     };
   }, []);
+
+  useEffect(() => {
+    setJobId(props.jobId);
+  }, [props.jobId]);
 
   return (
     <Grid container direction="column" spacing={3} id={`vs-job-${props.jobId}`}>

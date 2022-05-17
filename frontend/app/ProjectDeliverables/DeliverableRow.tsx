@@ -116,7 +116,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
       );
       window.setTimeout(() => {
         props.setCentralMessage("Update completed");
-        props.onNeedsUpdate(props.deliverable.id);
+        props.onNeedsUpdate(deliverable.id);
       }, 1000);
     } catch (error) {
       console.error("failed to update type: ", error);
