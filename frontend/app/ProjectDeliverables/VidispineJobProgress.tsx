@@ -29,7 +29,6 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   const [jobData, setJobData] = useState<VidispineJob | undefined>(undefined);
   const [updateTimer, setUpdateTimer] = useState<number | undefined>(undefined);
   const [lastError, setLastError] = useState<string | undefined>(undefined);
-  const [jobId, setJobId] = useState<string>(props.jobId);
 
   //we need to use a reference so that the timer callback can get access to the job data
   const jobDataRef = useRef<VidispineJob>();
@@ -48,13 +47,12 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   /**
    * load in data for the job
    */
-  const loadJobData = async (initialMount = false, jobToLoad: string) => {
+  const loadJobData = async (initialMount = false) => {
     const aWeekAgo = moment(Date.now() - 604800000);
     const modDateTime = moment(props.modifiedDateTime);
-    console.info("Job to load: " + jobToLoad);
     try {
       const response = await axios.get(
-        `${props.vidispineBaseUrl}/API/job/${jobToLoad}`
+        `${props.vidispineBaseUrl}/API/job/${props.jobId}`
       );
       const jobInfo = new VidispineJob(response.data);
 
@@ -97,7 +95,7 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       if (err instanceof VError) {
         console.error(
           "Vidispine returned unexpected data for ",
-          jobToLoad,
+          props.jobId,
           ": ",
           err
         );
@@ -128,13 +126,11 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       console.log("no job data");
       return;
     }
-    console.log("Job going into method: " + jobId);
-    loadJobData(false, jobId);
+    loadJobData();
   };
 
   useEffect(() => {
-    setUpdateTimer(window.setInterval(updateHandler, 5000));
-    loadJobData(true, jobId);
+    loadJobData(true);
 
     return () => {
       console.log("clearing update timer for ", props.jobId);
@@ -143,7 +139,8 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   }, []);
 
   useEffect(() => {
-    setJobId(props.jobId);
+    if (updateTimer) window.clearInterval(updateTimer);
+    setUpdateTimer(window.setInterval(updateHandler, 5000));
   }, [props.jobId]);
 
   return (
