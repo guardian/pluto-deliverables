@@ -8,7 +8,7 @@ import {
   makeStyles,
 } from "@material-ui/core";
 // @ts-ignore
-import atomIcon from "../static/atom_icon.svg";
+import atomIcon from "../../../../pluto-mediabrowser/app/static/atom_icon.svg";
 import LaunchIcon from "@material-ui/icons/Launch";
 import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
 

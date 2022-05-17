@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 // @ts-ignore
-import atomIcon from "../static/atom_icon.svg";
+import atomIcon from "../../../../pluto-mediabrowser/app/static/atom_icon.svg";
 import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
 import { makeStyles } from "@material-ui/core/styles";
 import NiceDateFormatter from "../Common/NiceDateFormatter";

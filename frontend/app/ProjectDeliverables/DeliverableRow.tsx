@@ -21,7 +21,7 @@ import DurationFormatter from "./DurationFormatter";
 import VidispineJobProgress from "./VidispineJobProgress";
 import LaunchIcon from "@material-ui/icons/Launch";
 // @ts-ignore
-import atomIcon from "../static/atom_icon.svg";
+import atomIcon from "../../../../pluto-mediabrowser/app/static/atom_icon.svg";
 import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
 import DeliverableSummaryCell from "./DeliverableSummaryCell";
 import DateTimeFormatter from "../Form/DateTimeFormatter";
