@@ -1,6 +1,6 @@
 from .MessageProcessor import MessageProcessor
 import logging
-from gnm_deliverables.models import *
+from gnm_deliverables.models import DeliverableAsset
 
 logger = logging.getLogger(__name__)
 
