@@ -33,9 +33,10 @@ class AssetSweeperMessageProcessor(MessageProcessor):
         try:
             asset = DeliverableAsset.objects.get(job_id=body["old"])
         except DeliverableAsset.DoesNotExist:
-            logger.warning("Received a message for job {0}. Cannot find a matching asset.".format(body["old"]))
+            logger.info("Received a message for job {0}. Cannot find a matching asset.".format(body["old"]))
             return
 
+        logger.info("Received a message for job {0}. Tied this job to asset {1} from bundle {2}. Setting job on asset to {3}.".format(body["old"], asset.id, asset.deliverable_id, body["new"]))
         asset.job_id = body["new"]
         asset.save()
 

@@ -95,9 +95,6 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
 
   useEffect(() => {
     updateVidispineItem(0);
-    if (deliverable.status_string != "Ingested") {
-      window.setInterval(updateHandler, 5000);
-    }
   }, []);
 
   const updateItemType = async (assetId: bigint, newvalue: number) => {
@@ -146,6 +143,16 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   useEffect(() => {
     setDeliverable(props.deliverable);
   }, [props.deliverable]);
+
+  useEffect(() => {
+    let timerId = -1;
+    if (deliverable.status_string != "Ingested") {
+      timerId = window.setTimeout(updateHandler, 5000);
+    }
+    return () => {
+      if (timerId != -1) window.clearTimeout(timerId);
+    };
+  }, [deliverable]);
 
   return (
     <React.Fragment>
