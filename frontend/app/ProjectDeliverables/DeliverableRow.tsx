@@ -26,6 +26,7 @@ import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
 import DeliverableSummaryCell from "./DeliverableSummaryCell";
 import DateTimeFormatter from "../Form/DateTimeFormatter";
 import ReplayIcon from "@material-ui/icons/Replay";
+import { getDeliverable } from "../api-service";
 
 interface DeliverableRowProps {
   deliverable: Deliverable;
@@ -46,16 +47,19 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   const [open, setOpen] = useState<boolean>(false);
   const [version, setVersion] = useState<number | undefined>(undefined);
   const [duration, setDuration] = useState<number | undefined>(undefined);
+  const [deliverable, setDeliverable] = useState<Deliverable>(
+    props.deliverable
+  );
 
   const updateVidispineItem = async (attempt: number) => {
-    if (!props.deliverable.online_item_id) {
+    if (!deliverable.online_item_id) {
       console.log(
-        `Deliverable asset ${props.deliverable.filename} has no online item id`
+        `Deliverable asset ${deliverable.filename} has no online item id`
       );
       return;
     }
 
-    const url = `${props.vidispineBaseUri}/API/item/${props.deliverable.online_item_id}?content=metadata&field=__version,durationSeconds`;
+    const url = `${props.vidispineBaseUri}/API/item/${deliverable.online_item_id}?content=metadata&field=__version,durationSeconds`;
     try {
       const response = await axios.get(url);
       const item = new VidispineItem(response.data); //throws a VError if the data is not valid
@@ -81,6 +85,14 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
     }
   };
 
+  const updateHandler = async () => {
+    const refreshed_deliverable = await getDeliverable(deliverable.id);
+    setDeliverable(refreshed_deliverable);
+    if (deliverable.status_string == "Ingested") {
+      window.clearInterval();
+    }
+  };
+
   useEffect(() => {
     updateVidispineItem(0);
   }, []);
@@ -101,7 +113,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
       );
       window.setTimeout(() => {
         props.setCentralMessage("Update completed");
-        props.onNeedsUpdate(props.deliverable.id);
+        props.onNeedsUpdate(deliverable.id);
       }, 1000);
     } catch (error) {
       console.error("failed to update type: ", error);
@@ -112,7 +124,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   };
 
   const doRetry = async () => {
-    const url = `api/asset/${props.deliverable.id}/jobretry/${props.deliverable.job_id}`;
+    const url = `api/asset/${deliverable.id}/jobretry/${deliverable.job_id}`;
 
     try {
       await axios.put(url, null, {
@@ -120,13 +132,27 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           "X-CSRFToken": Cookies.get("csrftoken"),
         },
       });
-      props.onNeedsUpdate(props.deliverable.id);
+      props.onNeedsUpdate(deliverable.id);
       props.setCentralMessage("Ingest process started");
     } catch (error) {
       console.error("Failed to retry job: ", error);
       props.setCentralMessage("Failed to start ingest process");
     }
   };
+
+  useEffect(() => {
+    setDeliverable(props.deliverable);
+  }, [props.deliverable]);
+
+  useEffect(() => {
+    let timerId = -1;
+    if (deliverable.status_string != "Ingested") {
+      timerId = window.setTimeout(updateHandler, 5000);
+    }
+    return () => {
+      if (timerId != -1) window.clearTimeout(timerId);
+    };
+  }, [deliverable]);
 
   return (
     <React.Fragment>
@@ -140,10 +166,10 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           />
         </TableCell>
         <TableCell>
-          <DeliverableSummaryCell deliverable={props.deliverable} />
+          <DeliverableSummaryCell deliverable={deliverable} />
         </TableCell>
         <TableCell>{version ?? "-"}</TableCell>
-        <TableCell>{props.deliverable.size_string ?? "-"}</TableCell>
+        <TableCell>{deliverable.size_string ?? "-"}</TableCell>
         <TableCell>
           {duration ? <DurationFormatter durationSeconds={duration} /> : "-"}
         </TableCell>
@@ -151,31 +177,27 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           <DeliverableTypeSelector
             content={props.typeOptions}
             showTip={true}
-            value={props.deliverable.type}
-            onChange={(newvalue) =>
-              updateItemType(props.deliverable.id, newvalue)
-            }
+            value={deliverable.type}
+            onChange={(newvalue) => updateItemType(deliverable.id, newvalue)}
           />
         </TableCell>
         <TableCell>
-          <DateTimeFormatter value={props.deliverable.modified_dt} />
+          <DateTimeFormatter value={deliverable.modified_dt} />
         </TableCell>
         <TableCell>
-          {props.deliverable.job_id ? (
+          {deliverable.job_id ? (
             <VidispineJobProgress
-              jobId={props.deliverable.job_id}
+              jobId={deliverable.job_id}
               vidispineBaseUrl={props.vidispineBaseUri}
               openJob={props.openJob}
-              onRecordNeedsUpdate={() =>
-                props.onNeedsUpdate(props.deliverable.id)
-              }
-              modifiedDateTime={props.deliverable.modified_dt}
+              onRecordNeedsUpdate={() => props.onNeedsUpdate(deliverable.id)}
+              modifiedDateTime={deliverable.modified_dt}
             />
           ) : null}
         </TableCell>
         <TableCell>
-          {props.deliverable.status_string}
-          {props.deliverable.status_string == "Ingest failed" ? (
+          {deliverable.status_string}
+          {deliverable.status_string == "Ingest failed" ? (
             <Tooltip title="Run the failed ingest process again">
               <IconButton
                 size="small"
@@ -207,7 +229,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
         <TableCell className="expandable-cell" colSpan={9}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <MasterList
-              deliverable={props.deliverable}
+              deliverable={deliverable}
               project_id={props.project_id}
               onSyndicationInitiated={props.onSyndicationStarted}
             />

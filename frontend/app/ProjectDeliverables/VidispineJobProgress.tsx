@@ -126,15 +126,10 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       console.log("no job data");
       return;
     }
-    if (job && job.didFinish()) {
-      console.log("job completed already");
-      return;
-    } //don't try to reload data if the job has already completed
     loadJobData();
   };
 
   useEffect(() => {
-    setUpdateTimer(window.setInterval(updateHandler, 5000));
     loadJobData(true);
 
     return () => {
@@ -142,6 +137,11 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       if (updateTimer) window.clearInterval(updateTimer);
     };
   }, []);
+
+  useEffect(() => {
+    if (updateTimer) window.clearInterval(updateTimer);
+    setUpdateTimer(window.setInterval(updateHandler, 5000));
+  }, [props.jobId]);
 
   return (
     <Grid container direction="column" spacing={3} id={`vs-job-${props.jobId}`}>
