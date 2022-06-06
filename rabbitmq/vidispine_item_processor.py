@@ -60,16 +60,17 @@ class VidispineItemProcessor(MessageProcessor):
         :param notification: ItemNotification instance
         :return: none
         """
-        try:
-            asset = DeliverableAsset.objects.get(online_item_id=notification.itemId)
-        except DeliverableAsset.DoesNotExist:
+        assets = DeliverableAsset.objects.filter(online_item_id=notification.itemId)
+
+        if not assets:
             logger.info("Received a message for Vidispine item {0}. Cannot find a matching asset.".format(notification.itemId))
             return
 
         try:
-            logger.info("Attempting to remove the Vidispine id. from asset {0} due to it being tied to deleted Vidispine item {1}.".format(asset.id, notification.itemId))
-            asset.online_item_id = ''
-            asset.save()
+            for asset in assets:
+                logger.info("Attempting to remove the Vidispine id. from asset {0} due to it being tied to deleted Vidispine item {1}.".format(asset.id, notification.itemId))
+                asset.online_item_id = ''
+                asset.save()
         except Exception as e:
             logger.error("Failed to remove the Vidispine id. from asset {0}. Error was: {1}".format(asset.id, e))
             return
