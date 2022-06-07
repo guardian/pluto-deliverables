@@ -32,13 +32,20 @@ class ItemNotification(object):
         Checks that the contained message contains the fields we are expecting, as defined by the static list ItemNotification.REQUIRED_FIELDS.
         :return: a boolean indicating True for valid or False for invalid
         """
+        all_fields_found = False
         try:
             for f in self.REQUIRED_FIELDS:
+                field_found = False
                 for entry in self._content["field"]:
                     if entry["key"] == f:
-                        return True
-                logger.warning("Invalid message, missing field {0}".format(f))
-            return False
+                        field_found = True
+                if field_found:
+                    all_fields_found = True
+                else:
+                    logger.warning("Invalid message, missing field {0}".format(f))
+                    return False
+            if all_fields_found:
+                return True
         except KeyError:
             logger.warning("Invalid message {0}, missing required data structure".format(self._content))
             return False

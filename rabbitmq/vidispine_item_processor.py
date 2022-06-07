@@ -46,20 +46,8 @@ class VidispineItemProcessor(MessageProcessor):
         logger.debug("Routing key: {0}".format(routing_key))
         logger.debug("Delivery tag: {0}".format(delivery_tag))
 
-        try:
-            notification = ItemNotification(body)
-        except Exception as e:
-            logger.warning("Incoming message lacked one or more required fields. {0}".format(e))
-            return
+        notification = ItemNotification(body)
 
-        return self.handle_notification(notification)
-
-    def handle_notification(self, notification: ItemNotification):
-        """
-        Takes a constructed ItemNotification, works out what it means and performs the relevant actions
-        :param notification: ItemNotification instance
-        :return: none
-        """
         assets = DeliverableAsset.objects.filter(online_item_id=notification.itemId)
 
         if not assets:
@@ -69,8 +57,10 @@ class VidispineItemProcessor(MessageProcessor):
         try:
             for asset in assets:
                 logger.info("Attempting to remove the Vidispine id. from asset {0} due to it being tied to deleted Vidispine item {1}.".format(asset.id, notification.itemId))
-                asset.online_item_id = ''
+                asset.online_item_id = None
                 asset.save()
         except Exception as e:
             logger.error("Failed to remove the Vidispine id. from asset {0}. Error was: {1}".format(asset.id, e))
             return
+
+        return notification
