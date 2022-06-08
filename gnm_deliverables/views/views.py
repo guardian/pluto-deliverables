@@ -544,6 +544,15 @@ class GenericAssetSearchAPI(ListAPIView):
         else:
             queryset = queryset.order_by("-modified_dt")
 
+        if ("startAt" in self.request.GET) or ("limit" in self.request.GET):
+            start_at = 0
+            limit = 25
+            if "startAt" in self.request.GET:
+                start_at = int(self.request.GET["startAt"])
+            if "limit" in self.request.GET:
+                limit = int(self.request.GET["limit"])
+            queryset = queryset[start_at:limit]
+
         return queryset
 
     def get(self, request, *args, **kwargs):
