@@ -241,12 +241,14 @@ class AssetSearchResults extends React.Component<
       if (this.state.lastSearch && initialSearchDoc.title) {
         if (initialSearchDoc.title.includes(this.state.lastSearch)) {
           this.setState({
-            results: []});
+            results: [],
+          });
         }
       }
 
       this.setState({
-        lastSearch: initialSearchDoc.title });
+        lastSearch: initialSearchDoc.title,
+      });
 
       await this.setStatePromise((prevState: AssetSearchResultsState) => ({
         results: this.state.results.concat(...response.data.results),
