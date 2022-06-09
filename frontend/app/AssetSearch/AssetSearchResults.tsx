@@ -31,6 +31,7 @@ interface AssetSearchResultsState {
   pageSize: number;
   sortBy: string;
   sortOrder?: "desc" | "asc";
+  lastSearch?: string;
 }
 
 const useStyles = makeStyles({
@@ -237,9 +238,19 @@ class AssetSearchResults extends React.Component<
         return this.setStatePromise({ loading: false });
       }
 
+      if (this.state.lastSearch && initialSearchDoc.title) {
+        if (initialSearchDoc.title.includes(this.state.lastSearch)) {
+          this.setState({
+            results: []});
+        }
+      }
+
+      this.setState({
+        lastSearch: initialSearchDoc.title });
+
       await this.setStatePromise((prevState: AssetSearchResultsState) => ({
-        results: prevState.results.concat(...response.data.results),
-        startAt: prevState.startAt + response.data.results.length,
+        results: this.state.results.concat(...response.data.results),
+        startAt: this.state.startAt + this.state.pageSize,
       }));
 
       return this.state.startAt >= this.props.resultsLimit
