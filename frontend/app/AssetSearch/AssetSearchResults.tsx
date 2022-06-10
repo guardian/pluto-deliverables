@@ -31,7 +31,7 @@ interface AssetSearchResultsState {
   pageSize: number;
   sortBy: string;
   sortOrder?: "desc" | "asc";
-  lastSearch?: string;
+  cancelTokenSource?: any;
 }
 
 const useStyles = makeStyles({
@@ -155,6 +155,7 @@ class AssetSearchResults extends React.Component<
       pageSize: 25,
       sortBy: "modified_dt",
       sortOrder: "desc",
+      cancelTokenSource: axios.CancelToken.source(),
     };
   }
 
@@ -180,6 +181,7 @@ class AssetSearchResults extends React.Component<
       results: [],
       lastError: undefined,
       startAt: 0,
+      cancelTokenSource: axios.CancelToken.source(),
     });
   }
 
@@ -231,38 +233,31 @@ class AssetSearchResults extends React.Component<
       });
       const response = await axios.post<DeliverableSearchResponse>(
         `/api/asset/search?startAt=${this.state.startAt}&limit=${this.state.pageSize}`,
-        searchDoc
+        searchDoc,
+        {
+          cancelToken: this.state.cancelTokenSource.token,
+        }
       );
       if (response.data.results.length == 0) {
         console.log("Reached end of list");
         return this.setStatePromise({ loading: false });
       }
 
-      if (this.state.lastSearch && initialSearchDoc.title) {
-        if (initialSearchDoc.title.includes(this.state.lastSearch)) {
-          this.setState({
-            results: [],
-          });
-        }
-      }
-
-      this.setState({
-        lastSearch: initialSearchDoc.title,
-      });
-
       await this.setStatePromise((prevState: AssetSearchResultsState) => ({
-        results: this.state.results.concat(...response.data.results),
-        startAt: this.state.startAt + this.state.pageSize,
+        results: prevState.results.concat(...response.data.results),
+        startAt: prevState.startAt + this.state.pageSize,
       }));
 
       return this.state.startAt >= this.props.resultsLimit
         ? new Promise((resolve, reject) => resolve())
         : this.loadNextPage();
     } catch (err) {
-      return this.setStatePromise({
-        loading: false,
-        lastError: err.toString(),
-      });
+      if (err != "Cancel") {
+        return this.setStatePromise({
+          loading: false,
+          lastError: err.toString(),
+        });
+      }
     }
   }
 
@@ -277,8 +272,11 @@ class AssetSearchResults extends React.Component<
     snapshot?: any
   ) {
     if (prevProps.filter !== this.props.filter) {
+      this.state.cancelTokenSource.cancel();
       console.log("Filter updated, reloading results");
-      this.reset().then(() => this.loadNextPage());
+      this.reset().then(() => {
+        this.loadNextPage();
+      });
     }
   }
 
