@@ -274,9 +274,7 @@ class AssetSearchResults extends React.Component<
     if (prevProps.filter !== this.props.filter) {
       this.state.cancelTokenSource.cancel();
       console.log("Filter updated, reloading results");
-      this.reset().then(() => {
-        this.loadNextPage();
-      });
+      this.reset().then(() => this.loadNextPage());
     }
   }
 
