@@ -350,7 +350,6 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                   {master.link ? (
                     <a
                       className="no-overflow"
-                      target="_blank"
                       href={getMediaLink(master)}
                     >
                       {getMediaLink(master)}
