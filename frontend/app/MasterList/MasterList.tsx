@@ -348,10 +348,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
                 </TableCell>
                 <TableCell className="link">
                   {master.link ? (
-                    <a
-                      className="no-overflow"
-                      href={getMediaLink(master)}
-                    >
+                    <a className="no-overflow" href={getMediaLink(master)}>
                       {getMediaLink(master)}
                     </a>
                   ) : (
