@@ -40,6 +40,7 @@ describe("VidispineJobProgress", () => {
         openJob={openJobCb}
         onRecordNeedsUpdate={needsUpdateCb}
         modifiedDateTime="2020-09-03T10:41:26.798961Z"
+        status="Not ingested"
       />
     );
 
@@ -85,6 +86,7 @@ describe("VidispineJobProgress", () => {
         openJob={openJobCb}
         onRecordNeedsUpdate={needsUpdateCb}
         modifiedDateTime="239842987923479279827392739872sdfjsifhsdjfhsjdfhsdjfh8378237"
+        status="Not ingested"
       />
     );
 
