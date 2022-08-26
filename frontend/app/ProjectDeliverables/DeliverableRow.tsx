@@ -192,6 +192,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
               openJob={props.openJob}
               onRecordNeedsUpdate={() => props.onNeedsUpdate(deliverable.id)}
               modifiedDateTime={deliverable.modified_dt}
+              status={deliverable.status_string}
             />
           ) : null}
         </TableCell>

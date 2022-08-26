@@ -21,6 +21,7 @@ interface VidispineJobProgressProps {
   openJob: (jobID: string) => void;
   onRecordNeedsUpdate: () => void;
   modifiedDateTime: string;
+  status: string;
 }
 
 const useStyles = makeStyles({});
@@ -126,7 +127,9 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       console.log("no job data");
       return;
     }
-    loadJobData();
+    if (props.status != "Ready") {
+      loadJobData();
+    }
   };
 
   useEffect(() => {
