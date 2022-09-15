@@ -42,6 +42,7 @@ urlpatterns = [
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/oovvuu', OovvuuAPIView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/reutersconnect', ReutersConnectAPIView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logs', PlatformLogsView.as_view()),
+    path(r'api/bundle/-<int:project_id>/asset/<int:asset_id>/<platform>/logupdate', PlatformLogUpdateView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/logupdate', PlatformLogUpdateView.as_view()),
     path(r'api/bundle/<int:project_id>/asset/<int:asset_id>/<platform>/send', TriggerOutputView.as_view()),
     path(r'api/bundle/started', DeliverableAPIStarted.as_view()),

@@ -467,8 +467,12 @@ const SyndicationTriggerIcon: React.FC<SyndicationIconProps> = (props) => {
 const SyndicationTrigger: React.FC<SyndicationTriggerProps> = (props) => {
   const triggerUpload = async () => {
     try {
+      let bundleNumber: number = props.projectId;
+      if (props.projectId == -1) {
+        bundleNumber = 0;
+      }
       await axios.post(
-        `/api/bundle/${props.projectId}/asset/${props.assetId}/${props.platform}/send`
+        `/api/bundle/${bundleNumber}/asset/${props.assetId}/${props.platform}/send`
       );
       console.log("send initiated");
       props.sendInitiated();
