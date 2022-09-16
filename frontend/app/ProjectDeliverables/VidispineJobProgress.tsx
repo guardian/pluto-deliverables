@@ -13,7 +13,7 @@ import InfoIcon from "@material-ui/icons/Info";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import LaunchIcon from "@material-ui/icons/Launch";
 import { makeStyles } from "@material-ui/core/styles";
-import { getUnixTime, parseISO } from 'date-fns';
+import { getUnixTime, parseISO } from "date-fns";
 
 interface VidispineJobProgressProps {
   jobId: string;

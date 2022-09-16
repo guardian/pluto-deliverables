@@ -38,7 +38,7 @@ import {
   getDeliverableDailymotion,
   getDeliverableMainstream,
 } from "../utils/master-api-service";
-import { format, parseISO } from 'date-fns';
+import { format, parseISO } from "date-fns";
 
 interface SyndicationTriggerProps {
   uploadStatus: string | null;
@@ -336,7 +336,7 @@ const SyndicationDialog: React.FC<SyndicationDialogProps> = (props) => {
                 ? logMessages.map((item, index) => (
                     <TableRow>
                       <TableCell>
-                        {format(parseISO(item.timestamp), 'd/M/yyyy H:mm')}
+                        {format(parseISO(item.timestamp), "d/M/yyyy H:mm")}
                       </TableCell>
                       <TableCell>{item.log_line}</TableCell>
                     </TableRow>

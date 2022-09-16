@@ -5,7 +5,7 @@ import moxios from "moxios";
 import { act } from "react-dom/test-utils";
 import sinon from "sinon";
 import mock = jest.mock;
-import { format, parseISO } from 'date-fns';
+import { format, parseISO } from "date-fns";
 
 (global as any).deploymentRootPath = "";
 
@@ -131,7 +131,10 @@ describe("MasterList", () => {
                   .find(".MuiTableCell-root.MuiTableCell-body.publication-text")
                   .text()
               ).toEqual(
-                `Published since ${format(parseISO(masterList[0].publication_date), "EEE do MMM, HH:mm")}`
+                `Published since ${format(
+                  parseISO(masterList[0].publication_date),
+                  "EEE do MMM, HH:mm"
+                )}`
               );
               expect(
                 masterElement
@@ -257,7 +260,10 @@ describe("MasterList", () => {
                   .find(".MuiTableCell-root.MuiTableCell-body.publication-text")
                   .text()
               ).toEqual(
-                `Published since ${format(parseISO(publication_date), "EEE do MMM, HH:mm")}`
+                `Published since ${format(
+                  parseISO(publication_date),
+                  "EEE do MMM, HH:mm"
+                )}`
               );
               expect(
                 masterElement

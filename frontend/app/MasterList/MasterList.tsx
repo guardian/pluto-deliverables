@@ -32,7 +32,7 @@ import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import SyndicationTrigger from "./SyndicationTrigger";
 import SyndicationLastLog from "./SyndicationLastLog";
 import ViewListIcon from "@material-ui/icons/ViewList";
-import { format, parseISO } from 'date-fns';
+import { format, parseISO } from "date-fns";
 
 const useStyles = makeStyles({
   tableContainer: {
@@ -273,11 +273,17 @@ const MasterList: React.FC<MasterListProps> = (props) => {
     const { title, publication_date } = master;
 
     if (title === null && publication_date) {
-      return `Publication FAILED ${format(parseISO(publication_date), "EEE do MMM, HH:mm")}`;
+      return `Publication FAILED ${format(
+        parseISO(publication_date),
+        "EEE do MMM, HH:mm"
+      )}`;
     }
 
     if (publication_date) {
-      return `Published since ${format(parseISO(publication_date), "EEE do MMM, HH:mm")}`;
+      return `Published since ${format(
+        parseISO(publication_date),
+        "EEE do MMM, HH:mm"
+      )}`;
     }
 
     if (title) {
