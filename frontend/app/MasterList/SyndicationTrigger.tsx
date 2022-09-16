@@ -34,11 +34,11 @@ import {
 } from "@material-ui/core/styles";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import CloseIcon from "@material-ui/icons/Close";
-import moment from "moment";
 import {
   getDeliverableDailymotion,
   getDeliverableMainstream,
 } from "../utils/master-api-service";
+import { format, parseISO } from 'date-fns';
 
 interface SyndicationTriggerProps {
   uploadStatus: string | null;
@@ -336,7 +336,7 @@ const SyndicationDialog: React.FC<SyndicationDialogProps> = (props) => {
                 ? logMessages.map((item, index) => (
                     <TableRow>
                       <TableCell>
-                        {moment(item.timestamp).format("D/M/YYYY H:mm")}
+                        {format(parseISO(item.timestamp), 'd/M/yyyy H:mm')}
                       </TableCell>
                       <TableCell>{item.log_line}</TableCell>
                     </TableRow>

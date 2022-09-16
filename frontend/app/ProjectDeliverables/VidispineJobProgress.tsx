@@ -13,7 +13,7 @@ import InfoIcon from "@material-ui/icons/Info";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import LaunchIcon from "@material-ui/icons/Launch";
 import { makeStyles } from "@material-ui/core/styles";
-import moment from "moment";
+import { getUnixTime, parseISO } from 'date-fns';
 
 interface VidispineJobProgressProps {
   jobId: string;
@@ -49,8 +49,8 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
    * load in data for the job
    */
   const loadJobData = async (initialMount = false) => {
-    const aWeekAgo = moment(Date.now() - 604800000);
-    const modDateTime = moment(props.modifiedDateTime);
+    const aWeekAgo = getUnixTime(Date.now() - 604800000);
+    const modDateTime = getUnixTime(parseISO(props.modifiedDateTime));
     try {
       const response = await axios.get(
         `${props.vidispineBaseUrl}/API/job/${props.jobId}`

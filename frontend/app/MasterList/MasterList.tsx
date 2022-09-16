@@ -11,7 +11,6 @@ import {
   Chip,
   Tooltip,
 } from "@material-ui/core";
-import moment from "moment";
 import guardianEnabled from "../static/guardian_enabled.png";
 import guardianDisabled from "../static/guardian_disabled.png";
 import youtubeEnabled from "../static/youtube_enabled.png";
@@ -33,6 +32,7 @@ import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
 import SyndicationTrigger from "./SyndicationTrigger";
 import SyndicationLastLog from "./SyndicationLastLog";
 import ViewListIcon from "@material-ui/icons/ViewList";
+import { format, parseISO } from 'date-fns';
 
 const useStyles = makeStyles({
   tableContainer: {
@@ -273,15 +273,11 @@ const MasterList: React.FC<MasterListProps> = (props) => {
     const { title, publication_date } = master;
 
     if (title === null && publication_date) {
-      return `Publication FAILED ${moment(publication_date).format(
-        "ddd Do MMM, HH:mm"
-      )}`;
+      return `Publication FAILED ${format(parseISO(publication_date), "EEE do MMM, HH:mm")}`;
     }
 
     if (publication_date) {
-      return `Published since ${moment(publication_date).format(
-        "ddd Do MMM, HH:mm"
-      )}`;
+      return `Published since ${format(parseISO(publication_date), "EEE do MMM, HH:mm")}`;
     }
 
     if (title) {
