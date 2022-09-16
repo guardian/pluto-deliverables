@@ -1,6 +1,6 @@
 import React from "react";
-import moment from "moment";
 import { Typography } from "@material-ui/core";
+import { format, parseISO } from "date-fns";
 
 interface DateTimeFormatterProps {
   value?: string;
@@ -8,9 +8,9 @@ interface DateTimeFormatterProps {
 }
 
 const DateTimeFormatter: React.FC<DateTimeFormatterProps> = (props) => {
-  const formatString = props.formatString ?? "ddd Do MMM YYYY, HH:mm";
+  const formatString = props.formatString ?? "EEE do MMM yyyy, HH:mm";
   const maybeString = props.value
-    ? moment(props.value).format(formatString)
+    ? format(parseISO(props.value), formatString)
     : undefined;
   return maybeString ? <Typography>{maybeString}</Typography> : null;
 };
