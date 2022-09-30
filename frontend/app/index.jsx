@@ -91,6 +91,17 @@ class App extends React.Component {
     );
   }
 
+  componentDidMount() {
+    setTimeout(() => {
+      if (!this.state.isLoggedIn) {
+        console.log("Not logged in, redirecting to pluto-start.");
+        window.location.assign(
+          "/refreshLogin?returnTo=" + window.location.pathname
+        );
+      }
+    }, 3000);
+  }
+
   render() {
     if (!this.state.loading && !this.state.isLoggedIn) {
       console.log("not logged in, redirecting to route");
