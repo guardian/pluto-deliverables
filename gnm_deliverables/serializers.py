@@ -42,10 +42,15 @@ class DenormalisedAssetSerializer(DeliverableAssetSerializer):
 
 
 class DeliverableSerializer(serializers.ModelSerializer):
+    total_assets = serializers.SerializerMethodField()
     class Meta:
         model = Deliverable
         fields = ["pk", "project_id", "commission_id", "pluto_core_project_id", "name", "created",
-                  "local_open_uri", "local_path"]
+                  "total_assets", "local_open_uri", "local_path"]
+
+    def get_total_assets(self, obj):
+        return Deliverable.objects.filter(pluto_core_project_id=obj.pluto_core_project_id).count()
+
 
 
 class GNMWebsiteSerializer(serializers.ModelSerializer):
