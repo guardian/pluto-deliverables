@@ -34,7 +34,7 @@ from gnm_deliverables.files import create_folder_for_deliverable
 from gnm_deliverables.jwt_auth_backend import JwtRestAuth
 from gnm_deliverables.hmac_auth_backend import HmacRestAuth
 from gnm_deliverables.models import Deliverable, DeliverableAsset, YouTubeCategories, YouTubeChannels
-from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DenormalisedAssetSerializer, SearchRequestSerializer
+from gnm_deliverables.serializers import DeliverableAssetSerializer, DeliverableSerializer, DeliverableSerializerExtended, DenormalisedAssetSerializer, SearchRequestSerializer
 from gnm_deliverables.vs_notification import VSNotification
 from datetime import datetime, timedelta
 from django.db.models import Count
@@ -575,7 +575,7 @@ class BundlesForCommission(ListAPIView):
     authentication_classes = (JwtRestAuth, HmacRestAuth)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
-    serializer_class = DeliverableSerializer
+    serializer_class = DeliverableSerializerExtended
 
     def get_queryset(self):
         return Deliverable.objects.filter(commission_id=self.kwargs['commissionId'])

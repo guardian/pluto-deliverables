@@ -43,6 +43,14 @@ class DenormalisedAssetSerializer(DeliverableAssetSerializer):
 
 
 class DeliverableSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Deliverable
+        fields = ["pk", "project_id", "commission_id", "pluto_core_project_id", "name", "created",
+                  "local_open_uri", "local_path"]
+
+
+class DeliverableSerializerExtended(serializers.ModelSerializer):
     total_assets = serializers.SerializerMethodField()
     class Meta:
         model = Deliverable
@@ -55,7 +63,6 @@ class DeliverableSerializer(serializers.ModelSerializer):
             return DeliverableAsset.objects.filter(deliverable=parent_bundle).count()
         except ObjectDoesNotExist:
             return 0
-
 
 class GNMWebsiteSerializer(serializers.ModelSerializer):
     class Meta:
