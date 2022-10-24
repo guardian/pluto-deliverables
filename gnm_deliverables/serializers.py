@@ -1,5 +1,6 @@
 from django.utils.functional import cached_property
 from rest_framework import serializers
+from django.core.exceptions import ObjectDoesNotExist
 
 from .choices import DELIVERABLE_ASSET_STATUSES_DICT
 from .models import DeliverableAsset, Deliverable, GNMWebsite, Youtube, Mainstream, DailyMotion, \
@@ -49,8 +50,11 @@ class DeliverableSerializer(serializers.ModelSerializer):
                   "total_assets", "local_open_uri", "local_path"]
 
     def get_total_assets(self, obj):
-        return Deliverable.objects.filter(pluto_core_project_id=obj.pluto_core_project_id).count()
-
+        try:
+            parent_bundle = Deliverable.objects.get(pluto_core_project_id=obj.pluto_core_project_id)
+            return DeliverableAsset.objects.filter(deliverable=parent_bundle).count()
+        except ObjectDoesNotExist:
+            return None
 
 
 class GNMWebsiteSerializer(serializers.ModelSerializer):
