@@ -4,6 +4,27 @@ from rest_framework.test import APIClient
 from mock import patch
 import json
 
+class TestBundlesForCommission(TestCase):
+    fixtures = [
+        "assets.yaml",
+        "bundles.yaml",
+        "users.yaml"
+    ]
+
+    def test_commission_endpoint(self):
+        """
+        commission endpoint should include total_assets
+        :return:
+        """
+        user = User.objects.get(username="peter")
+        client = APIClient()
+        client.force_authenticate(user)
+
+        response = client.get("/api/bundle/commission/4444")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "total_assets")
+        self.assertEqual(response.json()[0]["total_assets"], 3)
+
 
 class TestCountDeliverablesAPIView(TestCase):
     fixtures = [
