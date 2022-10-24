@@ -21,7 +21,6 @@ class TestBundlesForCommission(TestCase):
         client.force_authenticate(user)
 
         response = client.get("/api/bundle/commission/4444")
-        print(response.json()[0]["total_assets"])
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "total_assets")
         self.assertEqual(response.json()[0]["total_assets"], 3)

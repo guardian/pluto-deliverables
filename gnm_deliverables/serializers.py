@@ -54,7 +54,7 @@ class DeliverableSerializer(serializers.ModelSerializer):
             parent_bundle = Deliverable.objects.get(pluto_core_project_id=obj.pluto_core_project_id)
             return DeliverableAsset.objects.filter(deliverable=parent_bundle).count()
         except ObjectDoesNotExist:
-            return None
+            return 0
 
 
 class GNMWebsiteSerializer(serializers.ModelSerializer):
