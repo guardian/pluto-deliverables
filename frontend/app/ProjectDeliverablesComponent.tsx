@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import LocationLink from "./LocationLink";
 import { Helmet } from "react-helmet";
 import { Breadcrumb } from "pluto-headers";
+import { TableVirtuoso } from 'react-virtuoso'
 import {
   Button,
   IconButton,
   makeStyles,
   Paper,
-  Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
+  Table,
   TablePagination,
   TableRow,
   TableSortLabel,
@@ -27,6 +28,9 @@ import {
   TextField,
   Collapse,
   Tooltip,
+  Padding,
+  Size,
+  TableTypeMap,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -44,10 +48,11 @@ import {
   getProjectDeliverables,
   deleteProjectDeliverable,
 } from "./api-service";
+
 import MasterList from "./MasterList/MasterList";
 import DeliverableRow from "./ProjectDeliverables/DeliverableRow";
 import BeforeUnloadComponent from "react-beforeunload-component";
-import { Check, CloudUpload } from "@material-ui/icons";
+import {Check, CloudUpload} from "@material-ui/icons";
 import UploaderMain from "./DeliverableUploader/UploaderMain";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import CloseIcon from "@material-ui/icons/Close";
@@ -59,6 +64,7 @@ import {
 } from "@material-ui/core/styles";
 import CreateBundleDialogContent from "./CreateBundle/CreateBundleDialogContent";
 import CustomDialogTitle from "./CustomDialogTitle";
+import {CommonProps} from "@material-ui/core/OverridableComponent";
 
 interface HeaderTitles {
   label: string;
@@ -69,15 +75,15 @@ declare var deploymentRootPath: string;
 declare var vidispineBaseUri: string;
 
 const tableHeaderTitles: HeaderTitles[] = [
-  { label: "Selector" },
-  { label: "Filename", key: "filename" },
-  { label: "Version" },
-  { label: "Size", key: "size" },
-  { label: "Duration" },
-  { label: "Type", key: "type" },
-  { label: "Last modified", key: "modified_dt" },
-  { label: "Import progress" },
-  { label: "Action/status", key: "status" },
+  {label: "Selector"},
+  {label: "Filename", key: "filename"},
+  {label: "Version"},
+  {label: "Size", key: "size"},
+  {label: "Duration"},
+  {label: "Type", key: "type"},
+  {label: "Last modified", key: "modified_dt"},
+  {label: "Import progress"},
+  {label: "Action/status", key: "status"},
 ];
 
 const useStyles = makeStyles({
@@ -138,9 +144,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   // React Router
   const history = useHistory();
   // @ts-ignore
-  const { search } = useLocation();
+  const {search} = useLocation();
   // @ts-ignore
-  const { projectid } = useParams();
+  const {projectid} = useParams();
 
   // React state
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
@@ -149,7 +155,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [typeOptions, setTypeOptions] = useState<DeliverableTypes>({});
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [parentBundleInfo, setParentBundleInfo] = useState<Project | undefined>(
-    undefined
+      undefined
   );
   const [assetToAdd, setAssetToAdd] = useState<string>("");
   const [adoptInProgress, setAdoptInProgress] = useState<boolean>(false);
@@ -176,9 +182,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       });
 
       const projectDeliverables = await getProjectDeliverables(
-        projectid,
-        orderBy,
-        order
+          projectid,
+          orderBy,
+          order
       );
       setDeliverables(projectDeliverables);
       await loadStartedStatus();
@@ -201,9 +207,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
     try {
       const projectDeliverables = await getProjectDeliverables(
-        projectid,
-        orderBy,
-        order
+          projectid,
+          orderBy,
+          order
       );
       setDeliverables(projectDeliverables);
       await loadStartedStatus();
@@ -263,9 +269,9 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     try {
       await deleteProjectDeliverable(projectid, selectedIDs);
       setDeliverables(
-        deliverables.filter(
-          (deliverable) => !selectedIDs.includes(deliverable.id)
-        )
+          deliverables.filter(
+              (deliverable) => !selectedIDs.includes(deliverable.id)
+          )
       );
       setSelectedIDs([]);
     } catch (error) {
@@ -284,13 +290,13 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
     try {
       const result = await axios.post(
-        `/api/bundle/adopt?project_id=${projectid}&vs_id=${assetToAdd}`,
-        {},
-        {
-          headers: {
-            "X-CSRFToken": Cookies.get("csrftoken"),
-          },
-        }
+          `/api/bundle/adopt?project_id=${projectid}&vs_id=${assetToAdd}`,
+          {},
+          {
+            headers: {
+              "X-CSRFToken": Cookies.get("csrftoken"),
+            },
+          }
       );
       setCentralMessage(`Attached ${assetToAdd} succeessfully`);
       setAssetToAdd("");
@@ -300,13 +306,13 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
       //TODO: improve error handling. the endpoint returns 409=>item already exists, 404=?item not found, 400=>invalid argument, 500=>server error.
       console.error("failed to perform adoption: ", error);
       setCentralMessage(
-        `Could not attach ${assetToAdd}, please contact MultimediaTech`
+          `Could not attach ${assetToAdd}, please contact MultimediaTech`
       );
     }
   };
 
   const getSelectedDeliverables = (): Deliverable[] =>
-    deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
+      deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
 
   useEffect(() => {
     loadDelTypes();
@@ -326,7 +332,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const loadStartedStatus = async () => {
     try {
       const response = await axios.get(
-        `/api/bundle/started?project_id=${projectid}`
+          `/api/bundle/started?project_id=${projectid}`
       );
       if (response.data.ingests_started == true) {
         setBlockRoute(false);
@@ -349,7 +355,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   };
 
   const sortByColumn = (property: keyof Deliverable) => (
-    _event: React.MouseEvent<unknown>
+      _event: React.MouseEvent<unknown>
   ) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -361,42 +367,42 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   }, [order, orderBy]);
 
   return (
-    <>
-      {parentBundleInfo?.name ? (
-        <Helmet>
-          <title>[{parentBundleInfo.name}] – Deliverables</title>
-        </Helmet>
-      ) : null}
-      <BeforeUnloadComponent
-        blockRoute={blockRoute}
-        ignoreChildrenLinks={true}
-        alertMessage="One or more items are not ingesting. Are you sure you want to leave?"
-      >
-        <div>
-          <Breadcrumb projectId={projectid} />
-          {parentBundleInfo && projectid != "-1" ? (
-            <LocationLink
-              bundleInfo={parentBundleInfo}
-              networkUploadSelected={() => setShowingUploader(true)}
-            />
-          ) : (
-            ""
-          )}
-        </div>
-        <span className={classes.buttonContainer}>
+      <>
+        {parentBundleInfo?.name ? (
+            <Helmet>
+              <title>[{parentBundleInfo.name}] – Deliverables</title>
+            </Helmet>
+        ) : null}
+        <BeforeUnloadComponent
+            blockRoute={blockRoute}
+            ignoreChildrenLinks={true}
+            alertMessage="One or more items are not ingesting. Are you sure you want to leave?"
+        >
+          <div>
+            <Breadcrumb projectId={projectid}/>
+            {parentBundleInfo && projectid != "-1" ? (
+                <LocationLink
+                    bundleInfo={parentBundleInfo}
+                    networkUploadSelected={() => setShowingUploader(true)}
+                />
+            ) : (
+                ""
+            )}
+          </div>
+          <span className={classes.buttonContainer}>
           <Button
-            className={classes.buttons}
-            variant="outlined"
-            disabled={projectid === "-1"}
-            onClick={() => doRefresh()}
+              className={classes.buttons}
+              variant="outlined"
+              disabled={projectid === "-1"}
+              onClick={() => doRefresh()}
           >
             Refresh
           </Button>
           <Button
-            className={classes.buttons}
-            variant="outlined"
-            disabled={selectedIDs.length === 0 || projectid === -1}
-            onClick={() => setOpenDialog(true)}
+              className={classes.buttons}
+              variant="outlined"
+              disabled={selectedIDs.length === 0 || projectid === -1}
+              onClick={() => setOpenDialog(true)}
           >
             Delete
           </Button>
@@ -404,81 +410,87 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
             {centralMessage}
           </Typography>
           <Button
-            className={classes.addAssetButton}
-            style={{ display: assetToAdd == "" ? "none" : "inherit" }}
-            variant="outlined"
-            disabled={assetToAdd == "" || adoptInProgress}
-            onClick={doAdoptItem}
+              className={classes.addAssetButton}
+              style={{display: assetToAdd == "" ? "none" : "inherit"}}
+              variant="outlined"
+              disabled={assetToAdd == "" || adoptInProgress}
+              onClick={doAdoptItem}
           >
             Add Item
           </Button>
           <TextField
-            className={classes.adoptAssetInput}
-            onChange={(evt) => setAssetToAdd(evt.target.value)}
-            value={assetToAdd}
-            label="paste Pluto master or asset ID"
-            InputProps={{
-              readOnly: adoptInProgress,
-            }}
+              className={classes.adoptAssetInput}
+              onChange={(evt) => setAssetToAdd(evt.target.value)}
+              value={assetToAdd}
+              label="paste Pluto master or asset ID"
+              InputProps={{
+                readOnly: adoptInProgress,
+              }}
           />
         </span>
-        <Paper elevation={3}>
-          <TableContainer>
-            <Table className={classes.table}>
-              <TableHead>
+          <Paper elevation={3}>
+            <TableVirtuoso
+                style={{height: 400}}
+                data={deliverables}
+                totalCount={deliverables.length}>
+              components={{
+              Scroller: React.forwardRef((props, ref) => <TableContainer component={Paper} {...props} ref={ref}/>),
+              Table: (props: JSX.IntrinsicAttributes & { component: React.ElementType<any>; } & { padding?: Padding | undefined; size?: Size | undefined; stickyHeader?: boolean | undefined; } & CommonProps<TableTypeMap<{}, "table">> & Pick<any, string | number | symbol>) => <Table {...props} style={{ borderCollapse: 'separate' }} className={classes.table}/>,
+              TableHead: TableHead,
+              TableRow: TableRow,
+              TableBody: TableBody,
+            }}
+              fixedHeaderContent={()=>(
                 <TableRow>
                   {tableHeaderTitles.map((entry, idx) => (
-                    <TableCell
-                      key={entry.label ? entry.label : idx}
-                      sortDirection={order}
-                    >
-                      {entry.key ? (
-                        <TableSortLabel
-                          active={orderBy === entry.key}
-                          direction={orderBy === entry.key ? order : "asc"}
-                          onClick={sortByColumn(entry.key)}
-                        >
-                          {entry.label}
-                        </TableSortLabel>
-                      ) : (
-                        entry.label
-                      )}
-                    </TableCell>
+                      <TableCell
+                          key={entry.label ? entry.label : idx}
+                          sortDirection={order}
+                      >
+                        {entry.key ? (
+                            <TableSortLabel
+                                active={orderBy === entry.key}
+                                direction={orderBy === entry.key ? order : "asc"}
+                                onClick={sortByColumn(entry.key)}
+                            >
+                              {entry.label}
+                            </TableSortLabel>
+                        ) : (
+                            entry.label
+                        )}
+                      </TableCell>
                   ))}
                   <TableCell />
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {deliverables.map((del, idx) => (
-                  <DeliverableRow
-                    key={del.id.toString()}
-                    deliverable={del}
-                    classes={classes}
-                    typeOptions={typeOptions}
-                    setCentralMessage={setCentralMessage}
-                    onCheckedUpdated={(isChecked) =>
-                      isChecked
-                        ? setSelectedIDs((prevContent) =>
-                            prevContent.concat(del.id)
-                          )
-                        : setSelectedIDs((prevContent) =>
-                            prevContent.filter((value) => value !== del.id)
-                          )
-                    }
-                    parentBundleInfo={parentBundleInfo}
-                    onNeedsUpdate={() => loadRecord()}
-                    vidispineBaseUri={vidispineBaseUri}
-                    openJob={(jobId: string) => {
-                      const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
-                      if (w) w.focus();
-                    }}
-                    project_id={projectid}
-                    onSyndicationStarted={() => {}}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+            )}
+              itemContent={(index: any, item: Deliverable) => (
+                      <DeliverableRow
+                          key={item.id.toString()}
+                          deliverable={item}
+                          classes={classes}
+                          typeOptions={typeOptions}
+                          setCentralMessage={setCentralMessage}
+                          onCheckedUpdated={(isChecked) =>
+                              isChecked
+                                  ? setSelectedIDs((prevContent) =>
+                                      prevContent.concat(item.id)
+                                  )
+                                  : setSelectedIDs((prevContent) =>
+                                      prevContent.filter((value) => value !== item.id)
+                                  )
+                          }
+                          parentBundleInfo={parentBundleInfo}
+                          onNeedsUpdate={() => loadRecord()}
+                          vidispineBaseUri={vidispineBaseUri}
+                          openJob={(jobId: string) => {
+                            const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
+                            if (w) w.focus();
+                          }}
+                          project_id={projectid}
+                          onSyndicationStarted={() => {}}
+                      />
+                  )}
+          </TableVirtuoso>
         </Paper>
         <hr />
         <Dialog
