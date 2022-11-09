@@ -432,23 +432,11 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           <TableVirtuoso
             style={{ height: 400 }}
             data={deliverables}
-            totalCount={deliverables.length}
-          >
-            components=
-            {{
+            components={{
               Scroller: React.forwardRef((props, ref) => (
                 <TableContainer component={Paper} {...props} ref={ref} />
               )),
-              Table: (
-                props: JSX.IntrinsicAttributes & {
-                  component: React.ElementType<any>;
-                } & {
-                  padding?: Padding | undefined;
-                  size?: Size | undefined;
-                  stickyHeader?: boolean | undefined;
-                } & CommonProps<TableTypeMap<{}, "table">> &
-                  Pick<any, string | number | symbol>
-              ) => (
+              Table: (props: any) => (
                 <Table
                   {...props}
                   style={{ borderCollapse: "separate" }}
@@ -459,8 +447,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
               TableRow: TableRow,
               TableBody: TableBody,
             }}
-            fixedHeaderContent=
-            {() => (
+            fixedHeaderContent={() => (
               <TableRow>
                 {tableHeaderTitles.map((entry, idx) => (
                   <TableCell
@@ -483,8 +470,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                 <TableCell />
               </TableRow>
             )}
-            itemContent=
-            {(index: any, item: Deliverable) => (
+            itemContent={(index: any, item: Deliverable) => (
               <DeliverableRow
                 key={item.id.toString()}
                 deliverable={item}
@@ -511,7 +497,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                 onSyndicationStarted={() => {}}
               />
             )}
-          </TableVirtuoso>
+          />
         </Paper>
         <hr />
         <Dialog
