@@ -428,77 +428,75 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
             }}
           />
         </span>
-        <Paper elevation={3}>
-          <TableVirtuoso
-            style={{ height: 400 }}
-            data={deliverables}
-            components={{
-              Scroller: React.forwardRef((props, ref) => (
-                <TableContainer component={Paper} {...props} ref={ref} />
-              )),
-              Table: (props: any) => (
-                <Table
-                  {...props}
-                  style={{ borderCollapse: "separate" }}
-                  className={classes.table}
-                />
-              ),
-              TableHead: TableHead,
-              TableRow: TableRow,
-              TableBody: TableBody,
-            }}
-            fixedHeaderContent={() => (
-              <TableRow>
-                {tableHeaderTitles.map((entry, idx) => (
-                  <TableCell
-                    key={entry.label ? entry.label : idx}
-                    sortDirection={order}
-                  >
-                    {entry.key ? (
-                      <TableSortLabel
-                        active={orderBy === entry.key}
-                        direction={orderBy === entry.key ? order : "asc"}
-                        onClick={sortByColumn(entry.key)}
-                      >
-                        {entry.label}
-                      </TableSortLabel>
-                    ) : (
-                      entry.label
-                    )}
-                  </TableCell>
-                ))}
-                <TableCell />
-              </TableRow>
-            )}
-            itemContent={(index: any, item: Deliverable) => (
-              <DeliverableRow
-                key={item.id.toString()}
-                deliverable={item}
-                classes={classes}
-                typeOptions={typeOptions}
-                setCentralMessage={setCentralMessage}
-                onCheckedUpdated={(isChecked) =>
-                  isChecked
-                    ? setSelectedIDs((prevContent) =>
-                        prevContent.concat(item.id)
-                      )
-                    : setSelectedIDs((prevContent) =>
-                        prevContent.filter((value) => value !== item.id)
-                      )
-                }
-                parentBundleInfo={parentBundleInfo}
-                onNeedsUpdate={() => loadRecord()}
-                vidispineBaseUri={vidispineBaseUri}
-                openJob={(jobId: string) => {
-                  const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
-                  if (w) w.focus();
-                }}
-                project_id={projectid}
-                onSyndicationStarted={() => {}}
+        <TableVirtuoso
+          style={{ height: 600 }}
+          data={deliverables}
+          components={{
+            Scroller: React.forwardRef((props, ref) => (
+              <TableContainer component={Paper} {...props} ref={ref} />
+            )),
+            Table: (props: any) => (
+              <Table
+                {...props}
+                style={{ borderCollapse: "separate" }}
+                className={classes.table}
               />
-            )}
-          />
-        </Paper>
+            ),
+            TableHead: TableHead,
+            TableRow: TableRow,
+            TableBody: React.forwardRef((props, ref) => (
+              <TableBody {...props} ref={ref} />
+            )),
+          }}
+          fixedHeaderContent={() => (
+            <TableRow>
+              {tableHeaderTitles.map((entry, idx) => (
+                <TableCell
+                  key={entry.label ? entry.label : idx}
+                  sortDirection={order}
+                >
+                  {entry.key ? (
+                    <TableSortLabel
+                      active={orderBy === entry.key}
+                      direction={orderBy === entry.key ? order : "asc"}
+                      onClick={sortByColumn(entry.key)}
+                    >
+                      {entry.label}
+                    </TableSortLabel>
+                  ) : (
+                    entry.label
+                  )}
+                </TableCell>
+              ))}
+              <TableCell />
+            </TableRow>
+          )}
+          itemContent={(index: any, item: Deliverable) => (
+            <DeliverableRow
+              key={item.id.toString()}
+              deliverable={item}
+              classes={classes}
+              typeOptions={typeOptions}
+              setCentralMessage={setCentralMessage}
+              onCheckedUpdated={(isChecked) =>
+                isChecked
+                  ? setSelectedIDs((prevContent) => prevContent.concat(item.id))
+                  : setSelectedIDs((prevContent) =>
+                      prevContent.filter((value) => value !== item.id)
+                    )
+              }
+              parentBundleInfo={parentBundleInfo}
+              onNeedsUpdate={() => loadRecord()}
+              vidispineBaseUri={vidispineBaseUri}
+              openJob={(jobId: string) => {
+                const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
+                if (w) w.focus();
+              }}
+              project_id={projectid}
+              onSyndicationStarted={() => {}}
+            />
+          )}
+        />
         <hr />
         <Dialog
           open={openDialog}
