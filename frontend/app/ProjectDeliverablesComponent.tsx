@@ -429,7 +429,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
           />
         </span>
         <TableVirtuoso
-          style={{ height: 600 }}
+          style={{ height: 1000 }}
           data={deliverables}
           components={{
             Scroller: React.forwardRef((props, ref) => (
@@ -488,10 +488,11 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
               parentBundleInfo={parentBundleInfo}
               onNeedsUpdate={() => loadRecord()}
               vidispineBaseUri={vidispineBaseUri}
-              openJob={(jobId: string) => {
-                const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
-                if (w) w.focus();
-              }}
+              openJob={(jobId: string) => {}}
+              // openJob={(jobId: string) => {
+              //   const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
+              //   if (w) w.focus();
+              // }}
               project_id={projectid}
               onSyndicationStarted={() => {}}
             />
