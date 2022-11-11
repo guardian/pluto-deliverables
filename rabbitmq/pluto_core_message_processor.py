@@ -3,6 +3,7 @@ import logging
 from gnm_deliverables.models import DeliverableAsset, Deliverable
 import os
 from gnm_deliverables.files import get_path_for_deliverable
+import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ class PlutoCoreMessageProcessor(MessageProcessor):
 
             try:
                 if os.path.exists(str(get_path_for_deliverable(parent_bundle.name))):
-                    os.rmdir(str(get_path_for_deliverable(parent_bundle.name)))
+                    shutil.rmtree(str(get_path_for_deliverable(parent_bundle.name)), ignore_errors=True)
             except Exception as e:
                 logger.error("Could not delete folder for bundle {0}: {1}".format(str(body["project_id"]), str(e)))
 
