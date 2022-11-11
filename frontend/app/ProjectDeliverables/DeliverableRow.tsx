@@ -94,7 +94,10 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   };
 
   useEffect(() => {
-    updateVidispineItem(0);
+    const interval = setInterval(() => {
+      updateVidispineItem(0).then(() => {});
+    }, 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const updateItemType = async (assetId: bigint, newvalue: number) => {
