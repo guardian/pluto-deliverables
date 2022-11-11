@@ -51,6 +51,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
   };
 
   const loadProjectInfo = async () => {
+    if (props.projectId === -1) return;
     try {
       const response = await axios.get<PlutoCoreProjectResponse>(
         `../pluto-core/api/project/${props.projectId}`

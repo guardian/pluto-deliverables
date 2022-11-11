@@ -99,6 +99,10 @@ const CreateBundleDialogContent: React.FC<CreateBundleDialogContentProps> = (
 
   const loadProjectInfo = async () => {
     setLoading(true);
+    if (props.projectid === -1) {
+      setLoading(false);
+      return;
+    }
     try {
       const response = await axios.get(
         `/pluto-core/api/project/${props.projectid}`
