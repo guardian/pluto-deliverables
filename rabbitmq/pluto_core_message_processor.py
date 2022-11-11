@@ -26,10 +26,10 @@ class PlutoCoreMessageProcessor(MessageProcessor):
         :param body:
         :return:
         """
-        logger.info("Got incoming message: " + str(body))
-        logger.info("Exchange name: {0}".format(exchange_name))
-        logger.info("Routing key: {0}".format(routing_key))
-        logger.info("Delivery tag: {0}".format(delivery_tag))
+        logger.debug("Got incoming message: " + str(body))
+        logger.debug("Exchange name: {0}".format(exchange_name))
+        logger.debug("Routing key: {0}".format(routing_key))
+        logger.debug("Delivery tag: {0}".format(delivery_tag))
 
         try:
             parent_bundle = Deliverable.objects.get(pluto_core_project_id=body["project_id"])
