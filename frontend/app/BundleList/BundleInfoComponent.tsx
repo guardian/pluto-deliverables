@@ -72,6 +72,7 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
   };
 
   const loadProjectInfo = async () => {
+    if (props.projectId == -1) return;
     try {
       const response = await axios({
         method: "get",
