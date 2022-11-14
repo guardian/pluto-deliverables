@@ -5,6 +5,7 @@ from .StoragetierArchivedMessageProcessor import StoragetierArchivedMessageProce
 from .CDSResponderProcessor import CDSResponderProcessor, CDSInvalidProcessor
 from .assetsweeper_message_processor import AssetSweeperMessageProcessor
 from .vidispine_item_processor import VidispineItemProcessor
+from .pluto_core_message_processor import PlutoCoreMessageProcessor
 
 ##This structure is imported by name in the run_rabbitmq_responder
 EXCHANGE_MAPPINGS = [
@@ -39,5 +40,9 @@ EXCHANGE_MAPPINGS = [
     {
         "exchange": 'vidispine-events',
         "handler": VidispineItemProcessor(),
+    },
+    {
+        "exchange": 'pluto-deliverables',
+        "handler": PlutoCoreMessageProcessor(),
     },
 ]
