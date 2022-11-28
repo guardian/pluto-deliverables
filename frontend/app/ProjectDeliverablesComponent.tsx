@@ -313,6 +313,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   }, []);
 
   useEffect(() => {
+    console.log("DEBUG: haveExistingBundle", haveExistingBundle);
     const performLoad = async () => {
       await Promise.all([loadRecord(), loadParentBundle()]);
     };

@@ -91,6 +91,11 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
       setJobData(jobInfo);
       setLastError(undefined);
       //let the parent know when the job finishes, this triggers a reload of the row data
+      console.log(
+        "DEBUG: !initialMount && jobInfo?.didFinish(): ",
+        !initialMount,
+        jobInfo?.didFinish()
+      );
       if (!initialMount && jobInfo?.didFinish()) props.onRecordNeedsUpdate();
     } catch (err) {
       if (err instanceof VError) {
@@ -122,7 +127,8 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
    */
   const updateHandler = () => {
     const job = jobDataRef.current;
-    console.log(job?.didFinish());
+    console.log("DEBUG: job?.didFinish", job?.didFinish());
+    console.log("DEBUG: props.status", props.status);
     if (!job) {
       console.log("no job data");
       return;

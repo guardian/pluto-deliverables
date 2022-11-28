@@ -88,6 +88,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   const updateHandler = async () => {
     const refreshed_deliverable = await getDeliverable(deliverable.id);
     setDeliverable(refreshed_deliverable);
+    console.log("DEBUG: deliverable.status_string", deliverable.status_string);
     if (deliverable.status_string == "Ingested") {
       window.clearInterval();
     }
