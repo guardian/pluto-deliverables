@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Collapse,
   Grid,
@@ -35,7 +35,7 @@ interface DeliverableRowProps {
   parentBundleInfo?: Project;
   setCentralMessage: (msg: string) => void;
   onCheckedUpdated: (isChecked: boolean) => void;
-  onNeedsUpdate: (assetId: bigint) => void;
+  onNeedsUpdate: () => Promise<void>;
   onOnlineLoadError?: (err: string) => void;
   vidispineBaseUri: string;
   openJob: (jobId: string) => void;
@@ -51,7 +51,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
     props.deliverable
   );
 
-  const updateVidispineItem = async (attempt: number) => {
+  const updateVidispineItem = async () => {
     if (!deliverable.online_item_id) {
       console.log(
         `Deliverable asset ${deliverable.filename} has no online item id`
@@ -63,7 +63,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
     try {
       const response = await axios.get(url);
       const item = new VidispineItem(response.data); //throws a VError if the data is not valid
-      console.log(`Got item data ${item}`);
+      console.log("Got item data ", item);
       setVersion(item.getLatestVersion());
 
       const maybeDuration = item.getMetadataString("durationSeconds");
@@ -88,18 +88,17 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   const updateHandler = async () => {
     const refreshed_deliverable = await getDeliverable(deliverable.id);
     setDeliverable(refreshed_deliverable);
-    if (deliverable.status_string == "Ingested") {
-      window.clearInterval();
+    if (["Ready", "Ingested"].includes(deliverable.status_string)) {
+      clearInterval();
     }
   };
 
   useEffect(() => {
-    updateVidispineItem(0);
+    updateVidispineItem();
   }, []);
 
   const updateItemType = async (assetId: bigint, newvalue: number) => {
     const url = `/api/bundle/${props.parentBundleInfo?.pluto_core_project_id}/asset/${assetId}/setType`;
-
     try {
       props.setCentralMessage("Updating item type...");
       await axios.put(
@@ -111,9 +110,9 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           },
         }
       );
-      window.setTimeout(() => {
+      setTimeout(() => {
         props.setCentralMessage("Update completed");
-        props.onNeedsUpdate(deliverable.id);
+        props.onNeedsUpdate;
       }, 1000);
     } catch (error) {
       console.error("failed to update type: ", error);
@@ -132,7 +131,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           "X-CSRFToken": Cookies.get("csrftoken"),
         },
       });
-      props.onNeedsUpdate(deliverable.id);
+      props.onNeedsUpdate;
       props.setCentralMessage("Ingest process started");
     } catch (error) {
       console.error("Failed to retry job: ", error);
@@ -145,14 +144,20 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   }, [props.deliverable]);
 
   useEffect(() => {
-    let timerId = -1;
-    if (deliverable.status_string != "Ingested") {
-      timerId = window.setTimeout(updateHandler, 5000);
+    if (!["Ready"].includes(deliverable.status_string)) {
+      const timer = setTimeout(updateHandler, 5000);
+      return () => {
+        clearTimeout(timer);
+      };
     }
-    return () => {
-      if (timerId != -1) window.clearTimeout(timerId);
-    };
-  }, [deliverable]);
+  }, [deliverable, version, duration]);
+
+  const [rerender, setRerender] = useState(false);
+  // Updates item after vidispine ingest is complete
+  const onRecordNeedsUpdate = () => {
+    console.log("DEBUG: Vidispine ingest complete");
+    // TODO: Update item version and duration after ingest is complete
+  };
 
   return (
     <React.Fragment>
@@ -174,6 +179,9 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
           {duration ? <DurationFormatter durationSeconds={duration} /> : "-"}
         </TableCell>
         <TableCell>
+          <DateTimeFormatter value={deliverable.ingest_complete_dt} />
+        </TableCell>
+        <TableCell>
           <DeliverableTypeSelector
             content={props.typeOptions}
             showTip={true}
@@ -190,7 +198,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
               jobId={deliverable.job_id}
               vidispineBaseUrl={props.vidispineBaseUri}
               openJob={props.openJob}
-              onRecordNeedsUpdate={() => props.onNeedsUpdate(deliverable.id)}
+              onRecordNeedsUpdate={onRecordNeedsUpdate}
               modifiedDateTime={deliverable.modified_dt}
               status={deliverable.status_string}
             />
@@ -241,4 +249,4 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   );
 };
 
-export default DeliverableRow;
+export default React.memo(DeliverableRow);

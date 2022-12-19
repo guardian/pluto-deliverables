@@ -28,6 +28,7 @@ describe("MasterList", () => {
       size: BigInt(1),
       access_dt: "",
       modified_dt: "",
+      ingest_complete_dt: "",
       changed_dt: "",
       deliverable: BigInt(1),
       status: BigInt(1),
