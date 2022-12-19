@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { render } from "react-dom";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { CssBaseline } from "@material-ui/core";
@@ -79,7 +79,6 @@ class App extends React.Component {
   }
 
   async onLoginValid(valid, loginData) {
-    console.log("onLoginValid: ", valid, loginData);
     this.setState(
       {
         isLoggedIn: valid,

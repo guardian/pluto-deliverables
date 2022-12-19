@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import axios from "axios";
 import { VidispineJob } from "../vidispine/job/VidispineJob";
 import { VError } from "ts-interface-checker";
@@ -28,7 +28,7 @@ const useStyles = makeStyles({});
 
 const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   const [jobData, setJobData] = useState<VidispineJob | undefined>(undefined);
-  const [updateTimer, setUpdateTimer] = useState<number | undefined>(undefined);
+  const [updateTimer, setUpdateTimer] = useState<number>(Date.now());
   const [lastError, setLastError] = useState<string | undefined>(undefined);
 
   //we need to use a reference so that the timer callback can get access to the job data
@@ -101,8 +101,8 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
           err
         );
         setLastError("Did not understand response");
-        window.clearInterval(updateTimer);
-        setUpdateTimer(undefined);
+        clearInterval(updateTimer);
+        setUpdateTimer(Date.now());
       } else if (err.response?.status == 404) {
         if (aWeekAgo < modDateTime) {
           console.error("Job not found: ", err);
@@ -122,13 +122,14 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
    */
   const updateHandler = () => {
     const job = jobDataRef.current;
-    console.log(job?.didFinish());
     if (!job) {
       console.log("no job data");
       return;
     }
     if (props.status != "Ready") {
       loadJobData();
+    } else {
+      return;
     }
   };
 
@@ -137,13 +138,16 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
 
     return () => {
       console.log("clearing update timer for ", props.jobId);
-      if (updateTimer) window.clearInterval(updateTimer);
+      if (updateTimer) clearInterval(updateTimer);
     };
-  }, []);
+  }, [props.status]);
 
   useEffect(() => {
-    if (updateTimer) window.clearInterval(updateTimer);
-    setUpdateTimer(window.setInterval(updateHandler, 5000));
+    const interval = setInterval(() => setUpdateTimer(Date.now()), 5000);
+    return () => {
+      updateHandler();
+      clearInterval(interval);
+    };
   }, [props.jobId]);
 
   return (
@@ -244,4 +248,4 @@ const VidispineJobProgress: React.FC<VidispineJobProgressProps> = (props) => {
   );
 };
 
-export default VidispineJobProgress;
+export default React.memo(VidispineJobProgress);

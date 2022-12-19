@@ -27,7 +27,7 @@ class DeliverableAssetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeliverableAsset
-        fields = ['id', 'type', 'filename', 'size', 'access_dt', 'modified_dt', 'changed_dt',
+        fields = ['id', 'type', 'filename', 'size', 'access_dt', 'modified_dt', 'changed_dt', 'ingest_complete_dt',
                   'job_id', 'online_item_id', 'nearline_item_id', 'archive_item_id',
                   'deliverable', 'status', 'type_string', 'atom_id',
                   'size_string', 'status_string', 'changed_string',

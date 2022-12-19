@@ -33,6 +33,7 @@ describe("CreateBundleService.createProjectDeliverable", () => {
       deliverable: BigInt(12),
       filename: "",
       modified_dt: "",
+      ingest_complete_dt: "",
       size: BigInt(123),
       size_string: "",
       status: BigInt(1),

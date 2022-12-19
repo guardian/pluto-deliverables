@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import LocationLink from "./LocationLink";
@@ -74,6 +74,7 @@ const tableHeaderTitles: HeaderTitles[] = [
   { label: "Version" },
   { label: "Size", key: "size" },
   { label: "Duration" },
+  { label: "Date ingested", key: "ingest_complete_dt" },
   { label: "Type", key: "type" },
   { label: "Last modified", key: "modified_dt" },
   { label: "Import progress" },
@@ -132,6 +133,8 @@ const useStyles = makeStyles({
   },
 });
 
+const pageSizeOptions = [10, 50, 100, 250];
+
 type SortDirection = "asc" | "desc";
 
 const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
@@ -161,10 +164,11 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
   const [haveExistingBundle, setHaveExistingBundle] = useState(true);
   const [order, setOrder] = useState<SortDirection>("asc");
   const [orderBy, setOrderBy] = useState<keyof Deliverable>("filename");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(pageSizeOptions[2]);
 
   // Material-UI
   const classes = useStyles();
-
   const doRefresh = async () => {
     try {
       const rescanResult = await axios({
@@ -196,9 +200,27 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     }
   };
 
-  const loadRecord = async () => {
-    setLoading(true);
+  const handleChangePage = (
+    _event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
 
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const rows: number = +event.target.value;
+    setRowsPerPage(rows);
+    setPage(0);
+  };
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - deliverables.length) : 0;
+
+  const loadRecord = useCallback(async () => {
+    setLoading(true);
     try {
       const projectDeliverables = await getProjectDeliverables(
         projectid,
@@ -219,7 +241,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         setCentralMessage(err.message);
       }
     }
-  };
+  }, [order, orderBy]);
 
   const loadDelTypes = async () => {
     try {
@@ -307,7 +329,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const getSelectedDeliverables = (): Deliverable[] =>
     deliverables.filter((deliverable) => selectedIDs.includes(deliverable.id));
-
+  console.log("getSelectedDeliverables");
   useEffect(() => {
     loadDelTypes();
   }, []);
@@ -360,6 +382,8 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
     loadRecord();
   }, [order, orderBy]);
 
+  const loadRecordCallback = useCallback(loadRecord, []);
+
   return (
     <>
       {parentBundleInfo?.name ? (
@@ -373,14 +397,25 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
         alertMessage="One or more items are not ingesting. Are you sure you want to leave?"
       >
         <div>
-          <Breadcrumb projectId={projectid} />
-          {parentBundleInfo && projectid != "-1" ? (
-            <LocationLink
-              bundleInfo={parentBundleInfo}
-              networkUploadSelected={() => setShowingUploader(true)}
-            />
+          {parentBundleInfo && projectid != -1 ? (
+            <>
+              <Breadcrumb projectId={projectid} />
+              <LocationLink
+                bundleInfo={parentBundleInfo}
+                networkUploadSelected={() => setShowingUploader(true)}
+              />
+            </>
           ) : (
-            ""
+            <p
+              style={{
+                fontWeight: "bold",
+                fontFamily: "gnmFontEgypBold",
+                fontSize: "1.8rem",
+                color: "#3f51b5",
+              }}
+            >
+              Unlinked Deliverables
+            </p>
           )}
         </div>
         <span className={classes.buttonContainer}>
@@ -430,12 +465,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                   {tableHeaderTitles.map((entry, idx) => (
                     <TableCell
                       key={entry.label ? entry.label : idx}
-                      sortDirection={order}
+                      sortDirection={orderBy === entry.key ? order : false}
                     >
                       {entry.key ? (
                         <TableSortLabel
                           active={orderBy === entry.key}
-                          direction={orderBy === entry.key ? order : "asc"}
+                          direction={order}
                           onClick={sortByColumn(entry.key)}
                         >
                           {entry.label}
@@ -449,36 +484,55 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {deliverables.map((del, idx) => (
-                  <DeliverableRow
-                    key={del.id.toString()}
-                    deliverable={del}
-                    classes={classes}
-                    typeOptions={typeOptions}
-                    setCentralMessage={setCentralMessage}
-                    onCheckedUpdated={(isChecked) =>
-                      isChecked
-                        ? setSelectedIDs((prevContent) =>
-                            prevContent.concat(del.id)
-                          )
-                        : setSelectedIDs((prevContent) =>
-                            prevContent.filter((value) => value !== del.id)
-                          )
-                    }
-                    parentBundleInfo={parentBundleInfo}
-                    onNeedsUpdate={() => loadRecord()}
-                    vidispineBaseUri={vidispineBaseUri}
-                    openJob={(jobId: string) => {
-                      const w = window.open(`/vs-jobs/job/${jobId}`, "_blank");
-                      if (w) w.focus();
-                    }}
-                    project_id={projectid}
-                    onSyndicationStarted={() => {}}
-                  />
-                ))}
+                {deliverables
+                  .slice(page * rowsPerPage, (page + 1) * rowsPerPage)
+                  .map((del, idx) => (
+                    <DeliverableRow
+                      key={del.id.toString()}
+                      deliverable={del}
+                      classes={classes}
+                      typeOptions={typeOptions}
+                      setCentralMessage={setCentralMessage}
+                      onCheckedUpdated={(isChecked) =>
+                        isChecked
+                          ? setSelectedIDs((prevContent) =>
+                              prevContent.concat(del.id)
+                            )
+                          : setSelectedIDs((prevContent) =>
+                              prevContent.filter((value) => value !== del.id)
+                            )
+                      }
+                      parentBundleInfo={parentBundleInfo}
+                      onNeedsUpdate={loadRecordCallback}
+                      vidispineBaseUri={vidispineBaseUri}
+                      openJob={(jobId: string) => {
+                        const w = window.open(
+                          `/vs-jobs/job/${jobId}`,
+                          "_blank"
+                        );
+                        if (w) w.focus();
+                      }}
+                      project_id={projectid}
+                      onSyndicationStarted={() => {}}
+                    />
+                  ))}
+                {emptyRows > 0 && (
+                  <TableRow style={{ height: 90 * emptyRows }}>
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={pageSizeOptions}
+            component="div"
+            count={deliverables.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Paper>
         <hr />
         <Dialog

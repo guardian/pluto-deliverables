@@ -23,6 +23,7 @@ interface BaseDeliverable {
   size: bigint;
   access_dt: string;
   modified_dt: string;
+  ingest_complete_dt: string;
   changed_dt: string;
   job_id: string | null;
   online_item_id: string | null;
