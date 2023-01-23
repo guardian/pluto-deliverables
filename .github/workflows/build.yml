@@ -1,0 +1,60 @@
+name: Buildntest
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Make GITHUB_RUN_NUMBER env var available outside of shells
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: bash
+        run: |
+          echo GITHUB_RUN_NUMBER=$(( GITHUB_RUN_NUMBER + 938 )) >> $GITHUB_ENV
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: GHA-build
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - uses: harmon758/postgresql-action@v1
+        env:
+          POSTGRES_DB: pluto-deliverables
+          POSTGRES_USER: pluto-deliverables
+          POSTGRES_PASSWORD: pluto-deliverables
+          POSTGRES_HOST_AUTH_METHOD: trust
+          DB_HOST: "postgres"
+        with:
+          postgresql version: '9.6'
+      - name: psycopg2 prerequisites
+        run: sudo apt-get install build-essential libffi-dev libpq-dev git -y
+      - name: Initialize submodule
+        run: |
+          git submodule init
+          git submodule update
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r gnmvidispine/requirements.txt
+      
+      - name: Setup
+        run: |
+          cd gnmvidispine && CIRCLE_BUILD_NUM=$GITHUB_RUN_NUMBER python ./setup.py install && cd ..
+          sleep 5
+      - name: Run tests
+        run: python ./manage.py test gnm_deliverables.tests
