@@ -102,7 +102,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
       </Grid>
       <Grid item xs={12} style={{ paddingBottom: 0 }}>
         <>
-        <span className={classes.inlineIcon}>P</span>
+          <span className={classes.inlineIcon}>P</span>
           {projectInfo
             ? `${projectInfo.title} (${projectInfo.productionOffice})`
             : `${props.projectId} not found`}
