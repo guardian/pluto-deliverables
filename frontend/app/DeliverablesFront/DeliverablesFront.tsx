@@ -11,7 +11,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 import clsx from "clsx";
 import axios from "axios";
-import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
+import {
+  SystemNotifcationKind,
+  SystemNotification,
+} from "@guardian/pluto-headers";
 import CapiSearchResult from "./CapiSearchResult";
 import { ChevronRightRounded } from "@material-ui/icons";
 import TitleSearchResult from "./TitleSearchResult";

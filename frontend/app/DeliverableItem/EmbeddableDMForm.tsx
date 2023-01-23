@@ -23,7 +23,10 @@ import {
   deleteDailymotionDeliverable,
   updateDailymotionDeliverable,
 } from "../utils/master-api-service";
-import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
+import {
+  SystemNotifcationKind,
+  SystemNotification,
+} from "@guardian/pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
 import DailyMotionMasterForm from "../Master/DailyMotionMasterForm";
 

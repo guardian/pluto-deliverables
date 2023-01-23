@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { format, formatISO, parseISO } from "date-fns";
 import axios from "axios";
-import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
+import {
+  SystemNotifcationKind,
+  SystemNotification,
+} from "@guardian/pluto-headers";
 
 interface UploadsGraphProps {
   startDate: Date;

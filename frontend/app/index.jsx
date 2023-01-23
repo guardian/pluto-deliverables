@@ -12,7 +12,7 @@ import {
   handleUnauthorized,
   PlutoThemeProvider,
   UserContextProvider,
-  SystemNotification
+  SystemNotification,
 } from "@guardian/pluto-headers";
 import NotLoggedIn from "./NotLoggedIn";
 import GuardianMaster from "./Master/GuardianMaster";
