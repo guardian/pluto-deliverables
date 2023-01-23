@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { CircularProgress, Grid, makeStyles } from "@material-ui/core";
 import { People } from "@material-ui/icons";
-import IconCommission from "pluto-headers/src/static/c.svg";
-import IconProject from "pluto-headers/src/static/p.svg";
 
 interface BundleInfoComponentProps {
   projectId: number;
@@ -128,7 +126,7 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
         ) : null}
         {commissionInfo ? (
           <>
-            <img src={IconCommission} className={classes.inlineIcon} alt="C" />
+            <span className={classes.inlineIcon}>C</span>
             {commissionInfo.title} ({commissionInfo.productionOffice})
           </>
         ) : null}
@@ -136,7 +134,7 @@ const BundleInfoComponent: React.FC<BundleInfoComponentProps> = (props) => {
       <Grid item xs={6} style={{ paddingBottom: 0 }}>
         {projectInfo ? (
           <>
-            <img src={IconProject} className={classes.inlineIcon} alt="P" />
+            <span className={classes.inlineIcon}>P</span>
             {projectInfo.title} ({projectInfo.productionOffice})
           </>
         ) : null}

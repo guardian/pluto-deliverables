@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { CircularProgress, Grid, makeStyles } from "@material-ui/core";
 import { People } from "@material-ui/icons";
-import CommissionIcon from "@guardian/pluto-headers/src/static/c.svg";
-import ProjectIcon from "@guardian/pluto-headers/src/static/p.svg";
 
 interface BundleInfoComponentProps {
   projectId: number;
@@ -96,7 +94,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
           <CircularProgress style={{ width: "14px", height: "14px" }} />
         ) : null}
         <>
-          <img src={CommissionIcon} alt="C" className={classes.inlineIcon} />
+          <span className={classes.inlineIcon}>C</span>
           {commissionInfo
             ? `${commissionInfo.title} (${commissionInfo.productionOffice})`
             : `${props.commissionId} not found`}
@@ -104,7 +102,7 @@ const BundleInfoComponentForInvalid: React.FC<BundleInfoComponentProps> = (
       </Grid>
       <Grid item xs={12} style={{ paddingBottom: 0 }}>
         <>
-          <img src={ProjectIcon} alt="P" className={classes.inlineIcon} />
+        <span className={classes.inlineIcon}>P</span>
           {projectInfo
             ? `${projectInfo.title} (${projectInfo.productionOffice})`
             : `${props.projectId} not found`}
