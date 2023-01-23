@@ -38,9 +38,10 @@ jobs:
         with:
           python-version: 3.9
       - name: Setup node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: "12.18"
+          node-version: 12
+          registry-url: https://npm.pkg.github.com/
       - name: Make GITHUB_RUN_NUMBER env var available outside of shells
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: bash
