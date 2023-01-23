@@ -1,6 +1,6 @@
 import axios from "axios";
 import { etEE } from "@material-ui/core/locale";
-import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
 import MainstreamMaster from "../Master/MainstreamMaster";
 import DailymotionMaster from "../Master/DailymotionMaster";
 

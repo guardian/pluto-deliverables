@@ -6,7 +6,7 @@ import {
   updateReutersConnectDeliverable,
 } from "../utils/master-api-service";
 import axios from "axios";
-import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
 import GenericSwitcher from "./GenericSwitcher";
 
 interface ReutersConnectSwitcherProps {

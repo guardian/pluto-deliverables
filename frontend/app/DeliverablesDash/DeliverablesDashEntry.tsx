@@ -12,7 +12,7 @@ import {
 import LaunchIcon from "@material-ui/icons/Launch";
 // @ts-ignore
 import atomIcon from "../static/atom_icon.svg";
-import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
 import { makeStyles } from "@material-ui/core/styles";
 import NiceDateFormatter from "../Common/NiceDateFormatter";
 import PlatformIndicator from "./PlatformIndicator";

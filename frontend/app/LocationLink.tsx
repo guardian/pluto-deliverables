@@ -2,7 +2,7 @@ import React from "react";
 import { Grid, IconButton, Link, Tooltip, Typography } from "@material-ui/core";
 import { CloudUpload, FolderOpen } from "@material-ui/icons";
 import axios from "axios";
-import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
 
 interface LocationLinkProps {
   bundleInfo: Project;

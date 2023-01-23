@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
-import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
 import {
   Add,
   Cancel,

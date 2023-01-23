@@ -25,7 +25,7 @@ import {
   Error,
 } from "@material-ui/icons";
 import axios from "axios";
-import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
+import { SystemNotification, SystemNotifcationKind } from "@guardian/pluto-headers";
 import {
   createStyles,
   Theme,

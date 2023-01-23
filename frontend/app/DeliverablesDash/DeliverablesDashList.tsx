@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@material-ui/core";
 import axios from "axios";
-import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
 import { formatISO } from "date-fns";
 import DeliverablesDashEntry from "./DeliverablesDashEntry";
 

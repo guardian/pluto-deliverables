@@ -18,7 +18,7 @@ import {
   SystemNotifcationKind,
   SystemNotification,
   UserContext,
-} from "pluto-headers";
+} from "@guardian/pluto-headers";
 import { formatISO } from "date-fns";
 import axios from "axios";
 import GenericSwitcher from "./GenericSwitcher";

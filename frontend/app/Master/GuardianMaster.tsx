@@ -25,7 +25,7 @@ import {
   resyncToPublished,
   updateGNMDeliverable,
 } from "../utils/master-api-service";
-import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
+import { SystemNotification, SystemNotifcationKind } from "@guardian/pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
 import GuardianMasterForm from "./GuardianMasterForm";
 import { metadataStyles } from "./MetadataStyles";

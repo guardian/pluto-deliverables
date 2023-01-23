@@ -25,7 +25,7 @@ import {
   deleteMainstreamDeliverable,
   updateMainstreamDeliverable,
 } from "../utils/master-api-service";
-import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import { SystemNotifcationKind, SystemNotification } from "@guardian/pluto-headers";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SyndicationTrigger from "../MasterList/SyndicationTrigger";
 
