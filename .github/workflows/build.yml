@@ -48,10 +48,17 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           role-session-name: GHA-build
+      - name: Add .npmrc
+        run: "echo -e \"\n//npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}}\" >> .npmrc"
+        working-directory: frontend
+
+      - run: yarn install
+        working-directory: frontend
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Build and test frontend
         working-directory: frontend
         run: |
-          yarn install
           yarn lint
           yarn test
           yarn build:prod
