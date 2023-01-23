@@ -13,9 +13,26 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    services:
+      postgres:
+        image: postgres:9.6-alpine
+        env:
+          POSTGRES_DB: pluto-deliverables
+          POSTGRES_USER: pluto-deliverables
+          POSTGRES_PASSWORD: pluto-deliverables
+          POSTGRES_HOST_AUTH_METHOD: trust
+          DB_HOST: "postgres"
+        ports:
+          - 5432:5432
+          # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
       - name: Make GITHUB_RUN_NUMBER env var available outside of shells
         working-directory: ${{env.GITHUB_WORKSPACE}}
         shell: bash
@@ -27,19 +44,6 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           role-session-name: GHA-build
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - uses: harmon758/postgresql-action@v1
-        env:
-          POSTGRES_DB: pluto-deliverables
-          POSTGRES_USER: pluto-deliverables
-          POSTGRES_PASSWORD: pluto-deliverables
-          POSTGRES_HOST_AUTH_METHOD: trust
-          DB_HOST: "postgres"
-        with:
-          postgresql version: '9.6'
       - name: psycopg2 prerequisites
         run: sudo apt-get install build-essential libffi-dev libpq-dev git -y
       - name: Initialize submodule
