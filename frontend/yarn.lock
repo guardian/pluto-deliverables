@@ -347,6 +347,11 @@
   dependencies:
     prop-types "^15.7.2"
 
+"@guardian/pluto-headers@1.6.5":
+  version "1.6.5"
+  resolved "https://npm.pkg.github.com/download/@guardian/pluto-headers/1.6.5/e0dbfb8728cb43d33eab0a56c757cb3ab919b759#e0dbfb8728cb43d33eab0a56c757cb3ab919b759"
+  integrity sha512-UeBrFKUnH6g1rH5RVFHIwxNB6g8SaEw7F7Sz/7Zs29YnnYT9Ttf8l78pQnLLqQwsjwjFbC+Ywg8WWipdn2Ab8g==
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz"
@@ -5771,11 +5776,6 @@ moment@^2.10.2:
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz"
   integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
 
-moment@^2.20.1:
-  version "2.27.0"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.27.0.tgz"
-  integrity sha512-al0MUK7cpIcglMv3YF13qSgdAIqxHTO7brRtaz3DlSULbqfazqkc5kEjNrLDOM7fsjshoFIihnU8snrP7zUvhQ==
-
 moo@^0.5.0:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/moo/-/moo-0.5.1.tgz"
@@ -6384,10 +6384,6 @@ please-upgrade-node@^3.2.0:
   integrity sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==
   dependencies:
     semver-compare "^1.0.0"
-
-"pluto-headers@https://gitlab.com/codmill/customer-projects/guardian/pluto-headers.git#v1.6.2":
-  version "1.6.2"
-  resolved "https://gitlab.com/codmill/customer-projects/guardian/pluto-headers.git#6cca4d7c788a35a435e2f258d389a6eaaedd0201"
 
 pn@^1.1.0:
   version "1.1.0"
