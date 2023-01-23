@@ -3,7 +3,7 @@ import { mount, shallow } from "enzyme";
 import sinon from "sinon";
 import moxios from "moxios";
 
-jest.mock("pluto-headers", () => ({
+jest.mock("@guardian/pluto-headers", () => ({
   SystemNotification: {
     open: jest.fn(),
   },
