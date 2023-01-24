@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { CircularProgress, Grid, makeStyles } from "@material-ui/core";
 import { People } from "@material-ui/icons";
-import CommissionIcon from "pluto-headers/src/static/c.svg";
-import ProjectIcon from "pluto-headers/src/static/p.svg";
+import CommissionIcon from "@guardian/pluto-headers/build/static/c.svg";
+import ProjectIcon from "@guardian/pluto-headers/build/static/p.svg";
 
 interface BundleInfoComponentProps {
   projectId: number;
