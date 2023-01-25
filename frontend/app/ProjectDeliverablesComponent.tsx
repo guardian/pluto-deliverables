@@ -3,7 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import LocationLink from "./LocationLink";
 import { Helmet } from "react-helmet";
-import { Breadcrumb } from "pluto-headers";
+import { Breadcrumb } from "@guardian/pluto-headers";
 import {
   Button,
   IconButton,

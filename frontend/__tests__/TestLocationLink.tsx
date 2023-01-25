@@ -4,7 +4,7 @@ import sinon from "sinon";
 import moxios from "moxios";
 import LocationLink from "../app/LocationLink";
 
-jest.mock("pluto-headers", () => ({
+jest.mock("@guardian/pluto-headers", () => ({
   SystemNotification: {
     open: jest.fn(),
   },

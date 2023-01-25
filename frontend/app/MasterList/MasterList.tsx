@@ -28,7 +28,10 @@ import {
   getDeliverableDailymotion,
   getDeliverableMainstream,
 } from "../utils/master-api-service";
-import { SystemNotification, SystemNotifcationKind } from "pluto-headers";
+import {
+  SystemNotification,
+  SystemNotifcationKind,
+} from "@guardian/pluto-headers";
 import SyndicationTrigger from "./SyndicationTrigger";
 import SyndicationLastLog from "./SyndicationLastLog";
 import ViewListIcon from "@material-ui/icons/ViewList";

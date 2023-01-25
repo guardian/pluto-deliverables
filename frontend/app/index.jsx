@@ -12,13 +12,13 @@ import {
   handleUnauthorized,
   PlutoThemeProvider,
   UserContextProvider,
-} from "pluto-headers";
+  SystemNotification,
+} from "@guardian/pluto-headers";
 import NotLoggedIn from "./NotLoggedIn";
 import GuardianMaster from "./Master/GuardianMaster";
 import YoutubeMaster from "./Master/YoutubeMaster";
 import MainstreamMaster from "./Master/MainstreamMaster";
 import DailymotionMaster from "./Master/DailymotionMaster";
-import { SystemNotification } from "pluto-headers";
 import { Helmet } from "react-helmet";
 import AssetSearchComponent from "./AssetSearchComponent";
 import BundleRedirect from "./BundleRedirect";

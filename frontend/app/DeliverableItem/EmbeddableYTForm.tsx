@@ -18,7 +18,10 @@ import {
   createYoutubeDeliverable,
   updateYoutubeDeliverable,
 } from "../utils/master-api-service";
-import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import {
+  SystemNotifcationKind,
+  SystemNotification,
+} from "@guardian/pluto-headers";
 import { EmbeddableFormProps } from "./EmbeddableForm";
 
 const EmbeddableYTForm: React.FC<EmbeddableFormProps<YoutubeMaster, void>> = (

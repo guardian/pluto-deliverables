@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@material-ui/core";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 
-import { SystemNotifcationKind, SystemNotification } from "pluto-headers";
+import {
+  SystemNotifcationKind,
+  SystemNotification,
+} from "@guardian/pluto-headers";
 import axios from "axios";
 import { ChevronLeft } from "@material-ui/icons";
 import EmbeddableMSForm from "../DeliverableItem/EmbeddableMSForm";
