@@ -2,6 +2,10 @@
 import { configure } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 
+const { TextEncoder, TextDecoder } = require('util');
+    global.TextEncoder = TextEncoder;
+    global.TextDecoder = TextDecoder;
+
 configure({ adapter: new Adapter() });
 require("jest-fetch-mock").enableMocks();
 global.console = {
