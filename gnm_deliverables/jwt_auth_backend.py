@@ -8,6 +8,8 @@ from cryptography.hazmat.backends import default_backend
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 import traceback
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +44,7 @@ class JwtAuth(object):
         token = credentials.get("token", None)
         if token:
             logger.debug("JwtAuth got token {0}".format(token))
-            if not settings.JWT_CERTIFICATE_PATH.startswith("http"):
+            if not str(settings.JWT_CERTIFICATE_PATH).startswith("http"):
                 public_key = self.load_local_public_key()
             else:
                 public_key = self.load_remote_public_key(token)
@@ -92,4 +94,4 @@ class JwtRestAuth(BaseAuthentication):
             except PermissionDenied:
                 raise AuthenticationFailed
         else:
-            return None #authentication not attempted
+            return None #authentication not attempted 
