@@ -3,11 +3,16 @@ from unittest.mock import MagicMock, patch
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 import jwt
+from pathlib import Path
+
 from gnm_deliverables.jwt_auth_backend import JwtAuth, JwtRestAuth
 
+parent_dir = Path(__file__).resolve().parent
 
 class JwtAuthTestCase(TestCase):
     def setUp(self):
+        
+        print(parent_dir)
         self.jwt_auth = JwtAuth()
         header = { 
             'alg': 'RS256',
@@ -23,10 +28,10 @@ class JwtAuthTestCase(TestCase):
             'email': 'john.doe@example.com',
             'preferred_username': 'johndoe'
         }   
-        private_key = open('/home/runner/work/pluto-deliverables/pluto-deliverables/gnm_deliverables/tests/fixtures/private.key', 'r').read()
+        private_key = open(parent_dir + '/tests/fixtures/private.key', 'r').read()
         self.token = jwt.encode(headers=header, payload=payload, key=private_key, algorithm='RS256')
 
-    @override_settings(JWT_CERTIFICATE_PATH='/home/runner/work/pluto-deliverables/pluto-deliverables/gnm_deliverables/tests/fixtures/certificate.crt')
+    @override_settings(JWT_CERTIFICATE_PATH= parent_dir + '/tests/fixtures/certificate.crt')
     def test_load_local_public_key(self):
         public_key = self.jwt_auth.load_local_public_key()
         self.assertIsNotNone(public_key)
@@ -44,7 +49,7 @@ class JwtAuthTestCase(TestCase):
         username = self.jwt_auth._extract_username(claims)
         self.assertIsNone(username)
 
-    @override_settings(JWT_CERTIFICATE_PATH='/home/runner/work/pluto-deliverables/pluto-deliverables/gnm_deliverables/tests/fixtures/certificate.crt')
+    @override_settings(JWT_CERTIFICATE_PATH= parent_dir + '/tests/fixtures/certificate.crt')
     def test_authenticate_with_local_cert(self):
         user_model = self.jwt_auth.authenticate(None, token=self.token)
         self.assertIsInstance(user_model, User)
@@ -107,7 +112,7 @@ class JwtAuthTestCase(TestCase):
 
 
 class JwtRestAuthTestCase(TestCase):
-    @override_settings(JWT_CERTIFICATE_PATH='/home/runner/work/pluto-deliverables/pluto-deliverables/gnm_deliverables/tests/fixtures/certificate.crt')
+    @override_settings(JWT_CERTIFICATE_PATH= parent_dir + '/tests/fixtures/certificate.crt')
     def test_authenticate(self):
         payload = {
             'sub': '1234567890',
@@ -118,7 +123,7 @@ class JwtRestAuthTestCase(TestCase):
             'email': 'john.doe@example.com',
             'preferred_username': 'johndoe'
         }   
-        private_key = open('/home/runner/work/pluto-deliverables/pluto-deliverables/gnm_deliverables/tests/fixtures/private.key', 'r').read()
+        private_key = open( parent_dir + '/tests/fixtures/private.key', 'r').read()
         token = jwt.encode(payload, private_key, algorithm='RS256')
         request = type('TestRequest', (object,), {
             'META': {
