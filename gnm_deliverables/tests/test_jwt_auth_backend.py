@@ -48,6 +48,8 @@ class JwtAuthTestCase(TestCase):
         username = self.jwt_auth._extract_username(claims)
         self.assertIsNone(username)
 
+    @override_settings(JWT_EXPECTED_ISSUER=None)
+    @override_settings(JWT_EXPECTED_AUDIENCE=None)
     @override_settings(JWT_CERTIFICATE_PATH= f'{parent_dir}/fixtures/certificate.crt')
     def test_authenticate_with_local_cert(self):
         user_model = self.jwt_auth.authenticate(None, token=self.token)
@@ -111,6 +113,9 @@ class JwtAuthTestCase(TestCase):
 
 
 class JwtRestAuthTestCase(TestCase):
+
+    @override_settings(JWT_EXPECTED_ISSUER=None)
+    @override_settings(JWT_EXPECTED_AUDIENCE=None)
     @override_settings(JWT_CERTIFICATE_PATH= f'{parent_dir}/fixtures/certificate.crt')
     def test_authenticate(self):
         payload = {
