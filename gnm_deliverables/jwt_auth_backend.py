@@ -51,6 +51,7 @@ class JwtAuth(object):
 
             try:
                 decoded = jwt.decode(token,
+                                     options={"verify_nbf": False},
                                      key=public_key,
                                      algorithms=["RS256"],
                                      audience=getattr(settings, "JWT_EXPECTED_AUDIENCE", None),
