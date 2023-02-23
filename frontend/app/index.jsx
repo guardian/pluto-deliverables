@@ -13,6 +13,13 @@ import {
   PlutoThemeProvider,
   UserContextProvider,
   SystemNotification,
+  Header,
+  JwtDataShape,
+  OAuthContextData,
+  OAuthContextProvider,
+  SystemNotification,
+  verifyExistingLogin,
+  UserContextProvider,
 } from "@guardian/pluto-headers";
 import NotLoggedIn from "./NotLoggedIn";
 import GuardianMaster from "./Master/GuardianMaster";
@@ -56,6 +63,7 @@ class App extends React.Component {
 
     this.handleUnauthorizedFailed = this.handleUnauthorizedFailed.bind(this);
     this.onLoginValid = this.onLoginValid.bind(this);
+    this.oAuthConfigLoaded = this.oAuthConfigLoaded.bind(this);
 
     axios.interceptors.response.use(
       (response) => response,
@@ -101,6 +109,25 @@ class App extends React.Component {
     }, 3000);
   }
 
+  haveToken() {
+    return window.localStorage.getItem("pluto:access-token");
+  }
+
+  oAuthConfigLoaded(oAuthConfig) {
+    //If we already have a user token at mount, verify it and update our internal state.
+    //If we do not, ignore for the time being; it will be set dynamically when the login occurs.
+    console.log("Loaded oAuthConfig: ", oAuthConfig);
+    if (this.haveToken()) {
+      verifyExistingLogin(oAuthConfig)
+        .then((profile) =>
+          this.setState({ userProfile: profile, isLoggedIn: true })
+        )
+        .catch((err) => {
+          console.error("Could not verify existing user profile: ", err);
+        });
+    }
+  }
+
   render() {
     if (!this.state.loading && !this.state.isLoggedIn) {
       console.log("not logged in, redirecting to route");
@@ -110,6 +137,10 @@ class App extends React.Component {
     return (
       <PlutoThemeProvider>
         <CssBaseline />
+          <Helmet>
+            <title>Pluto – Deliverables</title>
+          </Helmet>
+      <OAuthContextProvider onLoaded={this.oAuthConfigLoaded}>
         <UserContextProvider
           value={{
             profile: this.state.userProfile,
@@ -117,9 +148,7 @@ class App extends React.Component {
               this.setState({ userProfile: newValue }),
           }}
         >
-          <Helmet>
-            <title>Pluto – Deliverables</title>
-          </Helmet>
+    
           <>
             <Header />
             <AppSwitcher onLoginValid={this.onLoginValid} />
@@ -201,7 +230,8 @@ class App extends React.Component {
           </div>
           <SystemNotification />
         </UserContextProvider>
-      </PlutoThemeProvider>
+        </OAuthContextProvider>
+        </PlutoThemeProvider>
     );
   }
 }
