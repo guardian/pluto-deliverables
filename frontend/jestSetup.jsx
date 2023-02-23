@@ -8,6 +8,7 @@ const { TextEncoder, TextDecoder } = require('util');
 
 configure({ adapter: new Adapter() });
 require("jest-fetch-mock").enableMocks();
+
 global.console = {
     log: jest.fn(), // console.log are ignored in tests
     //log: console.log,

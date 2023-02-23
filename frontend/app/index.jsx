@@ -137,101 +137,100 @@ class App extends React.Component {
     return (
       <PlutoThemeProvider>
         <CssBaseline />
-          <Helmet>
-            <title>Pluto – Deliverables</title>
-          </Helmet>
-      <OAuthContextProvider onLoaded={this.oAuthConfigLoaded}>
-        <UserContextProvider
-          value={{
-            profile: this.state.userProfile,
-            updateProfile: (newValue) =>
-              this.setState({ userProfile: newValue }),
-          }}
-        >
-    
-          <>
-            <Header />
-            <AppSwitcher onLoginValid={this.onLoginValid} />
-          </>
-          <div className="main-body">
-            <Switch>
-              <Route path="/item/:assetId" component={DeliverableItem} />
-              <Route
-                path="/project/:projectid/new"
-                component={CreateDeliverable}
-              />
-              <Route path="/project/new" component={CreateDeliverable} />
-              <Route
-                path="/project/:projectid/asset/:assetid/atom"
-                render={(props) => (
-                  <GuardianMaster {...props} isAdmin={this.state.isAdmin} />
-                )}
-              />
-              <Route
-                path="/project/:projectid/asset/:assetid/youtube"
-                render={(props) => (
-                  <YoutubeMaster {...props} isAdmin={this.state.isAdmin} />
-                )}
-              />
-              <Route
-                path="/project/:projectid/asset/:assetid/mainstream"
-                render={(props) => <MainstreamMaster {...props} />}
-              />
-              <Route
-                path="/project/:projectid/asset/:assetid/dailymotion"
-                render={(props) => <DailymotionMaster {...props} />}
-              />
-              <Route
-                path="/project/:projectid"
-                component={ProjectDeliverablesComponent}
-              />
-              <Route
-                path="/invalid/date/:date"
-                component={(props) => (
-                  <InvalidDeliverablesComponent
-                    {...props}
-                    key={window.location.pathname}
-                  />
-                )}
-              />
-              <Route
-                path="/invalid/type/:kind"
-                component={(props) => (
-                  <InvalidDeliverablesComponent
-                    {...props}
-                    key={window.location.pathname}
-                  />
-                )}
-              />
-              <Route
-                path="/invalid/status/:status"
-                component={(props) => (
-                  <InvalidDeliverablesComponent
-                    {...props}
-                    key={window.location.pathname}
-                  />
-                )}
-              />
-              <Route
-                path="/invalid"
-                component={(props) => (
-                  <InvalidDeliverablesComponent
-                    {...props}
-                    key={window.location.pathname}
-                  />
-                )}
-              />
-              <Route path="/bundle/:bundleId" component={BundleRedirect} />
-              <Route path="/search" component={AssetSearchComponent} />
-              <Route path="/dash" component={DeliverablesDashFront} />
-              <Route path="/projects" component={ProjectsListComponent} />
-              <Route exact path="/" component={DeliverablesFront} />
-            </Switch>
-          </div>
-          <SystemNotification />
-        </UserContextProvider>
+        <Helmet>
+          <title>Pluto – Deliverables</title>
+        </Helmet>
+        <OAuthContextProvider onLoaded={this.oAuthConfigLoaded}>
+          <UserContextProvider
+            value={{
+              profile: this.state.userProfile,
+              updateProfile: (newValue) =>
+                this.setState({ userProfile: newValue }),
+            }}
+          >
+            <>
+              <Header />
+              <AppSwitcher onLoginValid={this.onLoginValid} />
+            </>
+            <div className="main-body">
+              <Switch>
+                <Route path="/item/:assetId" component={DeliverableItem} />
+                <Route
+                  path="/project/:projectid/new"
+                  component={CreateDeliverable}
+                />
+                <Route path="/project/new" component={CreateDeliverable} />
+                <Route
+                  path="/project/:projectid/asset/:assetid/atom"
+                  render={(props) => (
+                    <GuardianMaster {...props} isAdmin={this.state.isAdmin} />
+                  )}
+                />
+                <Route
+                  path="/project/:projectid/asset/:assetid/youtube"
+                  render={(props) => (
+                    <YoutubeMaster {...props} isAdmin={this.state.isAdmin} />
+                  )}
+                />
+                <Route
+                  path="/project/:projectid/asset/:assetid/mainstream"
+                  render={(props) => <MainstreamMaster {...props} />}
+                />
+                <Route
+                  path="/project/:projectid/asset/:assetid/dailymotion"
+                  render={(props) => <DailymotionMaster {...props} />}
+                />
+                <Route
+                  path="/project/:projectid"
+                  component={ProjectDeliverablesComponent}
+                />
+                <Route
+                  path="/invalid/date/:date"
+                  component={(props) => (
+                    <InvalidDeliverablesComponent
+                      {...props}
+                      key={window.location.pathname}
+                    />
+                  )}
+                />
+                <Route
+                  path="/invalid/type/:kind"
+                  component={(props) => (
+                    <InvalidDeliverablesComponent
+                      {...props}
+                      key={window.location.pathname}
+                    />
+                  )}
+                />
+                <Route
+                  path="/invalid/status/:status"
+                  component={(props) => (
+                    <InvalidDeliverablesComponent
+                      {...props}
+                      key={window.location.pathname}
+                    />
+                  )}
+                />
+                <Route
+                  path="/invalid"
+                  component={(props) => (
+                    <InvalidDeliverablesComponent
+                      {...props}
+                      key={window.location.pathname}
+                    />
+                  )}
+                />
+                <Route path="/bundle/:bundleId" component={BundleRedirect} />
+                <Route path="/search" component={AssetSearchComponent} />
+                <Route path="/dash" component={DeliverablesDashFront} />
+                <Route path="/projects" component={ProjectsListComponent} />
+                <Route exact path="/" component={DeliverablesFront} />
+              </Switch>
+            </div>
+            <SystemNotification />
+          </UserContextProvider>
         </OAuthContextProvider>
-        </PlutoThemeProvider>
+      </PlutoThemeProvider>
     );
   }
 }
