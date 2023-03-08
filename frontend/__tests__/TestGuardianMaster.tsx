@@ -274,7 +274,7 @@ describe("GuardianMaster", () => {
         expect(heading.text()).toEqual("Create GNM website");
       });
 
-      it("should expect the fields to be read and write", () => {
+      it("should expect the fields to be read only", () => {
         const fields = wrapper
           .find("input.MuiInputBase-input.MuiInput-input")
           .not(".MuiAutocomplete-input");
@@ -282,20 +282,20 @@ describe("GuardianMaster", () => {
         const selectFields = wrapper.find(".MuiSelect-select");
 
         selectFields.forEach((field) => {
-          expect(field.prop("aria-disabled")).toEqual(undefined);
+          expect(field.prop("aria-disabled")).toEqual("true");
         });
 
         fields.forEach((field) =>
-          expect(field.prop("disabled")).toEqual(false)
+          expect(field.prop("disabled")).toEqual(true)
         );
         const autocomplete = wrapper.find(
           ".MuiInputBase-input.MuiInput-input.MuiAutocomplete-input"
         );
-        expect(autocomplete.prop("disabled")).toEqual(false);
+        expect(autocomplete.prop("disabled")).toEqual(true);
         const textArea = wrapper.find("textarea");
-        expect(textArea.prop("disabled")).toEqual(false);
+        expect(textArea.prop("disabled")).toEqual(true);
         const button = wrapper.find(`button[type="submit"]`);
-        expect(button.prop("disabled")).toEqual(false);
+        expect(button.prop("disabled")).toEqual(true);
       });
     });
     describe("Edit Form", () => {
