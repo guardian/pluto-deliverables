@@ -8,12 +8,14 @@ from cryptography.hazmat.backends import default_backend
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 import traceback
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
 
 
 class JwtAuth(object):
     @staticmethod
-    def load_public_key_from_cert():
+    def load_local_public_key():
         try:
             with open(settings.JWT_CERTIFICATE_PATH, "r") as certfile:
                 cert_raw = certfile.read().encode("ASCII")
@@ -23,8 +25,11 @@ class JwtAuth(object):
             logger.error('Could not read certificate: ' + str(e))
             raise
 
-    def __init__(self):
-        self._public_key = self.load_public_key_from_cert()
+    @staticmethod
+    def load_remote_public_key(token):
+        jwks_url = settings.JWT_CERTIFICATE_PATH
+        jwks_client = jwt.PyJWKClient(jwks_url)
+        return jwks_client.get_signing_key_from_jwt(token).key
 
     @staticmethod
     def _extract_username(claims):
@@ -39,14 +44,19 @@ class JwtAuth(object):
         token = credentials.get("token", None)
         if token:
             logger.debug("JwtAuth got token {0}".format(token))
+            if not str(settings.JWT_CERTIFICATE_PATH).startswith("http"):
+                public_key = self.load_local_public_key()
+            else:
+                public_key = self.load_remote_public_key(token)
+
             try:
                 decoded = jwt.decode(token,
-                                     key=self._public_key,
+                                     options={"verify_nbf": False},
+                                     key=public_key,
                                      algorithms=["RS256"],
                                      audience=getattr(settings, "JWT_EXPECTED_AUDIENCE", None),
                                      issuer=getattr(settings, "JWT_EXPECTED_ISSUER", None))
                 logger.debug("JwtAuth success")
-
                 return User(
                     username=self._extract_username(decoded),
                     first_name=decoded.get("first_name"),
@@ -62,7 +72,7 @@ class JwtAuth(object):
             except jwt.exceptions.ExpiredSignatureError:
                 logger.error("Token signature has expired")
             except jwt.exceptions.InvalidAudienceError:
-                logger.error("Token was for another audience: {0}")
+                logger.error("Token was for another audience: {0}".format())
             except Exception as e:
                 logger.error("Unexpected error decoding JWT: {0}".format(traceback.format_exc(e)))
         raise PermissionDenied()
@@ -81,8 +91,8 @@ class JwtRestAuth(BaseAuthentication):
         if isinstance(auth_header, str) and auth_header.startswith("Bearer "):
             try:
                 user_model = authenticate(request, token=auth_header[7:])
-                return (user_model, "jwt")
+                return user_model, "jwt"
             except PermissionDenied:
                 raise AuthenticationFailed
         else:
-            return None #authentication not attempted
+            return None #authentication not attempted 
