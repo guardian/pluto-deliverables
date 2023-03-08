@@ -131,11 +131,14 @@ const GuardianMaster: React.FC<GuardianMasterProps> = (props) => {
   const { projectid, assetid } = props.match.params;
 
   useEffect(() => {
+    setIsReadOnly(!props.isAdmin);
+  }, [props.isAdmin]);
+
+  useEffect(() => {
     const loadGNMWebsite = async () => {
       try {
         const gnmDeliverable = await getDeliverableGNM(projectid, assetid);
         setIsEditing(true);
-        setIsReadOnly(!props.isAdmin);
         setMaster(gnmDeliverable);
       } catch (error) {
         if (error) {

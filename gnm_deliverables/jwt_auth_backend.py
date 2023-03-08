@@ -38,8 +38,6 @@ class JwtAuth(object):
             username = claims.get("preferred_username") #keycloak uses this one
         if username is None:
             logger.warning("Could not get username from claims set, expect problems")
-        if username is not None and "@" in username:
-                username = username.split("@")[0].replace(".", "_")
         return username
 
     def authenticate(self, request, **credentials):
