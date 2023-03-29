@@ -49,6 +49,10 @@ axios.interceptors.request.use(function (config) {
   return config;
 });
 
+function parseBool(str) {
+  return /^true$/i.test(str);
+}
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -59,6 +63,7 @@ class App extends React.Component {
       tokenExpired: false,
       plutoConfig: {},
       userProfile: undefined,
+      isAdmin: false,
     };
 
     this.handleUnauthorizedFailed = this.handleUnauthorizedFailed.bind(this);
@@ -113,15 +118,37 @@ class App extends React.Component {
     return window.localStorage.getItem("pluto:access-token");
   }
 
+  isUserAdmin(profile, adminClaim) {
+    if (profile.roles) {
+      if (profile.roles.includes(adminClaim)) {
+        return true;
+      }
+    }
+    if (profile[adminClaim]) {
+      if (parseBool(profile[adminClaim])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   oAuthConfigLoaded(oAuthConfig) {
     //If we already have a user token at mount, verify it and update our internal state.
     //If we do not, ignore for the time being; it will be set dynamically when the login occurs.
     console.log("Loaded oAuthConfig: ", oAuthConfig);
     if (this.haveToken()) {
       verifyExistingLogin(oAuthConfig)
-        .then((profile) =>
-          this.setState({ userProfile: profile, isLoggedIn: true })
-        )
+        .then((profile) => {
+          const adminValue = this.isUserAdmin(
+            profile,
+            oAuthConfig.adminClaimName
+          );
+          this.setState({
+            userProfile: profile,
+            isLoggedIn: true,
+            isAdmin: adminValue,
+          });
+        })
         .catch((err) => {
           console.error("Could not verify existing user profile: ", err);
         });
