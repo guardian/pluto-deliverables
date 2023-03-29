@@ -27,7 +27,7 @@ if "UNSAFE_DEBUG" in os.environ:
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = ['pluto-deliverables:9000']
+ALLOWED_HOSTS = ['pluto-deliverables:9000', '192.168.221.227:9000']
 if "DEPLOYMENT_HOST" in os.environ:
     ALLOWED_HOSTS.append(os.environ["DEPLOYMENT_HOST"])
 if "CALLBACK_HOST" in os.environ:
