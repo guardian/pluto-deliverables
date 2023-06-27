@@ -103,17 +103,6 @@ class App extends React.Component {
     );
   }
 
-  componentDidMount() {
-    setTimeout(() => {
-      if (!this.state.isLoggedIn) {
-        console.log("Not logged in, redirecting to pluto-start.");
-        window.location.assign(
-          "/refreshLogin?returnTo=" + window.location.pathname
-        );
-      }
-    }, 3000);
-  }
-
   haveToken() {
     return window.localStorage.getItem("pluto:access-token");
   }
