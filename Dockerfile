@@ -4,15 +4,13 @@ COPY requirements.txt /opt/pluto-deliverables/requirements.txt
 ADD gnmvidispine /tmp/gnmvidispine
 WORKDIR /opt/pluto-deliverables
      #workaround for build issues on Mac
-RUN  cp /etc/resolv.conf /etc/resolv.conf.bak && echo nameserver 8.8.8.8 > /etc/resolv.conf && \
-     apk add --no-cache alpine-sdk linux-headers openssl-dev libffi-dev mailcap postgresql-dev postgresql-libs && \
+RUN apk add --no-cache alpine-sdk linux-headers openssl-dev libffi-dev mailcap postgresql-dev postgresql-libs && \
     pip install -r /tmp/gnmvidispine/requirements.txt && \
     cd /tmp/gnmvidispine && python /tmp/gnmvidispine/setup.py install && cd /opt/pluto-deliverables && \
     pip install -r requirements.txt uwsgi && \
     rm -rf /root/.cache && \
     rm -rf /tmp/gnmvidispine && \
-    apk --no-cache del alpine-sdk linux-headers openssl-dev libffi-dev postgresql-dev && \
-    cat /etc/resolv.conf.bak  > /etc/resolv.conf && rm -f /etc/resolv.conf.bak
+    apk --no-cache del alpine-sdk linux-headers openssl-dev libffi-dev postgresql-dev
 COPY manage.py /opt/pluto-deliverables/manage.py
 ADD --chown=nobody:root gnm_deliverables /opt/pluto-deliverables/gnm_deliverables/
 ADD --chown=nobody:root rabbitmq /opt/pluto-deliverables/rabbitmq/

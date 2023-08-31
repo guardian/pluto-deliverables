@@ -6,7 +6,7 @@ django-nose==1.4.6
 coverage==5.2.1
 psycopg2==2.8.5
 pika==1.1.0
-PyYAML==5.4
+PyYAML==6.0.1
 certifi==2020.4.5.1
 PyJWT==2.4.0
 cryptography==3.3.2
