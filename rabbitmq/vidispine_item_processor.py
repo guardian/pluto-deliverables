@@ -2,6 +2,7 @@ from .MessageProcessor import MessageProcessor
 from .item_notification import ItemNotification
 import logging
 from gnm_deliverables.models import DeliverableAsset
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,8 @@ class VidispineItemProcessor(MessageProcessor):
         logger.debug("Delivery tag: {0}".format(delivery_tag))
 
         notification = ItemNotification(body)
+
+        time.sleep(2)
 
         assets = DeliverableAsset.objects.filter(online_item_id=notification.itemId)
 
