@@ -89,7 +89,7 @@ const InvalidRow: React.FC<DeliverableRowProps> = (props) => {
               variant="contained"
               color="primary"
               target="_blank"
-              href={`/vs-jobs/job/${props.deliverable.job_id}`}
+              href={`/vidispine-jobs/job/${props.deliverable.job_id}`}
               disabled={props.deliverable.job_id ? false : true}
             >
               Job

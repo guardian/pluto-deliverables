@@ -507,7 +507,7 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
                       vidispineBaseUri={vidispineBaseUri}
                       openJob={(jobId: string) => {
                         const w = window.open(
-                          `/vs-jobs/job/${jobId}`,
+                          `/vidispine-jobs/job/${jobId}`,
                           "_blank"
                         );
                         if (w) w.focus();
