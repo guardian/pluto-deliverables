@@ -85,7 +85,7 @@ class AtomResponderProcessor(MessageProcessor):
         timestamp = timezone.localize(datetime.now()).isoformat()
 
         asset = DeliverableAsset(
-            type=AssetChoices.DELIVERABLE_ASSET_TYPE_VIDEO_FULL_MASTER,
+            type=AssetChoices.DELIVERABLE_ASSET_TYPE_VIDEO_PUBLISHED_ATOM_FILE,
             atom_id=atomid,
             deliverable=bundle,
             changed_dt=timestamp,
