@@ -285,9 +285,7 @@ describe("GuardianMaster", () => {
           expect(field.prop("aria-disabled")).toEqual("true");
         });
 
-        fields.forEach((field) =>
-          expect(field.prop("disabled")).toEqual(true)
-        );
+        fields.forEach((field) => expect(field.prop("disabled")).toEqual(true));
         const autocomplete = wrapper.find(
           ".MuiInputBase-input.MuiInput-input.MuiAutocomplete-input"
         );
