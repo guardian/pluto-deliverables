@@ -27,6 +27,7 @@ import {
   TextField,
   Collapse,
   Tooltip,
+  Link,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -384,6 +385,12 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const loadRecordCallback = useCallback(loadRecord, []);
 
+  const localOpenSelected = () => {
+    window.open(
+      `https://sites.google.com/guardian.co.uk/multimedia/final-project-delivery-checklist`
+    );
+  };
+
   return (
     <>
       {parentBundleInfo?.name ? (
@@ -418,6 +425,16 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
             </p>
           )}
         </div>
+        <Link
+          style={{ cursor: "pointer" }}
+          onClick={() =>
+            window.open(
+              `https://sites.google.com/guardian.co.uk/multimedia/final-project-delivery-checklist`
+            )
+          }
+        >
+          Deliverable Files Checklist
+        </Link>
         <span className={classes.buttonContainer}>
           <Button
             className={classes.buttons}
