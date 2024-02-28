@@ -385,12 +385,6 @@ const ProjectDeliverablesComponent: React.FC<RouteComponentProps> = () => {
 
   const loadRecordCallback = useCallback(loadRecord, []);
 
-  const localOpenSelected = () => {
-    window.open(
-      `https://sites.google.com/guardian.co.uk/multimedia/final-project-delivery-checklist`
-    );
-  };
-
   return (
     <>
       {parentBundleInfo?.name ? (
