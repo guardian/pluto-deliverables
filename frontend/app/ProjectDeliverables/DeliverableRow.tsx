@@ -123,7 +123,7 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   };
 
   const doRetry = async () => {
-    const url = `api/asset/${deliverable.id}/jobretry/${deliverable.job_id}`;
+    const url = `/deliverables/api/asset/${deliverable.id}/jobretry/${deliverable.job_id}`;
 
     try {
       await axios.put(url, null, {
