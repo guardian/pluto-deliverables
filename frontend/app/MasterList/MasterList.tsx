@@ -256,7 +256,12 @@ const MasterList: React.FC<MasterListProps> = (props) => {
   };
 
   const checkSize = () => {
-    if ((props.deliverable.type == 1) || (props.deliverable.type == 2) || (props.deliverable.type == 14) || (props.deliverable.type == 16)) {
+    if (
+      props.deliverable.type == 1 ||
+      props.deliverable.type == 2 ||
+      props.deliverable.type == 14 ||
+      props.deliverable.type == 16
+    ) {
       if (props.width < 1280) {
         setTooSmall(true);
       }
@@ -264,7 +269,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
         setTooSmall(true);
       }
     }
-  }
+  };
 
   useEffect(() => {
     loadData();
@@ -352,10 +357,11 @@ const MasterList: React.FC<MasterListProps> = (props) => {
             {tooSmall ? (
               <TableRow>
                 <TableCell align="center" colSpan={10}>
-                  Video is too small for syndication at {props.width}x{props.height}!
+                  Video is too small for syndication at {props.width}x
+                  {props.height}!
                 </TableCell>
               </TableRow>
-                ):(null)}
+            ) : null}
             {masters.map((master, index) => (
               <TableRow key={index}>
                 <TableCell>
