@@ -262,11 +262,13 @@ const MasterList: React.FC<MasterListProps> = (props) => {
       props.deliverable.type == 14 ||
       props.deliverable.type == 16
     ) {
-      if (props.width < 1280) {
-        setTooSmall(true);
-      }
-      if (props.height < 720) {
-        setTooSmall(true);
+      if (props.width != 0) {
+        if (props.width < 1280) {
+          setTooSmall(true);
+        }
+        if (props.height < 720) {
+          setTooSmall(true);
+        }
       }
     }
   };
