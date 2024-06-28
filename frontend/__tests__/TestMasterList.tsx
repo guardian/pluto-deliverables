@@ -53,6 +53,8 @@ describe("MasterList", () => {
         deliverable={deliverable}
         project_id={1}
         onSyndicationInitiated={mockOnSyndicationInitiated}
+        width={1920}
+        height={1080}
       />
     );
     const masterElements = wrapper
@@ -90,6 +92,8 @@ describe("MasterList", () => {
         deliverable={deliverable}
         project_id={2}
         onSyndicationInitiated={mockOnSyndicationInitiated}
+        width={1920}
+        height={1080}
       />
     );
 
@@ -207,6 +211,8 @@ describe("MasterList", () => {
         deliverable={deliverable}
         project_id={3}
         onSyndicationInitiated={mockOnSyndicationInitiated}
+        width={1920}
+        height={1080}
       />
     );
 

@@ -50,6 +50,8 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
   const [deliverable, setDeliverable] = useState<Deliverable>(
     props.deliverable
   );
+  const [width, setWidth] = useState<number>(0);
+  const [height, setHeight] = useState<number>(0);
 
   const updateVidispineItem = async () => {
     if (!deliverable.online_item_id) {
@@ -59,12 +61,22 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
       return;
     }
 
-    const url = `${props.vidispineBaseUri}/API/item/${deliverable.online_item_id}?content=metadata&field=__version,durationSeconds`;
+    const url = `${props.vidispineBaseUri}/API/item/${deliverable.online_item_id}?content=metadata&field=__version,durationSeconds,originalWidth,originalHeight`;
     try {
       const response = await axios.get(url);
       const item = new VidispineItem(response.data); //throws a VError if the data is not valid
       console.log("Got item data ", item);
       setVersion(item.getLatestVersion());
+
+      const loadedWidth = item.getMetadataString("originalWidth");
+      if (loadedWidth != undefined) {
+        setWidth(parseInt(loadedWidth));
+      }
+
+      const loadedHeight = item.getMetadataString("originalHeight");
+      if (loadedHeight != undefined) {
+        setHeight(parseInt(loadedHeight));
+      }
 
       const maybeDuration = item.getMetadataString("durationSeconds");
       try {
@@ -241,6 +253,8 @@ const DeliverableRow: React.FC<DeliverableRowProps> = (props) => {
               deliverable={deliverable}
               project_id={props.project_id}
               onSyndicationInitiated={props.onSyndicationStarted}
+              width={width}
+              height={height}
             />
           </Collapse>
         </TableCell>

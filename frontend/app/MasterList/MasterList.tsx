@@ -88,6 +88,8 @@ interface MasterListProps {
   deliverable: Deliverable;
   project_id: number;
   onSyndicationInitiated: (assetId: bigint) => void | undefined;
+  width: number;
+  height: number;
 }
 
 const MasterList: React.FC<MasterListProps> = (props) => {
@@ -98,6 +100,7 @@ const MasterList: React.FC<MasterListProps> = (props) => {
   const [refreshTimerId, setRefreshTimerId] = useState<number | undefined>(
     undefined
   );
+  const [tooSmall, setTooSmall] = useState<boolean>(false);
 
   const [masters, setMasters] = useState<Master[]>([
     {
@@ -252,8 +255,27 @@ const MasterList: React.FC<MasterListProps> = (props) => {
     setMasters(updatedMasters);
   };
 
+  const checkSize = () => {
+    if (
+      props.deliverable.type == 1 ||
+      props.deliverable.type == 2 ||
+      props.deliverable.type == 14 ||
+      props.deliverable.type == 16
+    ) {
+      if (props.width != 0) {
+        if (props.width < 1280) {
+          setTooSmall(true);
+        }
+        if (props.height < 720) {
+          setTooSmall(true);
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     loadData();
+    checkSize();
   }, []);
 
   const getTypeImageSource = (master: Master) => {
@@ -334,6 +356,14 @@ const MasterList: React.FC<MasterListProps> = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {tooSmall ? (
+              <TableRow>
+                <TableCell align="center" colSpan={10}>
+                  Video is too small for syndication at {props.width}x
+                  {props.height}!
+                </TableCell>
+              </TableRow>
+            ) : null}
             {masters.map((master, index) => (
               <TableRow key={index}>
                 <TableCell>
