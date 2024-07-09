@@ -513,6 +513,7 @@ class GNMWebsite(models.Model):
     primary_tone = models.TextField(null=True, blank=True, choices=PRIMARY_TONE, db_index=True)
     publication_status = models.TextField(null=True, blank=True, choices=PUBLICATION_STATUS)
     etag = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+    source = models.TextField(null=True, blank=True)
 
 
 class Mainstream(models.Model):

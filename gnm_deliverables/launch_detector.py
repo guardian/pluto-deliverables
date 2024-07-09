@@ -358,6 +358,7 @@ def update_gnmwebsite(msg: LaunchDetectorUpdate, asset: DeliverableAsset):
         rec.publication_status = 'Published'
     # set the etag in case something else is editing it at the moment
     rec.etag = zoned_datetime().isoformat('T')
+    rec.source = msg.source
 
     asset.gnm_website_master = rec  #no-op if it was already set like this
     rec.save()
