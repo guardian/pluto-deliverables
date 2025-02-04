@@ -106,7 +106,7 @@ jobs:
       - name: Check the output
         run: cat build-info.yaml
       - name: Upload build info
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-info
           path: build-info.yaml
