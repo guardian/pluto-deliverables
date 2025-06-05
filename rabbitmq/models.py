@@ -18,6 +18,7 @@ class AtomResponderMessage(Model):
     mtime = FloatField(null=True, blank=True)
     ctime = FloatField(null=True, blank=True)
     atime = FloatField(null=True, blank=True)
+    path = TextField(max_length=2048)
 
 
 class StoragetierSuccessMessage(Model):

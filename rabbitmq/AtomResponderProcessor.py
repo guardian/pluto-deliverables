@@ -132,6 +132,7 @@ class AtomResponderProcessor(MessageProcessor):
             asset.job_id = msg.jobId    ##once we save this value, we can process the notifications when the job completes
             asset.size = msg.size
             asset.filename = msg.title
+            asset.absolute_path = msg.path
             if created:
                 asset.status = AssetChoices.DELIVERABLE_ASSET_STATUS_INGESTING  #FIXME: it might not be this state?
             asset.save()
