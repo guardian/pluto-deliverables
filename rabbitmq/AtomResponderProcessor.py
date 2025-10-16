@@ -128,12 +128,13 @@ class AtomResponderProcessor(MessageProcessor):
         if msg.type == const.MESSAGE_TYPE_MEDIA or msg.type == const.MESSAGE_TYPE_RESYNC_MEDIA:
             logger.info("Received notification of a master {0} at item {1}".format(msg.title, msg.itemId))
             (asset, created) = self.get_or_create_record(msg.atomId, msg.projectId, msg.commissionId)
+            if msg.path is not None:
+                asset.file_removed_dt = None
+                asset.save()
             asset.online_item_id = msg.itemId
             asset.job_id = msg.jobId    ##once we save this value, we can process the notifications when the job completes
             asset.size = msg.size
             asset.filename = msg.title
-            if msg.path is not None:
-                asset.file_removed_dt = None
             asset.absolute_path = msg.path
             if created:
                 asset.status = AssetChoices.DELIVERABLE_ASSET_STATUS_INGESTING  #FIXME: it might not be this state?
