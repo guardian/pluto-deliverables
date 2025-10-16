@@ -129,6 +129,7 @@ class AtomResponderProcessor(MessageProcessor):
             logger.info("Received notification of a master {0} at item {1}".format(msg.title, msg.itemId))
             (asset, created) = self.get_or_create_record(msg.atomId, msg.projectId, msg.commissionId)
             if msg.path is not None:
+                asset.absolute_path = None
                 asset.file_removed_dt = None
                 asset.save()
             asset.online_item_id = msg.itemId
