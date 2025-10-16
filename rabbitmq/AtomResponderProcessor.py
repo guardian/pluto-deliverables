@@ -9,6 +9,7 @@ import rabbitmq.constants as const
 import logging
 import pytz
 from datetime import datetime
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +133,7 @@ class AtomResponderProcessor(MessageProcessor):
                 asset.absolute_path = None
                 asset.file_removed_dt = None
                 asset.save()
+                time.sleep(2.0)
             asset.online_item_id = msg.itemId
             asset.job_id = msg.jobId    ##once we save this value, we can process the notifications when the job completes
             asset.size = msg.size
